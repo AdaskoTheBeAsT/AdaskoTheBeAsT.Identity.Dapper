@@ -1,0 +1,96 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".props", ".props", "{2E063B61-7227-491D-BAD8-018703390F46}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		AdaskoTheBeAsT.Identity.Dapper.sln.DotSettings = AdaskoTheBeAsT.Identity.Dapper.sln.DotSettings
+		AdaskoTheBeAsT.ruleset = AdaskoTheBeAsT.ruleset
+		DeterministicBuild.targets = DeterministicBuild.targets
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
+		global.json = global.json
+		lgtm.yml = lgtm.yml
+		LICENSE = LICENSE
+		README.md = README.md
+		SecurityCodeScan.config.yml = SecurityCodeScan.config.yml
+		Settings.StyleCop = Settings.StyleCop
+		stylecop.json = stylecop.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C28AEC30-FF71-4397-A8C5-5B26D183A45A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D5E2C14A-BA04-4AB5-A8B4-B7389EBCC0B3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".props", ".props", "{FA0F72FD-F547-4A2C-B2EA-C8F77DD9FD52}"
+	ProjectSection(SolutionItems) = preProject
+		test\Directory.Build.props = test\Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unit", "unit", "{0DDB0E47-5845-4861-95FC-AF248E2C6652}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integ", "integ", "{AE9D6DAA-9994-48E8-ACAA-9A962346CC16}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".props", ".props", "{EE241C9C-6B53-47BF-92BA-E918A7BED105}"
+	ProjectSection(SolutionItems) = preProject
+		test\integ\Directory.Build.props = test\integ\Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper", "src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj", "{351FCF09-1AD0-4C93-9927-FEF2F5091C01}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient", "src\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient.csproj", "{17C7C282-2BE2-471E-AD82-CAAE2920E6EB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient.Test", "test\unit\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient.Test\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient.Test.csproj", "{40907090-C031-4A53-AF04-379122A3D019}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient.IntegrationTest", "test\integ\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient.IntegrationTest\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient.IntegrationTest.csproj", "{578DE072-FCC1-4374-8652-CF718705CDA4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample", "src\Sample\Sample.csproj", "{AAD8896D-8D88-4C7C-8D9F-E01425286D4E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{351FCF09-1AD0-4C93-9927-FEF2F5091C01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{351FCF09-1AD0-4C93-9927-FEF2F5091C01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{351FCF09-1AD0-4C93-9927-FEF2F5091C01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{351FCF09-1AD0-4C93-9927-FEF2F5091C01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17C7C282-2BE2-471E-AD82-CAAE2920E6EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17C7C282-2BE2-471E-AD82-CAAE2920E6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17C7C282-2BE2-471E-AD82-CAAE2920E6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17C7C282-2BE2-471E-AD82-CAAE2920E6EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40907090-C031-4A53-AF04-379122A3D019}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40907090-C031-4A53-AF04-379122A3D019}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40907090-C031-4A53-AF04-379122A3D019}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40907090-C031-4A53-AF04-379122A3D019}.Release|Any CPU.Build.0 = Release|Any CPU
+		{578DE072-FCC1-4374-8652-CF718705CDA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{578DE072-FCC1-4374-8652-CF718705CDA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{578DE072-FCC1-4374-8652-CF718705CDA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{578DE072-FCC1-4374-8652-CF718705CDA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAD8896D-8D88-4C7C-8D9F-E01425286D4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAD8896D-8D88-4C7C-8D9F-E01425286D4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAD8896D-8D88-4C7C-8D9F-E01425286D4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAD8896D-8D88-4C7C-8D9F-E01425286D4E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FA0F72FD-F547-4A2C-B2EA-C8F77DD9FD52} = {D5E2C14A-BA04-4AB5-A8B4-B7389EBCC0B3}
+		{0DDB0E47-5845-4861-95FC-AF248E2C6652} = {D5E2C14A-BA04-4AB5-A8B4-B7389EBCC0B3}
+		{AE9D6DAA-9994-48E8-ACAA-9A962346CC16} = {D5E2C14A-BA04-4AB5-A8B4-B7389EBCC0B3}
+		{EE241C9C-6B53-47BF-92BA-E918A7BED105} = {AE9D6DAA-9994-48E8-ACAA-9A962346CC16}
+		{351FCF09-1AD0-4C93-9927-FEF2F5091C01} = {C28AEC30-FF71-4397-A8C5-5B26D183A45A}
+		{17C7C282-2BE2-471E-AD82-CAAE2920E6EB} = {C28AEC30-FF71-4397-A8C5-5B26D183A45A}
+		{40907090-C031-4A53-AF04-379122A3D019} = {0DDB0E47-5845-4861-95FC-AF248E2C6652}
+		{578DE072-FCC1-4374-8652-CF718705CDA4} = {AE9D6DAA-9994-48E8-ACAA-9A962346CC16}
+		{AAD8896D-8D88-4C7C-8D9F-E01425286D4E} = {C28AEC30-FF71-4397-A8C5-5B26D183A45A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2DC60B14-2697-4908-AADC-3EA7874F6FF1}
+	EndGlobalSection
+EndGlobal
