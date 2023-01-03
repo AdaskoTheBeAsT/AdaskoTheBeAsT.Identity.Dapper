@@ -1,96 +1,188 @@
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient;
 
 [Generator]
 public class SqlIdentityDapperSourceGenerator
-    : ISourceGenerator
+    : IIncrementalGenerator
 {
-    public void Initialize(GeneratorInitializationContext context)
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterForSyntaxNotifications(() => new IdentitySyntaxReceiver());
+        var classDeclarations =
+            context.SyntaxProvider.CreateSyntaxProvider(
+                    predicate: static (
+                        s,
+                        _) => IsSyntaxTargetForGeneration(s),
+                    transform: static (
+                        ctx,
+                        _) => GetSemanticTargetForGeneration(ctx))
+                .Where(static m => m is not null)
+                .Select(
+                    static (
+                        c,
+                        _) => c!);
+
+        var compilationAndClasses =
+            context.CompilationProvider.Combine(classDeclarations.Collect());
+
+        context.RegisterSourceOutput(
+            compilationAndClasses,
+            static (
+                    spc,
+                    source) =>
+                Execute(source.Left, source.Right, spc));
     }
 
-    public void Execute(GeneratorExecutionContext context)
+    private static bool IsSyntaxTargetForGeneration(SyntaxNode node)
+        => node is ClassDeclarationSyntax { BaseList: { } } classDeclaration
+           && classDeclaration.BaseList.Types
+               .Select(t => t.Type).Where(
+                   t => t is GenericNameSyntax { Identifier.Value: { } })
+               .Cast<GenericNameSyntax>()
+               .Any(
+                   s => s.Identifier.ValueText.StartsWith(nameof(Identity), StringComparison.OrdinalIgnoreCase));
+
+    private static ClassDeclarationSyntax? GetSemanticTargetForGeneration(GeneratorSyntaxContext context) =>
+        context.Node as ClassDeclarationSyntax;
+
+    private static void Execute(
+        Compilation compilation,
+        ImmutableArray<ClassDeclarationSyntax> classDeclarations,
+        SourceProductionContext context)
     {
-        if (!(context.SyntaxContextReceiver is IdentitySyntaxReceiver receiver))
+        if (classDeclarations.IsDefaultOrEmpty)
         {
+            // nothing to do yet
             return;
         }
 
-        var grouped = receiver
-            .IdentityPropertiesSymbol
-            .GroupBy<(IPropertySymbol, string), INamedTypeSymbol>(
-                p => p.Item1.ContainingType,
-                SymbolEqualityComparer.Default);
+        // I'm not sure if this is actually necessary, but `[LoggerMessage]` does it, so seems like a good idea!
+        var distinctClassDeclarations = classDeclarations.Distinct();
 
-        //// context.ReportDiagnostic(
-        ////    Diagnostic.Create(
-        ////        new DiagnosticDescriptor("1", "ok", "'{0}'", "general", DiagnosticSeverity.Error, true, "desc"),
-        ////        Location.None,
-        ////        $"{receiver.IdentityPropertiesSymbol.Count}"));
+        // Convert each EnumDeclarationSyntax to an EnumToGenerate
+        var classesToGenerate = GetTypesToGenerate(
+            compilation,
+            distinctClassDeclarations,
+            context.CancellationToken);
 
-        foreach (var group in grouped)
+        // If there were errors in the EnumDeclarationSyntax, we won't create an
+        // EnumToGenerate for it, so make sure we have something to generate
+        if (classesToGenerate.Items.Count > 0)
         {
-            ProcessClass(context, group.Key, group.ToList());
+            // generate the source code and add it to the output
+            SourceGenerationHelper.GenerateCode(context, classesToGenerate);
         }
     }
 
-    private void ProcessClass(
-        GeneratorExecutionContext context,
-        INamedTypeSymbol classSymbol,
-        IList<(IPropertySymbol PropertySymbol, string ColumnName)> list)
+#pragma warning disable MA0051 // Method is too long
+    private static (string? KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) GetTypesToGenerate(
+        Compilation compilation,
+        IEnumerable<ClassDeclarationSyntax>? distinctClassDeclarations,
+        CancellationToken token)
+#pragma warning restore MA0051 // Method is too long
     {
-        switch (classSymbol.BaseType?.Name)
+        token.ThrowIfCancellationRequested();
+
+        var identityPropertiesSymbol = new List<(IPropertySymbol PropertySymbol, string ColumnName)>();
+        if (distinctClassDeclarations == null)
         {
-            case "IdentityUser":
-                ProcessIdentityUser(context, classSymbol, list);
-                break;
-            default:
-                break;
+            return (null, identityPropertiesSymbol);
         }
+
+        string? keyTypeName = null;
+
+        foreach (var classDeclarationSyntax in distinctClassDeclarations)
+        {
+            var semanticModel = compilation.GetSemanticModel(classDeclarationSyntax.SyntaxTree);
+            if (classDeclarationSyntax.BaseList is null)
+            {
+                continue;
+            }
+
+            var types = classDeclarationSyntax.BaseList
+                .Types
+                .Select(t => t.Type);
+
+            var identityClass = types.Where(
+                    t => t is GenericNameSyntax { Identifier.Value: { } })
+                .Cast<GenericNameSyntax>()
+                .FirstOrDefault(
+                    s => s.Identifier.ValueText.StartsWith(nameof(Identity), StringComparison.OrdinalIgnoreCase));
+
+            if (identityClass == null)
+            {
+                continue;
+            }
+
+            var localKeyType = ProcessIdentityClass(semanticModel, classDeclarationSyntax, identityClass, identityPropertiesSymbol);
+            if (keyTypeName?.Equals(localKeyType, StringComparison.OrdinalIgnoreCase) == false)
+            {
+                throw new KeyTypeNotSameException();
+            }
+
+            keyTypeName = localKeyType;
+        }
+
+        return (keyTypeName, identityPropertiesSymbol);
     }
 
-    private void ProcessIdentityUser(
-        GeneratorExecutionContext context,
-        INamedTypeSymbol classSymbol,
-        IList<(IPropertySymbol PropertySymbol, string ColumnName)> list)
+    private static string ProcessIdentityClass(
+        SemanticModel semanticModel,
+        ClassDeclarationSyntax classDeclarationSyntax,
+        GenericNameSyntax identityClass,
+        IList<(IPropertySymbol PropertySymbol, string ColumnName)> identityPropertiesSymbol)
     {
-        var sb = new StringBuilder();
+        var keyTypeName = identityClass.TypeArgumentList.Arguments.Any()
+            ? (identityClass.TypeArgumentList.Arguments[0] as IdentifierNameSyntax)?.Identifier.ValueText ??
+              "string"
+            : "string";
 
-        var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
-        var columnNames = list.Select(i => i.ColumnName);
-        var propertyNames = list.Select(i => i.PropertySymbol.Name);
-        sb.AppendLine(
-            $@"using AdaskoTheBeAsT.Identity.Dapper.IdentitySql;
+        foreach (var memberDeclarationSyntax in classDeclarationSyntax.Members)
+        {
+            if (memberDeclarationSyntax is not PropertyDeclarationSyntax propertyDeclarationSyntax)
+            {
+                continue;
+            }
 
-namespace {namespaceName}
-{{
-    public class IdentityUserSql
-        : IIdentityUserSql
-    {{
-        public string CreateSql {{ get; }} =
-            @""{ProcessIdentityUserCreateSql(columnNames, propertyNames)}"";
-    }}
-}}");
+            if (semanticModel.GetDeclaredSymbol(propertyDeclarationSyntax) is not IPropertySymbol propertySymbol)
+            {
+                continue;
+            }
 
-        context.AddSource("IdentityUserSql.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
+            ProcessProperty(identityPropertiesSymbol, propertySymbol, propertyDeclarationSyntax);
+        }
+
+        return keyTypeName;
     }
 
-    private string ProcessIdentityUserCreateSql(
-        IEnumerable<string> columnNames,
-        IEnumerable<string> propertyNames)
+    private static void ProcessProperty(
+        IList<(IPropertySymbol PropertySymbol, string ColumnName)> identityPropertiesSymbol,
+        IPropertySymbol propertySymbol,
+        PropertyDeclarationSyntax propertyDeclarationSyntax)
     {
-        var sqlBuilder = new AdvancedSqlBuilder();
-        return sqlBuilder
-            .Insert(string.Join("\n,", columnNames))
-            .Values(string.Join("\n,", propertyNames.Select(s => $"@{s}")))
-            .AddTemplate(
-                "INSERT INTO dbo.AspNetUsers(/**insert**/) \nVALUES(/**values**/);\nSELECT SCOPE_IDENTITY();")
-            .RawSql;
+        var columnName = propertySymbol.Name;
+
+        var attributeListSyntax = propertyDeclarationSyntax
+            .AttributeLists
+            .FirstOrDefault(
+                al => al.Attributes.Any(
+                    a => (a.Name as IdentifierNameSyntax)?.Identifier.ValueText.Contains("Column") ??
+                         false));
+
+        var attributes = attributeListSyntax?.Attributes.FirstOrDefault(
+            a => (a.Name as IdentifierNameSyntax)?.Identifier.ValueText.Contains("Column") ?? false);
+        if (attributes?.ArgumentList?.Arguments.FirstOrDefault()?.Expression is LiteralExpressionSyntax
+            literalExpressionSyntax)
+        {
+            columnName = literalExpressionSyntax.Token.ValueText;
+        }
+
+        identityPropertiesSymbol.Add((PropertySymbol: propertySymbol, ColumnName: columnName));
     }
 }
