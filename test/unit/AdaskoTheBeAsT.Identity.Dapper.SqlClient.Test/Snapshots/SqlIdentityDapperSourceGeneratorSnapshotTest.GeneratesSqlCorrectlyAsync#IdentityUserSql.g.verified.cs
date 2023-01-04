@@ -7,7 +7,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
         : IIdentityUserSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO dbo.AspNetUsers(UserName
+            @"INSERT INTO dbo.AspNetUsers(
+UserName
 ,NormalizedUserName
 ,Email
 ,NormalizedEmail
@@ -22,7 +23,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
 ,LockoutEnabled
 ,AccessFailedCount
 ,IsActive)
-VALUES(@UserName
+VALUES(
+@UserName
 ,@NormalizedUserName
 ,@Email
 ,@NormalizedEmail
