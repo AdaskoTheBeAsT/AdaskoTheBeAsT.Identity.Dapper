@@ -22,7 +22,7 @@
       <TargetPathWithTargetPlatformMoniker Include="$(PKGDapper)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="$(PKGDapper_SqlBuilder)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="$(PKGMicrosoft_Extensions_Identity_Stores)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
-      <!--<TargetPathWithTargetPlatformMoniker Include="..\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator\bin\$(Configuration)\netstandard2.0\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.dll" IncludeRuntimeDependency="false" />-->
+      <TargetPathWithTargetPlatformMoniker Include="..\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator\bin\$(Configuration)\netstandard2.0\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.dll" IncludeRuntimeDependency="false" />
     </ItemGroup>
   </Target>
 

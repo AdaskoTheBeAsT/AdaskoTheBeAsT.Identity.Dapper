@@ -21,6 +21,7 @@ public abstract class IdentityUserSourceGeneratorBase
         var combinedPropertyNames = new List<string>(standardProperties);
         combinedPropertyNames.AddRange(propertyNames);
         var createSqlContent = ProcessIdentityUserCreateSql(combinedColumnNames, combinedPropertyNames);
+        var updateSqlContent = ProcessIdentityUserUpdateSql(combinedColumnNames, combinedPropertyNames);
         var sb = new StringBuilder();
         sb.AppendLine(
             $@"using AdaskoTheBeAsT.Identity.Dapper.IdentitySql;
@@ -35,6 +36,12 @@ namespace {namespaceName}
             $@"        public string CreateSql {{ get; }} =
             @""{createSqlContent}"";");
 
+        sb.AppendLine();
+
+        sb.AppendLine(
+            $@"        public string UpdateSql {{ get; }} =
+            @""{updateSqlContent}"";");
+
         sb.AppendLine(
             $@"    }}
 }}");
@@ -42,6 +49,10 @@ namespace {namespaceName}
     }
 
     protected abstract string ProcessIdentityUserCreateSql(
+        IList<string> columnNames,
+        IList<string> propertyNames);
+
+    protected abstract string ProcessIdentityUserUpdateSql(
         IList<string> columnNames,
         IList<string> propertyNames);
 
