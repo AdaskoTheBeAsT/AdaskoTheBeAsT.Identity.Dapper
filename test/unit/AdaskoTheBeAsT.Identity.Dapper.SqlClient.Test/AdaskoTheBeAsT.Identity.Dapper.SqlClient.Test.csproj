@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient.csproj" />
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.SqlClient\AdaskoTheBeAsT.Identity.Dapper.SqlClient.csproj" />
     <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
   </ItemGroup>
 

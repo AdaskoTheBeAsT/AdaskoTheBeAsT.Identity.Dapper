@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient.Test;
+namespace AdaskoTheBeAsT.Identity.Dapper.SqlClient.Test;
 
 public static class TestHelper
 {

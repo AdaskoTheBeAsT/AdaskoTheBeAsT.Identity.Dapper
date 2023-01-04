@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient;
+namespace AdaskoTheBeAsT.Identity.Dapper.SqlClient;
 
 public static class SourceGenerationHelper
 {
@@ -74,7 +74,7 @@ namespace {namespaceName}
             .Insert(string.Join("\n,", columnNames))
             .Values(string.Join("\n,", propertyNames.Select(s => $"@{s}")))
             .AddTemplate(
-                "INSERT INTO dbo.AspNetUsers(/**insert**/) \nVALUES(/**values**/);\nSELECT SCOPE_IDENTITY();")
+                "INSERT INTO dbo.AspNetUsers(/**insert**/)\nVALUES(/**values**/);\nSELECT SCOPE_IDENTITY();")
             .RawSql;
     }
 }

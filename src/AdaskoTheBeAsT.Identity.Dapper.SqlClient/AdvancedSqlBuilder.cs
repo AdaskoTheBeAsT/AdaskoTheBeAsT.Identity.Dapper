@@ -1,6 +1,6 @@
 using Dapper;
 
-namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient;
+namespace AdaskoTheBeAsT.Identity.Dapper.SqlClient;
 
 public class AdvancedSqlBuilder
     : SqlBuilder

@@ -19,7 +19,7 @@
     <PackageReference Include="codecracker.CSharp" Version="1.1.0" PrivateAssets="all" />
     <PackageReference Include="ConcurrencyLab.ParallelChecker" Version="2.7.0" PrivateAssets="all" />
     <PackageReference Include="IDisposableAnalyzers" Version="4.0.2" PrivateAssets="all" />
-    <PackageReference Include="Meziantou.Analyzer" Version="1.0.757" PrivateAssets="all" />
+    <PackageReference Include="Meziantou.Analyzer" Version="1.0.758" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4-beta1.22559.1" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.4.0" PrivateAssets="all" />
@@ -28,7 +28,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.4.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.4.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.4.27" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.4.33" PrivateAssets="all" />
     <PackageReference Include="Puma.Security.Rules.2022" Version="2.4.23" PrivateAssets="all" />
     <PackageReference Include="Roslynator.Analyzers" Version="4.2.0" PrivateAssets="all" />
     <PackageReference Include="Roslynator.CodeAnalysis.Analyzers" Version="4.2.0" PrivateAssets="all" />

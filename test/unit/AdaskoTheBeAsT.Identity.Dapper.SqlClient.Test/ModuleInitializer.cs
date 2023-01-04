@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient.Test;
+namespace AdaskoTheBeAsT.Identity.Dapper.SqlClient.Test;
 
 public static class ModuleInitializer
 {

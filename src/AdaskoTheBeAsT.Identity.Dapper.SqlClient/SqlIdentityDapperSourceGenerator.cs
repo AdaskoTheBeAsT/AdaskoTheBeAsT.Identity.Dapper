@@ -6,12 +6,15 @@ using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient;
+namespace AdaskoTheBeAsT.Identity.Dapper.SqlClient;
 
 [Generator]
 public class SqlIdentityDapperSourceGenerator
     : IIncrementalGenerator
 {
+    private const string Column = "Column";
+    private const string DefaultStringTypeName = "string";
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var classDeclarations =
@@ -80,12 +83,10 @@ public class SqlIdentityDapperSourceGenerator
         }
     }
 
-#pragma warning disable MA0051 // Method is too long
     private static (string? KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) GetTypesToGenerate(
         Compilation compilation,
         IEnumerable<ClassDeclarationSyntax>? distinctClassDeclarations,
         CancellationToken token)
-#pragma warning restore MA0051 // Method is too long
     {
         token.ThrowIfCancellationRequested();
 
@@ -140,8 +141,8 @@ public class SqlIdentityDapperSourceGenerator
     {
         var keyTypeName = identityClass.TypeArgumentList.Arguments.Any()
             ? (identityClass.TypeArgumentList.Arguments[0] as IdentifierNameSyntax)?.Identifier.ValueText ??
-              "string"
-            : "string";
+              DefaultStringTypeName
+            : DefaultStringTypeName;
 
         foreach (var memberDeclarationSyntax in classDeclarationSyntax.Members)
         {
@@ -172,11 +173,11 @@ public class SqlIdentityDapperSourceGenerator
             .AttributeLists
             .FirstOrDefault(
                 al => al.Attributes.Any(
-                    a => (a.Name as IdentifierNameSyntax)?.Identifier.ValueText.Contains("Column") ??
+                    a => (a.Name as IdentifierNameSyntax)?.Identifier.ValueText.Contains(Column) ??
                          false));
 
         var attributes = attributeListSyntax?.Attributes.FirstOrDefault(
-            a => (a.Name as IdentifierNameSyntax)?.Identifier.ValueText.Contains("Column") ?? false);
+            a => (a.Name as IdentifierNameSyntax)?.Identifier.ValueText.Contains(Column) ?? false);
         if (attributes?.ArgumentList?.Arguments.FirstOrDefault()?.Expression is LiteralExpressionSyntax
             literalExpressionSyntax)
         {

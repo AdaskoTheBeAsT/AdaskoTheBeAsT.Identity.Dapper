@@ -12,6 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Generated/**/*" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="7.0.1" />
@@ -19,7 +23,8 @@
 
   <ItemGroup>
     <!-- Rererence the source generator project -->
-    <ProjectReference Include="..\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+    <ProjectReference Include="..\AdaskoTheBeAsT.Identity.Dapper.SqlClient\AdaskoTheBeAsT.Identity.Dapper.SqlClient.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+
 
     <ProjectReference Include="..\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
     <!-- Don't reference the generator dll -->

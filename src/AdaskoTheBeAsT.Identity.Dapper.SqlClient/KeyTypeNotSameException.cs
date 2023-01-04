@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.SqlClient;
+namespace AdaskoTheBeAsT.Identity.Dapper.SqlClient;
 
 [Serializable]
 public class KeyTypeNotSameException
