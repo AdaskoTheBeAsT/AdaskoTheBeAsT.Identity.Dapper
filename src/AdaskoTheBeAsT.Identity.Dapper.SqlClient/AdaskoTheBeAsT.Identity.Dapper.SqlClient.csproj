@@ -22,10 +22,12 @@
       <TargetPathWithTargetPlatformMoniker Include="$(PKGDapper)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="$(PKGDapper_SqlBuilder)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="$(PKGMicrosoft_Extensions_Identity_Stores)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+      <!--<TargetPathWithTargetPlatformMoniker Include="..\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator\bin\$(Configuration)\netstandard2.0\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.dll" IncludeRuntimeDependency="false" />-->
     </ItemGroup>
   </Target>
 
   <ItemGroup>
+    <ProjectReference Include="..\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.csproj" />
     <ProjectReference Include="..\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
   </ItemGroup>
 
@@ -35,6 +37,7 @@
 
     <!-- Pack the attributes dll in the analyzers/dotnet/cs path -->
     <None Include="$(OutputPath)\AdaskoTheBeAsT.Identity.Dapper.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(OutputPath)\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="$(PKGDapper)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="$(PKGDapper_SqlBuilder)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="$(PKGMicrosoft_Extensions_Identity_Stores)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />

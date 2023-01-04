@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -18,6 +19,7 @@ public static class TestHelper
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(ColumnAttribute).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(IIdentityDbConnectionProvider).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(AdvancedSqlBuilder).Assembly.Location),
         };
 
         // Create a Roslyn compilation for the syntax tree.

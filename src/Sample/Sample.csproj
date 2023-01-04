@@ -30,4 +30,8 @@
     <!-- Don't reference the generator dll -->
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Generated\AdaskoTheBeAsT.Identity.Dapper.SqlClient\AdaskoTheBeAsT.Identity.Dapper.SqlClient.SqlIdentityDapperSourceGenerator\" />
+  </ItemGroup>
+
 </Project>

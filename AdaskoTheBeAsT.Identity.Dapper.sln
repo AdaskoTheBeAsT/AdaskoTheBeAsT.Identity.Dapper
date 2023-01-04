@@ -49,6 +49,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.SqlClient.Test", "test\unit\AdaskoTheBeAsT.Identity.Dapper.SqlClient.Test\AdaskoTheBeAsT.Identity.Dapper.SqlClient.Test.csproj", "{3DD57D21-B015-4AE3-B2CD-FD3D33A01C3B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdaskoTheBeAsT.Identity.Dapper.SourceGenerator", "src\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.csproj", "{A28AF47E-78C1-4218-BE13-E34CCB9F8738}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{3DD57D21-B015-4AE3-B2CD-FD3D33A01C3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DD57D21-B015-4AE3-B2CD-FD3D33A01C3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DD57D21-B015-4AE3-B2CD-FD3D33A01C3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A28AF47E-78C1-4218-BE13-E34CCB9F8738}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A28AF47E-78C1-4218-BE13-E34CCB9F8738}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A28AF47E-78C1-4218-BE13-E34CCB9F8738}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A28AF47E-78C1-4218-BE13-E34CCB9F8738}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -89,6 +95,7 @@ Global
 		{0C486550-0878-4D05-BDFF-FFF7B1C6F180} = {C28AEC30-FF71-4397-A8C5-5B26D183A45A}
 		{AE3636B8-2AD9-406F-B83A-D193B7785E44} = {AE9D6DAA-9994-48E8-ACAA-9A962346CC16}
 		{3DD57D21-B015-4AE3-B2CD-FD3D33A01C3B} = {0DDB0E47-5845-4861-95FC-AF248E2C6652}
+		{A28AF47E-78C1-4218-BE13-E34CCB9F8738} = {C28AEC30-FF71-4397-A8C5-5B26D183A45A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2DC60B14-2697-4908-AADC-3EA7874F6FF1}
