@@ -1,4 +1,4 @@
-﻿using AdaskoTheBeAsT.Identity.Dapper.IdentitySql;
+﻿using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 
 namespace Sample
 {
@@ -57,7 +57,113 @@ SET [UserName]=@UserName
 ,[LockoutEnabled]=@LockoutEnabled
 ,[AccessFailedCount]=@AccessFailedCount
 ,[IsActive]=@Active
-WHERE Id=@Id
-;";
+WHERE Id=@Id;";
+
+        public string DeleteSql { get; } =
+            @"DELETE FROM dbo.AspNetUsers WHERE Id=@Id;";
+
+        public string FindByIdSql { get; } =
+            @"SELECT Id
+,[UserName] AS UserName
+,[NormalizedUserName] AS NormalizedUserName
+,[Email] AS Email
+,[NormalizedEmail] AS NormalizedEmail
+,[EmailConfirmed] AS EmailConfirmed
+,[PasswordHash] AS PasswordHash
+,[SecurityStamp] AS SecurityStamp
+,[ConcurrencyStamp] AS ConcurrencyStamp
+,[PhoneNumber] AS PhoneNumber
+,[PhoneNumberConfirmed] AS PhoneNumberConfirmed
+,[TwoFactorEnabled] AS TwoFactorEnabled
+,[LockoutEnd] AS LockoutEnd
+,[LockoutEnabled] AS LockoutEnabled
+,[AccessFailedCount] AS AccessFailedCount
+,[IsActive] AS Active
+FROM dbo.AspNetUsers
+WHERE Id=@Id;";
+
+        public string FindByNameSql { get; } =
+            @"SELECT Id
+,[UserName] AS UserName
+,[NormalizedUserName] AS NormalizedUserName
+,[Email] AS Email
+,[NormalizedEmail] AS NormalizedEmail
+,[EmailConfirmed] AS EmailConfirmed
+,[PasswordHash] AS PasswordHash
+,[SecurityStamp] AS SecurityStamp
+,[ConcurrencyStamp] AS ConcurrencyStamp
+,[PhoneNumber] AS PhoneNumber
+,[PhoneNumberConfirmed] AS PhoneNumberConfirmed
+,[TwoFactorEnabled] AS TwoFactorEnabled
+,[LockoutEnd] AS LockoutEnd
+,[LockoutEnabled] AS LockoutEnabled
+,[AccessFailedCount] AS AccessFailedCount
+,[IsActive] AS Active
+FROM dbo.AspNetUsers
+WHERE NormalizedUserName=@NormalizedUserName;";
+
+        public string FindByEmailSql { get; } =
+            @"SELECT Id
+,[UserName] AS UserName
+,[NormalizedUserName] AS NormalizedUserName
+,[Email] AS Email
+,[NormalizedEmail] AS NormalizedEmail
+,[EmailConfirmed] AS EmailConfirmed
+,[PasswordHash] AS PasswordHash
+,[SecurityStamp] AS SecurityStamp
+,[ConcurrencyStamp] AS ConcurrencyStamp
+,[PhoneNumber] AS PhoneNumber
+,[PhoneNumberConfirmed] AS PhoneNumberConfirmed
+,[TwoFactorEnabled] AS TwoFactorEnabled
+,[LockoutEnd] AS LockoutEnd
+,[LockoutEnabled] AS LockoutEnabled
+,[AccessFailedCount] AS AccessFailedCount
+,[IsActive] AS Active
+FROM dbo.AspNetUsers
+WHERE NormalizedEmail=@NormalizedEmail;";
+
+        public string GetUsersForClaimSql { get; } =
+            @"SELECT u.Id
+,u.[UserName] AS UserName
+,u.[NormalizedUserName] AS NormalizedUserName
+,u.[Email] AS Email
+,u.[NormalizedEmail] AS NormalizedEmail
+,u.[EmailConfirmed] AS EmailConfirmed
+,u.[PasswordHash] AS PasswordHash
+,u.[SecurityStamp] AS SecurityStamp
+,u.[ConcurrencyStamp] AS ConcurrencyStamp
+,u.[PhoneNumber] AS PhoneNumber
+,u.[PhoneNumberConfirmed] AS PhoneNumberConfirmed
+,u.[TwoFactorEnabled] AS TwoFactorEnabled
+,u.[LockoutEnd] AS LockoutEnd
+,u.[LockoutEnabled] AS LockoutEnabled
+,u.[AccessFailedCount] AS AccessFailedCount
+,u.[IsActive] AS Active
+FROM dbo.AspNetUsers u
+INNER JOIN dbo.AspNetUserClaims c ON u.Id=c.UserId
+WHERE c.ClaimType=@ClaimType
+  AND c.ClaimValue=@ClaimValue;";
+
+        public string GetUsersInRoleSql { get; } =
+            @"SELECT u.Id
+,u.[UserName] AS UserName
+,u.[NormalizedUserName] AS NormalizedUserName
+,u.[Email] AS Email
+,u.[NormalizedEmail] AS NormalizedEmail
+,u.[EmailConfirmed] AS EmailConfirmed
+,u.[PasswordHash] AS PasswordHash
+,u.[SecurityStamp] AS SecurityStamp
+,u.[ConcurrencyStamp] AS ConcurrencyStamp
+,u.[PhoneNumber] AS PhoneNumber
+,u.[PhoneNumberConfirmed] AS PhoneNumberConfirmed
+,u.[TwoFactorEnabled] AS TwoFactorEnabled
+,u.[LockoutEnd] AS LockoutEnd
+,u.[LockoutEnabled] AS LockoutEnabled
+,u.[AccessFailedCount] AS AccessFailedCount
+,u.[IsActive] AS Active
+FROM dbo.AspNetUsers u
+INNER JOIN dbo.AspNetUserRoles ur ON u.Id=ur.UserId
+INNER JOIN dbo.AspNetRoles r ON ur.RolesId=r.Id
+WHERE r.NormalizedName=@NormalizedName;";
     }
 }

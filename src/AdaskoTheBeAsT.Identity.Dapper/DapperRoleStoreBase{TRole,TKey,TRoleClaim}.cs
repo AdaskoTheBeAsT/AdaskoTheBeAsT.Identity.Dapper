@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
 

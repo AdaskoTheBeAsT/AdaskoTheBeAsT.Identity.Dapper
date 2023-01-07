@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 using AdaskoTheBeAsT.Identity.Dapper.Exceptions;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
@@ -143,9 +144,10 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
         const string query =
-            @"SELECT NormalizedName
-                FROM dbo.AspNetUserRoles
-               WHERE UserId=@UserId;";
+            @"SELECT r.NormalizedName
+                FROM dbo.AspNetRoles r
+              INNER JOIN dbo.AspNetUserRoles ur ON r.Id=ur.RoleId
+               WHERE ur.UserId=@UserId;";
         return (await connection.QueryAsync<string>(
                     query,
                     new { UserId = user.Id })
@@ -240,7 +242,7 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
         const string query =
-            @"SELECT Id, Name, NormalizedName, ConcurrencyStamp
+            @"SELECT UserId, RoleId
                 FROM dbo.AspNetUserRoles
                WHERE UserId=@UserId
                  AND RoleId=@RoleId;";

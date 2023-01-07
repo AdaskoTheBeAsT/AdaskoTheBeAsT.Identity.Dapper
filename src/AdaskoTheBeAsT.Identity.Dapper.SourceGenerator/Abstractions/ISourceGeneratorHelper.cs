@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
-namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
+namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 
 public interface ISourceGeneratorHelper
 {

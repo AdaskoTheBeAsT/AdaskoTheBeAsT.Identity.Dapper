@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
-namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
+namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 
-public interface IIdentityUserSourceGenerator
+public interface IIdentityUserClassGenerator
 {
     string Generate(
         string namespaceName,

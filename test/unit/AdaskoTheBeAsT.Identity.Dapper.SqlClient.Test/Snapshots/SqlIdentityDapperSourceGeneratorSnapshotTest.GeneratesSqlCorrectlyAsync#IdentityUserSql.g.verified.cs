@@ -60,5 +60,26 @@ SET [UserName]=@UserName
 ,[IsActive]=@Active
 WHERE Id=@Id
 ;";
+        public string DeleteSql { get; } =
+            @"DELETE FROM dbo.AspNetUsers WHERE Id=@Id;";
+        public string FindByIdSql { get; } =
+            @"SELECT [UserName] AS UserName
+,[NormalizedUserName] AS NormalizedUserName
+,[Email] AS Email
+,[NormalizedEmail] AS NormalizedEmail
+,[EmailConfirmed] AS EmailConfirmed
+,[PasswordHash] AS PasswordHash
+,[SecurityStamp] AS SecurityStamp
+,[ConcurrencyStamp] AS ConcurrencyStamp
+,[PhoneNumber] AS PhoneNumber
+,[PhoneNumberConfirmed] AS PhoneNumberConfirmed
+,[TwoFactorEnabled] AS TwoFactorEnabled
+,[LockoutEnd] AS LockoutEnd
+,[LockoutEnabled] AS LockoutEnabled
+,[AccessFailedCount] AS AccessFailedCount
+,[IsActive] AS Active
+
+FROM dbo.AspNetUsersWHERE Id=@Id
+;";
     }
 }

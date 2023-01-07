@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
 
@@ -650,13 +651,10 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
                     ,ProviderKey
                     ,ProviderDisplayName 
               FROM dbo.AspNetUserLogins
-              WHERE UserId=@UserId;";
+              WHERE UserId=@Id;";
         return (await connection.QueryAsync<UserLoginInfo>(
                     query,
-                    new
-                    {
-                        UserId = user.Id,
-                    })
+                    user)
                 .ConfigureAwait(false))
             .AsList();
     }
@@ -1515,7 +1513,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
         const string query =
-            @"SELECT LoginProvider
+            @"SELECT TOP 1 LoginProvider
                     ,ProviderKey
                     ,ProviderDisplayName
                     ,UserId
@@ -1550,7 +1548,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
         const string query =
-            @"SELECT LoginProvider
+            @"SELECT TOP 1 LoginProvider
                     ,ProviderKey
                     ,ProviderDisplayName
                     ,UserId

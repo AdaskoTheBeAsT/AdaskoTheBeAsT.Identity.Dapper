@@ -6,7 +6,14 @@ public class SqlSourceGenerationHelper
     : SourceGeneratorHelperBase
 {
     public SqlSourceGenerationHelper()
-        : base(new SqlIdentityUserSourceGenerator())
+        : base(
+            new SqlIdentityRoleClassGenerator(),
+            new SqlIdentityRoleClaimClassGenerator(),
+            new SqlIdentityUserClassGenerator(),
+            new SqlIdentityUserClaimClassGenerator(),
+            new SqlIdentityUserLoginClassGenerator(),
+            new SqlIdentityUserRoleClassGenerator(),
+            new SqlIdentityUserTokenClassGenerator())
     {
     }
 }

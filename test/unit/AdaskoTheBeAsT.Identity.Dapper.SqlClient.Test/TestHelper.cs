@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
+using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
+using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Builders;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 

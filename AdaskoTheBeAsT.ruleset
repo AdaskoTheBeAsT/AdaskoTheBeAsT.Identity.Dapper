@@ -82,6 +82,7 @@
     <Rule Id="CA1822" Action="None" />
   </Rules>
   <Rules AnalyzerId="Roslynator.CSharp.Analyzers" RuleNamespace="Roslynator.CSharp.Analyzers">
+    <Rule Id="RCS1070" Action="None" />
     <Rule Id="RCS1222" Action="None" />
   </Rules>
   <Rules AnalyzerId="SecurityCodeScan" RuleNamespace="SecurityCodeScan.Analyzers">
