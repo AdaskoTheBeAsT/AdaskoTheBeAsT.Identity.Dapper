@@ -13,6 +13,7 @@ public abstract class IdentityUserClassGeneratorBase
         IIdentityUserClassGenerator
 {
     public string Generate(
+        string keyTypeName,
         string namespaceName,
         IEnumerable<string> propertyNames,
         IEnumerable<string> columnNames)
@@ -27,7 +28,7 @@ public abstract class IdentityUserClassGeneratorBase
         GenerateUsing(sb);
         GenerateNamespaceStart(sb, namespaceName);
         GenerateClassStart(sb, "IdentityUserSql", "IIdentityUserSql");
-        GenerateCreateSql(sb, combinedColumnNames, combinedPropertyNames);
+        GenerateCreateSql(sb, keyTypeName, combinedColumnNames, combinedPropertyNames);
         GenerateUpdateSql(sb, combinedColumnNames, combinedPropertyNames);
         GenerateDeleteSql(sb);
         GenerateFindByIdSql(sb, combinedColumnNames, combinedPropertyNames);
@@ -41,6 +42,7 @@ public abstract class IdentityUserClassGeneratorBase
     }
 
     protected abstract string ProcessIdentityUserCreateSql(
+        string keyTypeName,
         IList<string> columnNames,
         IList<string> propertyNames);
 
@@ -72,10 +74,11 @@ public abstract class IdentityUserClassGeneratorBase
 
     private void GenerateCreateSql(
         StringBuilder sb,
+        string keyTypeName,
         IList<string> combinedColumnNames,
         IList<string> combinedPropertyNames)
     {
-        var content = ProcessIdentityUserCreateSql(combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserCreateSql(keyTypeName, combinedColumnNames, combinedPropertyNames);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");

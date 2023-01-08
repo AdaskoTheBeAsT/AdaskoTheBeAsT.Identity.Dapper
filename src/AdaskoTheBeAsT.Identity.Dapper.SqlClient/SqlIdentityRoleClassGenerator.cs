@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
+using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Builders;
 using Microsoft.AspNetCore.Identity;
 
@@ -10,16 +11,24 @@ namespace AdaskoTheBeAsT.Identity.Dapper.SqlClient;
 public class SqlIdentityRoleClassGenerator
     : IdentityRoleClassGeneratorBase
 {
+    private readonly IIdentityHelper _identityHelper;
+
+    public SqlIdentityRoleClassGenerator()
+    {
+        _identityHelper = new SqlIdentityHelper();
+    }
+
     protected override string ProcessIdentityRoleCreateSql(
+        string keyTypeName,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
+        var template = _identityHelper.GetInsertTemplate("dbo.AspNetRoles", keyTypeName);
         return sqlBuilder
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
             .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
-            .AddTemplate(
-                "INSERT INTO dbo.AspNetRoles(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);\r\nSELECT SCOPE_IDENTITY();")
+            .AddTemplate(template)
             .RawSql;
     }
 

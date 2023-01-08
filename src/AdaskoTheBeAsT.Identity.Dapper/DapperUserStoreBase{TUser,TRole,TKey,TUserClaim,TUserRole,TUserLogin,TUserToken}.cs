@@ -22,10 +22,28 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
 {
     public DapperUserStoreBase(
         IdentityErrorDescriber describer,
-        IIdentityDbConnectionProvider connectionProvider)
-        : base(describer, connectionProvider)
+        IIdentityDbConnectionProvider connectionProvider,
+        IIdentityUserSql identityUserSql,
+        IIdentityUserClaimSql identityUserClaimSql,
+        IIdentityUserLoginSql identityUserLoginSql,
+        IIdentityUserTokenSql identityUserTokenSql,
+        IIdentityUserRoleSql identityUserRoleSql,
+        IIdentityRoleSql identityRoleSql)
+        : base(
+            describer,
+            connectionProvider,
+            identityUserSql,
+            identityUserClaimSql,
+            identityUserLoginSql,
+            identityUserTokenSql)
     {
+        IdentityUserRoleSql = identityUserRoleSql ?? throw new ArgumentNullException(nameof(identityUserRoleSql));
+        IdentityRoleSql = identityRoleSql ?? throw new ArgumentNullException(nameof(identityRoleSql));
     }
+
+    protected IIdentityUserRoleSql IdentityUserRoleSql { get; }
+
+    protected IIdentityRoleSql IdentityRoleSql { get; }
 
     /// <summary>
     /// Retrieves all users in the specified role.
@@ -42,28 +60,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT
-                  u.UserName
-                 ,u.NormalizedUserName
-                 ,u.Email
-                 ,u.NormalizedEmail
-                 ,u.EmailConfirmed
-                 ,u.PasswordHash
-                 ,u.SecurityStamp
-                 ,u.ConcurrencyStamp
-                 ,u.PhoneNumber
-                 ,u.PhoneNumberConfirmed
-                 ,u.TwoFactorEnabled
-                 ,u.LockoutEnd
-                 ,u.LockoutEnabled
-                 ,u.AccessFailedCount
-             FROM dbo.AspNetUsers u
-             INNER JOIN dbo.AspNetUserRoles ur ON u.Id=ur.UserId
-             INNER JOIN dbo.AspNetRoles r ON ur.RolesId=r.Id
-             WHERE r.NormalizedName=@NormalizedName;";
         return (await connection.QueryAsync<TUser>(
-                    query,
+                    IdentityUserSql.GetUsersInRoleSql,
                     new { NormalizedName = roleName })
                 .ConfigureAwait(false))
             .AsList();
@@ -90,11 +88,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         }
 
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"INSERT INTO dbo.AspNetUserRoles(UserId, RoleId)
-              VALUES (@UserId, @RoleId);";
         await connection.ExecuteAsync(
-                query,
+                IdentityUserRoleSql.CreateSql,
                 CreateUserRole(user, role))
             .ConfigureAwait(false);
     }
@@ -120,12 +115,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         }
 
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"DELETE FROM dbo.AspNetUserRoles
-               WHERE UserId=@UserId
-                 AND RoleId=@RoleId;";
         await connection.ExecuteAsync(
-                query,
+                IdentityUserRoleSql.DeleteSql,
                 CreateUserRole(user, role))
             .ConfigureAwait(false);
     }
@@ -143,13 +134,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT r.NormalizedName
-                FROM dbo.AspNetRoles r
-              INNER JOIN dbo.AspNetUserRoles ur ON r.Id=ur.RoleId
-               WHERE ur.UserId=@UserId;";
         return (await connection.QueryAsync<string>(
-                    query,
+                    IdentityUserRoleSql.GetRoleNamesByUserIdSql,
                     new { UserId = user.Id })
                 .ConfigureAwait(false))
             .AsList();
@@ -177,13 +163,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         }
 
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT COUNT(*)
-                FROM dbo.AspNetUserRoles
-               WHERE UserId=@UserId
-                 AND RoleId=@RoleId;";
         return (await connection.QueryFirstOrDefaultAsync<int>(
-                query,
+                IdentityUserRoleSql.GetCountSql,
                 CreateUserRole(user, role))
             .ConfigureAwait(false)) > 0;
     }
@@ -216,12 +197,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT Id, Name, NormalizedName, ConcurrencyStamp
-                FROM dbo.AspNetRoles
-               WHERE NormalizedName=@NormalizedName;";
         return await connection.QueryFirstOrDefaultAsync<TRole?>(
-                query,
+                IdentityRoleSql.FindByNameSql,
                 new { NormalizedName = roleName })
             .ConfigureAwait(false);
     }
@@ -241,13 +218,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT UserId, RoleId
-                FROM dbo.AspNetUserRoles
-               WHERE UserId=@UserId
-                 AND RoleId=@RoleId;";
         return await connection.QueryFirstOrDefaultAsync<TUserRole?>(
-                query,
+                IdentityUserRoleSql.GetByUserIdRoleIdSql,
                 new
                 {
                     UserId = userId,

@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,12 +24,18 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     /// </summary>
     /// <param name="describer">The <see cref="T:Microsoft.AspNetCore.Identity.IdentityErrorDescriber" />.</param>
     /// <param name="connectionProvider">The <see cref="IIdentityDbConnectionProvider"/> instance.</param>
+    /// <param name="identityRoleSql">The <see cref="IIdentityRoleSql"/> instance.</param>
+    /// <param name="identityRoleClaimSql">The <see cref="IdentityRoleClaimSql"/> instance.</param>
     public DapperRoleStoreBase(
         IdentityErrorDescriber describer,
-        IIdentityDbConnectionProvider connectionProvider)
+        IIdentityDbConnectionProvider connectionProvider,
+        IIdentityRoleSql identityRoleSql,
+        IIdentityRoleClaimSql identityRoleClaimSql)
     {
         ErrorDescriber = describer ?? throw new ArgumentNullException(nameof(describer));
-        ConnectionProvider = connectionProvider;
+        ConnectionProvider = connectionProvider ?? throw new ArgumentNullException(nameof(connectionProvider));
+        IdentityRoleSql = identityRoleSql ?? throw new ArgumentNullException(nameof(identityRoleSql));
+        IdentityRoleClaimSql = identityRoleClaimSql ?? throw new ArgumentNullException(nameof(identityRoleClaimSql));
     }
 
     /// <summary>
@@ -37,6 +44,10 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     public IdentityErrorDescriber ErrorDescriber { get; set; }
 
     protected IIdentityDbConnectionProvider ConnectionProvider { get; }
+
+    protected IIdentityRoleSql IdentityRoleSql { get; }
+
+    protected IIdentityRoleClaimSql IdentityRoleClaimSql { get; }
 
     /// <summary>
     /// Creates a new role in a store as an asynchronous operation.
@@ -53,17 +64,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
         try
         {
             using var connection = ConnectionProvider.Provide();
-            const string query =
-                @"INSERT INTO dbo.AspNetRoles(
-                      Name
-                     ,NormalizedName
-                     ,ConcurrencyStamp)
-                 VALUES(
-                     @Name
-                    ,@NormalizedName
-                    ,@ConcurrencyStamp);
-                SELECT SCOPE_IDENTITY();";
-            role.Id = await connection.QueryFirstAsync<TKey>(query, role).ConfigureAwait(false);
+            await CreateImplAsync(connection, role, cancellationToken).ConfigureAwait(false);
             return IdentityResult.Success;
         }
         catch (Exception ex)
@@ -92,13 +93,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
         try
         {
             using var connection = ConnectionProvider.Provide();
-            const string query =
-                @"UPDATE dbo.AspNetRoles
-                 SET Name=@Name
-                    ,NormalizedName=@NormalizedName
-                    ,ConcurrencyStamp=@ConcurrencyStamp
-                 WHERE Id=@Id;";
-            await connection.ExecuteAsync(query, role).ConfigureAwait(false);
+            await connection.ExecuteAsync(IdentityRoleSql.UpdateSql, role).ConfigureAwait(false);
             return IdentityResult.Success;
         }
         catch (Exception ex)
@@ -127,10 +122,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
         try
         {
             using var connection = ConnectionProvider.Provide();
-            const string query =
-                @"DELETE FROM dbo.AspNetRoles
-                 WHERE Id=@Id;";
-            await connection.ExecuteAsync(query, role).ConfigureAwait(false);
+            await connection.ExecuteAsync(IdentityRoleSql.DeleteSql, role).ConfigureAwait(false);
             return IdentityResult.Success;
         }
         catch (Exception ex)
@@ -197,7 +189,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
         }
 
         role.Name = roleName;
-        return Task.CompletedTask;
+        return UpdateAsync(role, cancellationToken);
     }
 
     /// <summary>
@@ -235,16 +227,8 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT
-                  Id
-                 ,Name
-                 ,NormalizedName
-                 ,ConcurrencyStamp
-             FROM dbo.AspNetRoles
-             WHERE Id=@Id;";
         return await connection.QueryFirstOrDefaultAsync<TRole?>(
-                query,
+                IdentityRoleSql.FindByIdSql,
                 new { Id = ConvertIdFromString(roleId) })
             .ConfigureAwait(false);
     }
@@ -262,16 +246,8 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT
-                  Id
-                 ,Name
-                 ,NormalizedName
-                 ,ConcurrencyStamp
-             FROM dbo.AspNetRoles
-             WHERE NormalizedName=@NormalizedName;";
         return await connection.QueryFirstOrDefaultAsync<TRole?>(
-                query,
+                IdentityRoleSql.FindByNameSql,
                 new { NormalizedName = normalizedRoleName })
             .ConfigureAwait(false);
     }
@@ -311,7 +287,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
         }
 
         role.NormalizedName = normalizedName;
-        return Task.CompletedTask;
+        return UpdateAsync(role, cancellationToken);
     }
 
     /// <summary>
@@ -336,13 +312,8 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT ClaimType AS Type
-                    ,ClaimValue AS Value
-             FROM dbo.AspNetRoleClaims
-             WHERE RoleId=@Id;";
         return (await connection.QueryAsync<Claim>(
-                    query,
+                    IdentityRoleClaimSql.GetByRoleIdSql,
                     role)
                 .ConfigureAwait(false))
             .AsList();
@@ -363,11 +334,8 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"INSERT INTO dbo.AspNetRoleClaims(RoleId, ClaimType, ClaimValue)
-              VALUES (@RoleId, @ClaimType, @ClaimValue);";
         await connection.ExecuteAsync(
-                query,
+                IdentityRoleClaimSql.CreateSql,
                 CreateRoleClaim(role, claim))
             .ConfigureAwait(false);
     }
@@ -387,13 +355,8 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"DELETE FROM dbo.AspNetRoleClaims
-              WHERE RoleId=@RoleId
-                AND ClaimType=@ClaimType
-                AND ClaimValue=@ClaimValue;";
         await connection.ExecuteAsync(
-                query,
+                IdentityRoleClaimSql.DeleteSql,
                 CreateRoleClaim(role, claim))
             .ConfigureAwait(false);
     }
@@ -431,5 +394,13 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
             ClaimType = claim.Type,
             ClaimValue = claim.Value,
         };
+    }
+
+    protected virtual async Task CreateImplAsync(
+        DbConnection connection,
+        TRole role,
+        CancellationToken cancellationToken)
+    {
+        role.Id = await connection.QueryFirstAsync<TKey>(IdentityRoleSql.CreateSql, role).ConfigureAwait(false);
     }
 }

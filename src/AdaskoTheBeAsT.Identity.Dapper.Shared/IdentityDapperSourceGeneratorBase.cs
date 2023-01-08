@@ -46,7 +46,7 @@ public abstract class IdentityDapperSourceGeneratorBase
             (
                     spc,
                     source) =>
-                Execute(source.Left, source.Right, spc));
+                Execute(spc, source.Left, source.Right));
     }
 
     private static bool IsSyntaxTargetForGeneration(SyntaxNode node)
@@ -62,9 +62,9 @@ public abstract class IdentityDapperSourceGeneratorBase
         context.Node as ClassDeclarationSyntax;
 
     private void Execute(
+        SourceProductionContext context,
         Compilation compilation,
-        ImmutableArray<ClassDeclarationSyntax> classDeclarations,
-        SourceProductionContext context)
+        ImmutableArray<ClassDeclarationSyntax> classDeclarations)
     {
         if (classDeclarations.IsDefaultOrEmpty)
         {
@@ -77,6 +77,7 @@ public abstract class IdentityDapperSourceGeneratorBase
 
         // Convert each EnumDeclarationSyntax to an EnumToGenerate
         var classesToGenerate = GetTypesToGenerate(
+            context,
             compilation,
             distinctClassDeclarations,
             context.CancellationToken);
@@ -90,7 +91,8 @@ public abstract class IdentityDapperSourceGeneratorBase
         }
     }
 
-    private (string? KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) GetTypesToGenerate(
+    private (string KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) GetTypesToGenerate(
+        SourceProductionContext context,
         Compilation compilation,
         IEnumerable<ClassDeclarationSyntax>? distinctClassDeclarations,
         CancellationToken token)
@@ -100,10 +102,21 @@ public abstract class IdentityDapperSourceGeneratorBase
         var identityPropertiesSymbol = new List<(IPropertySymbol PropertySymbol, string ColumnName)>();
         if (distinctClassDeclarations == null)
         {
-            return (null, identityPropertiesSymbol);
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    new DiagnosticDescriptor(
+                        "ATBID100",
+                        "No identity classes defined",
+                        "No identity classes defined - please provide all classes which inherits from Identity...<type of key>",
+                        "Code generation",
+                        DiagnosticSeverity.Error,
+                        isEnabledByDefault: true),
+                    location: null,
+                    Array.Empty<object>()));
+            return (string.Empty, identityPropertiesSymbol);
         }
 
-        string? keyTypeName = null;
+        var keyTypeName = string.Empty;
 
         foreach (var classDeclarationSyntax in distinctClassDeclarations)
         {
@@ -129,7 +142,8 @@ public abstract class IdentityDapperSourceGeneratorBase
             }
 
             var localKeyType = ProcessIdentityClass(semanticModel, classDeclarationSyntax, identityClass, identityPropertiesSymbol);
-            if (keyTypeName?.Equals(localKeyType, StringComparison.OrdinalIgnoreCase) == false)
+            if (!string.IsNullOrEmpty(keyTypeName) &&
+                !keyTypeName.Equals(localKeyType, StringComparison.OrdinalIgnoreCase))
             {
                 throw new KeyTypeNotSameException();
             }

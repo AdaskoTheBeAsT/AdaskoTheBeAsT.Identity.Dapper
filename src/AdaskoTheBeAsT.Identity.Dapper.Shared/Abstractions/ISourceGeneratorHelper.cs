@@ -7,5 +7,5 @@ public interface ISourceGeneratorHelper
 {
     void GenerateCode(
         SourceProductionContext context,
-        (string? KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) generationInfo);
+        (string KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) generationInfo);
 }

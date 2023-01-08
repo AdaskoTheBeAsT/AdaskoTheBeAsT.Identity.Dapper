@@ -9,6 +9,7 @@
     <Import_RootNamespace>AdaskoTheBeAsT.Identity.Dapper.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityRoleClaimClassGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityRoleClassGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityUserClaimClassGenerator.cs" />

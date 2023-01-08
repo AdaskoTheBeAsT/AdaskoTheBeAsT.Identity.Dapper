@@ -51,7 +51,7 @@ public abstract class SourceGeneratorHelperBase
 
     public void GenerateCode(
         SourceProductionContext context,
-        (string? KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) generationInfo)
+        (string KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) generationInfo)
     {
         var grouped = generationInfo
             .Items
@@ -66,18 +66,24 @@ public abstract class SourceGeneratorHelperBase
         {
             var baseTypeName = group.Key.BaseType?.Name ?? string.Empty;
             namespaceName = group.Key.ContainingNamespace.ToDisplayString();
-            ProcessClass(context, baseTypeName, namespaceName, group.ToList());
+            ProcessClass(context, generationInfo.KeyTypeName, baseTypeName, namespaceName, group.ToList());
             set.Remove(baseTypeName);
         }
 
         foreach (var baseTypeName in set)
         {
-            ProcessClass(context, baseTypeName, namespaceName, new List<(IPropertySymbol PropertySymbol, string ColumnName)>());
+            ProcessClass(
+                context,
+                generationInfo.KeyTypeName,
+                baseTypeName,
+                namespaceName,
+                new List<(IPropertySymbol PropertySymbol, string ColumnName)>());
         }
     }
 
     private void ProcessClass(
         SourceProductionContext context,
+        string keyTypeName,
         string baseTypeName,
         string namespaceName,
         IList<(IPropertySymbol PropertySymbol, string ColumnName)> list)
@@ -86,13 +92,13 @@ public abstract class SourceGeneratorHelperBase
         switch (baseTypeName)
         {
             case nameof(IdentityRole):
-                ProcessIdentityRole(context, namespaceName, propertyNames, columnNames);
+                ProcessIdentityRole(context, keyTypeName, namespaceName, propertyNames, columnNames);
                 break;
             case nameof(IdentityRoleClaim<int>):
                 ProcessIdentityRoleClaim(context, namespaceName, propertyNames, columnNames);
                 break;
             case nameof(IdentityUser):
-                ProcessIdentityUser(context, namespaceName, propertyNames, columnNames);
+                ProcessIdentityUser(context, keyTypeName, namespaceName, propertyNames, columnNames);
                 break;
             case nameof(IdentityUserClaim<int>):
                 ProcessIdentityUserClaim(context, namespaceName, propertyNames, columnNames);
@@ -115,11 +121,12 @@ public abstract class SourceGeneratorHelperBase
 
     private void ProcessIdentityRole(
         SourceProductionContext context,
+        string keyTypeName,
         string namespaceName,
         IEnumerable<string> propertyNames,
         IEnumerable<string> columnNames)
     {
-        var content = _identityRoleClassGenerator.Generate(namespaceName, propertyNames, columnNames);
+        var content = _identityRoleClassGenerator.Generate(keyTypeName, namespaceName, propertyNames, columnNames);
 
         context.AddSource("IdentityRoleSql.g.cs", SourceText.From(content, Encoding.UTF8));
     }
@@ -137,11 +144,12 @@ public abstract class SourceGeneratorHelperBase
 
     private void ProcessIdentityUser(
         SourceProductionContext context,
+        string keyTypeName,
         string namespaceName,
         IEnumerable<string> propertyNames,
         IEnumerable<string> columnNames)
     {
-        var content = _identityUserClassGenerator.Generate(namespaceName, propertyNames, columnNames);
+        var content = _identityUserClassGenerator.Generate(keyTypeName, namespaceName, propertyNames, columnNames);
 
         context.AddSource("IdentityUserSql.g.cs", SourceText.From(content, Encoding.UTF8));
     }

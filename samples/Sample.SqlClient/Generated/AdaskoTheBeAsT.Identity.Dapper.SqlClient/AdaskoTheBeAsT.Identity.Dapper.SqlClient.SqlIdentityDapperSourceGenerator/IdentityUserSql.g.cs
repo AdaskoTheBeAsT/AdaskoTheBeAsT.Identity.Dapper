@@ -37,8 +37,9 @@ VALUES(
 ,@LockoutEnd
 ,@LockoutEnabled
 ,@AccessFailedCount
-,@Active);
-SELECT SCOPE_IDENTITY();";
+,@Active)
+OUTPUT inserted.Id
+VALUES(1);";
 
         public string UpdateSql { get; } =
             @"UPDATE dbo.AspNetUsers

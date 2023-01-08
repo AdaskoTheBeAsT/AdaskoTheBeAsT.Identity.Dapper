@@ -13,6 +13,7 @@ public abstract class IdentityRoleClassGeneratorBase
         IIdentityRoleClassGenerator
 {
     public string Generate(
+        string keyTypeName,
         string namespaceName,
         IEnumerable<string> propertyNames,
         IEnumerable<string> columnNames)
@@ -27,7 +28,7 @@ public abstract class IdentityRoleClassGeneratorBase
         GenerateUsing(sb);
         GenerateNamespaceStart(sb, namespaceName);
         GenerateClassStart(sb, "IdentityRoleSql", "IIdentityRoleSql");
-        GenerateCreateSql(sb, combinedColumnNames, combinedPropertyNames);
+        GenerateCreateSql(sb, keyTypeName, combinedColumnNames, combinedPropertyNames);
         GenerateUpdateSql(sb, combinedColumnNames, combinedPropertyNames);
         GenerateDeleteSql(sb);
         GenerateFindByIdSql(sb, combinedColumnNames, combinedPropertyNames);
@@ -38,6 +39,7 @@ public abstract class IdentityRoleClassGeneratorBase
     }
 
     protected abstract string ProcessIdentityRoleCreateSql(
+        string keyTypeName,
         IList<string> columnNames,
         IList<string> propertyNames);
 
@@ -57,10 +59,11 @@ public abstract class IdentityRoleClassGeneratorBase
 
     private void GenerateCreateSql(
         StringBuilder sb,
+        string keyTypeName,
         IList<string> combinedColumnNames,
         IList<string> combinedPropertyNames)
     {
-        var content = ProcessIdentityRoleCreateSql(combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityRoleCreateSql(keyTypeName, combinedColumnNames, combinedPropertyNames);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");

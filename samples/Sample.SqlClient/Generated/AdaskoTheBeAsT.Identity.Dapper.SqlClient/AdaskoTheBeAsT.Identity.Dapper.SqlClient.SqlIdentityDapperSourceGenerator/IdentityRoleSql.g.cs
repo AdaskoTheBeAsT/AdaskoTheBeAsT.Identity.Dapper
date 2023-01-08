@@ -13,8 +13,9 @@ namespace Sample
 VALUES(
 @Name
 ,@NormalizedName
-,@ConcurrencyStamp);
-SELECT SCOPE_IDENTITY();";
+,@ConcurrencyStamp)
+OUTPUT inserted.Id
+VALUES(1);";
 
         public string UpdateSql { get; } =
             @"UPDATE dbo.AspNetRoles

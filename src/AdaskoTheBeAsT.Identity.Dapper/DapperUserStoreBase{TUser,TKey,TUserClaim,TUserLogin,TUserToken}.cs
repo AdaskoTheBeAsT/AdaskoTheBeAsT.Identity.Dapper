@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
@@ -36,10 +37,18 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
 
     protected DapperUserStoreBase(
         IdentityErrorDescriber describer,
-        IIdentityDbConnectionProvider connectionProvider)
+        IIdentityDbConnectionProvider connectionProvider,
+        IIdentityUserSql identityUserSql,
+        IIdentityUserClaimSql identityUserClaimSql,
+        IIdentityUserLoginSql identityUserLoginSql,
+        IIdentityUserTokenSql identityUserTokenSql)
     {
         ErrorDescriber = describer ?? throw new ArgumentNullException(nameof(describer));
         ConnectionProvider = connectionProvider ?? throw new ArgumentNullException(nameof(connectionProvider));
+        IdentityUserSql = identityUserSql ?? throw new ArgumentNullException(nameof(identityUserSql));
+        IdentityUserClaimSql = identityUserClaimSql ?? throw new ArgumentNullException(nameof(identityUserClaimSql));
+        IdentityUserLoginSql = identityUserLoginSql ?? throw new ArgumentNullException(nameof(identityUserLoginSql));
+        IdentityUserTokenSql = identityUserTokenSql ?? throw new ArgumentNullException(nameof(identityUserTokenSql));
     }
 
     /// <summary>
@@ -48,6 +57,14 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
     public IdentityErrorDescriber ErrorDescriber { get; set; }
 
     protected IIdentityDbConnectionProvider ConnectionProvider { get; }
+
+    protected IIdentityUserSql IdentityUserSql { get; }
+
+    protected IIdentityUserClaimSql IdentityUserClaimSql { get; }
+
+    protected IIdentityUserLoginSql IdentityUserLoginSql { get; }
+
+    protected IIdentityUserTokenSql IdentityUserTokenSql { get; }
 
     public void Dispose()
     {
@@ -108,7 +125,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         }
 
         user.UserName = userName;
-        return Task.CompletedTask;
+        return UpdateAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -146,7 +163,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         }
 
         user.NormalizedUserName = normalizedName;
-        return Task.CompletedTask;
+        return UpdateAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -164,39 +181,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         try
         {
             using var connection = ConnectionProvider.Provide();
-            const string query =
-                @"INSERT INTO dbo.AspNetUsers(
-                      UserName
-                     ,NormalizedUserName
-                     ,Email
-                     ,NormalizedEmail
-                     ,EmailConfirmed
-                     ,PasswordHash
-                     ,SecurityStamp
-                     ,ConcurrencyStamp
-                     ,PhoneNumber
-                     ,PhoneNumberConfirmed
-                     ,TwoFactorEnabled
-                     ,LockoutEnd
-                     ,LockoutEnabled
-                     ,AccessFailedCount)
-                 VALUES(
-                     @UserName
-                    ,@NormalizedUserName
-                    ,@Email
-                    ,@NormalizedEmail
-                    ,@EmailConfirmed
-                    ,@PasswordHash
-                    ,@SecurityStamp
-                    ,@ConcurrencyStamp
-                    ,@PhoneNumber
-                    ,@PhoneNumberConfirmed
-                    ,@TwoFactorEnabled
-                    ,@LockoutEnd
-                    ,@LockoutEnabled
-                    ,@AccessFailedCount);
-                SELECT SCOPE_IDENTITY();";
-            user.Id = await connection.QueryFirstAsync<TKey>(query, user).ConfigureAwait(false);
+            await CreateImplAsync(connection, user, cancellationToken).ConfigureAwait(false);
             return IdentityResult.Success;
         }
         catch (Exception ex)
@@ -225,24 +210,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         try
         {
             using var connection = ConnectionProvider.Provide();
-            const string query =
-                @"UPDATE dbo.AspNetUsers
-                 SET UserName=@UserName
-                    ,NormalizedUserName=@NormalizedUserName
-                    ,Email=@Email
-                    ,NormalizedEmail=@NormalizedEmail
-                    ,EmailConfirmed=@EmailConfirmed
-                    ,PasswordHash=@PasswordHash
-                    ,SecurityStamp=@SecurityStamp
-                    ,ConcurrencyStamp=@ConcurrencyStamp
-                    ,PhoneNumber=@PhoneNumber
-                    ,PhoneNumberConfirmed=@PhoneNumberConfirmed
-                    ,TwoFactorEnabled=@TwoFactorEnabled
-                    ,LockoutEnd=@LockoutEnd
-                    ,LockoutEnabled=@LockoutEnabled
-                    ,AccessFailedCount=@AccessFailedCount
-                 WHERE Id=@Id;";
-            await connection.ExecuteAsync(query, user).ConfigureAwait(false);
+            await connection.ExecuteAsync(IdentityUserSql.UpdateSql, user).ConfigureAwait(false);
             return IdentityResult.Success;
         }
         catch (Exception ex)
@@ -271,10 +239,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         try
         {
             using var connection = ConnectionProvider.Provide();
-            const string query =
-                @"DELETE FROM dbo.AspNetUsers
-                 WHERE Id=@Id;";
-            await connection.ExecuteAsync(query, user).ConfigureAwait(false);
+            await connection.ExecuteAsync(IdentityUserSql.DeleteSql, user).ConfigureAwait(false);
             return IdentityResult.Success;
         }
         catch (Exception ex)
@@ -303,26 +268,8 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT
-                  UserName
-                 ,NormalizedUserName
-                 ,Email
-                 ,NormalizedEmail
-                 ,EmailConfirmed
-                 ,PasswordHash
-                 ,SecurityStamp
-                 ,ConcurrencyStamp
-                 ,PhoneNumber
-                 ,PhoneNumberConfirmed
-                 ,TwoFactorEnabled
-                 ,LockoutEnd
-                 ,LockoutEnabled
-                 ,AccessFailedCount
-             FROM dbo.AspNetUsers
-             WHERE Id=@Id;";
         return await connection.QueryFirstOrDefaultAsync<TUser?>(
-                query,
+                IdentityUserSql.FindByIdSql,
                 new { Id = ConvertIdFromString(userId) })
             .ConfigureAwait(false);
     }
@@ -364,26 +311,8 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT
-                  UserName
-                 ,NormalizedUserName
-                 ,Email
-                 ,NormalizedEmail
-                 ,EmailConfirmed
-                 ,PasswordHash
-                 ,SecurityStamp
-                 ,ConcurrencyStamp
-                 ,PhoneNumber
-                 ,PhoneNumberConfirmed
-                 ,TwoFactorEnabled
-                 ,LockoutEnd
-                 ,LockoutEnabled
-                 ,AccessFailedCount
-             FROM dbo.AspNetUsers
-             WHERE NormalizedUserName=@NormalizedUserName;";
         return await connection.QueryFirstOrDefaultAsync<TUser?>(
-                query,
+                IdentityUserSql.FindByNameSql,
                 new { NormalizedUserName = normalizedUserName })
             .ConfigureAwait(false);
     }
@@ -405,7 +334,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         }
 
         user.PasswordHash = passwordHash;
-        return Task.CompletedTask;
+        return UpdateAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -452,13 +381,8 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT ClaimType AS Type
-                    ,ClaimValue AS Value
-             FROM dbo.AspNetUserClaims
-             WHERE UserId=@Id;";
         return (await connection.QueryAsync<Claim>(
-                query,
+                IdentityUserClaimSql.GetByUserIdSql,
                 user)
             .ConfigureAwait(false))
             .AsList();
@@ -479,13 +403,10 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"INSERT INTO dbo.AspNetUserClaims(UserId, ClaimType, ClaimValue)  
-              VALUES (@UserId, @ClaimType, @ClaimValue);";
         foreach (var claim in claims)
         {
             await connection.ExecuteAsync(
-                    query,
+                    IdentityUserClaimSql.CreateSql,
                     CreateUserClaim(user, claim))
                 .ConfigureAwait(false);
         }
@@ -508,29 +429,8 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"IF EXISTS(SELECT Id
-                        FROM dbo.AspNetUserClaims
-                        WHERE UserId=@UserId
-                          AND ClaimType=@ClaimTypeOld
-                          AND ClaimValue=@ClaimValueOld)
-            BEGIN
-                DELETE FROM dbo.AspNetUserClaims
-                WHERE UserId=@UserId
-                  AND ClaimType=@ClaimTypeOld
-                  AND ClaimValue=@ClaimValueOld
-            END;
-            IF NOT EXISTS(SELECT Id
-                         FROM dbo.AspNetUserClaims
-                         WHERE UserId=@UserId
-                           AND ClaimType=@ClaimTypeNew
-                           AND ClaimValue=@ClaimValueNew)
-            BEGIN
-                INSERT INTO dbo.AspNetUserClaims(UserId, ClaimType, ClaimValue)
-                VALUES (@UserId,@ClaimTypeNew,@ClaimValueNew);
-            END;";
         await connection.ExecuteAsync(
-                query,
+                IdentityUserClaimSql.ReplaceSql,
                 new
                 {
                     UserId = user.Id,
@@ -557,15 +457,10 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"DELETE FROM dbo.AspNetUserClaims
-                WHERE UserId=@UserId
-                  AND ClaimType=@ClaimType
-                  AND ClaimValue=@ClaimValue;";
         foreach (var claim in claims)
         {
             await connection.ExecuteAsync(
-                    query,
+                    IdentityUserClaimSql.DeleteSql,
                     CreateUserClaim(user, claim))
                 .ConfigureAwait(false);
         }
@@ -584,20 +479,8 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         CancellationToken cancellationToken)
     {
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"INSERT INTO dbo.AspNetUserLogins(
-                      LoginProvider
-                     ,ProviderKey
-                     ,ProviderDisplayName
-                     ,UserId)
-                 VALUES(
-                     @LoginProvider
-                    ,@ProviderKey
-                    ,@ProviderDisplayName
-                    ,@UserId);
-                SELECT SCOPE_IDENTITY();";
         await connection.ExecuteAsync(
-                query,
+                IdentityUserLoginSql.CreateSql,
                 CreateUserLogin(user, login))
             .ConfigureAwait(false);
     }
@@ -617,13 +500,8 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         CancellationToken cancellationToken)
     {
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"DELETE FROM dbo.AspNetUserLogins
-              WHERE LoginProvider=@LoginProvider
-                AND ProviderKey=@ProviderKey
-                AND UserId=@UserId;";
         await connection.ExecuteAsync(
-                query,
+                IdentityUserLoginSql.DeleteSql,
                 new
                 {
                     LoginProvider = loginProvider,
@@ -646,14 +524,8 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         CancellationToken cancellationToken)
     {
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT LoginProvider
-                    ,ProviderKey
-                    ,ProviderDisplayName 
-              FROM dbo.AspNetUserLogins
-              WHERE UserId=@Id;";
         return (await connection.QueryAsync<UserLoginInfo>(
-                    query,
+                    IdentityUserLoginSql.GetByUserIdSql,
                     user)
                 .ConfigureAwait(false))
             .AsList();
@@ -720,7 +592,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         }
 
         user.EmailConfirmed = confirmed;
-        return Task.CompletedTask;
+        return UpdateAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -740,7 +612,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         }
 
         user.Email = email;
-        return Task.CompletedTask;
+        return UpdateAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -798,7 +670,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         }
 
         user.NormalizedEmail = normalizedEmail;
-        return Task.CompletedTask;
+        return UpdateAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -816,26 +688,8 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT
-                  UserName
-                 ,NormalizedUserName
-                 ,Email
-                 ,NormalizedEmail
-                 ,EmailConfirmed
-                 ,PasswordHash
-                 ,SecurityStamp
-                 ,ConcurrencyStamp
-                 ,PhoneNumber
-                 ,PhoneNumberConfirmed
-                 ,TwoFactorEnabled
-                 ,LockoutEnd
-                 ,LockoutEnabled
-                 ,AccessFailedCount
-             FROM dbo.AspNetUsers
-             WHERE NormalizedEmail=@NormalizedEmail;";
         return await connection.QueryFirstOrDefaultAsync<TUser?>(
-                query,
+                IdentityUserSql.FindByEmailSql,
                 new { NormalizedEmail = normalizedEmail })
             .ConfigureAwait(false);
     }
@@ -879,7 +733,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         }
 
         user.LockoutEnd = lockoutEnd;
-        return Task.CompletedTask;
+        return UpdateAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -897,8 +751,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
             throw new ArgumentNullException(nameof(user));
         }
 
-        user.AccessFailedCount++;
-        return Task.FromResult(user.AccessFailedCount);
+        return IncrementAccessFailedCountImplAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -918,7 +771,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         }
 
         user.AccessFailedCount = 0;
-        return Task.CompletedTask;
+        return UpdateAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -976,7 +829,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         }
 
         user.LockoutEnabled = enabled;
-        return Task.CompletedTask;
+        return UpdateAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -996,7 +849,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         }
 
         user.PhoneNumber = phoneNumber;
-        return Task.CompletedTask;
+        return UpdateAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -1055,7 +908,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         }
 
         user.PhoneNumberConfirmed = confirmed;
-        return Task.CompletedTask;
+        return UpdateAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -1080,7 +933,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         }
 
         user.SecurityStamp = stamp;
-        return Task.CompletedTask;
+        return UpdateAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -1119,7 +972,7 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         }
 
         user.TwoFactorEnabled = enabled;
-        return Task.CompletedTask;
+        return UpdateAsync(user, cancellationToken);
     }
 
     /// <summary>
@@ -1159,28 +1012,8 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT
-                  u.UserName
-                 ,u.NormalizedUserName
-                 ,u.Email
-                 ,u.NormalizedEmail
-                 ,u.EmailConfirmed
-                 ,u.PasswordHash
-                 ,u.SecurityStamp
-                 ,u.ConcurrencyStamp
-                 ,u.PhoneNumber
-                 ,u.PhoneNumberConfirmed
-                 ,u.TwoFactorEnabled
-                 ,u.LockoutEnd
-                 ,u.LockoutEnabled
-                 ,u.AccessFailedCount
-             FROM dbo.AspNetUsers u INNER JOIN
-                  dbo.AspNetUserClaims c ON u.Id=c.UserId
-             WHERE c.ClaimType=@ClaimType
-               AND c.ClaimValue=@ClaimValue;";
         return (await connection.QueryAsync<TUser>(
-                    query,
+                    IdentityUserSql.GetUsersForClaimSql,
                     new
                     {
                         ClaimType = claim.Type,
@@ -1471,26 +1304,8 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT
-                  UserName
-                 ,NormalizedUserName
-                 ,Email
-                 ,NormalizedEmail
-                 ,EmailConfirmed
-                 ,PasswordHash
-                 ,SecurityStamp
-                 ,ConcurrencyStamp
-                 ,PhoneNumber
-                 ,PhoneNumberConfirmed
-                 ,TwoFactorEnabled
-                 ,LockoutEnd
-                 ,LockoutEnabled
-                 ,AccessFailedCount
-             FROM dbo.AspNetUsers
-             WHERE Id=@Id;";
         return await connection.QueryFirstOrDefaultAsync<TUser?>(
-                query,
+                IdentityUserSql.FindByIdSql,
                 new { Id = userId })
             .ConfigureAwait(false);
     }
@@ -1512,17 +1327,8 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT TOP 1 LoginProvider
-                    ,ProviderKey
-                    ,ProviderDisplayName
-                    ,UserId
-              FROM dbo.AspNetUserLogins
-              WHERE UserId=@UserId
-                AND LoginProvider=@LoginProvider
-                AND ProviderKey=@ProviderKey;";
         return await connection.QueryFirstOrDefaultAsync<TUserLogin>(
-                query,
+                IdentityUserLoginSql.GetByUserIdLoginProviderKeySql,
                 new
                 {
                     UserId = userId,
@@ -1547,16 +1353,8 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT TOP 1 LoginProvider
-                    ,ProviderKey
-                    ,ProviderDisplayName
-                    ,UserId
-              FROM dbo.AspNetUserLogins
-              WHERE LoginProvider=@LoginProvider
-                AND ProviderKey=@ProviderKey;";
         return await connection.QueryFirstOrDefaultAsync<TUserLogin>(
-                query,
+                IdentityUserLoginSql.GetByLoginProviderKeySql,
                 new
                 {
                     LoginProvider = loginProvider,
@@ -1593,23 +1391,9 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"SELECT TOP 1 UserId
-                    ,LoginProvider
-                    ,Name
-                    ,Value
-              FROM dbo.AspNetUserTokens
-              WHERE UserId=@UserId
-                AND LoginProvider=@LoginProvider
-                AND Name=@Name;";
         return await connection.QueryFirstOrDefaultAsync<TUserToken?>(
-                query,
-                new
-                {
-                    UserId = user.Id,
-                    LoginProvider = loginProvider,
-                    Name = name,
-                })
+                IdentityUserTokenSql.GetByUserIdSql,
+                CreateUserToken(user, loginProvider, name, value: null))
             .ConfigureAwait(false);
     }
 
@@ -1622,19 +1406,8 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
     {
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"INSERT INTO dbo.AspNetUserTokens(
-                     UserId
-                    ,LoginProvider
-                    ,Name
-                    ,Value
-              VALUES (
-                     @UserId
-                    ,@LoginProvider
-                    ,@Name
-                    ,@Value);";
         await connection.ExecuteAsync(
-                query,
+                IdentityUserTokenSql.CreateSql,
                 token)
             .ConfigureAwait(false);
     }
@@ -1648,15 +1421,24 @@ public class DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken
     {
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        const string query =
-            @"DELETE FROM dbo.AspNetUserTokens
-               WHERE UserId=@UserId
-                 AND LoginProvider=@LoginProvider
-                 AND Name=@Name
-                 AND Value=@Value;";
         await connection.ExecuteAsync(
-                query,
+                IdentityUserTokenSql.DeleteSql,
                 token)
             .ConfigureAwait(false);
+    }
+
+    protected virtual async Task<int> IncrementAccessFailedCountImplAsync(TUser user, CancellationToken cancellationToken)
+    {
+        user.AccessFailedCount++;
+        await UpdateAsync(user, cancellationToken).ConfigureAwait(false);
+        return user.AccessFailedCount;
+    }
+
+    protected virtual async Task CreateImplAsync(
+        DbConnection connection,
+        TUser user,
+        CancellationToken cancellationToken)
+    {
+        user.Id = await connection.QueryFirstAsync<TKey>(IdentityUserSql.CreateSql, user).ConfigureAwait(false);
     }
 }
