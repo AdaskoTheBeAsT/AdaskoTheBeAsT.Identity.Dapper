@@ -41,15 +41,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".props", ".props", "{EE241C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper", "src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj", "{351FCF09-1AD0-4C93-9927-FEF2F5091C01}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample", "src\Sample\Sample.csproj", "{AAD8896D-8D88-4C7C-8D9F-E01425286D4E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.SqlClient", "src\AdaskoTheBeAsT.Identity.Dapper.SqlClient\AdaskoTheBeAsT.Identity.Dapper.SqlClient.csproj", "{0C486550-0878-4D05-BDFF-FFF7B1C6F180}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.SqlClient.IntegrationTest", "test\integ\AdaskoTheBeAsT.Identity.Dapper.SqlClient.IntegrationTest\AdaskoTheBeAsT.Identity.Dapper.SqlClient.IntegrationTest.csproj", "{AE3636B8-2AD9-406F-B83A-D193B7785E44}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.SqlClient.Test", "test\unit\AdaskoTheBeAsT.Identity.Dapper.SqlClient.Test\AdaskoTheBeAsT.Identity.Dapper.SqlClient.Test.csproj", "{3DD57D21-B015-4AE3-B2CD-FD3D33A01C3B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdaskoTheBeAsT.Identity.Dapper.SourceGenerator", "src\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator\AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.csproj", "{A28AF47E-78C1-4218-BE13-E34CCB9F8738}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{7D925E4F-891C-492B-92FE-6E4277E1B3F4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.SqlClient", "samples\Sample.SqlClient\Sample.SqlClient.csproj", "{2808DFA2-CE24-4D08-BAE4-1B482267F586}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.MySql", "src\AdaskoTheBeAsT.Identity.Dapper.MySql\AdaskoTheBeAsT.Identity.Dapper.MySql.csproj", "{08380F5D-DE3A-49D3-B25A-37B3FA048D41}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "AdaskoTheBeAsT.Identity.Dapper.Shared", "src\AdaskoTheBeAsT.Identity.Dapper.Shared\AdaskoTheBeAsT.Identity.Dapper.Shared.shproj", "{D04C7852-EB46-47FF-B76B-9EE1D5CDEB42}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,10 +65,6 @@ Global
 		{351FCF09-1AD0-4C93-9927-FEF2F5091C01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{351FCF09-1AD0-4C93-9927-FEF2F5091C01}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{351FCF09-1AD0-4C93-9927-FEF2F5091C01}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AAD8896D-8D88-4C7C-8D9F-E01425286D4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AAD8896D-8D88-4C7C-8D9F-E01425286D4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AAD8896D-8D88-4C7C-8D9F-E01425286D4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AAD8896D-8D88-4C7C-8D9F-E01425286D4E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0C486550-0878-4D05-BDFF-FFF7B1C6F180}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0C486550-0878-4D05-BDFF-FFF7B1C6F180}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C486550-0878-4D05-BDFF-FFF7B1C6F180}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -77,10 +77,14 @@ Global
 		{3DD57D21-B015-4AE3-B2CD-FD3D33A01C3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DD57D21-B015-4AE3-B2CD-FD3D33A01C3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DD57D21-B015-4AE3-B2CD-FD3D33A01C3B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A28AF47E-78C1-4218-BE13-E34CCB9F8738}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A28AF47E-78C1-4218-BE13-E34CCB9F8738}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A28AF47E-78C1-4218-BE13-E34CCB9F8738}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A28AF47E-78C1-4218-BE13-E34CCB9F8738}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2808DFA2-CE24-4D08-BAE4-1B482267F586}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2808DFA2-CE24-4D08-BAE4-1B482267F586}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2808DFA2-CE24-4D08-BAE4-1B482267F586}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2808DFA2-CE24-4D08-BAE4-1B482267F586}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08380F5D-DE3A-49D3-B25A-37B3FA048D41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08380F5D-DE3A-49D3-B25A-37B3FA048D41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08380F5D-DE3A-49D3-B25A-37B3FA048D41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08380F5D-DE3A-49D3-B25A-37B3FA048D41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,13 +95,19 @@ Global
 		{AE9D6DAA-9994-48E8-ACAA-9A962346CC16} = {D5E2C14A-BA04-4AB5-A8B4-B7389EBCC0B3}
 		{EE241C9C-6B53-47BF-92BA-E918A7BED105} = {AE9D6DAA-9994-48E8-ACAA-9A962346CC16}
 		{351FCF09-1AD0-4C93-9927-FEF2F5091C01} = {C28AEC30-FF71-4397-A8C5-5B26D183A45A}
-		{AAD8896D-8D88-4C7C-8D9F-E01425286D4E} = {C28AEC30-FF71-4397-A8C5-5B26D183A45A}
 		{0C486550-0878-4D05-BDFF-FFF7B1C6F180} = {C28AEC30-FF71-4397-A8C5-5B26D183A45A}
 		{AE3636B8-2AD9-406F-B83A-D193B7785E44} = {AE9D6DAA-9994-48E8-ACAA-9A962346CC16}
 		{3DD57D21-B015-4AE3-B2CD-FD3D33A01C3B} = {0DDB0E47-5845-4861-95FC-AF248E2C6652}
-		{A28AF47E-78C1-4218-BE13-E34CCB9F8738} = {C28AEC30-FF71-4397-A8C5-5B26D183A45A}
+		{2808DFA2-CE24-4D08-BAE4-1B482267F586} = {7D925E4F-891C-492B-92FE-6E4277E1B3F4}
+		{08380F5D-DE3A-49D3-B25A-37B3FA048D41} = {C28AEC30-FF71-4397-A8C5-5B26D183A45A}
+		{D04C7852-EB46-47FF-B76B-9EE1D5CDEB42} = {C28AEC30-FF71-4397-A8C5-5B26D183A45A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2DC60B14-2697-4908-AADC-3EA7874F6FF1}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\AdaskoTheBeAsT.Identity.Dapper.Shared\AdaskoTheBeAsT.Identity.Dapper.Shared.projitems*{08380f5d-de3a-49d3-b25a-37b3fa048d41}*SharedItemsImports = 5
+		src\AdaskoTheBeAsT.Identity.Dapper.Shared\AdaskoTheBeAsT.Identity.Dapper.Shared.projitems*{0c486550-0878-4d05-bdff-fff7b1c6f180}*SharedItemsImports = 5
+		src\AdaskoTheBeAsT.Identity.Dapper.Shared\AdaskoTheBeAsT.Identity.Dapper.Shared.projitems*{d04c7852-eb46-47ff-b76b-9ee1d5cdeb42}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

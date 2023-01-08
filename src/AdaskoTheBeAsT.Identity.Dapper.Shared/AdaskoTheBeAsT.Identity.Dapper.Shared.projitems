@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>d04c7852-eb46-47ff-b76b-9ee1d5cdeb42</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>AdaskoTheBeAsT.Identity.Dapper.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityRoleClaimClassGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityRoleClassGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityUserClaimClassGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityUserClassGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityUserLoginClassGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityUserRoleClassGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityUserTokenClassGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\ISourceGeneratorHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Builders\AdvancedSqlBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Exceptions\KeyTypeNotSameException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IdentityClassGeneratorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IdentityDapperSourceGeneratorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IdentityRoleClaimClassGeneratorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IdentityRoleClassGeneratorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IdentityUserClaimClassGeneratorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IdentityUserClassGeneratorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IdentityUserLoginClassGeneratorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IdentityUserRoleClassGeneratorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IdentityUserTokenClassGeneratorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SourceGeneratorHelperBase.cs" />
+  </ItemGroup>
+</Project>

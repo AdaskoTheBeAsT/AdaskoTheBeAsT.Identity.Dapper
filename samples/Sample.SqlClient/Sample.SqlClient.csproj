@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,16 +23,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Rererence the source generator project -->
-    <ProjectReference Include="..\AdaskoTheBeAsT.Identity.Dapper.SqlClient\AdaskoTheBeAsT.Identity.Dapper.SqlClient.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
-
-
-    <ProjectReference Include="..\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
-    <!-- Don't reference the generator dll -->
+    <Folder Include="Generated\AdaskoTheBeAsT.Identity.Dapper.SqlClient\AdaskoTheBeAsT.Identity.Dapper.SqlClient.SqlIdentityDapperSourceGenerator\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Generated\AdaskoTheBeAsT.Identity.Dapper.SqlClient\AdaskoTheBeAsT.Identity.Dapper.SqlClient.SqlIdentityDapperSourceGenerator\" />
+    <ProjectReference Include="..\..\src\AdaskoTheBeAsT.Identity.Dapper.SqlClient\AdaskoTheBeAsT.Identity.Dapper.SqlClient.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+
+
+    <ProjectReference Include="..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
   </ItemGroup>
 
 </Project>
