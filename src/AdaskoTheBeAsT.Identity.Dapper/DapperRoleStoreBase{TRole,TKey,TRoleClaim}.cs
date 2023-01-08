@@ -295,7 +295,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     /// </summary>
     public void Dispose()
     {
-        Dispose(true);
+        Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
 

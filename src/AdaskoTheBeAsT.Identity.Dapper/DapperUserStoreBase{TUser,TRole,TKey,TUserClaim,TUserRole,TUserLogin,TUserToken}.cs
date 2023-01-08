@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Identity;
 namespace AdaskoTheBeAsT.Identity.Dapper;
 
 public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken>
-    : DapperUserStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken>,
+    : DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken>,
         IUserRoleStore<TUser>
     where TUser : IdentityUser<TKey>
     where TRole : IdentityRole<TKey>

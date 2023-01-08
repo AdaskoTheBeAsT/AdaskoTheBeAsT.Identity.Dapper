@@ -13,7 +13,10 @@ public class MySqlSourceGenerationHelper
             new MySqlIdentityUserClaimClassGenerator(),
             new MySqlIdentityUserLoginClassGenerator(),
             new MySqlIdentityUserRoleClassGenerator(),
-            new MySqlIdentityUserTokenClassGenerator())
+            new MySqlIdentityUserTokenClassGenerator(),
+            new MySqlApplicationUserOnlyStoreGenerator(),
+            new MySqlApplicationUserStoreGenerator(),
+            new MySqlApplicationRoleStoreGenerator())
     {
     }
 }

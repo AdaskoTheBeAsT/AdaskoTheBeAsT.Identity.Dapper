@@ -41,15 +41,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".props", ".props", "{EE241C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper", "src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj", "{351FCF09-1AD0-4C93-9927-FEF2F5091C01}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.SqlClient", "src\AdaskoTheBeAsT.Identity.Dapper.SqlClient\AdaskoTheBeAsT.Identity.Dapper.SqlClient.csproj", "{0C486550-0878-4D05-BDFF-FFF7B1C6F180}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.SqlServer", "src\AdaskoTheBeAsT.Identity.Dapper.SqlServer\AdaskoTheBeAsT.Identity.Dapper.SqlServer.csproj", "{0C486550-0878-4D05-BDFF-FFF7B1C6F180}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.SqlClient.IntegrationTest", "test\integ\AdaskoTheBeAsT.Identity.Dapper.SqlClient.IntegrationTest\AdaskoTheBeAsT.Identity.Dapper.SqlClient.IntegrationTest.csproj", "{AE3636B8-2AD9-406F-B83A-D193B7785E44}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest", "test\integ\AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest\AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.csproj", "{AE3636B8-2AD9-406F-B83A-D193B7785E44}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.SqlClient.Test", "test\unit\AdaskoTheBeAsT.Identity.Dapper.SqlClient.Test\AdaskoTheBeAsT.Identity.Dapper.SqlClient.Test.csproj", "{3DD57D21-B015-4AE3-B2CD-FD3D33A01C3B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.SqlServer.Test", "test\unit\AdaskoTheBeAsT.Identity.Dapper.SqlServer.Test\AdaskoTheBeAsT.Identity.Dapper.SqlServer.Test.csproj", "{3DD57D21-B015-4AE3-B2CD-FD3D33A01C3B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{7D925E4F-891C-492B-92FE-6E4277E1B3F4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.SqlClient", "samples\Sample.SqlClient\Sample.SqlClient.csproj", "{2808DFA2-CE24-4D08-BAE4-1B482267F586}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.SqlServer", "samples\Sample.SqlServer\Sample.SqlServer.csproj", "{2808DFA2-CE24-4D08-BAE4-1B482267F586}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.MySql", "src\AdaskoTheBeAsT.Identity.Dapper.MySql\AdaskoTheBeAsT.Identity.Dapper.MySql.csproj", "{08380F5D-DE3A-49D3-B25A-37B3FA048D41}"
 EndProject

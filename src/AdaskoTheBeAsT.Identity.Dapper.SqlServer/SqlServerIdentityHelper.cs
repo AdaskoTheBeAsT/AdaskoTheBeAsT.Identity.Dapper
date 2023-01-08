@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 
-namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
+namespace AdaskoTheBeAsT.Identity.Dapper.SqlServer;
 
-public class MySqlIdentityHelper
+public class SqlServerIdentityHelper
     : IIdentityHelper
 {
     public ISet<string> GuidNameSet { get; } =
@@ -49,14 +49,12 @@ public class MySqlIdentityHelper
         {
             case "Guid":
             case "System.Guid":
-                return $@"SET id=UUID();
-INSERT INTO {tableName}(
-Id,
+                return $@"INSERT INTO {tableName}(
 /**insert**/)
 VALUES(
-id
-/**values**/);
-SELECT id;";
+/**values**/)
+OUTPUT inserted.Id
+VALUES(1);";
             case "int":
             case "Int32":
             case "System.Int32":
@@ -73,7 +71,7 @@ SELECT id;";
 /**insert**/)
 VALUES(
 /**values**/);
-SELECT CAST(LAST_INSERT_ID() AS UNSIGNED INTEGER);";
+SELECT SCOPE_IDENTITY();";
             case "string":
             case "String":
             case "System.String":

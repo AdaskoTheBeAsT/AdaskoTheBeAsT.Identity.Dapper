@@ -4,7 +4,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 
 public class IdentityClassGeneratorBase
 {
-    protected void GenerateUsing(StringBuilder sb)
+    protected virtual void GenerateUsing(StringBuilder sb)
     {
         sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper.Abstractions;");
         sb.AppendLine();

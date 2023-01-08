@@ -30,6 +30,9 @@ public abstract class SourceGeneratorHelperBase
     private readonly IIdentityUserLoginClassGenerator _identityUserLoginClassGenerator;
     private readonly IIdentityUserRoleClassGenerator _identityUserRoleClassGenerator;
     private readonly IIdentityUserTokenClassGenerator _identityUserTokenClassGenerator;
+    private readonly IApplicationUserOnlyStoreGenerator _applicationUserOnlyStoreGenerator;
+    private readonly IApplicationUserStoreGenerator _applicationUserStoreGenerator;
+    private readonly IApplicationRoleStoreGenerator _applicationRoleStoreGenerator;
 
     protected SourceGeneratorHelperBase(
         IIdentityRoleClassGenerator identityRoleClassGenerator,
@@ -38,7 +41,10 @@ public abstract class SourceGeneratorHelperBase
         IIdentityUserClaimClassGenerator identityUserClaimClassGenerator,
         IIdentityUserLoginClassGenerator identityUserLoginClassGenerator,
         IIdentityUserRoleClassGenerator identityUserRoleClassGenerator,
-        IIdentityUserTokenClassGenerator identityUserTokenClassGenerator)
+        IIdentityUserTokenClassGenerator identityUserTokenClassGenerator,
+        IApplicationUserOnlyStoreGenerator applicationUserOnlyStoreGenerator,
+        IApplicationUserStoreGenerator applicationUserStoreGenerator,
+        IApplicationRoleStoreGenerator applicationRoleStoreGenerator)
     {
         _identityRoleClassGenerator = identityRoleClassGenerator;
         _identityRoleClaimClassGenerator = identityRoleClaimClassGenerator;
@@ -47,6 +53,9 @@ public abstract class SourceGeneratorHelperBase
         _identityUserLoginClassGenerator = identityUserLoginClassGenerator;
         _identityUserRoleClassGenerator = identityUserRoleClassGenerator;
         _identityUserTokenClassGenerator = identityUserTokenClassGenerator;
+        _applicationUserOnlyStoreGenerator = applicationUserOnlyStoreGenerator;
+        _applicationUserStoreGenerator = applicationUserStoreGenerator;
+        _applicationRoleStoreGenerator = applicationRoleStoreGenerator;
     }
 
     public void GenerateCode(
@@ -79,6 +88,8 @@ public abstract class SourceGeneratorHelperBase
                 namespaceName,
                 new List<(IPropertySymbol PropertySymbol, string ColumnName)>());
         }
+
+        ProcessApplicationStores(context, generationInfo.KeyTypeName, namespaceName);
     }
 
     private void ProcessClass(
@@ -202,4 +213,44 @@ public abstract class SourceGeneratorHelperBase
         IList<(IPropertySymbol PropertySymbol, string ColumnName)> list) =>
         (list.Select(i => i.PropertySymbol.Name),
             list.Select(i => i.ColumnName));
+
+    private void ProcessApplicationStores(
+        SourceProductionContext context,
+        string keyTypeName,
+        string namespaceName)
+    {
+        ProcessApplicationUserOnlyStore(context, keyTypeName, namespaceName);
+        ProcessApplicationUserStore(context, keyTypeName, namespaceName);
+        ProcessApplicationRoleStore(context, keyTypeName, namespaceName);
+    }
+
+    private void ProcessApplicationUserOnlyStore(
+        SourceProductionContext context,
+        string keyTypeName,
+        string namespaceName)
+    {
+        var content = _applicationUserOnlyStoreGenerator.Generate(keyTypeName, namespaceName);
+
+        context.AddSource("ApplicationUserOnlyStore.g.cs", SourceText.From(content, Encoding.UTF8));
+    }
+
+    private void ProcessApplicationUserStore(
+        SourceProductionContext context,
+        string keyTypeName,
+        string namespaceName)
+    {
+        var content = _applicationUserStoreGenerator.Generate(keyTypeName, namespaceName);
+
+        context.AddSource("ApplicationUserStore.g.cs", SourceText.From(content, Encoding.UTF8));
+    }
+
+    private void ProcessApplicationRoleStore(
+        SourceProductionContext context,
+        string keyTypeName,
+        string namespaceName)
+    {
+        var content = _applicationRoleStoreGenerator.Generate(keyTypeName, namespaceName);
+
+        context.AddSource("ApplicationRoleStore.g.cs", SourceText.From(content, Encoding.UTF8));
+    }
 }
