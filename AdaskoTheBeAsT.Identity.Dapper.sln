@@ -55,6 +55,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dap
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "AdaskoTheBeAsT.Identity.Dapper.Shared", "src\AdaskoTheBeAsT.Identity.Dapper.Shared\AdaskoTheBeAsT.Identity.Dapper.Shared.shproj", "{D04C7852-EB46-47FF-B76B-9EE1D5CDEB42}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "db", "db", "{71823033-0DBA-4E00-8325-7DDCB7346588}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
