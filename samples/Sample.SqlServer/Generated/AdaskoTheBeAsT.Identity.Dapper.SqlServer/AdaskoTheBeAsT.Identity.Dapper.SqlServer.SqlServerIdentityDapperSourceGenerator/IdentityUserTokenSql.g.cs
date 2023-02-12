@@ -6,7 +6,7 @@ namespace Sample.SqlServer
         : IIdentityUserTokenSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO dbo.AspNetUserTokens(
+            @"INSERT INTO AspNetUserTokens(
 [UserId]
 ,[LoginProvider]
 ,[Name]
@@ -18,7 +18,7 @@ VALUES(
 ,@Value);";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM dbo.AspNetUserTokens
+            @"DELETE FROM AspNetUserTokens
 WHERE LoginProvider=@LoginProvider
   AND Name=@Name
   AND Value=@Value
@@ -29,7 +29,7 @@ WHERE LoginProvider=@LoginProvider
 ,[LoginProvider] AS LoginProvider
 ,[Name] AS Name
 ,[Value] AS Value
-FROM dbo.AspNetUserTokens
+FROM AspNetUserTokens
 WHERE UserId=@UserId
   AND LoginProvider=@LoginProvider
   AND Name=@Name;";

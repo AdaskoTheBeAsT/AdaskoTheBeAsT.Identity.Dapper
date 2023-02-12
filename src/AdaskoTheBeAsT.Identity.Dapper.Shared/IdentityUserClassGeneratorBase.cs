@@ -13,6 +13,7 @@ public abstract class IdentityUserClassGeneratorBase
         IIdentityUserClassGenerator
 {
     public string Generate(
+        string schemaPart,
         string keyTypeName,
         string namespaceName,
         IEnumerable<string> propertyNames,
@@ -28,57 +29,65 @@ public abstract class IdentityUserClassGeneratorBase
         GenerateUsing(sb);
         GenerateNamespaceStart(sb, namespaceName);
         GenerateClassStart(sb, "IdentityUserSql", "IIdentityUserSql");
-        GenerateCreateSql(sb, keyTypeName, combinedColumnNames, combinedPropertyNames);
-        GenerateUpdateSql(sb, combinedColumnNames, combinedPropertyNames);
-        GenerateDeleteSql(sb);
-        GenerateFindByIdSql(sb, combinedColumnNames, combinedPropertyNames);
-        GenerateFindByNameSql(sb, combinedColumnNames, combinedPropertyNames);
-        GenerateFindByEmailSql(sb, combinedColumnNames, combinedPropertyNames);
-        GenerateGetUsersForClaimSql(sb, combinedColumnNames, combinedPropertyNames);
-        GenerateGetUsersInRoleSql(sb, combinedColumnNames, combinedPropertyNames);
+        GenerateCreateSql(sb, schemaPart, keyTypeName, combinedColumnNames, combinedPropertyNames);
+        GenerateUpdateSql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
+        GenerateDeleteSql(sb, schemaPart);
+        GenerateFindByIdSql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
+        GenerateFindByNameSql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
+        GenerateFindByEmailSql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
+        GenerateGetUsersForClaimSql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
+        GenerateGetUsersInRoleSql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
     }
 
     protected abstract string ProcessIdentityUserCreateSql(
+        string schemaPart,
         string keyTypeName,
         IList<string> columnNames,
         IList<string> propertyNames);
 
     protected abstract string ProcessIdentityUserUpdateSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames);
 
-    protected abstract string ProcessIdentityUserDeleteSql();
+    protected abstract string ProcessIdentityUserDeleteSql(string schemaPart);
 
     protected abstract string ProcessIdentityUserFindByIdSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames);
 
     protected abstract string ProcessIdentityUserFindByNameSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames);
 
     protected abstract string ProcessIdentityUserFindByEmailSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames);
 
     protected abstract string ProcessIdentityUserGetUsersForClaimSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames);
 
     protected abstract string ProcessIdentityUserGetUsersInRoleSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames);
 
     private void GenerateCreateSql(
         StringBuilder sb,
+        string schemaPart,
         string keyTypeName,
         IList<string> combinedColumnNames,
         IList<string> combinedPropertyNames)
     {
-        var content = ProcessIdentityUserCreateSql(keyTypeName, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserCreateSql(schemaPart, keyTypeName, combinedColumnNames, combinedPropertyNames);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");
@@ -87,10 +96,11 @@ public abstract class IdentityUserClassGeneratorBase
 
     private void GenerateUpdateSql(
         StringBuilder sb,
+        string schemaPart,
         IList<string> combinedColumnNames,
         IList<string> combinedPropertyNames)
     {
-        var content = ProcessIdentityUserUpdateSql(combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserUpdateSql(schemaPart, combinedColumnNames, combinedPropertyNames);
         sb.AppendLine(
             $@"        public string UpdateSql {{ get; }} =
             @""{content}"";");
@@ -98,9 +108,10 @@ public abstract class IdentityUserClassGeneratorBase
     }
 
     private void GenerateDeleteSql(
-        StringBuilder sb)
+        StringBuilder sb,
+        string schemaPart)
     {
-        var content = ProcessIdentityUserDeleteSql();
+        var content = ProcessIdentityUserDeleteSql(schemaPart);
         sb.AppendLine(
             $@"        public string DeleteSql {{ get; }} =
             @""{content}"";");
@@ -109,10 +120,11 @@ public abstract class IdentityUserClassGeneratorBase
 
     private void GenerateFindByIdSql(
         StringBuilder sb,
+        string schemaPart,
         IList<string> combinedColumnNames,
         IList<string> combinedPropertyNames)
     {
-        var content = ProcessIdentityUserFindByIdSql(combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserFindByIdSql(schemaPart, combinedColumnNames, combinedPropertyNames);
         sb.AppendLine(
             $@"        public string FindByIdSql {{ get; }} =
             @""{content}"";");
@@ -121,10 +133,11 @@ public abstract class IdentityUserClassGeneratorBase
 
     private void GenerateFindByNameSql(
         StringBuilder sb,
+        string schemaPart,
         IList<string> combinedColumnNames,
         IList<string> combinedPropertyNames)
     {
-        var content = ProcessIdentityUserFindByNameSql(combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserFindByNameSql(schemaPart, combinedColumnNames, combinedPropertyNames);
         sb.AppendLine(
             $@"        public string FindByNameSql {{ get; }} =
             @""{content}"";");
@@ -133,10 +146,11 @@ public abstract class IdentityUserClassGeneratorBase
 
     private void GenerateFindByEmailSql(
         StringBuilder sb,
+        string schemaPart,
         IList<string> combinedColumnNames,
         IList<string> combinedPropertyNames)
     {
-        var content = ProcessIdentityUserFindByEmailSql(combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserFindByEmailSql(schemaPart, combinedColumnNames, combinedPropertyNames);
         sb.AppendLine(
             $@"        public string FindByEmailSql {{ get; }} =
             @""{content}"";");
@@ -145,10 +159,11 @@ public abstract class IdentityUserClassGeneratorBase
 
     private void GenerateGetUsersForClaimSql(
         StringBuilder sb,
+        string schemaPart,
         IList<string> combinedColumnNames,
         IList<string> combinedPropertyNames)
     {
-        var content = ProcessIdentityUserGetUsersForClaimSql(combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserGetUsersForClaimSql(schemaPart, combinedColumnNames, combinedPropertyNames);
         sb.AppendLine(
             $@"        public string GetUsersForClaimSql {{ get; }} =
             @""{content}"";");
@@ -157,10 +172,11 @@ public abstract class IdentityUserClassGeneratorBase
 
     private void GenerateGetUsersInRoleSql(
         StringBuilder sb,
+        string schemaPart,
         IList<string> combinedColumnNames,
         IList<string> combinedPropertyNames)
     {
-        var content = ProcessIdentityUserGetUsersInRoleSql(combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserGetUsersInRoleSql(schemaPart, combinedColumnNames, combinedPropertyNames);
         sb.AppendLine(
             $@"        public string GetUsersInRoleSql {{ get; }} =
             @""{content}"";");

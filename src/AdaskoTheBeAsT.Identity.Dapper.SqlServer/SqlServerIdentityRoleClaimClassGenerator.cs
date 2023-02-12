@@ -10,19 +10,21 @@ public class SqlServerIdentityRoleClaimClassGenerator
     : IdentityRoleClaimClassGeneratorBase
 {
     protected override string ProcessIdentityRoleClaimCreateSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
+
         return sqlBuilder
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
             .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
             .AddTemplate(
-                "INSERT INTO dbo.AspNetRoleClaims(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);\r\nSELECT SCOPE_IDENTITY();")
+                $"INSERT INTO {schemaPart}AspNetRoleClaims(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);\r\nSELECT SCOPE_IDENTITY();")
             .RawSql;
     }
 
-    protected override string ProcessIdentityRoleClaimDeleteSql()
+    protected override string ProcessIdentityRoleClaimDeleteSql(string schemaPart)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
 
@@ -31,18 +33,19 @@ public class SqlServerIdentityRoleClaimClassGenerator
             .Where2($"{nameof(IdentityRoleClaim<int>.ClaimType)}=@{nameof(IdentityRoleClaim<int>.ClaimType)}")
             .Where2($"{nameof(IdentityRoleClaim<int>.ClaimValue)}=@{nameof(IdentityRoleClaim<int>.ClaimValue)}")
             .AddTemplate(
-                "DELETE FROM dbo.AspNetRoleClaims\r\n/**where2**/;")
+                $"DELETE FROM {schemaPart}AspNetRoleClaims\r\n/**where2**/;")
             .RawSql;
     }
 
-    protected override string ProcessIdentityRoleClaimGetByRoleIdSql()
+    protected override string ProcessIdentityRoleClaimGetByRoleIdSql(string schemaPart)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
+
         return sqlBuilder
             .Select2("ClaimType AS Type,\r\nClaimValue AS Value")
             .Where2($"RoleId=@{nameof(IdentityRole.Id)}")
             .AddTemplate(
-                "SELECT /**select2**/FROM dbo.AspNetRoleClaims\r\n/**where2**/;")
+                $"SELECT /**select2**/FROM {schemaPart}AspNetRoleClaims\r\n/**where2**/;")
             .RawSql;
     }
 }

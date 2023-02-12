@@ -1,2 +1,4 @@
 # AdaskoTheBeAsT.Identity.Dapper
-Dapper implementation for Microsoft.Extensions.Identity.Stores
+
+Dapper implementation for Microsoft.Extensions.Identity.Stores.
+

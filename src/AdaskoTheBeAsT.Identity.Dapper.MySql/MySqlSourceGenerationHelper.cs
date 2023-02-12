@@ -19,4 +19,7 @@ public class MySqlSourceGenerationHelper
             new MySqlApplicationRoleStoreGenerator())
     {
     }
+
+    protected override string GenerateSchemaPart(string dbSchema) =>
+        string.IsNullOrEmpty(dbSchema) ? string.Empty : $"`{dbSchema}`.";
 }

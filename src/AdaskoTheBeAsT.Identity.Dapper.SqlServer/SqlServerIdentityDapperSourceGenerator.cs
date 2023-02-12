@@ -9,7 +9,7 @@ public class SqlServerIdentityDapperSourceGenerator
         IIncrementalGenerator
 {
     public SqlServerIdentityDapperSourceGenerator()
-        : base(new SqlSourceGenerationHelper())
+        : base(new SqlServerSourceGenerationHelper())
     {
     }
 }

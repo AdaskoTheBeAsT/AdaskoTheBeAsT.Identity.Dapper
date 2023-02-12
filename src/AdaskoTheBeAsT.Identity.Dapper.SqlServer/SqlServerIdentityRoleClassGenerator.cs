@@ -19,12 +19,13 @@ public class SqlServerIdentityRoleClassGenerator
     }
 
     protected override string ProcessIdentityRoleCreateSql(
+        string schemaPart,
         string keyTypeName,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var template = _identityHelper.GetInsertTemplate("dbo.AspNetRoles", keyTypeName);
+        var template = _identityHelper.GetInsertTemplate($"{schemaPart}AspNetRoles", keyTypeName);
         return sqlBuilder
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
             .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
@@ -33,6 +34,7 @@ public class SqlServerIdentityRoleClassGenerator
     }
 
     protected override string ProcessIdentityRoleUpdateSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -48,14 +50,15 @@ public class SqlServerIdentityRoleClassGenerator
             .Set2(string.Join("\r\n,", list))
             .Where2($"{nameof(IdentityRole.Id)}=@{nameof(IdentityRole.Id)}")
             .AddTemplate(
-                "UPDATE dbo.AspNetRoles\r\n/**set2**//**where2**/;")
+                $"UPDATE {schemaPart}AspNetRoles\r\n/**set2**//**where2**/;")
             .RawSql;
     }
 
-    protected override string ProcessIdentityRoleDeleteSql() =>
-        $"DELETE FROM dbo.AspNetRoles WHERE {nameof(IdentityRole.Id)}=@{nameof(IdentityRole.Id)};";
+    protected override string ProcessIdentityRoleDeleteSql(string schemaPart) =>
+        $"DELETE FROM {schemaPart}AspNetRoles WHERE {nameof(IdentityRole.Id)}=@{nameof(IdentityRole.Id)};";
 
     protected override string ProcessIdentityRoleFindByIdSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -71,11 +74,12 @@ public class SqlServerIdentityRoleClassGenerator
             .Select2(string.Join("\r\n,", list))
             .Where2($"{nameof(IdentityRole.Id)}=@{nameof(IdentityRole.Id)}")
             .AddTemplate(
-                "SELECT /**select2**/FROM dbo.AspNetRoles\r\n/**where2**/;")
+                $"SELECT /**select2**/FROM {schemaPart}AspNetRoles\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityRoleFindByNameSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -91,7 +95,7 @@ public class SqlServerIdentityRoleClassGenerator
             .Select2(string.Join("\r\n,", list))
             .Where2($"{nameof(IdentityRole.NormalizedName)}=@{nameof(IdentityRole.NormalizedName)}")
             .AddTemplate(
-                "SELECT /**select2**/FROM dbo.AspNetRoles\r\n/**where2**/;")
+                $"SELECT /**select2**/FROM {schemaPart}AspNetRoles\r\n/**where2**/;")
             .RawSql;
     }
 }

@@ -7,5 +7,6 @@ public interface ISourceGeneratorHelper
 {
     void GenerateCode(
         SourceProductionContext context,
+        string dbSchema,
         (string KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) generationInfo);
 }

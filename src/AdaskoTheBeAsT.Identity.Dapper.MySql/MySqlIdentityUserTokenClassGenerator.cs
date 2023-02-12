@@ -11,6 +11,7 @@ public class MySqlIdentityUserTokenClassGenerator
     : IdentityUserTokenClassGeneratorBase
 {
     protected override string ProcessIdentityUserTokenCreateSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -19,11 +20,11 @@ public class MySqlIdentityUserTokenClassGenerator
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"`{s}`")))
             .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
             .AddTemplate(
-                "INSERT INTO `aspnetusertokens`(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
+                $"INSERT INTO {schemaPart}`aspnetusertokens`(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
             .RawSql;
     }
 
-    protected override string ProcessIdentityUserTokenDeleteSql()
+    protected override string ProcessIdentityUserTokenDeleteSql(string schemaPart)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
 
@@ -33,11 +34,12 @@ public class MySqlIdentityUserTokenClassGenerator
             .Where2($"{nameof(IdentityUserToken<int>.Value)}=@{nameof(IdentityUserToken<int>.Value)}")
             .Where2($"{nameof(IdentityUserToken<int>.UserId)}=@{nameof(IdentityUserToken<int>.UserId)}")
             .AddTemplate(
-                "DELETE FROM `aspnetusertokens`\r\n/**where2**/;")
+                $"DELETE FROM {schemaPart}`aspnetusertokens`\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserTokenGetByUserIdSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -55,7 +57,7 @@ public class MySqlIdentityUserTokenClassGenerator
             .Where2($"{nameof(IdentityUserToken<int>.LoginProvider)}=@{nameof(IdentityUserToken<int>.LoginProvider)}")
             .Where2($"{nameof(IdentityUserToken<int>.Name)}=@{nameof(IdentityUserToken<int>.Name)}")
             .AddTemplate(
-                "SELECT TOP 1 /**select2**/FROM `aspnetusertokens`\r\n/**where2**/;")
+                $"SELECT TOP 1 /**select2**/FROM {schemaPart}`aspnetusertokens`\r\n/**where2**/;")
             .RawSql;
     }
 }

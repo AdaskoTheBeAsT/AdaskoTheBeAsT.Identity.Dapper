@@ -3,6 +3,7 @@ using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Builders;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.SqlServer.Test;
 
@@ -33,7 +34,8 @@ public static class TestHelper
         var generator = new SqlServerIdentityDapperSourceGenerator();
 
         // The GeneratorDriver is used to run our generator against a compilation
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+        GeneratorDriver driver = CSharpGeneratorDriver
+            .Create(generator);
 
         // Run the source generator!
         driver = driver.RunGenerators(compilation);

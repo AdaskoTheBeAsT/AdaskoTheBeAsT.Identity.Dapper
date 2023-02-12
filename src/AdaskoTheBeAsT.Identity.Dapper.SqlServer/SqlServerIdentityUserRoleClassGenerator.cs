@@ -11,6 +11,7 @@ public class SqlServerIdentityUserRoleClassGenerator
     : IdentityUserRoleClassGeneratorBase
 {
     protected override string ProcessIdentityUserRoleCreateSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -19,11 +20,11 @@ public class SqlServerIdentityUserRoleClassGenerator
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
             .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
             .AddTemplate(
-                "INSERT INTO dbo.AspNetUserRoles(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
+                $"INSERT INTO {schemaPart}AspNetUserRoles(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
             .RawSql;
     }
 
-    protected override string ProcessIdentityUserRoleDeleteSql()
+    protected override string ProcessIdentityUserRoleDeleteSql(string schemaPart)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
 
@@ -31,11 +32,12 @@ public class SqlServerIdentityUserRoleClassGenerator
             .Where2($"{nameof(IdentityUserRole<int>.UserId)}=@{nameof(IdentityUserRole<int>.UserId)}")
             .Where2($"{nameof(IdentityUserRole<int>.RoleId)}=@{nameof(IdentityUserRole<int>.RoleId)}")
             .AddTemplate(
-                "DELETE FROM dbo.AspNetUserRoles\r\n/**where2**/;")
+                $"DELETE FROM {schemaPart}AspNetUserRoles\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserRoleGetByUserIdRoleIdSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -52,11 +54,12 @@ public class SqlServerIdentityUserRoleClassGenerator
             .Where2($"{nameof(IdentityUserRole<int>.UserId)}=@{nameof(IdentityUserRole<int>.UserId)}")
             .Where2($"{nameof(IdentityUserRole<int>.RoleId)}=@{nameof(IdentityUserRole<int>.RoleId)}")
             .AddTemplate(
-                "SELECT /**select2**/FROM dbo.AspNetUserRoles\r\n/**where2**/;")
+                $"SELECT /**select2**/FROM {schemaPart}AspNetUserRoles\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserRoleGetCount(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -65,20 +68,21 @@ public class SqlServerIdentityUserRoleClassGenerator
             .Where2($"{nameof(IdentityUserRole<int>.UserId)}=@{nameof(IdentityUserRole<int>.UserId)}")
             .Where2($"{nameof(IdentityUserRole<int>.RoleId)}=@{nameof(IdentityUserRole<int>.RoleId)}")
             .AddTemplate(
-                "SELECT COUNT(*)\r\nFROM dbo.AspNetUserRoles\r\n/**where2**/;")
+                $"SELECT COUNT(*)\r\nFROM {schemaPart}AspNetUserRoles\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserRoleGetRoleNamesByUserId(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .InnerJoin2("dbo.AspNetUserRoles ur ON r.Id=ur.RoleId")
+            .InnerJoin2($"{schemaPart}AspNetUserRoles ur ON r.Id=ur.RoleId")
             .Where2($"ur.{nameof(IdentityUserRole<int>.UserId)}=@{nameof(IdentityUserRole<int>.UserId)}")
             .AddTemplate(
-                "SELECT r.NormalizedName\r\nFROM dbo.AspNetRoles r/**innerjoin2**//**where2**/;")
+                $"SELECT r.NormalizedName\r\nFROM {schemaPart}AspNetRoles r/**innerjoin2**//**where2**/;")
             .RawSql;
     }
 }

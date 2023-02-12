@@ -6,7 +6,7 @@ namespace Sample.SqlServer
         : IIdentityUserLoginSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO dbo.AspNetUserLogins(
+            @"INSERT INTO AspNetUserLogins(
 [LoginProvider]
 ,[ProviderKey]
 ,[ProviderDisplayName]
@@ -18,7 +18,7 @@ VALUES(
 ,@UserId);";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM dbo.AspNetUserLogins
+            @"DELETE FROM AspNetUserLogins
 WHERE LoginProvider=@LoginProvider
   AND ProviderKey=@ProviderKey
   AND UserId=@UserId;";
@@ -28,7 +28,7 @@ WHERE LoginProvider=@LoginProvider
 ,[ProviderKey] AS ProviderKey
 ,[ProviderDisplayName] AS ProviderDisplayName
 ,[UserId] AS UserId
-FROM dbo.AspNetUserLogins
+FROM AspNetUserLogins
 WHERE UserId=@Id;";
 
         public string GetByUserIdLoginProviderKeySql { get; } =
@@ -36,7 +36,7 @@ WHERE UserId=@Id;";
 ,[ProviderKey] AS ProviderKey
 ,[ProviderDisplayName] AS ProviderDisplayName
 ,[UserId] AS UserId
-FROM dbo.AspNetUserLogins
+FROM AspNetUserLogins
 WHERE UserId=@Id
   AND LoginProvider=@LoginProvider
   AND ProviderKey=@ProviderKey;";
@@ -46,7 +46,7 @@ WHERE UserId=@Id
 ,[ProviderKey] AS ProviderKey
 ,[ProviderDisplayName] AS ProviderDisplayName
 ,[UserId] AS UserId
-FROM dbo.AspNetUserLogins
+FROM AspNetUserLogins
 WHERE LoginProvider=@LoginProvider
   AND ProviderKey=@ProviderKey;";
     }

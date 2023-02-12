@@ -13,6 +13,7 @@ public abstract class IdentityRoleClaimClassGeneratorBase
         IIdentityRoleClaimClassGenerator
 {
     public string Generate(
+        string schemaPart,
         string namespaceName,
         IEnumerable<string> propertyNames,
         IEnumerable<string> columnNames)
@@ -27,28 +28,30 @@ public abstract class IdentityRoleClaimClassGeneratorBase
         GenerateUsing(sb);
         GenerateNamespaceStart(sb, namespaceName);
         GenerateClassStart(sb, "IdentityRoleClaimSql", "IIdentityRoleClaimSql");
-        GenerateCreateSql(sb, combinedColumnNames, combinedPropertyNames);
-        GenerateDeleteSql(sb);
-        GenerateGetByRoleIdSql(sb);
+        GenerateCreateSql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
+        GenerateDeleteSql(sb, schemaPart);
+        GenerateGetByRoleIdSql(sb, schemaPart);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
     }
 
     protected abstract string ProcessIdentityRoleClaimCreateSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames);
 
-    protected abstract string ProcessIdentityRoleClaimDeleteSql();
+    protected abstract string ProcessIdentityRoleClaimDeleteSql(string schemaPart);
 
-    protected abstract string ProcessIdentityRoleClaimGetByRoleIdSql();
+    protected abstract string ProcessIdentityRoleClaimGetByRoleIdSql(string schemaPart);
 
     private void GenerateCreateSql(
         StringBuilder sb,
+        string schemaPart,
         IList<string> combinedColumnNames,
         IList<string> combinedPropertyNames)
     {
-        var content = ProcessIdentityRoleClaimCreateSql(combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityRoleClaimCreateSql(schemaPart, combinedColumnNames, combinedPropertyNames);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");
@@ -56,9 +59,10 @@ public abstract class IdentityRoleClaimClassGeneratorBase
     }
 
     private void GenerateDeleteSql(
-        StringBuilder sb)
+        StringBuilder sb,
+        string schemaPart)
     {
-        var content = ProcessIdentityRoleClaimDeleteSql();
+        var content = ProcessIdentityRoleClaimDeleteSql(schemaPart);
         sb.AppendLine(
             $@"        public string DeleteSql {{ get; }} =
             @""{content}"";");
@@ -66,9 +70,10 @@ public abstract class IdentityRoleClaimClassGeneratorBase
     }
 
     private void GenerateGetByRoleIdSql(
-        StringBuilder sb)
+        StringBuilder sb,
+        string schemaPart)
     {
-        var content = ProcessIdentityRoleClaimGetByRoleIdSql();
+        var content = ProcessIdentityRoleClaimGetByRoleIdSql(schemaPart);
         sb.AppendLine(
             $@"        public string GetByRoleIdSql {{ get; }} =
             @""{content}"";");

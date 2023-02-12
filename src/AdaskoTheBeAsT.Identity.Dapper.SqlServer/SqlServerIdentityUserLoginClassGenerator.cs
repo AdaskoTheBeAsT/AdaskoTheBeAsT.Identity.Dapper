@@ -11,6 +11,7 @@ public class SqlServerIdentityUserLoginClassGenerator
     : IdentityUserLoginClassGeneratorBase
 {
     protected override string ProcessIdentityUserLoginCreateSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -19,11 +20,11 @@ public class SqlServerIdentityUserLoginClassGenerator
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
             .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
             .AddTemplate(
-                "INSERT INTO dbo.AspNetUserLogins(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
+                $"INSERT INTO {schemaPart}AspNetUserLogins(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
             .RawSql;
     }
 
-    protected override string ProcessIdentityUserLoginDeleteSql()
+    protected override string ProcessIdentityUserLoginDeleteSql(string schemaPart)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
 
@@ -32,11 +33,12 @@ public class SqlServerIdentityUserLoginClassGenerator
             .Where2($"{nameof(IdentityUserLogin<int>.ProviderKey)}=@{nameof(IdentityUserLogin<int>.ProviderKey)}")
             .Where2($"{nameof(IdentityUserLogin<int>.UserId)}=@{nameof(IdentityUserLogin<int>.UserId)}")
             .AddTemplate(
-                "DELETE FROM dbo.AspNetUserLogins\r\n/**where2**/;")
+                $"DELETE FROM {schemaPart}AspNetUserLogins\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserLoginGetByUserIdSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -52,11 +54,12 @@ public class SqlServerIdentityUserLoginClassGenerator
             .Select2(string.Join("\r\n,", list))
             .Where2($"UserId=@{nameof(IdentityUser.Id)}")
             .AddTemplate(
-                "SELECT /**select2**/FROM dbo.AspNetUserLogins\r\n/**where2**/;")
+                $"SELECT /**select2**/FROM {schemaPart}AspNetUserLogins\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserLoginGetByUserIdLoginProviderKeySql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -74,11 +77,12 @@ public class SqlServerIdentityUserLoginClassGenerator
             .Where2($"{nameof(IdentityUserLogin<int>.LoginProvider)}=@{nameof(IdentityUserLogin<int>.LoginProvider)}")
             .Where2($"{nameof(IdentityUserLogin<int>.ProviderKey)}=@{nameof(IdentityUserLogin<int>.ProviderKey)}")
             .AddTemplate(
-                "SELECT /**select2**/FROM dbo.AspNetUserLogins\r\n/**where2**/;")
+                $"SELECT /**select2**/FROM {schemaPart}AspNetUserLogins\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserLoginGetByLoginProviderKeySql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -95,7 +99,7 @@ public class SqlServerIdentityUserLoginClassGenerator
             .Where2($"{nameof(IdentityUserLogin<int>.LoginProvider)}=@{nameof(IdentityUserLogin<int>.LoginProvider)}")
             .Where2($"{nameof(IdentityUserLogin<int>.ProviderKey)}=@{nameof(IdentityUserLogin<int>.ProviderKey)}")
             .AddTemplate(
-                "SELECT /**select2**/FROM dbo.AspNetUserLogins\r\n/**where2**/;")
+                $"SELECT /**select2**/FROM {schemaPart}AspNetUserLogins\r\n/**where2**/;")
             .RawSql;
     }
 }

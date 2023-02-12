@@ -24,6 +24,22 @@ public abstract class IdentityDapperSourceGeneratorBase
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        var dbSchemaProvider = context.AnalyzerConfigOptionsProvider.Select(
+            (
+                config,
+                _) =>
+            {
+                var retval = "dbo";
+                if (config.GlobalOptions.TryGetValue(
+                        "AdaskoTheBeAsTIdentityDapper_DbSchema",
+                        out var schema))
+                {
+                    retval = schema;
+                }
+
+                return retval;
+            });
+
         var classDeclarations =
             context.SyntaxProvider.CreateSyntaxProvider(
                     predicate: static (
@@ -39,14 +55,14 @@ public abstract class IdentityDapperSourceGeneratorBase
                         _) => c!);
 
         var compilationAndClasses =
-            context.CompilationProvider.Combine(classDeclarations.Collect());
+            context.CompilationProvider.Combine(dbSchemaProvider).Combine(classDeclarations.Collect());
 
         context.RegisterSourceOutput(
             compilationAndClasses,
             (
                     spc,
                     source) =>
-                Execute(spc, source.Left, source.Right));
+                Execute(spc, source.Left.Left, source.Left.Right, source.Right));
     }
 
     private static bool IsSyntaxTargetForGeneration(SyntaxNode node)
@@ -64,6 +80,7 @@ public abstract class IdentityDapperSourceGeneratorBase
     private void Execute(
         SourceProductionContext context,
         Compilation compilation,
+        string dbSchema,
         ImmutableArray<ClassDeclarationSyntax> classDeclarations)
     {
         if (classDeclarations.IsDefaultOrEmpty)
@@ -87,7 +104,7 @@ public abstract class IdentityDapperSourceGeneratorBase
         if (classesToGenerate.Items.Count > 0)
         {
             // generate the source code and add it to the output
-            _sourceGeneratorHelper.GenerateCode(context, classesToGenerate);
+            _sourceGeneratorHelper.GenerateCode(context, dbSchema, classesToGenerate);
         }
     }
 

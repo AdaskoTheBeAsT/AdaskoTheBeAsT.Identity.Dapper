@@ -19,12 +19,13 @@ public class MySqlIdentityUserClassGenerator
     }
 
     protected override string ProcessIdentityUserCreateSql(
+        string schemaPart,
         string keyTypeName,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var template = _identityHelper.GetInsertTemplate("`aspnetusers`", keyTypeName);
+        var template = _identityHelper.GetInsertTemplate($"{schemaPart}`aspnetusers`", keyTypeName);
         return sqlBuilder
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
             .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
@@ -33,6 +34,7 @@ public class MySqlIdentityUserClassGenerator
     }
 
     protected override string ProcessIdentityUserUpdateSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -48,14 +50,15 @@ public class MySqlIdentityUserClassGenerator
             .Set2(string.Join("\r\n,", list))
             .Where2($"{nameof(IdentityUser.Id)}=@{nameof(IdentityUser.Id)}")
             .AddTemplate(
-                "UPDATE `aspnetusers`\r\n/**set2**//**where2**/;")
+                $"UPDATE {schemaPart}`aspnetusers`\r\n/**set2**//**where2**/;")
             .RawSql;
     }
 
-    protected override string ProcessIdentityUserDeleteSql() =>
-        $"DELETE FROM `aspnetusers` WHERE {nameof(IdentityUser.Id)}=@{nameof(IdentityUser.Id)};";
+    protected override string ProcessIdentityUserDeleteSql(string schemaPart) =>
+        $"DELETE FROM {schemaPart}`aspnetusers` WHERE {nameof(IdentityUser.Id)}=@{nameof(IdentityUser.Id)};";
 
     protected override string ProcessIdentityUserFindByIdSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -71,11 +74,12 @@ public class MySqlIdentityUserClassGenerator
             .Select2(string.Join("\r\n,", list))
             .Where2($"{nameof(IdentityUser.Id)}=@{nameof(IdentityUser.Id)}")
             .AddTemplate(
-                "SELECT /**select2**/FROM `aspnetusers`\r\n/**where2**/;")
+                $"SELECT /**select2**/FROM {schemaPart}`aspnetusers`\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserFindByNameSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -91,11 +95,12 @@ public class MySqlIdentityUserClassGenerator
             .Select2(string.Join("\r\n,", list))
             .Where2($"{nameof(IdentityUser.NormalizedUserName)}=@{nameof(IdentityUser.NormalizedUserName)}")
             .AddTemplate(
-                "SELECT /**select2**/FROM `aspnetusers`\r\n/**where2**/;")
+                $"SELECT /**select2**/FROM {schemaPart}`aspnetusers`\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserFindByEmailSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -111,11 +116,12 @@ public class MySqlIdentityUserClassGenerator
             .Select2(string.Join("\r\n,", list))
             .Where2($"{nameof(IdentityUser.NormalizedEmail)}=@{nameof(IdentityUser.NormalizedEmail)}")
             .AddTemplate(
-                "SELECT /**select2**/FROM `aspnetusers`\r\n/**where2**/;")
+                $"SELECT /**select2**/FROM {schemaPart}`aspnetusers`\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserGetUsersForClaimSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -129,15 +135,16 @@ public class MySqlIdentityUserClassGenerator
 
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))
-            .InnerJoin2("`aspnetuserclaims` c ON u.Id=c.UserId")
+            .InnerJoin2($"{schemaPart}`aspnetuserclaims` c ON u.Id=c.UserId")
             .Where2("c.ClaimType=@ClaimType")
             .Where2("c.ClaimValue=@ClaimValue")
             .AddTemplate(
-                "SELECT /**select2**/FROM `aspnetusers` u/**innerjoin2**//**where2**/;")
+                $"SELECT /**select2**/FROM {schemaPart}`aspnetusers` u/**innerjoin2**//**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserGetUsersInRoleSql(
+        string schemaPart,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -151,11 +158,11 @@ public class MySqlIdentityUserClassGenerator
 
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))
-            .InnerJoin2("`aspnetuserroles` ur ON u.Id=ur.UserId")
-            .InnerJoin2("`aspnetroles` r ON ur.RolesId=r.Id")
+            .InnerJoin2($"{schemaPart}`aspnetuserroles` ur ON u.Id=ur.UserId")
+            .InnerJoin2($"{schemaPart}`aspnetroles` r ON ur.RolesId=r.Id")
             .Where2($"r.{nameof(IdentityRole.NormalizedName)}=@{nameof(IdentityRole.NormalizedName)}")
             .AddTemplate(
-                "SELECT /**select2**/FROM `aspnetusers` u/**innerjoin2**//**where2**/;")
+                $"SELECT /**select2**/FROM {schemaPart}`aspnetusers` u/**innerjoin2**//**where2**/;")
             .RawSql;
     }
 }
