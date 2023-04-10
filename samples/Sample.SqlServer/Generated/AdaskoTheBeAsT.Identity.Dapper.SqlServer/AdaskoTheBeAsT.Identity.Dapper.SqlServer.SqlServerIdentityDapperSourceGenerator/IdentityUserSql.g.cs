@@ -6,7 +6,7 @@ namespace Sample.SqlServer
         : IIdentityUserSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO AspNetUsers(
+            @"INSERT INTO dbo.AspNetUsers(
 [UserName]
 ,[NormalizedUserName]
 ,[Email]
@@ -42,7 +42,7 @@ OUTPUT inserted.Id
 VALUES(1);";
 
         public string UpdateSql { get; } =
-            @"UPDATE AspNetUsers
+            @"UPDATE dbo.AspNetUsers
 SET [UserName]=@UserName
 ,[NormalizedUserName]=@NormalizedUserName
 ,[Email]=@Email
@@ -61,7 +61,7 @@ SET [UserName]=@UserName
 WHERE Id=@Id;";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM AspNetUsers WHERE Id=@Id;";
+            @"DELETE FROM dbo.AspNetUsers WHERE Id=@Id;";
 
         public string FindByIdSql { get; } =
             @"SELECT Id
@@ -80,7 +80,7 @@ WHERE Id=@Id;";
 ,[LockoutEnabled] AS LockoutEnabled
 ,[AccessFailedCount] AS AccessFailedCount
 ,[IsActive] AS Active
-FROM AspNetUsers
+FROM dbo.AspNetUsers
 WHERE Id=@Id;";
 
         public string FindByNameSql { get; } =
@@ -100,7 +100,7 @@ WHERE Id=@Id;";
 ,[LockoutEnabled] AS LockoutEnabled
 ,[AccessFailedCount] AS AccessFailedCount
 ,[IsActive] AS Active
-FROM AspNetUsers
+FROM dbo.AspNetUsers
 WHERE NormalizedUserName=@NormalizedUserName;";
 
         public string FindByEmailSql { get; } =
@@ -120,7 +120,7 @@ WHERE NormalizedUserName=@NormalizedUserName;";
 ,[LockoutEnabled] AS LockoutEnabled
 ,[AccessFailedCount] AS AccessFailedCount
 ,[IsActive] AS Active
-FROM AspNetUsers
+FROM dbo.AspNetUsers
 WHERE NormalizedEmail=@NormalizedEmail;";
 
         public string GetUsersForClaimSql { get; } =
@@ -140,8 +140,8 @@ WHERE NormalizedEmail=@NormalizedEmail;";
 ,u.[LockoutEnabled] AS LockoutEnabled
 ,u.[AccessFailedCount] AS AccessFailedCount
 ,u.[IsActive] AS Active
-FROM AspNetUsers u
-INNER JOIN AspNetUserClaims c ON u.Id=c.UserId
+FROM dbo.AspNetUsers u
+INNER JOIN dbo.AspNetUserClaims c ON u.Id=c.UserId
 WHERE c.ClaimType=@ClaimType
   AND c.ClaimValue=@ClaimValue;";
 
@@ -162,9 +162,9 @@ WHERE c.ClaimType=@ClaimType
 ,u.[LockoutEnabled] AS LockoutEnabled
 ,u.[AccessFailedCount] AS AccessFailedCount
 ,u.[IsActive] AS Active
-FROM AspNetUsers u
-INNER JOIN AspNetUserRoles ur ON u.Id=ur.UserId
-INNER JOIN AspNetRoles r ON ur.RolesId=r.Id
+FROM dbo.AspNetUsers u
+INNER JOIN dbo.AspNetUserRoles ur ON u.Id=ur.UserId
+INNER JOIN dbo.AspNetRoles r ON ur.RolesId=r.Id
 WHERE r.NormalizedName=@NormalizedName;";
     }
 }

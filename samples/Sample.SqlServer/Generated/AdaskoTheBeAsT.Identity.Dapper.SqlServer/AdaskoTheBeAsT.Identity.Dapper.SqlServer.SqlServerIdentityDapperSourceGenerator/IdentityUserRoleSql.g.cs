@@ -6,7 +6,7 @@ namespace Sample.SqlServer
         : IIdentityUserRoleSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO AspNetUserRoles(
+            @"INSERT INTO dbo.AspNetUserRoles(
 [LoginProvider]
 ,[ProviderKey]
 ,[ProviderDisplayName]
@@ -18,7 +18,7 @@ VALUES(
 ,@UserId);";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM AspNetUserRoles
+            @"DELETE FROM dbo.AspNetUserRoles
 WHERE UserId=@UserId
   AND RoleId=@RoleId;";
 
@@ -27,20 +27,20 @@ WHERE UserId=@UserId
 ,[ProviderKey] AS ProviderKey
 ,[ProviderDisplayName] AS ProviderDisplayName
 ,[UserId] AS UserId
-FROM AspNetUserRoles
+FROM dbo.AspNetUserRoles
 WHERE UserId=@UserId
   AND RoleId=@RoleId;";
 
         public string GetCountSql { get; } =
             @"SELECT COUNT(*)
-FROM AspNetUserRoles
+FROM dbo.AspNetUserRoles
 WHERE UserId=@UserId
   AND RoleId=@RoleId;";
 
         public string GetRoleNamesByUserIdSql { get; } =
             @"SELECT r.NormalizedName
-FROM AspNetRoles r
-INNER JOIN AspNetUserRoles ur ON r.Id=ur.RoleId
+FROM dbo.AspNetRoles r
+INNER JOIN dbo.AspNetUserRoles ur ON r.Id=ur.RoleId
 WHERE ur.UserId=@UserId;";
     }
 }

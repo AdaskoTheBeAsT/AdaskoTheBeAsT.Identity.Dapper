@@ -6,7 +6,7 @@ namespace Sample.SqlServer
         : IIdentityRoleSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO AspNetRoles(
+            @"INSERT INTO dbo.AspNetRoles(
 [Name]
 ,[NormalizedName]
 ,[ConcurrencyStamp])
@@ -18,21 +18,21 @@ OUTPUT inserted.Id
 VALUES(1);";
 
         public string UpdateSql { get; } =
-            @"UPDATE AspNetRoles
+            @"UPDATE dbo.AspNetRoles
 SET [Name]=@Name
 ,[NormalizedName]=@NormalizedName
 ,[ConcurrencyStamp]=@ConcurrencyStamp
 WHERE Id=@Id;";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM AspNetRoles WHERE Id=@Id;";
+            @"DELETE FROM dbo.AspNetRoles WHERE Id=@Id;";
 
         public string FindByIdSql { get; } =
             @"SELECT Id
 ,[Name] AS Name
 ,[NormalizedName] AS NormalizedName
 ,[ConcurrencyStamp] AS ConcurrencyStamp
-FROM AspNetRoles
+FROM dbo.AspNetRoles
 WHERE Id=@Id;";
 
         public string FindByNameSql { get; } =
@@ -40,7 +40,7 @@ WHERE Id=@Id;";
 ,[Name] AS Name
 ,[NormalizedName] AS NormalizedName
 ,[ConcurrencyStamp] AS ConcurrencyStamp
-FROM AspNetRoles
+FROM dbo.AspNetRoles
 WHERE NormalizedName=@NormalizedName;";
     }
 }
