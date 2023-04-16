@@ -13,8 +13,7 @@ public abstract class IdentityUserClaimClassGeneratorBase
         IIdentityUserClaimClassGenerator
 {
     public string Generate(
-        string schemaPart,
-        string namespaceName,
+        IdentityDapperConfiguration config,
         IEnumerable<string> propertyNames,
         IEnumerable<string> columnNames)
     {
@@ -26,38 +25,38 @@ public abstract class IdentityUserClaimClassGeneratorBase
 
         var sb = new StringBuilder();
         GenerateUsing(sb);
-        GenerateNamespaceStart(sb, namespaceName);
+        GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserClaimSql", "IIdentityUserClaimSql");
-        GenerateCreateSql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
-        GenerateDeleteSql(sb, schemaPart);
-        GenerateGetByUserIdSql(sb, schemaPart);
-        GenerateReplaceSql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
+        GenerateCreateSql(sb, config, combinedColumnNames, combinedPropertyNames);
+        GenerateDeleteSql(sb, config);
+        GenerateGetByUserIdSql(sb, config);
+        GenerateReplaceSql(sb, config, combinedColumnNames, combinedPropertyNames);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
     }
 
     protected abstract string ProcessIdentityUserClaimCreateSql(
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> columnNames,
         IList<string> propertyNames);
 
-    protected abstract string ProcessIdentityUserClaimDeleteSql(string schemaPart);
+    protected abstract string ProcessIdentityUserClaimDeleteSql(IdentityDapperConfiguration config);
 
-    protected abstract string ProcessIdentityUserClaimGetByUserIdSql(string schemaPart);
+    protected abstract string ProcessIdentityUserClaimGetByUserIdSql(IdentityDapperConfiguration config);
 
     protected abstract string ProcessIdentityUserClaimReplaceSql(
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> columnNames,
         IList<string> propertyNames);
 
     private void GenerateCreateSql(
         StringBuilder sb,
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> combinedColumnNames,
         IList<string> combinedPropertyNames)
     {
-        var content = ProcessIdentityUserClaimCreateSql(schemaPart, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserClaimCreateSql(config, combinedColumnNames, combinedPropertyNames);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");
@@ -66,9 +65,9 @@ public abstract class IdentityUserClaimClassGeneratorBase
 
     private void GenerateDeleteSql(
         StringBuilder sb,
-        string schemaPart)
+        IdentityDapperConfiguration config)
     {
-        var content = ProcessIdentityUserClaimDeleteSql(schemaPart);
+        var content = ProcessIdentityUserClaimDeleteSql(config);
         sb.AppendLine(
             $@"        public string DeleteSql {{ get; }} =
             @""{content}"";");
@@ -77,9 +76,9 @@ public abstract class IdentityUserClaimClassGeneratorBase
 
     private void GenerateGetByUserIdSql(
         StringBuilder sb,
-        string schemaPart)
+        IdentityDapperConfiguration config)
     {
-        var content = ProcessIdentityUserClaimGetByUserIdSql(schemaPart);
+        var content = ProcessIdentityUserClaimGetByUserIdSql(config);
         sb.AppendLine(
             $@"        public string GetByUserIdSql {{ get; }} =
             @""{content}"";");
@@ -88,11 +87,11 @@ public abstract class IdentityUserClaimClassGeneratorBase
 
     private void GenerateReplaceSql(
         StringBuilder sb,
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> combinedColumnNames,
         IList<string> combinedPropertyNames)
     {
-        var content = ProcessIdentityUserClaimReplaceSql(schemaPart, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserClaimReplaceSql(config, combinedColumnNames, combinedPropertyNames);
         sb.AppendLine(
             $@"        public string ReplaceSql {{ get; }} =
             @""{content}"";");

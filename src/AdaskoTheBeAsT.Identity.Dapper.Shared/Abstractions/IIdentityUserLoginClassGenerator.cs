@@ -5,8 +5,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 public interface IIdentityUserLoginClassGenerator
 {
     string Generate(
-        string schemaPart,
-        string namespaceName,
+        IdentityDapperConfiguration config,
         IEnumerable<string> propertyNames,
         IEnumerable<string> columnNames);
 }

@@ -11,7 +11,7 @@ public class MySqlIdentityUserRoleClassGenerator
     : IdentityUserRoleClassGeneratorBase
 {
     protected override string ProcessIdentityUserRoleCreateSql(
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -20,11 +20,11 @@ public class MySqlIdentityUserRoleClassGenerator
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"`{s}`")))
             .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
             .AddTemplate(
-                $"INSERT INTO {schemaPart}`aspnetuserroles`(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
+                $"INSERT INTO {config.SchemaPart}`aspnetuserroles`(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
             .RawSql;
     }
 
-    protected override string ProcessIdentityUserRoleDeleteSql(string schemaPart)
+    protected override string ProcessIdentityUserRoleDeleteSql(IdentityDapperConfiguration config)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
 
@@ -32,12 +32,12 @@ public class MySqlIdentityUserRoleClassGenerator
             .Where2($"{nameof(IdentityUserRole<int>.UserId)}=@{nameof(IdentityUserRole<int>.UserId)}")
             .Where2($"{nameof(IdentityUserRole<int>.RoleId)}=@{nameof(IdentityUserRole<int>.RoleId)}")
             .AddTemplate(
-                $"DELETE FROM {schemaPart}`aspnetuserroles`\r\n/**where2**/;")
+                $"DELETE FROM {config.SchemaPart}`aspnetuserroles`\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserRoleGetByUserIdRoleIdSql(
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -54,12 +54,12 @@ public class MySqlIdentityUserRoleClassGenerator
             .Where2($"{nameof(IdentityUserRole<int>.UserId)}=@{nameof(IdentityUserRole<int>.UserId)}")
             .Where2($"{nameof(IdentityUserRole<int>.RoleId)}=@{nameof(IdentityUserRole<int>.RoleId)}")
             .AddTemplate(
-                $"SELECT /**select2**/FROM {schemaPart}`aspnetuserroles`\r\n/**where2**/;")
+                $"SELECT /**select2**/FROM {config.SchemaPart}`aspnetuserroles`\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserRoleGetCount(
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -68,21 +68,23 @@ public class MySqlIdentityUserRoleClassGenerator
             .Where2($"{nameof(IdentityUserRole<int>.UserId)}=@{nameof(IdentityUserRole<int>.UserId)}")
             .Where2($"{nameof(IdentityUserRole<int>.RoleId)}=@{nameof(IdentityUserRole<int>.RoleId)}")
             .AddTemplate(
-                $"SELECT COUNT(*)\r\nFROM {schemaPart}`aspnetuserroles`\r\n/**where2**/;")
+                $"SELECT COUNT(*)\r\nFROM {config.SchemaPart}`aspnetuserroles`\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserRoleGetRoleNamesByUserId(
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
+        var template = config.SkipNormalized
+            ? $"SELECT r.Name\r\nFROM {config.SchemaPart}AspNetRoles r/**innerjoin2**//**where2**/;"
+            : $"SELECT r.NormalizedName\r\nFROM {config.SchemaPart}AspNetRoles r/**innerjoin2**//**where2**/;";
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .InnerJoin2($"{schemaPart}`aspnetroles` ur ON r.Id=ur.RoleId")
+            .InnerJoin2($"{config.SchemaPart}`aspnetroles` ur ON r.Id=ur.RoleId")
             .Where2($"ur.{nameof(IdentityUserRole<int>.UserId)}=@{nameof(IdentityUserRole<int>.UserId)}")
-            .AddTemplate(
-                $"SELECT r.NormalizedName\r\nFROM {schemaPart}`AspNetRoles` r/**innerjoin2**//**where2**/;")
+            .AddTemplate(template)
             .RawSql;
     }
 }

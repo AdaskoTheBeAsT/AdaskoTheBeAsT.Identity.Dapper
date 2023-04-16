@@ -8,9 +8,7 @@ public class SqlServerApplicationUserOnlyStoreGenerator
     : IdentityStoreGeneratorBase,
         IApplicationUserOnlyStoreGenerator
 {
-    public string Generate(
-        string keyTypeName,
-        string namespaceName)
+    public string Generate(string keyTypeName, string namespaceName)
     {
         var sb = new StringBuilder();
         GenerateUsing(sb);

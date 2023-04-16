@@ -10,5 +10,7 @@ public interface IIdentityHelper
 
     ISet<string> StringNameSet { get; }
 
-    string GetInsertTemplate(string tableName, string keyTypeName);
+    string GetInsertTemplate(
+        string tableName,
+        string keyTypeName);
 }

@@ -11,7 +11,7 @@ public class SqlServerIdentityUserTokenClassGenerator
     : IdentityUserTokenClassGeneratorBase
 {
     protected override string ProcessIdentityUserTokenCreateSql(
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -20,11 +20,11 @@ public class SqlServerIdentityUserTokenClassGenerator
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
             .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
             .AddTemplate(
-                $"INSERT INTO {schemaPart}AspNetUserTokens(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
+                $"INSERT INTO {config.SchemaPart}AspNetUserTokens(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
             .RawSql;
     }
 
-    protected override string ProcessIdentityUserTokenDeleteSql(string schemaPart)
+    protected override string ProcessIdentityUserTokenDeleteSql(IdentityDapperConfiguration config)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
 
@@ -34,12 +34,12 @@ public class SqlServerIdentityUserTokenClassGenerator
             .Where2($"{nameof(IdentityUserToken<int>.Value)}=@{nameof(IdentityUserToken<int>.Value)}")
             .Where2($"{nameof(IdentityUserToken<int>.UserId)}=@{nameof(IdentityUserToken<int>.UserId)}")
             .AddTemplate(
-                $"DELETE FROM {schemaPart}AspNetUserTokens\r\n/**where2**/;")
+                $"DELETE FROM {config.SchemaPart}AspNetUserTokens\r\n/**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserTokenGetByUserIdSql(
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
@@ -57,7 +57,7 @@ public class SqlServerIdentityUserTokenClassGenerator
             .Where2($"{nameof(IdentityUserToken<int>.LoginProvider)}=@{nameof(IdentityUserToken<int>.LoginProvider)}")
             .Where2($"{nameof(IdentityUserToken<int>.Name)}=@{nameof(IdentityUserToken<int>.Name)}")
             .AddTemplate(
-                $"SELECT TOP 1 /**select2**/FROM {schemaPart}AspNetUserTokens\r\n/**where2**/;")
+                $"SELECT TOP 1 /**select2**/FROM {config.SchemaPart}AspNetUserTokens\r\n/**where2**/;")
             .RawSql;
     }
 }

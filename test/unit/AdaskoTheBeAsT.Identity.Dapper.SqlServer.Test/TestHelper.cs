@@ -3,7 +3,6 @@ using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Builders;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.SqlServer.Test;
 

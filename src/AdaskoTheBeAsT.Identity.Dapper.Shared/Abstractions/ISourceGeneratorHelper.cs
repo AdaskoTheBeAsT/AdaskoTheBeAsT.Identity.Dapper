@@ -7,6 +7,6 @@ public interface ISourceGeneratorHelper
 {
     void GenerateCode(
         SourceProductionContext context,
-        string dbSchema,
+        IdentityDapperOptions options,
         (string KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) generationInfo);
 }

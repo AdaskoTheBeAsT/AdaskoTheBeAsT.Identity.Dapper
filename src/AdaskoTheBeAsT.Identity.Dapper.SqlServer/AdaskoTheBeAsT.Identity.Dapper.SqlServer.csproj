@@ -5,12 +5,29 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <RepositoryType>github</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <Description>Autogenerates Identity stores based on Dapper</Description>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>Adam "AdaskoTheBeAsT" Pluciński</Authors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/AdaskoTheBeAsT/AdaskoTheBeAsT.Identity.Dapper</PackageProjectUrl>
+    <Copyright>Adam "AdaskoTheBeAsT" Pluciński</Copyright>
+    <PackageTags>Identity;Dapper;Sql Server</PackageTags>
+    <PackageReleaseNotes>
+      - first release
+    </PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.123" PrivateAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" PrivateAssets="all" GeneratePathProperty="true" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="7.0.4" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="7.0.5" PrivateAssets="all" GeneratePathProperty="true" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -30,6 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
     <!-- Pack the generator dll in the analyzers/dotnet/cs path -->
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 
@@ -43,9 +61,7 @@
     <None Include="$(OutputPath)\AdaskoTheBeAsT.Identity.Dapper.dll" Pack="true" PackagePath="lib\netstandard2.0" Visible="true" />
 
     <!-- Package the props file -->
-    <None Include="AdaskoTheBeAsT.Identity.Dapper.props">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="AdaskoTheBeAsT.Identity.Dapper.SqlServer.props" Pack="true" PackagePath="build" Visible="false" />
   </ItemGroup>
 
   <Import Project="..\AdaskoTheBeAsT.Identity.Dapper.Shared\AdaskoTheBeAsT.Identity.Dapper.Shared.projitems" Label="Shared" />

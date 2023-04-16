@@ -12,8 +12,7 @@ public abstract class IdentityUserTokenClassGeneratorBase
         IIdentityUserTokenClassGenerator
 {
     public string Generate(
-        string schemaPart,
-        string namespaceName,
+        IdentityDapperConfiguration config,
         IEnumerable<string> propertyNames,
         IEnumerable<string> columnNames)
     {
@@ -25,35 +24,35 @@ public abstract class IdentityUserTokenClassGeneratorBase
 
         var sb = new StringBuilder();
         GenerateUsing(sb);
-        GenerateNamespaceStart(sb, namespaceName);
+        GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserTokenSql", "IIdentityUserTokenSql");
-        GenerateCreateSql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
-        GenerateDeleteSql(sb, schemaPart);
-        GenerateGetByUserIdSql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
+        GenerateCreateSql(sb, config, combinedColumnNames, combinedPropertyNames);
+        GenerateDeleteSql(sb, config);
+        GenerateGetByUserIdSql(sb, config, combinedColumnNames, combinedPropertyNames);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
     }
 
     protected abstract string ProcessIdentityUserTokenCreateSql(
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> columnNames,
         IList<string> propertyNames);
 
-    protected abstract string ProcessIdentityUserTokenDeleteSql(string schemaPart);
+    protected abstract string ProcessIdentityUserTokenDeleteSql(IdentityDapperConfiguration config);
 
     protected abstract string ProcessIdentityUserTokenGetByUserIdSql(
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> columnNames,
         IList<string> propertyNames);
 
     private void GenerateCreateSql(
         StringBuilder sb,
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> combinedColumnNames,
         IList<string> combinedPropertyNames)
     {
-        var content = ProcessIdentityUserTokenCreateSql(schemaPart, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserTokenCreateSql(config, combinedColumnNames, combinedPropertyNames);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");
@@ -62,9 +61,9 @@ public abstract class IdentityUserTokenClassGeneratorBase
 
     private void GenerateDeleteSql(
         StringBuilder sb,
-        string schemaPart)
+        IdentityDapperConfiguration config)
     {
-        var content = ProcessIdentityUserTokenDeleteSql(schemaPart);
+        var content = ProcessIdentityUserTokenDeleteSql(config);
         sb.AppendLine(
             $@"        public string DeleteSql {{ get; }} =
             @""{content}"";");
@@ -73,11 +72,11 @@ public abstract class IdentityUserTokenClassGeneratorBase
 
     private void GenerateGetByUserIdSql(
         StringBuilder sb,
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
-        var content = ProcessIdentityUserTokenGetByUserIdSql(schemaPart, columnNames, propertyNames);
+        var content = ProcessIdentityUserTokenGetByUserIdSql(config, columnNames, propertyNames);
         sb.AppendLine(
             $@"        public string GetByUserIdSql {{ get; }} =
             @""{content}"";");

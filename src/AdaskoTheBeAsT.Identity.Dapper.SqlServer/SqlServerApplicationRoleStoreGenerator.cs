@@ -8,9 +8,7 @@ public class SqlServerApplicationRoleStoreGenerator
     : IdentityStoreGeneratorBase,
         IApplicationRoleStoreGenerator
 {
-    public string Generate(
-        string keyTypeName,
-        string namespaceName)
+    public string Generate(string keyTypeName, string namespaceName)
     {
         var sb = new StringBuilder();
         GenerateUsing(sb);

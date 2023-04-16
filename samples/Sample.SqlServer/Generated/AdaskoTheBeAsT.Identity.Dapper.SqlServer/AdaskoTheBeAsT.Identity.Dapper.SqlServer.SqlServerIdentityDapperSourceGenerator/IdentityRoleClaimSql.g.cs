@@ -6,7 +6,7 @@ namespace Sample.SqlServer
         : IIdentityRoleClaimSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO dbo.AspNetRoleClaims(
+            @"INSERT INTO id.AspNetRoleClaims(
 [RoleId]
 ,[ClaimType]
 ,[ClaimValue])
@@ -17,7 +17,7 @@ VALUES(
 SELECT SCOPE_IDENTITY();";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM dbo.AspNetRoleClaims
+            @"DELETE FROM id.AspNetRoleClaims
 WHERE RoleId=@RoleId
   AND ClaimType=@ClaimType
   AND ClaimValue=@ClaimValue;";
@@ -25,7 +25,7 @@ WHERE RoleId=@RoleId
         public string GetByRoleIdSql { get; } =
             @"SELECT ClaimType AS Type,
 ClaimValue AS Value
-FROM dbo.AspNetRoleClaims
+FROM id.AspNetRoleClaims
 WHERE RoleId=@Id;";
     }
 }

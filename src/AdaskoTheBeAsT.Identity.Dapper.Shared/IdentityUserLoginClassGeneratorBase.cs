@@ -12,8 +12,7 @@ public abstract class IdentityUserLoginClassGeneratorBase
         IIdentityUserLoginClassGenerator
 {
     public string Generate(
-        string schemaPart,
-        string namespaceName,
+        IdentityDapperConfiguration config,
         IEnumerable<string> propertyNames,
         IEnumerable<string> columnNames)
     {
@@ -25,13 +24,13 @@ public abstract class IdentityUserLoginClassGeneratorBase
 
         var sb = new StringBuilder();
         GenerateUsing(sb);
-        GenerateNamespaceStart(sb, namespaceName);
+        GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserLoginSql", "IIdentityUserLoginSql");
-        GenerateCreateSql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
-        GenerateDeleteSql(sb, schemaPart);
-        GenerateGetByUserIdSql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
-        GenerateGetByUserIdLoginProviderKeySql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
-        GenerateGetByLoginProviderKeySql(sb, schemaPart, combinedColumnNames, combinedPropertyNames);
+        GenerateCreateSql(sb, config.SchemaPart, combinedColumnNames, combinedPropertyNames);
+        GenerateDeleteSql(sb, config.SchemaPart);
+        GenerateGetByUserIdSql(sb, config.SchemaPart, combinedColumnNames, combinedPropertyNames);
+        GenerateGetByUserIdLoginProviderKeySql(sb, config.SchemaPart, combinedColumnNames, combinedPropertyNames);
+        GenerateGetByLoginProviderKeySql(sb, config.SchemaPart, combinedColumnNames, combinedPropertyNames);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();

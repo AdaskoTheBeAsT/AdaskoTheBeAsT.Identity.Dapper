@@ -29,15 +29,23 @@ public abstract class IdentityDapperSourceGeneratorBase
                 config,
                 _) =>
             {
-                var retval = "dbo";
+                var dbSchema = "dbo";
+                var skipNormalized = false;
                 if (config.GlobalOptions.TryGetValue(
-                        "AdaskoTheBeAsTIdentityDapper_DbSchema",
-                        out var schema))
+                        "build_property.AdaskoTheBeAsTIdentityDapper_DbSchema",
+                        out var schemaProperty))
                 {
-                    retval = schema;
+                    dbSchema = schemaProperty;
                 }
 
-                return retval;
+                if (config.GlobalOptions.TryGetValue(
+                        "build_property.AdaskoTheBeAsTIdentityDapper_SkipNormalized",
+                        out var strValue) && bool.TryParse(strValue, out var result))
+                {
+                    skipNormalized = result;
+                }
+
+                return new IdentityDapperOptions(dbSchema, skipNormalized);
             });
 
         var classDeclarations =
@@ -80,7 +88,7 @@ public abstract class IdentityDapperSourceGeneratorBase
     private void Execute(
         SourceProductionContext context,
         Compilation compilation,
-        string dbSchema,
+        IdentityDapperOptions options,
         ImmutableArray<ClassDeclarationSyntax> classDeclarations)
     {
         if (classDeclarations.IsDefaultOrEmpty)
@@ -104,7 +112,7 @@ public abstract class IdentityDapperSourceGeneratorBase
         if (classesToGenerate.Items.Count > 0)
         {
             // generate the source code and add it to the output
-            _sourceGeneratorHelper.GenerateCode(context, dbSchema, classesToGenerate);
+            _sourceGeneratorHelper.GenerateCode(context, options, classesToGenerate);
         }
     }
 

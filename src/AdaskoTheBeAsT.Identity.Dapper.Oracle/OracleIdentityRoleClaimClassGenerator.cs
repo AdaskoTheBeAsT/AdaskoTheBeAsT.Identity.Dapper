@@ -11,14 +11,14 @@ public class OracleIdentityRoleClaimClassGenerator
     : IdentityRoleClaimClassGeneratorBase
 {
     protected override string ProcessIdentityRoleClaimCreateSql(
-        string schemaPart,
+        IdentityDapperConfiguration config,
         IList<string> columnNames,
         IList<string> propertyNames)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var sb = new StringBuilder();
-        sb.AppendLine($"DECLARE id {schemaPart}AspNetRoleClaims.Id%type;");
-        sb.AppendLine($"INSERT INTO {schemaPart}AspNetRoleClaims(");
+        sb.AppendLine($"DECLARE id {config.SchemaPart}AspNetRoleClaims.Id%type;");
+        sb.AppendLine($"INSERT INTO {config.SchemaPart}AspNetRoleClaims(");
         sb.AppendLine("/**insert**/)");
         sb.AppendLine("VALUES(");
         sb.AppendLine("/**values**/)");
@@ -31,7 +31,7 @@ public class OracleIdentityRoleClaimClassGenerator
             .RawSql;
     }
 
-    protected override string ProcessIdentityRoleClaimDeleteSql(string schemaPart)
+    protected override string ProcessIdentityRoleClaimDeleteSql(IdentityDapperConfiguration config)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
 
@@ -40,18 +40,18 @@ public class OracleIdentityRoleClaimClassGenerator
             .Where2($"{nameof(IdentityRoleClaim<int>.ClaimType)}=@{nameof(IdentityRoleClaim<int>.ClaimType)}")
             .Where2($"{nameof(IdentityRoleClaim<int>.ClaimValue)}=@{nameof(IdentityRoleClaim<int>.ClaimValue)}")
             .AddTemplate(
-                $"DELETE FROM {schemaPart}AspNetRoleClaims\r\n/**where2**/;")
+                $"DELETE FROM {config.SchemaPart}AspNetRoleClaims\r\n/**where2**/;")
             .RawSql;
     }
 
-    protected override string ProcessIdentityRoleClaimGetByRoleIdSql(string schemaPart)
+    protected override string ProcessIdentityRoleClaimGetByRoleIdSql(IdentityDapperConfiguration config)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
             .Select2("ClaimType AS Type,\r\nClaimValue AS Value")
             .Where2($"RoleId=@{nameof(IdentityRole.Id)}")
             .AddTemplate(
-                $"SELECT /**select2**/FROM {schemaPart}AspNetRoleClaims\r\n/**where2**/;")
+                $"SELECT /**select2**/FROM {config.SchemaPart}AspNetRoleClaims\r\n/**where2**/;")
             .RawSql;
     }
 }

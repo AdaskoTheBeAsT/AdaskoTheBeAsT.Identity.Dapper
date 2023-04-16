@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.123" PrivateAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" PrivateAssets="all" GeneratePathProperty="true" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="7.0.4" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="7.0.5" PrivateAssets="all" GeneratePathProperty="true" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
     <!-- Pack the generator dll in the analyzers/dotnet/cs path -->
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 
@@ -43,9 +44,7 @@
     <None Include="$(OutputPath)\AdaskoTheBeAsT.Identity.Dapper.dll" Pack="true" PackagePath="lib\netstandard2.0" Visible="true" />
 
     <!-- Package the props file -->
-    <None Include="AdaskoTheBeAsT.Identity.Dapper.props">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="AdaskoTheBeAsT.Identity.Dapper.PostgreSql.props" Pack="true" PackagePath="build" Visible="false" />
   </ItemGroup>
 
   <Import Project="..\AdaskoTheBeAsT.Identity.Dapper.Shared\AdaskoTheBeAsT.Identity.Dapper.Shared.projitems" Label="Shared" />

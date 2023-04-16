@@ -1,4 +1,4 @@
-﻿using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
+using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 using Microsoft.CodeAnalysis;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.SqlServer;
