@@ -71,7 +71,7 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "AspNetIdentityInt", "db\Sql
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "AspNetIdentityBigInt", "db\SqlServer\AspNetIdentityBigInt\AspNetIdentityBigInt.sqlproj", "{AA81343E-F71C-4080-A94C-FF23E4E04CE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdaskoTheBeAsT.Identity.Dapper.Sqlite", "src\AdaskoTheBeAsT.Identity.Dapper.Sqlite\AdaskoTheBeAsT.Identity.Dapper.Sqlite.csproj", "{9EC8CEF9-C6B6-4A6E-921B-D191941DD6DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.Sqlite", "src\AdaskoTheBeAsT.Identity.Dapper.Sqlite\AdaskoTheBeAsT.Identity.Dapper.Sqlite.csproj", "{9EC8CEF9-C6B6-4A6E-921B-D191941DD6DD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MySql", "MySql", "{FA53D9C3-12F4-4FD5-8646-3652202545DF}"
 	ProjectSection(SolutionItems) = preProject
@@ -80,6 +80,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MySql", "MySql", "{FA53D9C3
 		db\MySql\AspNetIdentityInt.sql = db\MySql\AspNetIdentityInt.sql
 		db\MySql\AspNetIdentityString.sql = db\MySql\AspNetIdentityString.sql
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.SqlServer2", "samples\Sample.SqlServer2\Sample.SqlServer2.csproj", "{A759BCC2-FDA2-4C43-BC5A-6DEF3199D0DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "samples\ConsoleApp\ConsoleApp.csproj", "{C6459F2F-6348-4E52-A52A-B779AA6EC53A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -147,6 +151,14 @@ Global
 		{9EC8CEF9-C6B6-4A6E-921B-D191941DD6DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EC8CEF9-C6B6-4A6E-921B-D191941DD6DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EC8CEF9-C6B6-4A6E-921B-D191941DD6DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A759BCC2-FDA2-4C43-BC5A-6DEF3199D0DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A759BCC2-FDA2-4C43-BC5A-6DEF3199D0DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A759BCC2-FDA2-4C43-BC5A-6DEF3199D0DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A759BCC2-FDA2-4C43-BC5A-6DEF3199D0DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6459F2F-6348-4E52-A52A-B779AA6EC53A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6459F2F-6348-4E52-A52A-B779AA6EC53A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6459F2F-6348-4E52-A52A-B779AA6EC53A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6459F2F-6348-4E52-A52A-B779AA6EC53A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -172,6 +184,8 @@ Global
 		{AA81343E-F71C-4080-A94C-FF23E4E04CE6} = {265E36FF-3E33-407D-9E27-4A0995ED0600}
 		{9EC8CEF9-C6B6-4A6E-921B-D191941DD6DD} = {C28AEC30-FF71-4397-A8C5-5B26D183A45A}
 		{FA53D9C3-12F4-4FD5-8646-3652202545DF} = {71823033-0DBA-4E00-8325-7DDCB7346588}
+		{A759BCC2-FDA2-4C43-BC5A-6DEF3199D0DA} = {7D925E4F-891C-492B-92FE-6E4277E1B3F4}
+		{C6459F2F-6348-4E52-A52A-B779AA6EC53A} = {7D925E4F-891C-492B-92FE-6E4277E1B3F4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2DC60B14-2697-4908-AADC-3EA7874F6FF1}

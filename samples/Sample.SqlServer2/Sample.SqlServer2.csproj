@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AdaskoTheBeAsTIdentityDapper_DbSchema>id</AdaskoTheBeAsTIdentityDapper_DbSchema>
+    <AdaskoTheBeAsTIdentityDapper_SkipNormalized>true</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Exclude the output of source generators from the compilation -->
+    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Generated/**/*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="1.0.0" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.SqlServer" Version="1.0.0" />
+    <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="7.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Generated\AdaskoTheBeAsT.Identity.Dapper.SqlServer\AdaskoTheBeAsT.Identity.Dapper.SqlServer.SqlServerIdentityDapperSourceGenerator\" />
+  </ItemGroup>
+
+</Project>

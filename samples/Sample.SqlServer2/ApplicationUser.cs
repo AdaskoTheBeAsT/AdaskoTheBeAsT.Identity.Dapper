@@ -9,8 +9,4 @@ public class ApplicationUser
 {
     [Column("IsActive")]
     public bool Active { get; set; }
-
-    public override string? NormalizedUserName { get => UserName; set => UserName = value; }
-
-    public override string? NormalizedEmail { get => Email; set => Email = value; }
 }
