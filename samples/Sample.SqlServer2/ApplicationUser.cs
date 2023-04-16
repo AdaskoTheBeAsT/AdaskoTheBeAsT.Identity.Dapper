@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 
-namespace Sample.SqlServer;
+namespace Sample.SqlServer2;
 
 public class ApplicationUser
     : IdentityUser<Guid>

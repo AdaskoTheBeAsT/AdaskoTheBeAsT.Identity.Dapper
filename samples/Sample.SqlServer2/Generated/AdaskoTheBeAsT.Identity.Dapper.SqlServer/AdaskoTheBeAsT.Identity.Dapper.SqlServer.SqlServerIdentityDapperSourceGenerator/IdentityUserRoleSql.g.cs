@@ -1,6 +1,6 @@
 ﻿using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 
-namespace Sample.SqlServer
+namespace Sample.SqlServer2
 {
     public class IdentityUserRoleSql
         : IIdentityUserRoleSql

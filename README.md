@@ -3,6 +3,13 @@
 Custom Dapper implementation for Microsoft.Extensions.Identity.Stores using Source Code Generators.
 [https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity-custom-storage-providers?view=aspnetcore-7.0](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity-custom-storage-providers?view=aspnetcore-7.0).
 
+It allows to customize classes which are used by Microsoft Identity and generate Dapper code for them.
+Schema of database needs to be created manually but queries are generated based automatically.
+User can change schema from default 'dbo' to any other.
+User can also skip NormalizedUserName, NormalizedEmail and NormalizedName columns in database and queries.
+
+Sample using nuget within project is available here [Sample](https://github.com/AdaskoTheBeAsT/AdaskoTheBeAsT.Identity.Dapper/tree/main/samples/Sample.SqlServer2).
+
 ## Usage
 
 1. In your project add nuget packages
@@ -25,7 +32,9 @@ Custom Dapper implementation for Microsoft.Extensions.Identity.Stores using Sour
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <!--override path of generated output-->
     <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+    <!--customize schema name by default is 'dbo'-->
     <AdaskoTheBeAsTIdentityDapper_DbSchema>id</AdaskoTheBeAsTIdentityDapper_DbSchema>
+    <!--false by default - if true  completely skip operating in Roles table on NormalizedName and in User table on NormalizedUserName, NormalizedEmail-->
     <AdaskoTheBeAsTIdentityDapper_SkipNormalized>true</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
   </PropertyGroup>
 ```
@@ -91,4 +100,5 @@ public class ApplicationUserToken
 1. Recompile your project
 
 1. You should see generated files in Generated folder
+
 ![Sample output](./doc/output.png)
