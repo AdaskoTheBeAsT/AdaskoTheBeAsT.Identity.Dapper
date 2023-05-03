@@ -18,7 +18,7 @@ public class OracleIdentityUserTokenClassGenerator
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
-            .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
+            .Values(string.Join("\r\n,", propertyNames.Select(s => $":{s}")))
             .AddTemplate(
                 $"INSERT INTO {config.SchemaPart}AspNetUserTokens(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
             .RawSql;
@@ -29,10 +29,10 @@ public class OracleIdentityUserTokenClassGenerator
         var sqlBuilder = new AdvancedSqlBuilder();
 
         return sqlBuilder
-            .Where2($"{nameof(IdentityUserToken<int>.LoginProvider)}=@{nameof(IdentityUserToken<int>.LoginProvider)}")
-            .Where2($"{nameof(IdentityUserToken<int>.Name)}=@{nameof(IdentityUserToken<int>.Name)}")
-            .Where2($"{nameof(IdentityUserToken<int>.Value)}=@{nameof(IdentityUserToken<int>.Value)}")
-            .Where2($"{nameof(IdentityUserToken<int>.UserId)}=@{nameof(IdentityUserToken<int>.UserId)}")
+            .Where2($"{nameof(IdentityUserToken<int>.LoginProvider)}=:{nameof(IdentityUserToken<int>.LoginProvider)}")
+            .Where2($"{nameof(IdentityUserToken<int>.Name)}=:{nameof(IdentityUserToken<int>.Name)}")
+            .Where2($"{nameof(IdentityUserToken<int>.Value)}=:{nameof(IdentityUserToken<int>.Value)}")
+            .Where2($"{nameof(IdentityUserToken<int>.UserId)}=:{nameof(IdentityUserToken<int>.UserId)}")
             .AddTemplate(
                 $"DELETE FROM {config.SchemaPart}AspNetUserTokens\r\n/**where2**/;")
             .RawSql;
@@ -53,9 +53,9 @@ public class OracleIdentityUserTokenClassGenerator
 
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))
-            .Where2($"{nameof(IdentityUserToken<int>.UserId)}=@{nameof(IdentityUserToken<int>.UserId)}")
-            .Where2($"{nameof(IdentityUserToken<int>.LoginProvider)}=@{nameof(IdentityUserToken<int>.LoginProvider)}")
-            .Where2($"{nameof(IdentityUserToken<int>.Name)}=@{nameof(IdentityUserToken<int>.Name)}")
+            .Where2($"{nameof(IdentityUserToken<int>.UserId)}=:{nameof(IdentityUserToken<int>.UserId)}")
+            .Where2($"{nameof(IdentityUserToken<int>.LoginProvider)}=:{nameof(IdentityUserToken<int>.LoginProvider)}")
+            .Where2($"{nameof(IdentityUserToken<int>.Name)}=:{nameof(IdentityUserToken<int>.Name)}")
             .AddTemplate(
                 $"SELECT TOP 1 /**select2**/FROM {config.SchemaPart}AspNetUserTokens\r\n/**where2**/;")
             .RawSql;

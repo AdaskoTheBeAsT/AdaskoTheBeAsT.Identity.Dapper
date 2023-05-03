@@ -29,6 +29,7 @@ WHERE Id=@Id;";
 ,[Name] AS Name
 ,[Name] AS NormalizedName
 ,[ConcurrencyStamp] AS ConcurrencyStamp
+,[Name] AS NormalizedName
 FROM id.AspNetRoles
 WHERE Id=@Id;";
 
@@ -37,6 +38,7 @@ WHERE Id=@Id;";
 ,[Name] AS Name
 ,[Name] AS NormalizedName
 ,[ConcurrencyStamp] AS ConcurrencyStamp
+,[Name] AS NormalizedName
 FROM id.AspNetRoles
 WHERE Name=@Name;";
     }

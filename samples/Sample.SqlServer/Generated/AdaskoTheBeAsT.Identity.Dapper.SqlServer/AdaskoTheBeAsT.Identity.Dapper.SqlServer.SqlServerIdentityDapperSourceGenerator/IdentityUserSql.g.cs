@@ -74,6 +74,8 @@ WHERE Id=@Id;";
 ,[LockoutEnabled] AS LockoutEnabled
 ,[AccessFailedCount] AS AccessFailedCount
 ,[IsActive] AS Active
+,[UserName] AS NormalizedUserName
+,[Email] AS NormalizedEmail
 FROM id.AspNetUsers
 WHERE Id=@Id;";
 
@@ -94,6 +96,8 @@ WHERE Id=@Id;";
 ,[LockoutEnabled] AS LockoutEnabled
 ,[AccessFailedCount] AS AccessFailedCount
 ,[IsActive] AS Active
+,[UserName] AS NormalizedUserName
+,[Email] AS NormalizedEmail
 FROM id.AspNetUsers
 WHERE UserName=@UserName;";
 
@@ -114,6 +118,8 @@ WHERE UserName=@UserName;";
 ,[LockoutEnabled] AS LockoutEnabled
 ,[AccessFailedCount] AS AccessFailedCount
 ,[IsActive] AS Active
+,[UserName] AS NormalizedUserName
+,[Email] AS NormalizedEmail
 FROM id.AspNetUsers
 WHERE Email=@Email;";
 
@@ -134,6 +140,8 @@ WHERE Email=@Email;";
 ,u.[LockoutEnabled] AS LockoutEnabled
 ,u.[AccessFailedCount] AS AccessFailedCount
 ,u.[IsActive] AS Active
+,u.[UserName] AS NormalizedUserName
+,u.[Email] AS NormalizedEmail
 FROM id.AspNetUsers u
 INNER JOIN id.AspNetUserClaims c ON u.Id=c.UserId
 WHERE c.ClaimType=@ClaimType
@@ -156,6 +164,8 @@ WHERE c.ClaimType=@ClaimType
 ,u.[LockoutEnabled] AS LockoutEnabled
 ,u.[AccessFailedCount] AS AccessFailedCount
 ,u.[IsActive] AS Active
+,u.[UserName] AS NormalizedUserName
+,u.[Email] AS NormalizedEmail
 FROM id.AspNetUsers u
 INNER JOIN id.AspNetUserRoles ur ON u.Id=ur.UserId
 INNER JOIN id.AspNetRoles r ON ur.RolesId=r.Id

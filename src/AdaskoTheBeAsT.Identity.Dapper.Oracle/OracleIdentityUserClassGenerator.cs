@@ -30,7 +30,7 @@ public class OracleIdentityUserClassGenerator
         var template = _identityHelper.GetInsertTemplate($"{config.SchemaPart}AspNetUsers", config.KeyTypeName);
         return sqlBuilder
             .Insert(string.Join("\r\n,", localColumnNames.Select(s => $"[{s}]")))
-            .Values(string.Join("\r\n,", localPropertyNames.Select(s => $"@{s}")))
+            .Values(string.Join("\r\n,", localPropertyNames.Select(s => $":{s}")))
             .AddTemplate(template)
             .RawSql;
     }
@@ -48,19 +48,19 @@ public class OracleIdentityUserClassGenerator
         var list = new List<string>();
         for (var i = 0; i < localColumnNames.Count; i++)
         {
-            list.Add($"[{localColumnNames[i]}]=@{localPropertyNames[i]}");
+            list.Add($"[{localColumnNames[i]}]=:{localPropertyNames[i]}");
         }
 
         return sqlBuilder
             .Set2(string.Join("\r\n,", list))
-            .Where2($"{nameof(IdentityUser.Id)}=@{nameof(IdentityUser.Id)}")
+            .Where2($"{nameof(IdentityUser.Id)}=:{nameof(IdentityUser.Id)}")
             .AddTemplate(
                 $"UPDATE {config.SchemaPart}AspNetUsers\r\n/**set2**//**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityUserDeleteSql(IdentityDapperConfiguration config) =>
-        $"DELETE FROM {config.SchemaPart}AspNetUsers WHERE {nameof(IdentityUser.Id)}=@{nameof(IdentityUser.Id)};";
+        $"DELETE FROM {config.SchemaPart}AspNetUsers WHERE {nameof(IdentityUser.Id)}=:{nameof(IdentityUser.Id)};";
 
     protected override string ProcessIdentityUserFindByIdSql(
         IdentityDapperConfiguration config,
@@ -80,7 +80,7 @@ public class OracleIdentityUserClassGenerator
 
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))
-            .Where2($"{nameof(IdentityUser.Id)}=@{nameof(IdentityUser.Id)}")
+            .Where2($"{nameof(IdentityUser.Id)}=:{nameof(IdentityUser.Id)}")
             .AddTemplate(
                 $"SELECT /**select2**/FROM {config.SchemaPart}AspNetUsers\r\n/**where2**/;")
             .RawSql;
@@ -103,8 +103,8 @@ public class OracleIdentityUserClassGenerator
         }
 
         var where = config.SkipNormalized
-            ? $"{nameof(IdentityUser.UserName)}=@{nameof(IdentityUser.UserName)}"
-            : $"{nameof(IdentityUser.NormalizedUserName)}=@{nameof(IdentityUser.NormalizedUserName)}";
+            ? $"{nameof(IdentityUser.UserName)}=:{nameof(IdentityUser.UserName)}"
+            : $"{nameof(IdentityUser.NormalizedUserName)}=:{nameof(IdentityUser.NormalizedUserName)}";
 
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))
@@ -131,8 +131,8 @@ public class OracleIdentityUserClassGenerator
         }
 
         var where = config.SkipNormalized
-            ? $"{nameof(IdentityUser.Email)}=@{nameof(IdentityUser.Email)}"
-            : $"{nameof(IdentityUser.NormalizedEmail)}=@{nameof(IdentityUser.NormalizedEmail)}";
+            ? $"{nameof(IdentityUser.Email)}=:{nameof(IdentityUser.Email)}"
+            : $"{nameof(IdentityUser.NormalizedEmail)}=:{nameof(IdentityUser.NormalizedEmail)}";
 
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))
@@ -161,8 +161,8 @@ public class OracleIdentityUserClassGenerator
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))
             .InnerJoin2($"{config.SchemaPart}AspNetUserClaims c ON u.Id=c.UserId")
-            .Where2("c.ClaimType=@ClaimType")
-            .Where2("c.ClaimValue=@ClaimValue")
+            .Where2("c.ClaimType=:ClaimType")
+            .Where2("c.ClaimValue=:ClaimValue")
             .AddTemplate(
                 $"SELECT /**select2**/FROM {config.SchemaPart}AspNetUsers u/**innerjoin2**//**where2**/;")
             .RawSql;
@@ -185,8 +185,8 @@ public class OracleIdentityUserClassGenerator
         }
 
         var where = config.SkipNormalized
-            ? $"r.{nameof(IdentityRole.Name)}=@{nameof(IdentityRole.Name)}"
-            : $"r.{nameof(IdentityRole.NormalizedName)}=@{nameof(IdentityRole.NormalizedName)}";
+            ? $"r.{nameof(IdentityRole.Name)}=:{nameof(IdentityRole.Name)}"
+            : $"r.{nameof(IdentityRole.NormalizedName)}=:{nameof(IdentityRole.NormalizedName)}";
 
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))

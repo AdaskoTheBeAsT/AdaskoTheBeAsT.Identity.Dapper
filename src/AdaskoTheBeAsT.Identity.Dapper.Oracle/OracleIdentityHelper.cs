@@ -49,6 +49,17 @@ public class OracleIdentityHelper
         {
             case "Guid":
             case "System.Guid":
+                return $@"DECLARE id {tableName}.ID%type;
+BEGIN
+    id := SYS_GUID();
+    INSERT INTO {tableName}(
+    Id,
+    /**insert**/)
+    VALUES(
+    id,
+    /**values**/);
+    SELECT id FROM DUAL;
+END;";
             case "int":
             case "Int32":
             case "System.Int32":
@@ -61,23 +72,27 @@ public class OracleIdentityHelper
             case "ulong":
             case "UInt64":
             case "USystem.Int64":
-                return $@"DECLARE id {tableName}.id%type;
-INSERT INTO {tableName}(
-/**insert**/)
-VALUES(
-/**values**/)
-RETURNING Id INTO id;
-SELECT id FROM DUAL;";
+                return $@"DECLARE id {tableName}.ID%type;
+BEGIN
+    INSERT INTO {tableName}(
+    /**insert**/)
+    VALUES(
+    /**values**/)
+    RETURNING Id INTO id;
+    SELECT id FROM DUAL;
+END;";
             case "string":
             case "String":
             case "System.String":
-                return $@"INSERT INTO {tableName}(
-Id,
-/**insert**/)
-VALUES(
-@Id,
-/**values**/);
-SELECT @Id FROM DUAL;";
+                return $@"BEGIN
+    INSERT INTO {tableName}(
+    Id,
+    /**insert**/)
+    VALUES(
+    :Id,
+    /**values**/);
+    SELECT :Id FROM DUAL;
+END;";
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));
         }

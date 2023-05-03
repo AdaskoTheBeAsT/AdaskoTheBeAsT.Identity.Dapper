@@ -1,0 +1,21 @@
+CREATE TABLE MYDEVELOPER.ADASKO 
+(	ID RAW(16) NOT NULL, 
+	STRID VARCHAR2(36) NOT NULL, 
+	PRIMARY KEY ("ID")
+);
+
+
+DECLARE
+    id RAW(16);
+    hex VARCHAR2(32);
+BEGIN
+    id := SYS_GUID();
+    hex := RAWTOHEX(id);
+
+INSERT INTO ADASKO(
+    ID,
+    STRID)
+VALUES(
+    id,
+    hex);
+END;

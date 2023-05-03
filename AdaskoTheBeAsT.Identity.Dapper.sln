@@ -81,9 +81,36 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MySql", "MySql", "{FA53D9C3
 		db\MySql\AspNetIdentityString.sql = db\MySql\AspNetIdentityString.sql
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.SqlServer2", "samples\Sample.SqlServer2\Sample.SqlServer2.csproj", "{A759BCC2-FDA2-4C43-BC5A-6DEF3199D0DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.SqlServer2", "samples\Sample.SqlServer2\Sample.SqlServer2.csproj", "{A759BCC2-FDA2-4C43-BC5A-6DEF3199D0DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "samples\ConsoleApp\ConsoleApp.csproj", "{C6459F2F-6348-4E52-A52A-B779AA6EC53A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp", "samples\ConsoleApp\ConsoleApp.csproj", "{C6459F2F-6348-4E52-A52A-B779AA6EC53A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PostgreSQL", "PostgreSQL", "{D0C248FA-1132-4B65-86C9-2DD40CAA1881}"
+	ProjectSection(SolutionItems) = preProject
+		db\PostgreSQL\AspNetIdentityBigInt.sql = db\PostgreSQL\AspNetIdentityBigInt.sql
+		db\PostgreSQL\AspNetIdentityGuid.sql = db\PostgreSQL\AspNetIdentityGuid.sql
+		db\PostgreSQL\AspNetIdentityInt.sql = db\PostgreSQL\AspNetIdentityInt.sql
+		db\PostgreSQL\AspNetIdentityString.sql = db\PostgreSQL\AspNetIdentityString.sql
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Oracle", "Oracle", "{376CE99A-349F-4E71-9305-CB5A4FC949FA}"
+	ProjectSection(SolutionItems) = preProject
+		db\Oracle\AspNetIdentityBigInt.sql = db\Oracle\AspNetIdentityBigInt.sql
+		db\Oracle\AspNetIdentityGuid.sql = db\Oracle\AspNetIdentityGuid.sql
+		db\Oracle\AspNetIdentityInt.sql = db\Oracle\AspNetIdentityInt.sql
+		db\Oracle\AspNetIdentityString.sql = db\Oracle\AspNetIdentityString.sql
+		db\Oracle\OracleSetup.sql = db\Oracle\OracleSetup.sql
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OracleConsoleApp", "samples\OracleConsoleApp\OracleConsoleApp.csproj", "{337326E1-D669-4F31-B442-92387C37EAFD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQLite", "SQLite", "{6E4C978A-043C-4417-9C95-F7EA48A96BB4}"
+	ProjectSection(SolutionItems) = preProject
+		db\SQLite\AspNetIdentityBigInt.sql = db\SQLite\AspNetIdentityBigInt.sql
+		db\SQLite\AspNetIdentityGuid.sql = db\SQLite\AspNetIdentityGuid.sql
+		db\SQLite\AspNetIdentityInt.sql = db\SQLite\AspNetIdentityInt.sql
+		db\SQLite\AspNetIdentityString.sql = db\SQLite\AspNetIdentityString.sql
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -159,6 +186,10 @@ Global
 		{C6459F2F-6348-4E52-A52A-B779AA6EC53A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6459F2F-6348-4E52-A52A-B779AA6EC53A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6459F2F-6348-4E52-A52A-B779AA6EC53A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{337326E1-D669-4F31-B442-92387C37EAFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{337326E1-D669-4F31-B442-92387C37EAFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{337326E1-D669-4F31-B442-92387C37EAFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{337326E1-D669-4F31-B442-92387C37EAFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -186,6 +217,10 @@ Global
 		{FA53D9C3-12F4-4FD5-8646-3652202545DF} = {71823033-0DBA-4E00-8325-7DDCB7346588}
 		{A759BCC2-FDA2-4C43-BC5A-6DEF3199D0DA} = {7D925E4F-891C-492B-92FE-6E4277E1B3F4}
 		{C6459F2F-6348-4E52-A52A-B779AA6EC53A} = {7D925E4F-891C-492B-92FE-6E4277E1B3F4}
+		{D0C248FA-1132-4B65-86C9-2DD40CAA1881} = {71823033-0DBA-4E00-8325-7DDCB7346588}
+		{376CE99A-349F-4E71-9305-CB5A4FC949FA} = {71823033-0DBA-4E00-8325-7DDCB7346588}
+		{337326E1-D669-4F31-B442-92387C37EAFD} = {7D925E4F-891C-492B-92FE-6E4277E1B3F4}
+		{6E4C978A-043C-4417-9C95-F7EA48A96BB4} = {71823033-0DBA-4E00-8325-7DDCB7346588}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2DC60B14-2697-4908-AADC-3EA7874F6FF1}

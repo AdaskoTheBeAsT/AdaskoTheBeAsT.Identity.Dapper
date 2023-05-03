@@ -26,7 +26,7 @@ public class OracleIdentityUserClaimClassGenerator
         sb.AppendLine("SELECT id FROM DUAL;");
         return sqlBuilder
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
-            .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
+            .Values(string.Join("\r\n,", propertyNames.Select(s => $":{s}")))
             .AddTemplate(sb.ToString())
             .RawSql;
     }
@@ -36,9 +36,9 @@ public class OracleIdentityUserClaimClassGenerator
         var sqlBuilder = new AdvancedSqlBuilder();
 
         return sqlBuilder
-            .Where2($"{nameof(IdentityUserClaim<int>.UserId)}=@{nameof(IdentityUserClaim<int>.UserId)}")
-            .Where2($"{nameof(IdentityUserClaim<int>.ClaimType)}=@{nameof(IdentityUserClaim<int>.ClaimType)}")
-            .Where2($"{nameof(IdentityUserClaim<int>.ClaimValue)}=@{nameof(IdentityUserClaim<int>.ClaimValue)}")
+            .Where2($"{nameof(IdentityUserClaim<int>.UserId)}=:{nameof(IdentityUserClaim<int>.UserId)}")
+            .Where2($"{nameof(IdentityUserClaim<int>.ClaimType)}=:{nameof(IdentityUserClaim<int>.ClaimType)}")
+            .Where2($"{nameof(IdentityUserClaim<int>.ClaimValue)}=:{nameof(IdentityUserClaim<int>.ClaimValue)}")
             .AddTemplate(
                 $"DELETE FROM {config.SchemaPart}AspNetUserClaims\r\n/**where2**/;")
             .RawSql;
@@ -49,7 +49,7 @@ public class OracleIdentityUserClaimClassGenerator
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
             .Select2("ClaimType AS Type,\r\nClaimValue AS Value")
-            .Where2($"UserId=@{nameof(IdentityUser.Id)}")
+            .Where2($"UserId=:{nameof(IdentityUser.Id)}")
             .AddTemplate(
                 $"SELECT /**select2**/FROM {config.SchemaPart}AspNetUserClaims\r\n/**where2**/;")
             .RawSql;
@@ -63,24 +63,24 @@ public class OracleIdentityUserClaimClassGenerator
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
-            .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
+            .Values(string.Join("\r\n,", propertyNames.Select(s => $":{s}")))
             .AddTemplate(
                 $@"IF EXISTS(SELECT Id
             FROM {config.SchemaPart}AspNetUserClaims
-            WHERE UserId=@UserId
-              AND ClaimType=@ClaimTypeOld
-              AND ClaimValue=@ClaimValueOld)
+            WHERE UserId=:UserId
+              AND ClaimType=:ClaimTypeOld
+              AND ClaimValue=:ClaimValueOld)
 BEGIN
     DELETE FROM {config.SchemaPart}AspNetUserClaims
-    WHERE UserId=@UserId
-      AND ClaimType=@ClaimTypeOld
-      AND ClaimValue=@ClaimValueOld
+    WHERE UserId=:UserId
+      AND ClaimType=:ClaimTypeOld
+      AND ClaimValue=:ClaimValueOld
 END;
 IF NOT EXISTS(SELECT Id
              FROM {config.SchemaPart}AspNetUserClaims
-             WHERE UserId=@UserId
-               AND ClaimType=@ClaimTypeNew
-               AND ClaimValue=@ClaimValueNew)
+             WHERE UserId=:UserId
+               AND ClaimType=:ClaimTypeNew
+               AND ClaimValue=:ClaimValueNew)
 BEGIN
     INSERT INTO {config.SchemaPart}AspNetUserClaims(
 /**insert**/)

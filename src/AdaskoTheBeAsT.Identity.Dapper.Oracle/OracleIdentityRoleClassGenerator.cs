@@ -30,7 +30,7 @@ public class OracleIdentityRoleClassGenerator
         var template = _identityHelper.GetInsertTemplate($"{config.SchemaPart}AspNetRoles", config.KeyTypeName);
         return sqlBuilder
             .Insert(string.Join("\r\n,", localColumnNames.Select(s => $"[{s}]")))
-            .Values(string.Join("\r\n,", localPropertyNames.Select(s => $"@{s}")))
+            .Values(string.Join("\r\n,", localPropertyNames.Select(s => $":{s}")))
             .AddTemplate(template)
             .RawSql;
     }
@@ -48,19 +48,19 @@ public class OracleIdentityRoleClassGenerator
         var list = new List<string>();
         for (var i = 0; i < localColumnNames.Count; i++)
         {
-            list.Add($"[{localColumnNames[i]}]=@{localPropertyNames[i]}");
+            list.Add($"[{localColumnNames[i]}]=:{localPropertyNames[i]}");
         }
 
         return sqlBuilder
             .Set2(string.Join("\r\n,", list))
-            .Where2($"{nameof(IdentityRole.Id)}=@{nameof(IdentityRole.Id)}")
+            .Where2($"{nameof(IdentityRole.Id)}=:{nameof(IdentityRole.Id)}")
             .AddTemplate(
                 $"UPDATE {config.SchemaPart}AspNetRoles\r\n/**set2**//**where2**/;")
             .RawSql;
     }
 
     protected override string ProcessIdentityRoleDeleteSql(IdentityDapperConfiguration config) =>
-        $"DELETE FROM {config.SchemaPart}AspNetRoles WHERE {nameof(IdentityRole.Id)}=@{nameof(IdentityRole.Id)};";
+        $"DELETE FROM {config.SchemaPart}AspNetRoles WHERE {nameof(IdentityRole.Id)}=:{nameof(IdentityRole.Id)};";
 
     protected override string ProcessIdentityRoleFindByIdSql(
         IdentityDapperConfiguration config,
@@ -80,7 +80,7 @@ public class OracleIdentityRoleClassGenerator
 
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))
-            .Where2($"{nameof(IdentityRole.Id)}=@{nameof(IdentityRole.Id)}")
+            .Where2($"{nameof(IdentityRole.Id)}=:{nameof(IdentityRole.Id)}")
             .AddTemplate(
                 $"SELECT /**select2**/FROM {config.SchemaPart}AspNetRoles\r\n/**where2**/;")
             .RawSql;
@@ -103,8 +103,8 @@ public class OracleIdentityRoleClassGenerator
         }
 
         var where = config.SkipNormalized
-            ? $"{nameof(IdentityRole.Name)}=@{nameof(IdentityRole.Name)}"
-            : $"{nameof(IdentityRole.NormalizedName)}=@{nameof(IdentityRole.NormalizedName)}";
+            ? $"{nameof(IdentityRole.Name)}=:{nameof(IdentityRole.Name)}"
+            : $"{nameof(IdentityRole.NormalizedName)}=:{nameof(IdentityRole.NormalizedName)}";
 
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))

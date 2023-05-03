@@ -26,7 +26,7 @@ public class OracleIdentityRoleClaimClassGenerator
         sb.AppendLine("SELECT id FROM DUAL;");
         return sqlBuilder
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
-            .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
+            .Values(string.Join("\r\n,", propertyNames.Select(s => $":{s}")))
             .AddTemplate(sb.ToString())
             .RawSql;
     }
@@ -36,9 +36,9 @@ public class OracleIdentityRoleClaimClassGenerator
         var sqlBuilder = new AdvancedSqlBuilder();
 
         return sqlBuilder
-            .Where2($"{nameof(IdentityRoleClaim<int>.RoleId)}=@{nameof(IdentityRoleClaim<int>.RoleId)}")
-            .Where2($"{nameof(IdentityRoleClaim<int>.ClaimType)}=@{nameof(IdentityRoleClaim<int>.ClaimType)}")
-            .Where2($"{nameof(IdentityRoleClaim<int>.ClaimValue)}=@{nameof(IdentityRoleClaim<int>.ClaimValue)}")
+            .Where2($"{nameof(IdentityRoleClaim<int>.RoleId)}=:{nameof(IdentityRoleClaim<int>.RoleId)}")
+            .Where2($"{nameof(IdentityRoleClaim<int>.ClaimType)}=:{nameof(IdentityRoleClaim<int>.ClaimType)}")
+            .Where2($"{nameof(IdentityRoleClaim<int>.ClaimValue)}=:{nameof(IdentityRoleClaim<int>.ClaimValue)}")
             .AddTemplate(
                 $"DELETE FROM {config.SchemaPart}AspNetRoleClaims\r\n/**where2**/;")
             .RawSql;
@@ -49,7 +49,7 @@ public class OracleIdentityRoleClaimClassGenerator
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
             .Select2("ClaimType AS Type,\r\nClaimValue AS Value")
-            .Where2($"RoleId=@{nameof(IdentityRole.Id)}")
+            .Where2($"RoleId=:{nameof(IdentityRole.Id)}")
             .AddTemplate(
                 $"SELECT /**select2**/FROM {config.SchemaPart}AspNetRoleClaims\r\n/**where2**/;")
             .RawSql;

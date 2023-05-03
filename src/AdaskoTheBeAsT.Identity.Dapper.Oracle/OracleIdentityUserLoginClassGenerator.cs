@@ -18,7 +18,7 @@ public class OracleIdentityUserLoginClassGenerator
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
-            .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
+            .Values(string.Join("\r\n,", propertyNames.Select(s => $":{s}")))
             .AddTemplate(
                 $"INSERT INTO {schemaPart}AspNetUserLogins(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
             .RawSql;
@@ -29,9 +29,9 @@ public class OracleIdentityUserLoginClassGenerator
         var sqlBuilder = new AdvancedSqlBuilder();
 
         return sqlBuilder
-            .Where2($"{nameof(IdentityUserLogin<int>.LoginProvider)}=@{nameof(IdentityUserLogin<int>.LoginProvider)}")
-            .Where2($"{nameof(IdentityUserLogin<int>.ProviderKey)}=@{nameof(IdentityUserLogin<int>.ProviderKey)}")
-            .Where2($"{nameof(IdentityUserLogin<int>.UserId)}=@{nameof(IdentityUserLogin<int>.UserId)}")
+            .Where2($"{nameof(IdentityUserLogin<int>.LoginProvider)}=:{nameof(IdentityUserLogin<int>.LoginProvider)}")
+            .Where2($"{nameof(IdentityUserLogin<int>.ProviderKey)}=:{nameof(IdentityUserLogin<int>.ProviderKey)}")
+            .Where2($"{nameof(IdentityUserLogin<int>.UserId)}=:{nameof(IdentityUserLogin<int>.UserId)}")
             .AddTemplate(
                 $"DELETE FROM {schemaPart}AspNetUserLogins\r\n/**where2**/;")
             .RawSql;
@@ -52,7 +52,7 @@ public class OracleIdentityUserLoginClassGenerator
 
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))
-            .Where2($"UserId=@{nameof(IdentityUser.Id)}")
+            .Where2($"UserId=:{nameof(IdentityUser.Id)}")
             .AddTemplate(
                 $"SELECT /**select2**/FROM {schemaPart}AspNetUserLogins\r\n/**where2**/;")
             .RawSql;
@@ -73,9 +73,9 @@ public class OracleIdentityUserLoginClassGenerator
 
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))
-            .Where2($"UserId=@{nameof(IdentityUser.Id)}")
-            .Where2($"{nameof(IdentityUserLogin<int>.LoginProvider)}=@{nameof(IdentityUserLogin<int>.LoginProvider)}")
-            .Where2($"{nameof(IdentityUserLogin<int>.ProviderKey)}=@{nameof(IdentityUserLogin<int>.ProviderKey)}")
+            .Where2($"UserId=:{nameof(IdentityUser.Id)}")
+            .Where2($"{nameof(IdentityUserLogin<int>.LoginProvider)}=:{nameof(IdentityUserLogin<int>.LoginProvider)}")
+            .Where2($"{nameof(IdentityUserLogin<int>.ProviderKey)}=:{nameof(IdentityUserLogin<int>.ProviderKey)}")
             .AddTemplate(
                 $"SELECT /**select2**/FROM {schemaPart}AspNetUserLogins\r\n/**where2**/;")
             .RawSql;
@@ -96,8 +96,8 @@ public class OracleIdentityUserLoginClassGenerator
 
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))
-            .Where2($"{nameof(IdentityUserLogin<int>.LoginProvider)}=@{nameof(IdentityUserLogin<int>.LoginProvider)}")
-            .Where2($"{nameof(IdentityUserLogin<int>.ProviderKey)}=@{nameof(IdentityUserLogin<int>.ProviderKey)}")
+            .Where2($"{nameof(IdentityUserLogin<int>.LoginProvider)}=:{nameof(IdentityUserLogin<int>.LoginProvider)}")
+            .Where2($"{nameof(IdentityUserLogin<int>.ProviderKey)}=:{nameof(IdentityUserLogin<int>.ProviderKey)}")
             .AddTemplate(
                 $"SELECT /**select2**/FROM {schemaPart}AspNetUserLogins\r\n/**where2**/;")
             .RawSql;

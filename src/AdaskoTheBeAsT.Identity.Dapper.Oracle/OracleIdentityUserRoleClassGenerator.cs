@@ -18,7 +18,7 @@ public class OracleIdentityUserRoleClassGenerator
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
             .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
-            .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
+            .Values(string.Join("\r\n,", propertyNames.Select(s => $":{s}")))
             .AddTemplate(
                 $"INSERT INTO {config.SchemaPart}AspNetUserRoles(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
             .RawSql;
@@ -29,8 +29,8 @@ public class OracleIdentityUserRoleClassGenerator
         var sqlBuilder = new AdvancedSqlBuilder();
 
         return sqlBuilder
-            .Where2($"{nameof(IdentityUserRole<int>.UserId)}=@{nameof(IdentityUserRole<int>.UserId)}")
-            .Where2($"{nameof(IdentityUserRole<int>.RoleId)}=@{nameof(IdentityUserRole<int>.RoleId)}")
+            .Where2($"{nameof(IdentityUserRole<int>.UserId)}=:{nameof(IdentityUserRole<int>.UserId)}")
+            .Where2($"{nameof(IdentityUserRole<int>.RoleId)}=:{nameof(IdentityUserRole<int>.RoleId)}")
             .AddTemplate(
                 $"DELETE FROM {config.SchemaPart}AspNetUserRoles\r\n/**where2**/;")
             .RawSql;
@@ -51,8 +51,8 @@ public class OracleIdentityUserRoleClassGenerator
 
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))
-            .Where2($"{nameof(IdentityUserRole<int>.UserId)}=@{nameof(IdentityUserRole<int>.UserId)}")
-            .Where2($"{nameof(IdentityUserRole<int>.RoleId)}=@{nameof(IdentityUserRole<int>.RoleId)}")
+            .Where2($"{nameof(IdentityUserRole<int>.UserId)}=:{nameof(IdentityUserRole<int>.UserId)}")
+            .Where2($"{nameof(IdentityUserRole<int>.RoleId)}=:{nameof(IdentityUserRole<int>.RoleId)}")
             .AddTemplate(
                 $"SELECT /**select2**/FROM {config.SchemaPart}AspNetUserRoles\r\n/**where2**/;")
             .RawSql;
@@ -65,8 +65,8 @@ public class OracleIdentityUserRoleClassGenerator
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Where2($"{nameof(IdentityUserRole<int>.UserId)}=@{nameof(IdentityUserRole<int>.UserId)}")
-            .Where2($"{nameof(IdentityUserRole<int>.RoleId)}=@{nameof(IdentityUserRole<int>.RoleId)}")
+            .Where2($"{nameof(IdentityUserRole<int>.UserId)}=:{nameof(IdentityUserRole<int>.UserId)}")
+            .Where2($"{nameof(IdentityUserRole<int>.RoleId)}=:{nameof(IdentityUserRole<int>.RoleId)}")
             .AddTemplate(
                 $"SELECT COUNT(*)\r\nFROM {config.SchemaPart}AspNetUserRoles\r\n/**where2**/;")
             .RawSql;
@@ -83,7 +83,7 @@ public class OracleIdentityUserRoleClassGenerator
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
             .InnerJoin2($"{config.SchemaPart}AspNetUserRoles ur ON r.Id=ur.RoleId")
-            .Where2($"ur.{nameof(IdentityUserRole<int>.UserId)}=@{nameof(IdentityUserRole<int>.UserId)}")
+            .Where2($"ur.{nameof(IdentityUserRole<int>.UserId)}=:{nameof(IdentityUserRole<int>.UserId)}")
             .AddTemplate(template)
             .RawSql;
     }
