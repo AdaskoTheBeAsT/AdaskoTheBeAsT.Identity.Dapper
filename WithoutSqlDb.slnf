@@ -1,0 +1,20 @@
+{
+  "solution": {
+    "path": "AdaskoTheBeAsT.Identity.Dapper.sln",
+    "projects": [
+      "samples\\ConsoleApp\\ConsoleApp.csproj",
+      "samples\\OracleConsoleApp\\OracleConsoleApp.csproj",
+      "samples\\Sample.SqlServer2\\Sample.SqlServer2.csproj",
+      "samples\\Sample.SqlServer\\Sample.SqlServer.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.MySql\\AdaskoTheBeAsT.Identity.Dapper.MySql.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.Oracle\\AdaskoTheBeAsT.Identity.Dapper.Oracle.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.PostgreSql\\AdaskoTheBeAsT.Identity.Dapper.PostgreSql.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.Shared\\AdaskoTheBeAsT.Identity.Dapper.Shared.shproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.SqlServer\\AdaskoTheBeAsT.Identity.Dapper.SqlServer.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.Sqlite\\AdaskoTheBeAsT.Identity.Dapper.Sqlite.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper\\AdaskoTheBeAsT.Identity.Dapper.csproj",
+      "test\\integ\\AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest\\AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.csproj",
+      "test\\unit\\AdaskoTheBeAsT.Identity.Dapper.SqlServer.Test\\AdaskoTheBeAsT.Identity.Dapper.SqlServer.Test.csproj"
+    ]
+  }
+}

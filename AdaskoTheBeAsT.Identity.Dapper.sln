@@ -79,6 +79,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MySql", "MySql", "{FA53D9C3
 		db\MySql\AspNetIdentityGuid.sql = db\MySql\AspNetIdentityGuid.sql
 		db\MySql\AspNetIdentityInt.sql = db\MySql\AspNetIdentityInt.sql
 		db\MySql\AspNetIdentityString.sql = db\MySql\AspNetIdentityString.sql
+		db\MySql\WithoutNormalizedAspNetIdentityBigInt.sql = db\MySql\WithoutNormalizedAspNetIdentityBigInt.sql
+		db\MySql\WithoutNormalizedAspNetIdentityGuid.sql = db\MySql\WithoutNormalizedAspNetIdentityGuid.sql
+		db\MySql\WithoutNormalizedAspNetIdentityInt.sql = db\MySql\WithoutNormalizedAspNetIdentityInt.sql
+		db\MySql\WithoutNormalizedAspNetIdentityString.sql = db\MySql\WithoutNormalizedAspNetIdentityString.sql
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.SqlServer2", "samples\Sample.SqlServer2\Sample.SqlServer2.csproj", "{A759BCC2-FDA2-4C43-BC5A-6DEF3199D0DA}"
@@ -91,6 +95,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PostgreSQL", "PostgreSQL", 
 		db\PostgreSQL\AspNetIdentityGuid.sql = db\PostgreSQL\AspNetIdentityGuid.sql
 		db\PostgreSQL\AspNetIdentityInt.sql = db\PostgreSQL\AspNetIdentityInt.sql
 		db\PostgreSQL\AspNetIdentityString.sql = db\PostgreSQL\AspNetIdentityString.sql
+		db\PostgreSQL\WithoutNormalizedAspNetIdentityBigInt.sql = db\PostgreSQL\WithoutNormalizedAspNetIdentityBigInt.sql
+		db\PostgreSQL\WithoutNormalizedAspNetIdentityGuid.sql = db\PostgreSQL\WithoutNormalizedAspNetIdentityGuid.sql
+		db\PostgreSQL\WithoutNormalizedAspNetIdentityInt.sql = db\PostgreSQL\WithoutNormalizedAspNetIdentityInt.sql
+		db\PostgreSQL\WithoutNormalizedAspNetIdentityString.sql = db\PostgreSQL\WithoutNormalizedAspNetIdentityString.sql
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Oracle", "Oracle", "{376CE99A-349F-4E71-9305-CB5A4FC949FA}"
@@ -100,6 +108,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Oracle", "Oracle", "{376CE9
 		db\Oracle\AspNetIdentityInt.sql = db\Oracle\AspNetIdentityInt.sql
 		db\Oracle\AspNetIdentityString.sql = db\Oracle\AspNetIdentityString.sql
 		db\Oracle\OracleSetup.sql = db\Oracle\OracleSetup.sql
+		db\Oracle\WithoutNormalizedAspNetIdentityBigInt.sql = db\Oracle\WithoutNormalizedAspNetIdentityBigInt.sql
+		db\Oracle\WithoutNormalizedAspNetIdentityGuid.sql = db\Oracle\WithoutNormalizedAspNetIdentityGuid.sql
+		db\Oracle\WithoutNormalizedAspNetIdentityInt.sql = db\Oracle\WithoutNormalizedAspNetIdentityInt.sql
+		db\Oracle\WithoutNormalizedAspNetIdentityString.sql = db\Oracle\WithoutNormalizedAspNetIdentityString.sql
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OracleConsoleApp", "samples\OracleConsoleApp\OracleConsoleApp.csproj", "{337326E1-D669-4F31-B442-92387C37EAFD}"
@@ -110,7 +122,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQLite", "SQLite", "{6E4C97
 		db\SQLite\AspNetIdentityGuid.sql = db\SQLite\AspNetIdentityGuid.sql
 		db\SQLite\AspNetIdentityInt.sql = db\SQLite\AspNetIdentityInt.sql
 		db\SQLite\AspNetIdentityString.sql = db\SQLite\AspNetIdentityString.sql
+		db\SQLite\WithoutNormalizedAspNetIdentityBigInt.sql = db\SQLite\WithoutNormalizedAspNetIdentityBigInt.sql
+		db\SQLite\WithoutNormalizedAspNetIdentityGuid.sql = db\SQLite\WithoutNormalizedAspNetIdentityGuid.sql
+		db\SQLite\WithoutNormalizedAspNetIdentityInt.sql = db\SQLite\WithoutNormalizedAspNetIdentityInt.sql
+		db\SQLite\WithoutNormalizedAspNetIdentityString.sql = db\SQLite\WithoutNormalizedAspNetIdentityString.sql
 	EndProjectSection
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "WithoutNormalizedAspNetIdentityBigInt", "db\SqlServer\WithoutNormalizedAspNetIdentityBigInt\WithoutNormalizedAspNetIdentityBigInt.sqlproj", "{64EBCB32-1298-470E-91C2-6F5BACDB4BF7}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "WithoutNormalizedAspNetIdentityGuid", "db\SqlServer\WithoutNormalizedAspNetIdentityGuid\WithoutNormalizedAspNetIdentityGuid.sqlproj", "{C6EC1785-FC06-4F4A-B89E-35992D97A45A}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "WithoutNormalizedAspNetIdentityInt", "db\SqlServer\WithoutNormalizedAspNetIdentityInt\WithoutNormalizedAspNetIdentityInt.sqlproj", "{50147B9D-9F88-482E-998F-850BD80BCAEE}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "WithoutNormalizedAspNetIndentityString", "db\SqlServer\WithoutNormalizedAspNetIndentityString\WithoutNormalizedAspNetIndentityString.sqlproj", "{F8FB334E-AA9A-4A74-8D9D-A7DC7983999A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -190,6 +214,30 @@ Global
 		{337326E1-D669-4F31-B442-92387C37EAFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{337326E1-D669-4F31-B442-92387C37EAFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{337326E1-D669-4F31-B442-92387C37EAFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64EBCB32-1298-470E-91C2-6F5BACDB4BF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64EBCB32-1298-470E-91C2-6F5BACDB4BF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64EBCB32-1298-470E-91C2-6F5BACDB4BF7}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{64EBCB32-1298-470E-91C2-6F5BACDB4BF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64EBCB32-1298-470E-91C2-6F5BACDB4BF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64EBCB32-1298-470E-91C2-6F5BACDB4BF7}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{C6EC1785-FC06-4F4A-B89E-35992D97A45A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6EC1785-FC06-4F4A-B89E-35992D97A45A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6EC1785-FC06-4F4A-B89E-35992D97A45A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{C6EC1785-FC06-4F4A-B89E-35992D97A45A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6EC1785-FC06-4F4A-B89E-35992D97A45A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6EC1785-FC06-4F4A-B89E-35992D97A45A}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{50147B9D-9F88-482E-998F-850BD80BCAEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50147B9D-9F88-482E-998F-850BD80BCAEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50147B9D-9F88-482E-998F-850BD80BCAEE}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{50147B9D-9F88-482E-998F-850BD80BCAEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50147B9D-9F88-482E-998F-850BD80BCAEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50147B9D-9F88-482E-998F-850BD80BCAEE}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{F8FB334E-AA9A-4A74-8D9D-A7DC7983999A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8FB334E-AA9A-4A74-8D9D-A7DC7983999A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8FB334E-AA9A-4A74-8D9D-A7DC7983999A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{F8FB334E-AA9A-4A74-8D9D-A7DC7983999A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8FB334E-AA9A-4A74-8D9D-A7DC7983999A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8FB334E-AA9A-4A74-8D9D-A7DC7983999A}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -221,6 +269,10 @@ Global
 		{376CE99A-349F-4E71-9305-CB5A4FC949FA} = {71823033-0DBA-4E00-8325-7DDCB7346588}
 		{337326E1-D669-4F31-B442-92387C37EAFD} = {7D925E4F-891C-492B-92FE-6E4277E1B3F4}
 		{6E4C978A-043C-4417-9C95-F7EA48A96BB4} = {71823033-0DBA-4E00-8325-7DDCB7346588}
+		{64EBCB32-1298-470E-91C2-6F5BACDB4BF7} = {265E36FF-3E33-407D-9E27-4A0995ED0600}
+		{C6EC1785-FC06-4F4A-B89E-35992D97A45A} = {265E36FF-3E33-407D-9E27-4A0995ED0600}
+		{50147B9D-9F88-482E-998F-850BD80BCAEE} = {265E36FF-3E33-407D-9E27-4A0995ED0600}
+		{F8FB334E-AA9A-4A74-8D9D-A7DC7983999A} = {265E36FF-3E33-407D-9E27-4A0995ED0600}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2DC60B14-2697-4908-AADC-3EA7874F6FF1}
