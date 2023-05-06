@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.Common;
+using System.Data;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -397,7 +397,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     }
 
     protected virtual async Task CreateImplAsync(
-        DbConnection connection,
+        IDbConnection connection,
         TRole role,
         CancellationToken cancellationToken)
     {

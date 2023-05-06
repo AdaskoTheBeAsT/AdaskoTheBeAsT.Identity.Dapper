@@ -14,6 +14,7 @@ public class OracleSourceGenerationHelper
             new OracleIdentityUserLoginClassGenerator(),
             new OracleIdentityUserRoleClassGenerator(),
             new OracleIdentityUserTokenClassGenerator(),
+            new OracleIdentityUserRoleClaimClassGenerator(),
             new OracleApplicationUserOnlyStoreGenerator(),
             new OracleApplicationUserStoreGenerator(),
             new OracleApplicationRoleStoreGenerator())

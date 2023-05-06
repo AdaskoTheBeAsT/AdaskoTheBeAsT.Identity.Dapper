@@ -30,6 +30,7 @@ public abstract class SourceGeneratorHelperBase
     private readonly IIdentityUserLoginClassGenerator _identityUserLoginClassGenerator;
     private readonly IIdentityUserRoleClassGenerator _identityUserRoleClassGenerator;
     private readonly IIdentityUserTokenClassGenerator _identityUserTokenClassGenerator;
+    private readonly IIdentityUserRoleClaimClassGenerator _identityUserRoleClaimClassGenerator;
     private readonly IApplicationUserOnlyStoreGenerator _applicationUserOnlyStoreGenerator;
     private readonly IApplicationUserStoreGenerator _applicationUserStoreGenerator;
     private readonly IApplicationRoleStoreGenerator _applicationRoleStoreGenerator;
@@ -42,6 +43,7 @@ public abstract class SourceGeneratorHelperBase
         IIdentityUserLoginClassGenerator identityUserLoginClassGenerator,
         IIdentityUserRoleClassGenerator identityUserRoleClassGenerator,
         IIdentityUserTokenClassGenerator identityUserTokenClassGenerator,
+        IIdentityUserRoleClaimClassGenerator identityUserRoleClaimClassGenerator,
         IApplicationUserOnlyStoreGenerator applicationUserOnlyStoreGenerator,
         IApplicationUserStoreGenerator applicationUserStoreGenerator,
         IApplicationRoleStoreGenerator applicationRoleStoreGenerator)
@@ -53,6 +55,7 @@ public abstract class SourceGeneratorHelperBase
         _identityUserLoginClassGenerator = identityUserLoginClassGenerator;
         _identityUserRoleClassGenerator = identityUserRoleClassGenerator;
         _identityUserTokenClassGenerator = identityUserTokenClassGenerator;
+        _identityUserRoleClaimClassGenerator = identityUserRoleClaimClassGenerator;
         _applicationUserOnlyStoreGenerator = applicationUserOnlyStoreGenerator;
         _applicationUserStoreGenerator = applicationUserStoreGenerator;
         _applicationRoleStoreGenerator = applicationRoleStoreGenerator;
@@ -120,6 +123,7 @@ public abstract class SourceGeneratorHelperBase
                 break;
             case nameof(IdentityUser):
                 ProcessIdentityUser(context, config, propertyNames, columnNames);
+                ProcessIdentityUserRoleClaim(context, config);
                 break;
             case nameof(IdentityUserClaim<int>):
                 ProcessIdentityUserClaim(context, config, propertyNames, columnNames);
@@ -171,6 +175,15 @@ public abstract class SourceGeneratorHelperBase
         var content = _identityUserClassGenerator.Generate(config, propertyNames, columnNames);
 
         context.AddSource("IdentityUserSql.g.cs", SourceText.From(content, Encoding.UTF8));
+    }
+
+    private void ProcessIdentityUserRoleClaim(
+        SourceProductionContext context,
+        IdentityDapperConfiguration config)
+    {
+        var content = _identityUserRoleClaimClassGenerator.Generate(config);
+
+        context.AddSource("IdentityUserRoleClaimSql.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
     private void ProcessIdentityUserClaim(

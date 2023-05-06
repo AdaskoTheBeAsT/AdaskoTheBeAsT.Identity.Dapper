@@ -58,7 +58,7 @@ public class MySqlApplicationRoleStoreGenerator
 
         sb.AppendLine(
             $@"        protected override async Task CreateImplAsync(
-            DbConnection connection,
+            IDbConnection connection,
             TRole role,
             CancellationToken cancellationToken)
         {{

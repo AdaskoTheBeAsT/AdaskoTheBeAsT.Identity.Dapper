@@ -136,6 +136,8 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "WithoutNormalizedAspNetIden
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "WithoutNormalizedAspNetIndentityString", "db\SqlServer\WithoutNormalizedAspNetIndentityString\WithoutNormalizedAspNetIndentityString.sqlproj", "{F8FB334E-AA9A-4A74-8D9D-A7DC7983999A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.WebApi", "src\AdaskoTheBeAsT.Identity.Dapper.WebApi\AdaskoTheBeAsT.Identity.Dapper.WebApi.csproj", "{51E6418B-38EF-4E8E-A823-1D2992604BFD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -238,6 +240,10 @@ Global
 		{F8FB334E-AA9A-4A74-8D9D-A7DC7983999A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8FB334E-AA9A-4A74-8D9D-A7DC7983999A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F8FB334E-AA9A-4A74-8D9D-A7DC7983999A}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{51E6418B-38EF-4E8E-A823-1D2992604BFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51E6418B-38EF-4E8E-A823-1D2992604BFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51E6418B-38EF-4E8E-A823-1D2992604BFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51E6418B-38EF-4E8E-A823-1D2992604BFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -273,6 +279,7 @@ Global
 		{C6EC1785-FC06-4F4A-B89E-35992D97A45A} = {265E36FF-3E33-407D-9E27-4A0995ED0600}
 		{50147B9D-9F88-482E-998F-850BD80BCAEE} = {265E36FF-3E33-407D-9E27-4A0995ED0600}
 		{F8FB334E-AA9A-4A74-8D9D-A7DC7983999A} = {265E36FF-3E33-407D-9E27-4A0995ED0600}
+		{51E6418B-38EF-4E8E-A823-1D2992604BFD} = {C28AEC30-FF71-4397-A8C5-5B26D183A45A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2DC60B14-2697-4908-AADC-3EA7874F6FF1}

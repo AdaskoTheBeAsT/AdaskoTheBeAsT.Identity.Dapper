@@ -14,6 +14,7 @@ public class SqlServerSourceGenerationHelper
             new SqlServerIdentityUserLoginClassGenerator(),
             new SqlServerIdentityUserRoleClassGenerator(),
             new SqlServerIdentityUserTokenClassGenerator(),
+            new SqlServerIdentityUserRoleClaimClassGenerator(),
             new SqlServerApplicationUserOnlyStoreGenerator(),
             new SqlServerApplicationUserStoreGenerator(),
             new SqlServerApplicationRoleStoreGenerator())

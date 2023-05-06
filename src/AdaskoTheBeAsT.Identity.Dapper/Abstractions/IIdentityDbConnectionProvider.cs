@@ -1,8 +1,8 @@
-using System.Data.Common;
+using System.Data;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 
 public interface IIdentityDbConnectionProvider
 {
-    DbConnection Provide();
+    IDbConnection Provide();
 }

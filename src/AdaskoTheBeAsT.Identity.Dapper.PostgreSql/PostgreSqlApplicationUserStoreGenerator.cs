@@ -38,7 +38,8 @@ public class PostgreSqlApplicationUserStoreGenerator
                 new IdentityUserLoginSql(),
                 new IdentityUserTokenSql(),
                 new IdentityUserRoleSql(),
-                new IdentityRoleSql())
+                new IdentityRoleSql(),
+                new IdentityUserRoleClaimSql())
         {
         }");
     }

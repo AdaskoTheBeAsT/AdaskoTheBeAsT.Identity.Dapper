@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
@@ -11,7 +12,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper;
 
 public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken>
     : DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken>,
-        IUserRoleStore<TUser>
+        IUserRoleStore<TUser>,
+        IUserRoleClaimStore<TUser>
     where TUser : IdentityUser<TKey>
     where TRole : IdentityRole<TKey>
     where TKey : IEquatable<TKey>
@@ -28,7 +30,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         IIdentityUserLoginSql identityUserLoginSql,
         IIdentityUserTokenSql identityUserTokenSql,
         IIdentityUserRoleSql identityUserRoleSql,
-        IIdentityRoleSql identityRoleSql)
+        IIdentityRoleSql identityRoleSql,
+        IIdentityUserRoleClaimSql identityUserRoleClaimSql)
         : base(
             describer,
             connectionProvider,
@@ -39,11 +42,14 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     {
         IdentityUserRoleSql = identityUserRoleSql ?? throw new ArgumentNullException(nameof(identityUserRoleSql));
         IdentityRoleSql = identityRoleSql ?? throw new ArgumentNullException(nameof(identityRoleSql));
+        IdentityUserRoleClaimSql = identityUserRoleClaimSql ?? throw new ArgumentNullException(nameof(identityUserRoleClaimSql));
     }
 
     protected IIdentityUserRoleSql IdentityUserRoleSql { get; }
 
     protected IIdentityRoleSql IdentityRoleSql { get; }
+
+    protected IIdentityUserRoleClaimSql IdentityUserRoleClaimSql { get; }
 
     /// <summary>
     /// Retrieves all users in the specified role.
@@ -167,6 +173,46 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
                 IdentityUserRoleSql.GetCountSql,
                 CreateUserRole(user, role))
             .ConfigureAwait(false)) > 0;
+    }
+
+    /// <summary>
+    /// Get the claims associated with the roles of the specified <paramref name="user" /> as an asynchronous operation.
+    /// </summary>
+    /// <param name="user">The user whose claims should be retrieved from his roles.</param>
+    /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
+    /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that contains the claims granted to all roles of given user.</returns>
+    public async Task<IList<Claim>> GetRoleClaimsAsync(
+        TUser user,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        using var connection = ConnectionProvider.Provide();
+        return (await connection.QueryAsync<Claim>(
+                    IdentityUserRoleClaimSql.GetRoleClaimsByUserIdSql,
+                    user)
+                .ConfigureAwait(false))
+            .AsList();
+    }
+
+    /// <summary>
+    /// Get the claims associated with the specified <paramref name="user" /> and all his roles as an asynchronous operation.
+    /// </summary>
+    /// <param name="user">The user whose claims should be retrieved from him and his roles.</param>
+    /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
+    /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that contains the claims granted to a given user and all of his roles.</returns>
+    public async Task<IList<Claim>> GetUserAndRoleClaimsAsync(
+        TUser user,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        using var connection = ConnectionProvider.Provide();
+        return (await connection.QueryAsync<Claim>(
+                    IdentityUserRoleClaimSql.GetUserAndRoleClaimsByUserIdSql,
+                    user)
+                .ConfigureAwait(false))
+            .AsList();
     }
 
     /// <summary>

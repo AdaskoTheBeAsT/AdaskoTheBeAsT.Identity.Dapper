@@ -14,6 +14,7 @@ public class SqliteSourceGenerationHelper
             new SqliteIdentityUserLoginClassGenerator(),
             new SqliteIdentityUserRoleClassGenerator(),
             new SqliteIdentityUserTokenClassGenerator(),
+            new SqliteIdentityUserRoleClaimClassGenerator(),
             new SqliteApplicationUserOnlyStoreGenerator(),
             new SqliteApplicationUserStoreGenerator(),
             new SqliteApplicationRoleStoreGenerator())

@@ -38,7 +38,8 @@ public class SqliteApplicationUserStoreGenerator
                 new IdentityUserLoginSql(),
                 new IdentityUserTokenSql(),
                 new IdentityUserRoleSql(),
-                new IdentityRoleSql())
+                new IdentityRoleSql(),
+                new IdentityUserRoleClaimSql())
         {
         }");
     }

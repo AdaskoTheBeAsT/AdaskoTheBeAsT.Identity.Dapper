@@ -60,7 +60,7 @@ public class MySqlApplicationUserOnlyStoreGenerator
 
         sb.AppendLine(
             $@"        protected virtual async Task CreateImplAsync(
-            DbConnection connection,
+            IDbConnection connection,
             TUser user,
             CancellationToken cancellationToken)
         {{

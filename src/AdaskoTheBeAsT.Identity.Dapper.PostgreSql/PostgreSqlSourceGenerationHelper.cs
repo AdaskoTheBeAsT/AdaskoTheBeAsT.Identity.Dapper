@@ -14,6 +14,7 @@ public class PostgreSqlSourceGenerationHelper
             new PostgreSqlIdentityUserLoginClassGenerator(),
             new PostgreSqlIdentityUserRoleClassGenerator(),
             new PostgreSqlIdentityUserTokenClassGenerator(),
+            new PostgreSqlIdentityUserRoleClaimClassGenerator(),
             new PostgreSqlApplicationUserOnlyStoreGenerator(),
             new PostgreSqlApplicationUserStoreGenerator(),
             new PostgreSqlApplicationRoleStoreGenerator())

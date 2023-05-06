@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityRoleClaimClassGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityRoleClassGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityUserRoleClaimClassGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityUserClaimClassGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityUserClassGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityUserLoginClassGenerator.cs" />
@@ -33,6 +34,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)IdentityUserClaimClassGeneratorBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IdentityUserClassGeneratorBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IdentityUserLoginClassGeneratorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IdentityUserRoleClaimClassGeneratorBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IdentityUserRoleClassGeneratorBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IdentityUserTokenClassGeneratorBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SourceGeneratorHelperBase.cs" />
