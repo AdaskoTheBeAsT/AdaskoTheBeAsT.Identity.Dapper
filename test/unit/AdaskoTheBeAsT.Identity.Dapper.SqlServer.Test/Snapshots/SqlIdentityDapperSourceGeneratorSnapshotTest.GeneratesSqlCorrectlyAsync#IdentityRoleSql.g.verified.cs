@@ -10,22 +10,18 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             @"INSERT INTO dbo.AspNetRoles(
 [Name]
 ,[NormalizedName]
-,[ConcurrencyStamp]
-,[NormalizedName])
+,[ConcurrencyStamp])
+OUTPUT inserted.Id
 VALUES(
 @Name
 ,@NormalizedName
-,@ConcurrencyStamp
-,@NormalizedName)
-OUTPUT inserted.Id
-VALUES(1);";
+,@ConcurrencyStamp);";
 
         public string UpdateSql { get; } =
             @"UPDATE dbo.AspNetRoles
 SET [Name]=@Name
 ,[NormalizedName]=@NormalizedName
 ,[ConcurrencyStamp]=@ConcurrencyStamp
-,[NormalizedName]=@NormalizedName
 WHERE Id=@Id;";
 
         public string DeleteSql { get; } =
@@ -36,7 +32,6 @@ WHERE Id=@Id;";
 ,[Name] AS Name
 ,[NormalizedName] AS NormalizedName
 ,[ConcurrencyStamp] AS ConcurrencyStamp
-,[NormalizedName] AS NormalizedName
 FROM dbo.AspNetRoles
 WHERE Id=@Id;";
 
@@ -45,7 +40,6 @@ WHERE Id=@Id;";
 ,[Name] AS Name
 ,[NormalizedName] AS NormalizedName
 ,[ConcurrencyStamp] AS ConcurrencyStamp
-,[NormalizedName] AS NormalizedName
 FROM dbo.AspNetRoles
 WHERE NormalizedName=@NormalizedName;";
     }

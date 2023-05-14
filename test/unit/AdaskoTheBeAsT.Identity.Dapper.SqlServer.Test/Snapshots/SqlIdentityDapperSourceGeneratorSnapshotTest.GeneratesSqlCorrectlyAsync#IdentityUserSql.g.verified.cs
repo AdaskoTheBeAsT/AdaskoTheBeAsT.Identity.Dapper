@@ -21,10 +21,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
 ,[TwoFactorEnabled]
 ,[LockoutEnd]
 ,[LockoutEnabled]
-,[AccessFailedCount]
-,[IsActive]
-,[NormalizedUserName]
-,[NormalizedEmail])
+,[AccessFailedCount])
+OUTPUT inserted.Id
 VALUES(
 @UserName
 ,@NormalizedUserName
@@ -39,12 +37,7 @@ VALUES(
 ,@TwoFactorEnabled
 ,@LockoutEnd
 ,@LockoutEnabled
-,@AccessFailedCount
-,@Active
-,@NormalizedUserName
-,@NormalizedEmail)
-OUTPUT inserted.Id
-VALUES(1);";
+,@AccessFailedCount);";
 
         public string UpdateSql { get; } =
             @"UPDATE dbo.AspNetUsers
@@ -62,9 +55,6 @@ SET [UserName]=@UserName
 ,[LockoutEnd]=@LockoutEnd
 ,[LockoutEnabled]=@LockoutEnabled
 ,[AccessFailedCount]=@AccessFailedCount
-,[IsActive]=@Active
-,[NormalizedUserName]=@NormalizedUserName
-,[NormalizedEmail]=@NormalizedEmail
 WHERE Id=@Id;";
 
         public string DeleteSql { get; } =
@@ -86,9 +76,6 @@ WHERE Id=@Id;";
 ,[LockoutEnd] AS LockoutEnd
 ,[LockoutEnabled] AS LockoutEnabled
 ,[AccessFailedCount] AS AccessFailedCount
-,[IsActive] AS Active
-,[NormalizedUserName] AS NormalizedUserName
-,[NormalizedEmail] AS NormalizedEmail
 FROM dbo.AspNetUsers
 WHERE Id=@Id;";
 
@@ -108,9 +95,6 @@ WHERE Id=@Id;";
 ,[LockoutEnd] AS LockoutEnd
 ,[LockoutEnabled] AS LockoutEnabled
 ,[AccessFailedCount] AS AccessFailedCount
-,[IsActive] AS Active
-,[NormalizedUserName] AS NormalizedUserName
-,[NormalizedEmail] AS NormalizedEmail
 FROM dbo.AspNetUsers
 WHERE NormalizedUserName=@NormalizedUserName;";
 
@@ -130,9 +114,6 @@ WHERE NormalizedUserName=@NormalizedUserName;";
 ,[LockoutEnd] AS LockoutEnd
 ,[LockoutEnabled] AS LockoutEnabled
 ,[AccessFailedCount] AS AccessFailedCount
-,[IsActive] AS Active
-,[NormalizedUserName] AS NormalizedUserName
-,[NormalizedEmail] AS NormalizedEmail
 FROM dbo.AspNetUsers
 WHERE NormalizedEmail=@NormalizedEmail;";
 
@@ -152,9 +133,6 @@ WHERE NormalizedEmail=@NormalizedEmail;";
 ,u.[LockoutEnd] AS LockoutEnd
 ,u.[LockoutEnabled] AS LockoutEnabled
 ,u.[AccessFailedCount] AS AccessFailedCount
-,u.[IsActive] AS Active
-,u.[NormalizedUserName] AS NormalizedUserName
-,u.[NormalizedEmail] AS NormalizedEmail
 FROM dbo.AspNetUsers u
 INNER JOIN dbo.AspNetUserClaims c ON u.Id=c.UserId
 WHERE c.ClaimType=@ClaimType
@@ -176,9 +154,6 @@ WHERE c.ClaimType=@ClaimType
 ,u.[LockoutEnd] AS LockoutEnd
 ,u.[LockoutEnabled] AS LockoutEnabled
 ,u.[AccessFailedCount] AS AccessFailedCount
-,u.[IsActive] AS Active
-,u.[NormalizedUserName] AS NormalizedUserName
-,u.[NormalizedEmail] AS NormalizedEmail
 FROM dbo.AspNetUsers u
 INNER JOIN dbo.AspNetUserRoles ur ON u.Id=ur.UserId
 INNER JOIN dbo.AspNetRoles r ON ur.RolesId=r.Id

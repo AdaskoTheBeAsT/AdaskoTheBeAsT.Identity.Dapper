@@ -8,15 +8,11 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
     {
         public string CreateSql { get; } =
             @"INSERT INTO dbo.AspNetUserRoles(
-[LoginProvider]
-,[ProviderKey]
-,[ProviderDisplayName]
-,[UserId])
+[UserId]
+,[RoleId])
 VALUES(
-@LoginProvider
-,@ProviderKey
-,@ProviderDisplayName
-,@UserId);";
+@UserId
+,@RoleId);";
 
         public string DeleteSql { get; } =
             @"DELETE FROM dbo.AspNetUserRoles
@@ -24,10 +20,8 @@ WHERE UserId=@UserId
   AND RoleId=@RoleId;";
 
         public string GetByUserIdRoleIdSql { get; } =
-            @"SELECT [LoginProvider] AS LoginProvider
-,[ProviderKey] AS ProviderKey
-,[ProviderDisplayName] AS ProviderDisplayName
-,[UserId] AS UserId
+            @"SELECT [UserId] AS UserId
+,[RoleId] AS RoleId
 FROM dbo.AspNetUserRoles
 WHERE UserId=@UserId
   AND RoleId=@RoleId;";
