@@ -1,30 +1,36 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using AdaskoTheBeAsT.Identity.Dapper.WebApi.Exceptions;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Services;
 
-public class TokenGenerationService
-    : ITokenGenerationService
+public class TokenService
+    : ITokenService
 {
     private const string Audience = "IdentityWebApi";
-    private readonly string _signingKey;
+    private const string Bearer = "Bearer";
+    private const string ClientIdClaim = "client_id";
+    private const string Hyphen = "-";
+    private const string RefreshTokenKeyTemplate = "RefreshToken_{0}";
+    private const int TokenValidSeconds = 3600;
+    private readonly TokenServiceOptions _options;
     private readonly IMemoryCache _memoryCache;
 
-    public TokenGenerationService(
-        string signingKey,
-        IMemoryCache memoryCache)
+    public TokenService(
+        IMemoryCache memoryCache,
+        TokenServiceOptions options)
     {
-        _signingKey = signingKey;
         _memoryCache = memoryCache;
+        _options = options;
     }
 
     public Token GenerateToken(
@@ -33,7 +39,7 @@ public class TokenGenerationService
         IList<Claim> claims)
     {
         var signingCredentials = new SigningCredentials(
-            new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_signingKey)),
+            new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_options.SigningKey ?? string.Empty)),
             SecurityAlgorithms.HmacSha256);
 
         var claimsIdentity = new ClaimsIdentity();
@@ -41,13 +47,12 @@ public class TokenGenerationService
         claimsIdentity.AddClaim(new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName ?? string.Empty));
         claimsIdentity.AddClaim(new Claim(JwtRegisteredClaimNames.Sub, user.UserName ?? string.Empty));
         claimsIdentity.AddClaim(new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty));
-        claimsIdentity.AddClaim(new Claim("uid", user.Id.ToString("D")));
+        claimsIdentity.AddClaim(new Claim(ClientIdClaim, user.Id.ToString("D")));
         claimsIdentity.AddClaims(roles.Select(r => new Claim(ClaimTypes.Role, r)));
         claimsIdentity.AddClaims(claims);
 
         var issuedAt = DateTimeOffset.UtcNow;
-        var seconds = 3600;
-        var expiresAt = issuedAt.AddSeconds(seconds);
+        var expiresAt = issuedAt.AddSeconds(TokenValidSeconds);
 
         var securityTokenDescriptor = new SecurityTokenDescriptor
         {
@@ -63,7 +68,7 @@ public class TokenGenerationService
         var plainToken = tokenHandler.CreateToken(securityTokenDescriptor);
         var signedAndEncodedToken = tokenHandler.WriteToken(plainToken);
 
-        var refreshTokenId = Guid.NewGuid().ToString().Replace("-", string.Empty, StringComparison.OrdinalIgnoreCase);
+        var refreshTokenId = Guid.NewGuid().ToString().Replace(Hyphen, string.Empty, StringComparison.OrdinalIgnoreCase);
         var refreshToken = new RefreshToken
         {
             AudienceId = Audience,
@@ -74,7 +79,7 @@ public class TokenGenerationService
             ProtectedTicket = signedAndEncodedToken,
         };
         _memoryCache.Set(
-            $"RefreshToken_{refreshTokenId}",
+            string.Format(CultureInfo.InvariantCulture, RefreshTokenKeyTemplate, refreshTokenId),
             refreshToken,
             new MemoryCacheEntryOptions
             {
@@ -84,11 +89,25 @@ public class TokenGenerationService
         return new Token
         {
             AccessToken = signedAndEncodedToken,
-            TokenType = "bearer",
-            ExpiresIn = seconds,
+            TokenType = Bearer,
+            ExpiresIn = TokenValidSeconds,
             RefreshToken = refreshTokenId,
             Audience = securityTokenDescriptor.Audience,
             UserName = user.UserName,
         };
+    }
+
+    public RefreshToken? GetRefreshToken(string refreshTokenId)
+    {
+        var found = _memoryCache.TryGetValue<RefreshToken>(
+            string.Format(CultureInfo.InvariantCulture, RefreshTokenKeyTemplate, refreshTokenId),
+            out var refreshToken);
+
+        if (!found)
+        {
+            throw new InvalidRefreshTokenException();
+        }
+
+        return refreshToken;
     }
 }

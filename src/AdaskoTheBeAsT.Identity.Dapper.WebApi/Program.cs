@@ -1,9 +1,14 @@
-using System.Text.Json;
+using AdaskoTheBeAsT.AutoMapper.SimpleInjector;
+using AdaskoTheBeAsT.FluentValidation.MediatR;
+using AdaskoTheBeAsT.FluentValidation.SimpleInjector;
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity;
+using AdaskoTheBeAsT.Identity.Dapper.WebApi.Models;
+using AdaskoTheBeAsT.Identity.Dapper.WebApi.Persistence;
+using AdaskoTheBeAsT.Identity.Dapper.WebApi.Services;
+using AdaskoTheBeAsT.Identity.Dapper.WebApi.Validators;
 using AdaskoTheBeAsT.MediatR.SimpleInjector.AspNetCore;
-using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -12,11 +17,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SimpleInjector;
 
+#pragma warning disable AD0001
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 builder.Services.AddSingleton<IIdentityDbConnectionProvider>(_ => new IdentityDbConnectionProvider(connectionString));
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
@@ -24,6 +29,12 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
 
 builder.Services.AddScoped<IRoleStore<ApplicationRole>, ApplicationRoleStore>();
 builder.Services.AddScoped<IUserStore<ApplicationUser>, ApplicationUserStore>();
+builder.Services.AddMemoryCache();
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-CSRF-TOKEN";
+    options.Cookie.SecurePolicy = CookieSecurePolicy.None;
+});
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -42,13 +53,30 @@ builder.Services.AddSimpleInjector(
         options.AddLogging();
     });
 
+container.AddAutoMapper(
+    options => options.WithMapperAssemblyMarkerTypes(typeof(AuthenticationModel)));
+
+container.AddFluentValidation(
+    config =>
+        config.WithAssemblyMarkerTypes(typeof(AuthPasswordRequestValidator)));
+
 container.AddMediatRAspNetCore(
     config =>
     {
         config.WithHandlerAssemblyMarkerTypes(typeof(AuthPasswordRequestHandler));
+        config.UsingPipelineProcessorBehaviors(typeof(FluentValidationPipelineBehavior<,>));
+        config.UsingStreamPipelineBehaviors(typeof(FluentValidationStreamPipelineBehavior<,>));
     });
 
 container.Register<IUserRoleClaimStore<ApplicationUser>, ApplicationUserStore>(Lifestyle.Scoped);
+var tokenServiceOptions = builder.Configuration.GetSection("TokenServiceOptions").Get<TokenServiceOptions>();
+if (tokenServiceOptions != null)
+{
+    container.RegisterInstance(tokenServiceOptions);
+}
+
+container.Register<ITokenService, TokenService>(Lifestyle.Singleton);
+container.Register<ITransactionScopeProvider, TransactionScopeProvider>(Lifestyle.Singleton);
 
 var app = builder.Build();
 
@@ -67,27 +95,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapGet(
-    "antiforgery/token",
-    (
-        IAntiforgery forgeryService,
-        HttpContext context) =>
-    {
-        var tokens = forgeryService.GetAndStoreTokens(context);
-#pragma warning disable SCS0008, SCS0009
-        context.Response.Cookies.Append(
-            "XSRF-TOKEN",
-            tokens.RequestToken!,
-            new CookieOptions
-            {
-                HttpOnly = false,
-            });
-#pragma warning restore SCS0008, SCS0009
-
-        return Results.Ok();
-    })
-    .RequireAuthorization();
-
 container.Verify();
 
+container.GetInstance<AutoMapper.IConfigurationProvider>().AssertConfigurationIsValid();
+
 app.Run();
+#pragma warning restore AD0001

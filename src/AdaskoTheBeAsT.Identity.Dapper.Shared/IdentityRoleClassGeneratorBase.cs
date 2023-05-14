@@ -14,24 +14,20 @@ public abstract class IdentityRoleClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<string> propertyNames,
-        IEnumerable<string> columnNames)
+        IEnumerable<PropertyColumnPair> propertyColumnPairs)
     {
         var standardProperties = GetStandardPropertyNames();
-        var combinedColumnNames = new List<string>(standardProperties);
-        combinedColumnNames.AddRange(columnNames);
-        var combinedPropertyNames = new List<string>(standardProperties);
-        combinedPropertyNames.AddRange(propertyNames);
+        var combined = CombineStandardWithCustom(standardProperties, propertyColumnPairs);
 
         var sb = new StringBuilder();
         GenerateUsing(sb);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityRoleSql", "IIdentityRoleSql");
-        GenerateCreateSql(sb, config, combinedColumnNames, combinedPropertyNames);
-        GenerateUpdateSql(sb, config, combinedColumnNames, combinedPropertyNames);
+        GenerateCreateSql(sb, config, combined);
+        GenerateUpdateSql(sb, config, combined);
         GenerateDeleteSql(sb, config);
-        GenerateFindByIdSql(sb, config, combinedColumnNames, combinedPropertyNames);
-        GenerateFindByNameSql(sb, config, combinedColumnNames, combinedPropertyNames);
+        GenerateFindByIdSql(sb, config, combined);
+        GenerateFindByNameSql(sb, config, combined);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
@@ -39,33 +35,28 @@ public abstract class IdentityRoleClassGeneratorBase
 
     protected abstract string ProcessIdentityRoleCreateSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityRoleUpdateSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityRoleDeleteSql(IdentityDapperConfiguration config);
 
     protected abstract string ProcessIdentityRoleFindByIdSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityRoleFindByNameSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     private void GenerateCreateSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> combinedColumnNames,
-        IList<string> combinedPropertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityRoleCreateSql(config, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityRoleCreateSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");
@@ -75,10 +66,9 @@ public abstract class IdentityRoleClassGeneratorBase
     private void GenerateUpdateSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> combinedColumnNames,
-        IList<string> combinedPropertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityRoleUpdateSql(config, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityRoleUpdateSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string UpdateSql {{ get; }} =
             @""{content}"";");
@@ -99,10 +89,9 @@ public abstract class IdentityRoleClassGeneratorBase
     private void GenerateFindByIdSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> combinedColumnNames,
-        IList<string> combinedPropertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityRoleFindByIdSql(config, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityRoleFindByIdSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string FindByIdSql {{ get; }} =
             @""{content}"";");
@@ -112,10 +101,9 @@ public abstract class IdentityRoleClassGeneratorBase
     private void GenerateFindByNameSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> combinedColumnNames,
-        IList<string> combinedPropertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityRoleFindByNameSql(config, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityRoleFindByNameSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string FindByNameSql {{ get; }} =
             @""{content}"";");

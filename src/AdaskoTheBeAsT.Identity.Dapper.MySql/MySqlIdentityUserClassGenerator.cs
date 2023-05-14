@@ -19,36 +19,32 @@ public class MySqlIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserCreateSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var (localColumnNames, localPropertyNames) = GetListWithoutNormalized(
+        var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            columnNames,
-            propertyNames);
+            propertyColumnPairs);
         var template = _identityHelper.GetInsertTemplate($"{config.SchemaPart}`aspnetusers`", config.KeyTypeName);
         return sqlBuilder
-            .Insert(string.Join("\r\n,", localColumnNames.Select(s => $"[{s}]")))
-            .Values(string.Join("\r\n,", localPropertyNames.Select(s => $"@{s}")))
+            .Insert(string.Join("\r\n,", localPairs.Select(s => $"[{s.ColumnName}]")))
+            .Values(string.Join("\r\n,", localPairs.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(template)
             .RawSql;
     }
 
     protected override string ProcessIdentityUserUpdateSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var (localColumnNames, localPropertyNames) = GetListWithoutNormalized(
+        var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            columnNames,
-            propertyNames);
+            propertyColumnPairs);
         var list = new List<string>();
-        for (var i = 0; i < localColumnNames.Count; i++)
+        foreach (var localPair in localPairs)
         {
-            list.Add($"`{localColumnNames[i]}`=@{localPropertyNames[i]}");
+            list.Add($"`{localPair.ColumnName}`=@{localPair.PropertyName}");
         }
 
         return sqlBuilder
@@ -64,18 +60,16 @@ public class MySqlIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserFindByIdSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var (localColumnNames, localPropertyNames) = GetNormalizedSelectList(
+        var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            columnNames,
-            propertyNames);
+            propertyColumnPairs);
         var list = new List<string> { nameof(IdentityUser.Id) };
-        for (var i = 0; i < localColumnNames.Count; i++)
+        foreach (var localPair in localPairs)
         {
-            list.Add($"`{localColumnNames[i]}` AS {localPropertyNames[i]}");
+            list.Add($"`{localPair.ColumnName}` AS {localPair.PropertyName}");
         }
 
         return sqlBuilder
@@ -88,22 +82,20 @@ public class MySqlIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserFindByNameSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var (localColumnNames, localPropertyNames) = GetNormalizedSelectList(
+        var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            columnNames,
-            propertyNames);
+            propertyColumnPairs);
         var list = new List<string> { nameof(IdentityUser.Id) };
-        for (var i = 0; i < localColumnNames.Count; i++)
+        foreach (var localPair in localPairs)
         {
-            list.Add($"`{localColumnNames[i]}` AS {localPropertyNames[i]}");
+            list.Add($"`{localPair.ColumnName}` AS {localPair.PropertyName}");
         }
 
         var where = config.SkipNormalized
-            ? $"{nameof(IdentityUser.UserName)}=@{nameof(IdentityUser.UserName)}"
+            ? $"{nameof(IdentityUser.UserName)}=@{nameof(IdentityUser.NormalizedUserName)}"
             : $"{nameof(IdentityUser.NormalizedUserName)}=@{nameof(IdentityUser.NormalizedUserName)}";
 
         return sqlBuilder
@@ -116,22 +108,20 @@ public class MySqlIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserFindByEmailSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var (localColumnNames, localPropertyNames) = GetNormalizedSelectList(
+        var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            columnNames,
-            propertyNames);
+            propertyColumnPairs);
         var list = new List<string> { nameof(IdentityUser.Id) };
-        for (var i = 0; i < localColumnNames.Count; i++)
+        foreach (var localPair in localPairs)
         {
-            list.Add($"`{localColumnNames[i]}` AS {localPropertyNames[i]}");
+            list.Add($"`{localPair.ColumnName}` AS {localPair.PropertyName}");
         }
 
         var where = config.SkipNormalized
-            ? $"{nameof(IdentityUser.Email)}=@{nameof(IdentityUser.Email)}"
+            ? $"{nameof(IdentityUser.Email)}=@{nameof(IdentityUser.NormalizedEmail)}"
             : $"{nameof(IdentityUser.NormalizedEmail)}=@{nameof(IdentityUser.NormalizedEmail)}";
 
         return sqlBuilder
@@ -144,18 +134,16 @@ public class MySqlIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserGetUsersForClaimSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var (localColumnNames, localPropertyNames) = GetNormalizedSelectList(
+        var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            columnNames,
-            propertyNames);
+            propertyColumnPairs);
         var list = new List<string> { $"u.{nameof(IdentityUser.Id)}" };
-        for (var i = 0; i < localColumnNames.Count; i++)
+        foreach (var localPair in localPairs)
         {
-            list.Add($"u.[{localColumnNames[i]}] AS {localPropertyNames[i]}");
+            list.Add($"u.[{localPair.ColumnName}] AS {localPair.PropertyName}");
         }
 
         return sqlBuilder
@@ -170,22 +158,20 @@ public class MySqlIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserGetUsersInRoleSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var (localColumnNames, localPropertyNames) = GetNormalizedSelectList(
+        var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            columnNames,
-            propertyNames);
+            propertyColumnPairs);
         var list = new List<string> { $"u.{nameof(IdentityUser.Id)}" };
-        for (var i = 0; i < localColumnNames.Count; i++)
+        foreach (var localPair in localPairs)
         {
-            list.Add($"u.[{localColumnNames[i]}] AS {localPropertyNames[i]}");
+            list.Add($"u.[{localPair.ColumnName}] AS {localPair.PropertyName}");
         }
 
         var where = config.SkipNormalized
-            ? $"r.{nameof(IdentityRole.Name)}=@{nameof(IdentityRole.Name)}"
+            ? $"r.{nameof(IdentityRole.Name)}=@{nameof(IdentityRole.NormalizedName)}"
             : $"r.{nameof(IdentityRole.NormalizedName)}=@{nameof(IdentityRole.NormalizedName)}";
 
         return sqlBuilder

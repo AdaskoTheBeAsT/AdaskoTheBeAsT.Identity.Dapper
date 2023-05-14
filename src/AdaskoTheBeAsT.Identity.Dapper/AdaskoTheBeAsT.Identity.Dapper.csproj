@@ -6,7 +6,7 @@
     <RepositoryType>github</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Description>Autogenerates Identity stores based on Dapper</Description>
-    <PackageVersion>1.1.0</PackageVersion>
+    <PackageVersion>1.1.5</PackageVersion>
     <Authors>Adam "AdaskoTheBeAsT" Pluciński</Authors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IncludeSymbols>true</IncludeSymbols>

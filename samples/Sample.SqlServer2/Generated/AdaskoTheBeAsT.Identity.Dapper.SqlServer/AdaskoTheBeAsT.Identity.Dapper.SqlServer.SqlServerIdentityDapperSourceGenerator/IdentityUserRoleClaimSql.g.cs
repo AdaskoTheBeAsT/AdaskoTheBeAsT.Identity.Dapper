@@ -23,6 +23,5 @@ SELECT rc.ClaimType AS Type
 FROM id.AspNetRoleClaims rc
 INNER JOIN id.AspNetUserRoles ur ON ur.RoleId=rc.RoleId
 WHERE ur.UserId=@Id";
-
     }
 }

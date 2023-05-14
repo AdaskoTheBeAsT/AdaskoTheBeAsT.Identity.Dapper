@@ -6,41 +6,35 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity
         : IIdentityUserRoleSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO id.AspNetUserRoles(
-[LoginProvider]
-,[ProviderKey]
-,[ProviderDisplayName]
-,[UserId])
+            @"INSERT INTO dbo.AspNetUserRoles(
+[UserId]
+,[RoleId])
 VALUES(
-@LoginProvider
-,@ProviderKey
-,@ProviderDisplayName
-,@UserId);";
+@UserId
+,@RoleId);";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM id.AspNetUserRoles
+            @"DELETE FROM dbo.AspNetUserRoles
 WHERE UserId=@UserId
   AND RoleId=@RoleId;";
 
         public string GetByUserIdRoleIdSql { get; } =
-            @"SELECT [LoginProvider] AS LoginProvider
-,[ProviderKey] AS ProviderKey
-,[ProviderDisplayName] AS ProviderDisplayName
-,[UserId] AS UserId
-FROM id.AspNetUserRoles
+            @"SELECT [UserId] AS UserId
+,[RoleId] AS RoleId
+FROM dbo.AspNetUserRoles
 WHERE UserId=@UserId
   AND RoleId=@RoleId;";
 
         public string GetCountSql { get; } =
             @"SELECT COUNT(*)
-FROM id.AspNetUserRoles
+FROM dbo.AspNetUserRoles
 WHERE UserId=@UserId
   AND RoleId=@RoleId;";
 
         public string GetRoleNamesByUserIdSql { get; } =
             @"SELECT r.Name
-FROM id.AspNetRoles r
-INNER JOIN id.AspNetUserRoles ur ON r.Id=ur.RoleId
+FROM dbo.AspNetRoles r
+INNER JOIN dbo.AspNetUserRoles ur ON r.Id=ur.RoleId
 WHERE ur.UserId=@UserId;";
     }
 }

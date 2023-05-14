@@ -9,11 +9,10 @@ namespace Sample.SqlServer
             @"INSERT INTO id.AspNetRoles(
 [Name]
 ,[ConcurrencyStamp])
+OUTPUT inserted.Id
 VALUES(
 @Name
-,@ConcurrencyStamp)
-OUTPUT inserted.Id
-VALUES(1);";
+,@ConcurrencyStamp);";
 
         public string UpdateSql { get; } =
             @"UPDATE id.AspNetRoles
@@ -29,7 +28,6 @@ WHERE Id=@Id;";
 ,[Name] AS Name
 ,[Name] AS NormalizedName
 ,[ConcurrencyStamp] AS ConcurrencyStamp
-,[Name] AS NormalizedName
 FROM id.AspNetRoles
 WHERE Id=@Id;";
 
@@ -38,8 +36,7 @@ WHERE Id=@Id;";
 ,[Name] AS Name
 ,[Name] AS NormalizedName
 ,[ConcurrencyStamp] AS ConcurrencyStamp
-,[Name] AS NormalizedName
 FROM id.AspNetRoles
-WHERE Name=@Name;";
+WHERE Name=@NormalizedName;";
     }
 }

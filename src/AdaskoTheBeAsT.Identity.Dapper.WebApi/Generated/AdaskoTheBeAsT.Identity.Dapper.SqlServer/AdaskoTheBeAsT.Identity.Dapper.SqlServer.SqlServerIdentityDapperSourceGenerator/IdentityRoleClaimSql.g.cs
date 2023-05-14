@@ -6,7 +6,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity
         : IIdentityRoleClaimSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO id.AspNetRoleClaims(
+            @"INSERT INTO dbo.AspNetRoleClaims(
 [RoleId]
 ,[ClaimType]
 ,[ClaimValue])
@@ -17,7 +17,7 @@ VALUES(
 SELECT SCOPE_IDENTITY();";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM id.AspNetRoleClaims
+            @"DELETE FROM dbo.AspNetRoleClaims
 WHERE RoleId=@RoleId
   AND ClaimType=@ClaimType
   AND ClaimValue=@ClaimValue;";
@@ -25,7 +25,7 @@ WHERE RoleId=@RoleId
         public string GetByRoleIdSql { get; } =
             @"SELECT ClaimType AS Type,
 ClaimValue AS Value
-FROM id.AspNetRoleClaims
+FROM dbo.AspNetRoleClaims
 WHERE RoleId=@Id;";
     }
 }

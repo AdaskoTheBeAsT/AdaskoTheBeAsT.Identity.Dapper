@@ -14,20 +14,16 @@ public abstract class IdentityRoleClaimClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<string> propertyNames,
-        IEnumerable<string> columnNames)
+        IEnumerable<PropertyColumnPair> propertyColumnPairs)
     {
         var standardProperties = GetStandardPropertyNames();
-        var combinedColumnNames = new List<string>(standardProperties);
-        combinedColumnNames.AddRange(columnNames);
-        var combinedPropertyNames = new List<string>(standardProperties);
-        combinedPropertyNames.AddRange(propertyNames);
+        var combined = CombineStandardWithCustom(standardProperties, propertyColumnPairs);
 
         var sb = new StringBuilder();
         GenerateUsing(sb);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityRoleClaimSql", "IIdentityRoleClaimSql");
-        GenerateCreateSql(sb, config, combinedColumnNames, combinedPropertyNames);
+        GenerateCreateSql(sb, config, combined);
         GenerateDeleteSql(sb, config);
         GenerateGetByRoleIdSql(sb, config);
         GenerateClassEnd(sb);
@@ -37,8 +33,7 @@ public abstract class IdentityRoleClaimClassGeneratorBase
 
     protected abstract string ProcessIdentityRoleClaimCreateSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityRoleClaimDeleteSql(IdentityDapperConfiguration config);
 
@@ -47,10 +42,9 @@ public abstract class IdentityRoleClaimClassGeneratorBase
     private void GenerateCreateSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> combinedColumnNames,
-        IList<string> combinedPropertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityRoleClaimCreateSql(config, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityRoleClaimCreateSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");

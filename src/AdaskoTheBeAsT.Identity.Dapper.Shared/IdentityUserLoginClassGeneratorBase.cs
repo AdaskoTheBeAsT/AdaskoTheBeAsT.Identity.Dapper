@@ -13,24 +13,20 @@ public abstract class IdentityUserLoginClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<string> propertyNames,
-        IEnumerable<string> columnNames)
+        IEnumerable<PropertyColumnPair> propertyColumnPairs)
     {
         var standardProperties = GetStandardPropertyNames();
-        var combinedColumnNames = new List<string>(standardProperties);
-        combinedColumnNames.AddRange(columnNames);
-        var combinedPropertyNames = new List<string>(standardProperties);
-        combinedPropertyNames.AddRange(propertyNames);
+        var combined = CombineStandardWithCustom(standardProperties, propertyColumnPairs);
 
         var sb = new StringBuilder();
         GenerateUsing(sb);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserLoginSql", "IIdentityUserLoginSql");
-        GenerateCreateSql(sb, config.SchemaPart, combinedColumnNames, combinedPropertyNames);
+        GenerateCreateSql(sb, config.SchemaPart, combined);
         GenerateDeleteSql(sb, config.SchemaPart);
-        GenerateGetByUserIdSql(sb, config.SchemaPart, combinedColumnNames, combinedPropertyNames);
-        GenerateGetByUserIdLoginProviderKeySql(sb, config.SchemaPart, combinedColumnNames, combinedPropertyNames);
-        GenerateGetByLoginProviderKeySql(sb, config.SchemaPart, combinedColumnNames, combinedPropertyNames);
+        GenerateGetByUserIdSql(sb, config.SchemaPart, combined);
+        GenerateGetByUserIdLoginProviderKeySql(sb, config.SchemaPart, combined);
+        GenerateGetByLoginProviderKeySql(sb, config.SchemaPart, combined);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
@@ -38,33 +34,28 @@ public abstract class IdentityUserLoginClassGeneratorBase
 
     protected abstract string ProcessIdentityUserLoginCreateSql(
         string schemaPart,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityUserLoginDeleteSql(string schemaPart);
 
     protected abstract string ProcessIdentityUserLoginGetByUserIdSql(
         string schemaPart,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityUserLoginGetByUserIdLoginProviderKeySql(
         string schemaPart,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityUserLoginGetByLoginProviderKeySql(
         string schemaPart,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     private void GenerateCreateSql(
         StringBuilder sb,
         string schemaPart,
-        IList<string> combinedColumnNames,
-        IList<string> combinedPropertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserLoginCreateSql(schemaPart, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserLoginCreateSql(schemaPart, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");
@@ -85,10 +76,9 @@ public abstract class IdentityUserLoginClassGeneratorBase
     private void GenerateGetByUserIdSql(
         StringBuilder sb,
         string schemaPart,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserLoginGetByUserIdSql(schemaPart, columnNames, propertyNames);
+        var content = ProcessIdentityUserLoginGetByUserIdSql(schemaPart, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string GetByUserIdSql {{ get; }} =
             @""{content}"";");
@@ -98,10 +88,9 @@ public abstract class IdentityUserLoginClassGeneratorBase
     private void GenerateGetByUserIdLoginProviderKeySql(
         StringBuilder sb,
         string schemaPart,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserLoginGetByUserIdLoginProviderKeySql(schemaPart, columnNames, propertyNames);
+        var content = ProcessIdentityUserLoginGetByUserIdLoginProviderKeySql(schemaPart, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string GetByUserIdLoginProviderKeySql {{ get; }} =
             @""{content}"";");
@@ -111,10 +100,9 @@ public abstract class IdentityUserLoginClassGeneratorBase
     private void GenerateGetByLoginProviderKeySql(
         StringBuilder sb,
         string schemaPart,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserLoginGetByLoginProviderKeySql(schemaPart, columnNames, propertyNames);
+        var content = ProcessIdentityUserLoginGetByLoginProviderKeySql(schemaPart, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string GetByLoginProviderKeySql {{ get; }} =
             @""{content}"";");

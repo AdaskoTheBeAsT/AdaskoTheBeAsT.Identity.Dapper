@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Models;
+namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
 
 public class AuthClientCredentialRequest
     : AuthRequestBase

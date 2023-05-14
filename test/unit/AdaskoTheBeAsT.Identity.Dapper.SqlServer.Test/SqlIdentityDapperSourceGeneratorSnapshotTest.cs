@@ -19,6 +19,10 @@ public class ApplicationUser
 {
     [Column(""IsActive"")]
     public bool Active { get; set; }
+
+    public override string? NormalizedUserName { get => UserName; set => UserName = value; }
+
+    public override string? NormalizedEmail { get => Email; set => Email = value; }
 }
 
 public class ApplicationRole
@@ -26,6 +30,8 @@ public class ApplicationRole
 {
     [Column(""IsActive"")]
     public bool Active { get; set; }
+
+    public override string? NormalizedName { get => Name; set => Name = value; }
 }
 
 public class ApplicationRoleClaim

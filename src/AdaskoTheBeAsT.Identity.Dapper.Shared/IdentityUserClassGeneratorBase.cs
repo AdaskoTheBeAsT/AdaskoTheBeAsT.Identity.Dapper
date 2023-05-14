@@ -14,27 +14,23 @@ public abstract class IdentityUserClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<string> propertyNames,
-        IEnumerable<string> columnNames)
+        IEnumerable<PropertyColumnPair> propertyColumnPairs)
     {
         var standardProperties = GetStandardPropertyNames();
-        var combinedColumnNames = new List<string>(standardProperties);
-        combinedColumnNames.AddRange(columnNames);
-        var combinedPropertyNames = new List<string>(standardProperties);
-        combinedPropertyNames.AddRange(propertyNames);
+        var combined = CombineStandardWithCustom(standardProperties, propertyColumnPairs);
 
         var sb = new StringBuilder();
         GenerateUsing(sb);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserSql", "IIdentityUserSql");
-        GenerateCreateSql(sb, config, combinedColumnNames, combinedPropertyNames);
-        GenerateUpdateSql(sb, config, combinedColumnNames, combinedPropertyNames);
+        GenerateCreateSql(sb, config, combined);
+        GenerateUpdateSql(sb, config, combined);
         GenerateDeleteSql(sb, config);
-        GenerateFindByIdSql(sb, config, combinedColumnNames, combinedPropertyNames);
-        GenerateFindByNameSql(sb, config, combinedColumnNames, combinedPropertyNames);
-        GenerateFindByEmailSql(sb, config, combinedColumnNames, combinedPropertyNames);
-        GenerateGetUsersForClaimSql(sb, config, combinedColumnNames, combinedPropertyNames);
-        GenerateGetUsersInRoleSql(sb, config, combinedColumnNames, combinedPropertyNames);
+        GenerateFindByIdSql(sb, config, combined);
+        GenerateFindByNameSql(sb, config, combined);
+        GenerateFindByEmailSql(sb, config, combined);
+        GenerateGetUsersForClaimSql(sb, config, combined);
+        GenerateGetUsersInRoleSql(sb, config, combined);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
@@ -42,48 +38,40 @@ public abstract class IdentityUserClassGeneratorBase
 
     protected abstract string ProcessIdentityUserCreateSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityUserUpdateSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityUserDeleteSql(IdentityDapperConfiguration config);
 
     protected abstract string ProcessIdentityUserFindByIdSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityUserFindByNameSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityUserFindByEmailSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityUserGetUsersForClaimSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityUserGetUsersInRoleSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     private void GenerateCreateSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> combinedColumnNames,
-        IList<string> combinedPropertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserCreateSql(config, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserCreateSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");
@@ -93,10 +81,9 @@ public abstract class IdentityUserClassGeneratorBase
     private void GenerateUpdateSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> combinedColumnNames,
-        IList<string> combinedPropertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserUpdateSql(config, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserUpdateSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string UpdateSql {{ get; }} =
             @""{content}"";");
@@ -117,10 +104,9 @@ public abstract class IdentityUserClassGeneratorBase
     private void GenerateFindByIdSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> combinedColumnNames,
-        IList<string> combinedPropertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserFindByIdSql(config, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserFindByIdSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string FindByIdSql {{ get; }} =
             @""{content}"";");
@@ -130,10 +116,9 @@ public abstract class IdentityUserClassGeneratorBase
     private void GenerateFindByNameSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> combinedColumnNames,
-        IList<string> combinedPropertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserFindByNameSql(config, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserFindByNameSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string FindByNameSql {{ get; }} =
             @""{content}"";");
@@ -143,10 +128,9 @@ public abstract class IdentityUserClassGeneratorBase
     private void GenerateFindByEmailSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> combinedColumnNames,
-        IList<string> combinedPropertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserFindByEmailSql(config, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserFindByEmailSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string FindByEmailSql {{ get; }} =
             @""{content}"";");
@@ -156,10 +140,9 @@ public abstract class IdentityUserClassGeneratorBase
     private void GenerateGetUsersForClaimSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> combinedColumnNames,
-        IList<string> combinedPropertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserGetUsersForClaimSql(config, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserGetUsersForClaimSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string GetUsersForClaimSql {{ get; }} =
             @""{content}"";");
@@ -169,10 +152,9 @@ public abstract class IdentityUserClassGeneratorBase
     private void GenerateGetUsersInRoleSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> combinedColumnNames,
-        IList<string> combinedPropertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserGetUsersInRoleSql(config, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserGetUsersInRoleSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string GetUsersInRoleSql {{ get; }} =
             @""{content}"";");

@@ -6,7 +6,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity
         : IIdentityUserLoginSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO id.AspNetUserLogins(
+            @"INSERT INTO dbo.AspNetUserLogins(
 [LoginProvider]
 ,[ProviderKey]
 ,[ProviderDisplayName]
@@ -18,7 +18,7 @@ VALUES(
 ,@UserId);";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM id.AspNetUserLogins
+            @"DELETE FROM dbo.AspNetUserLogins
 WHERE LoginProvider=@LoginProvider
   AND ProviderKey=@ProviderKey
   AND UserId=@UserId;";
@@ -28,7 +28,7 @@ WHERE LoginProvider=@LoginProvider
 ,[ProviderKey] AS ProviderKey
 ,[ProviderDisplayName] AS ProviderDisplayName
 ,[UserId] AS UserId
-FROM id.AspNetUserLogins
+FROM dbo.AspNetUserLogins
 WHERE UserId=@Id;";
 
         public string GetByUserIdLoginProviderKeySql { get; } =
@@ -36,7 +36,7 @@ WHERE UserId=@Id;";
 ,[ProviderKey] AS ProviderKey
 ,[ProviderDisplayName] AS ProviderDisplayName
 ,[UserId] AS UserId
-FROM id.AspNetUserLogins
+FROM dbo.AspNetUserLogins
 WHERE UserId=@Id
   AND LoginProvider=@LoginProvider
   AND ProviderKey=@ProviderKey;";
@@ -46,7 +46,7 @@ WHERE UserId=@Id
 ,[ProviderKey] AS ProviderKey
 ,[ProviderDisplayName] AS ProviderDisplayName
 ,[UserId] AS UserId
-FROM id.AspNetUserLogins
+FROM dbo.AspNetUserLogins
 WHERE LoginProvider=@LoginProvider
   AND ProviderKey=@ProviderKey;";
     }

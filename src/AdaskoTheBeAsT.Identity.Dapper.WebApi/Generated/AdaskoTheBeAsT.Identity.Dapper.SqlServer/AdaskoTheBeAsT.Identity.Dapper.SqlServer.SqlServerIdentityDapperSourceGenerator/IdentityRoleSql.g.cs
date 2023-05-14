@@ -6,31 +6,29 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity
         : IIdentityRoleSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO id.AspNetRoles(
+            @"INSERT INTO dbo.AspNetRoles(
 [Name]
 ,[ConcurrencyStamp])
+OUTPUT inserted.Id
 VALUES(
 @Name
-,@ConcurrencyStamp)
-OUTPUT inserted.Id
-VALUES(1);";
+,@ConcurrencyStamp);";
 
         public string UpdateSql { get; } =
-            @"UPDATE id.AspNetRoles
+            @"UPDATE dbo.AspNetRoles
 SET [Name]=@Name
 ,[ConcurrencyStamp]=@ConcurrencyStamp
 WHERE Id=@Id;";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM id.AspNetRoles WHERE Id=@Id;";
+            @"DELETE FROM dbo.AspNetRoles WHERE Id=@Id;";
 
         public string FindByIdSql { get; } =
             @"SELECT Id
 ,[Name] AS Name
 ,[Name] AS NormalizedName
 ,[ConcurrencyStamp] AS ConcurrencyStamp
-,[Name] AS NormalizedName
-FROM id.AspNetRoles
+FROM dbo.AspNetRoles
 WHERE Id=@Id;";
 
         public string FindByNameSql { get; } =
@@ -38,8 +36,7 @@ WHERE Id=@Id;";
 ,[Name] AS Name
 ,[Name] AS NormalizedName
 ,[ConcurrencyStamp] AS ConcurrencyStamp
-,[Name] AS NormalizedName
-FROM id.AspNetRoles
-WHERE Name=@Name;";
+FROM dbo.AspNetRoles
+WHERE Name=@NormalizedName;";
     }
 }

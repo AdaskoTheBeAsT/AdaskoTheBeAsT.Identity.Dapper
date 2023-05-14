@@ -125,7 +125,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
 
         user.UserName = userName;
-        return UpdateAsync(user, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -163,7 +163,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
 
         user.NormalizedUserName = normalizedName;
-        return UpdateAsync(user, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -334,7 +334,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
 
         user.PasswordHash = passwordHash;
-        return UpdateAsync(user, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -592,7 +592,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
 
         user.EmailConfirmed = confirmed;
-        return UpdateAsync(user, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -612,7 +612,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
 
         user.Email = email;
-        return UpdateAsync(user, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -670,7 +670,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
 
         user.NormalizedEmail = normalizedEmail;
-        return UpdateAsync(user, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -733,7 +733,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
 
         user.LockoutEnd = lockoutEnd;
-        return UpdateAsync(user, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -771,7 +771,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
 
         user.AccessFailedCount = 0;
-        return UpdateAsync(user, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -829,7 +829,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
 
         user.LockoutEnabled = enabled;
-        return UpdateAsync(user, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -849,7 +849,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
 
         user.PhoneNumber = phoneNumber;
-        return UpdateAsync(user, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -908,7 +908,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
 
         user.PhoneNumberConfirmed = confirmed;
-        return UpdateAsync(user, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -933,7 +933,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
 
         user.SecurityStamp = stamp;
-        return UpdateAsync(user, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -972,7 +972,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
 
         user.TwoFactorEnabled = enabled;
-        return UpdateAsync(user, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>

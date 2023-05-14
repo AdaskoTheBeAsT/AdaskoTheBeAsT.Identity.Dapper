@@ -15,16 +15,16 @@ public class AuthPasswordRequestHandler
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserRoleClaimStore<ApplicationUser> _userRoleClaimStore;
-    private readonly ITokenGenerationService _tokenGenerationService;
+    private readonly ITokenService _tokenService;
 
     public AuthPasswordRequestHandler(
         UserManager<ApplicationUser> userManager,
         IUserRoleClaimStore<ApplicationUser> userRoleClaimStore,
-        ITokenGenerationService tokenGenerationService)
+        ITokenService tokenService)
     {
         _userManager = userManager;
         _userRoleClaimStore = userRoleClaimStore;
-        _tokenGenerationService = tokenGenerationService;
+        _tokenService = tokenService;
     }
 
     public async Task<Token> Handle(
@@ -44,6 +44,6 @@ public class AuthPasswordRequestHandler
 
         var roles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
         var claims = await _userRoleClaimStore.GetUserAndRoleClaimsAsync(user, cancellationToken).ConfigureAwait(false);
-        return _tokenGenerationService.GenerateToken(user, roles, claims);
+        return _tokenService.GenerateToken(user, roles, claims);
     }
 }

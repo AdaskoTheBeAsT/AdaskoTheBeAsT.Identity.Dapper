@@ -5,10 +5,12 @@ using AdaskoTheBeAsT.Identity.Dapper.WebApi.Models;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Services;
 
-public interface ITokenGenerationService
+public interface ITokenService
 {
     Token GenerateToken(
         ApplicationUser user,
         IList<string> roles,
         IList<Claim> claims);
+
+    RefreshToken? GetRefreshToken(string refreshTokenId);
 }

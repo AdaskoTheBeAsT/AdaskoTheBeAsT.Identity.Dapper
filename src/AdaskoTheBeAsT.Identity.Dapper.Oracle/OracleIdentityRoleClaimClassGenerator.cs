@@ -12,8 +12,7 @@ public class OracleIdentityRoleClaimClassGenerator
 {
     protected override string ProcessIdentityRoleClaimCreateSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var sb = new StringBuilder();
@@ -25,8 +24,8 @@ public class OracleIdentityRoleClaimClassGenerator
         sb.AppendLine("RETURNING Id INTO id;");
         sb.AppendLine("SELECT id FROM DUAL;");
         return sqlBuilder
-            .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
-            .Values(string.Join("\r\n,", propertyNames.Select(s => $":{s}")))
+            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
+            .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $":{s.PropertyName}")))
             .AddTemplate(sb.ToString())
             .RawSql;
     }

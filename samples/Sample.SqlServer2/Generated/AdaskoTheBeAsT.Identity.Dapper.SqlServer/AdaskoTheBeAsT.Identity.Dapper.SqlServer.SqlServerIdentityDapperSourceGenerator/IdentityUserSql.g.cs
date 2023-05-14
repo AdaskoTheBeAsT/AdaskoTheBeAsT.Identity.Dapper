@@ -18,8 +18,8 @@ namespace Sample.SqlServer2
 ,[TwoFactorEnabled]
 ,[LockoutEnd]
 ,[LockoutEnabled]
-,[AccessFailedCount]
-,[IsActive])
+,[AccessFailedCount])
+OUTPUT inserted.Id
 VALUES(
 @UserName
 ,@Email
@@ -32,10 +32,7 @@ VALUES(
 ,@TwoFactorEnabled
 ,@LockoutEnd
 ,@LockoutEnabled
-,@AccessFailedCount
-,@Active)
-OUTPUT inserted.Id
-VALUES(1);";
+,@AccessFailedCount);";
 
         public string UpdateSql { get; } =
             @"UPDATE id.AspNetUsers
@@ -51,7 +48,6 @@ SET [UserName]=@UserName
 ,[LockoutEnd]=@LockoutEnd
 ,[LockoutEnabled]=@LockoutEnabled
 ,[AccessFailedCount]=@AccessFailedCount
-,[IsActive]=@Active
 WHERE Id=@Id;";
 
         public string DeleteSql { get; } =
@@ -60,9 +56,7 @@ WHERE Id=@Id;";
         public string FindByIdSql { get; } =
             @"SELECT Id
 ,[UserName] AS UserName
-,[UserName] AS NormalizedUserName
 ,[Email] AS Email
-,[Email] AS NormalizedEmail
 ,[EmailConfirmed] AS EmailConfirmed
 ,[PasswordHash] AS PasswordHash
 ,[SecurityStamp] AS SecurityStamp
@@ -73,16 +67,13 @@ WHERE Id=@Id;";
 ,[LockoutEnd] AS LockoutEnd
 ,[LockoutEnabled] AS LockoutEnabled
 ,[AccessFailedCount] AS AccessFailedCount
-,[IsActive] AS Active
 FROM id.AspNetUsers
 WHERE Id=@Id;";
 
         public string FindByNameSql { get; } =
             @"SELECT Id
 ,[UserName] AS UserName
-,[UserName] AS NormalizedUserName
 ,[Email] AS Email
-,[Email] AS NormalizedEmail
 ,[EmailConfirmed] AS EmailConfirmed
 ,[PasswordHash] AS PasswordHash
 ,[SecurityStamp] AS SecurityStamp
@@ -93,16 +84,13 @@ WHERE Id=@Id;";
 ,[LockoutEnd] AS LockoutEnd
 ,[LockoutEnabled] AS LockoutEnabled
 ,[AccessFailedCount] AS AccessFailedCount
-,[IsActive] AS Active
 FROM id.AspNetUsers
-WHERE UserName=@UserName;";
+WHERE UserName=@NormalizedUserName;";
 
         public string FindByEmailSql { get; } =
             @"SELECT Id
 ,[UserName] AS UserName
-,[UserName] AS NormalizedUserName
 ,[Email] AS Email
-,[Email] AS NormalizedEmail
 ,[EmailConfirmed] AS EmailConfirmed
 ,[PasswordHash] AS PasswordHash
 ,[SecurityStamp] AS SecurityStamp
@@ -113,16 +101,13 @@ WHERE UserName=@UserName;";
 ,[LockoutEnd] AS LockoutEnd
 ,[LockoutEnabled] AS LockoutEnabled
 ,[AccessFailedCount] AS AccessFailedCount
-,[IsActive] AS Active
 FROM id.AspNetUsers
-WHERE Email=@Email;";
+WHERE Email=@NormalizedEmail;";
 
         public string GetUsersForClaimSql { get; } =
             @"SELECT u.Id
 ,u.[UserName] AS UserName
-,u.[UserName] AS NormalizedUserName
 ,u.[Email] AS Email
-,u.[Email] AS NormalizedEmail
 ,u.[EmailConfirmed] AS EmailConfirmed
 ,u.[PasswordHash] AS PasswordHash
 ,u.[SecurityStamp] AS SecurityStamp
@@ -133,7 +118,6 @@ WHERE Email=@Email;";
 ,u.[LockoutEnd] AS LockoutEnd
 ,u.[LockoutEnabled] AS LockoutEnabled
 ,u.[AccessFailedCount] AS AccessFailedCount
-,u.[IsActive] AS Active
 FROM id.AspNetUsers u
 INNER JOIN id.AspNetUserClaims c ON u.Id=c.UserId
 WHERE c.ClaimType=@ClaimType
@@ -142,9 +126,7 @@ WHERE c.ClaimType=@ClaimType
         public string GetUsersInRoleSql { get; } =
             @"SELECT u.Id
 ,u.[UserName] AS UserName
-,u.[UserName] AS NormalizedUserName
 ,u.[Email] AS Email
-,u.[Email] AS NormalizedEmail
 ,u.[EmailConfirmed] AS EmailConfirmed
 ,u.[PasswordHash] AS PasswordHash
 ,u.[SecurityStamp] AS SecurityStamp
@@ -155,10 +137,9 @@ WHERE c.ClaimType=@ClaimType
 ,u.[LockoutEnd] AS LockoutEnd
 ,u.[LockoutEnabled] AS LockoutEnabled
 ,u.[AccessFailedCount] AS AccessFailedCount
-,u.[IsActive] AS Active
 FROM id.AspNetUsers u
 INNER JOIN id.AspNetUserRoles ur ON u.Id=ur.UserId
 INNER JOIN id.AspNetRoles r ON ur.RolesId=r.Id
-WHERE r.Name=@Name;";
+WHERE r.Name=@NormalizedName;";
     }
 }

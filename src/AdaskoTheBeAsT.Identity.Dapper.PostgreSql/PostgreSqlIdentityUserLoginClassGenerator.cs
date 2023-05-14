@@ -12,13 +12,12 @@ public class PostgreSqlIdentityUserLoginClassGenerator
 {
     protected override string ProcessIdentityUserLoginCreateSql(
         string schemaPart,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
-            .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
+            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
+            .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(
                 $"INSERT INTO {schemaPart}AspNetUserLogins(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
             .RawSql;
@@ -39,15 +38,13 @@ public class PostgreSqlIdentityUserLoginClassGenerator
 
     protected override string ProcessIdentityUserLoginGetByUserIdSql(
         string schemaPart,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var minCount = Math.Min(columnNames.Count, propertyNames.Count);
-        var list = new List<string>(minCount);
-        for (var i = 0; i < minCount; i++)
+        var list = new List<string>(propertyColumnPairs.Count);
+        for (var i = 0; i < propertyColumnPairs.Count; i++)
         {
-            list.Add($"[{columnNames[i]}] AS {propertyNames[i]}");
+            list.Add($"[{propertyColumnPairs[i].ColumnName}] AS {propertyColumnPairs[i].PropertyName}");
         }
 
         return sqlBuilder
@@ -60,15 +57,13 @@ public class PostgreSqlIdentityUserLoginClassGenerator
 
     protected override string ProcessIdentityUserLoginGetByUserIdLoginProviderKeySql(
         string schemaPart,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var minCount = Math.Min(columnNames.Count, propertyNames.Count);
-        var list = new List<string>(minCount);
-        for (var i = 0; i < minCount; i++)
+        var list = new List<string>(propertyColumnPairs.Count);
+        foreach (var localPair in propertyColumnPairs)
         {
-            list.Add($"[{columnNames[i]}] AS {propertyNames[i]}");
+            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
         }
 
         return sqlBuilder
@@ -83,15 +78,13 @@ public class PostgreSqlIdentityUserLoginClassGenerator
 
     protected override string ProcessIdentityUserLoginGetByLoginProviderKeySql(
         string schemaPart,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var minCount = Math.Min(columnNames.Count, propertyNames.Count);
-        var list = new List<string>(minCount);
-        for (var i = 0; i < minCount; i++)
+        var list = new List<string>(propertyColumnPairs.Count);
+        foreach (var localPair in propertyColumnPairs)
         {
-            list.Add($"[{columnNames[i]}] AS {propertyNames[i]}");
+            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
         }
 
         return sqlBuilder

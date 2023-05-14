@@ -11,13 +11,12 @@ public class SqliteIdentityRoleClaimClassGenerator
 {
     protected override string ProcessIdentityRoleClaimCreateSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
-            .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
+            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
+            .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(
                 $"INSERT INTO {config.SchemaPart}AspNetRoleClaims(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);\r\nSELECT LAST_INSERT_ROWID() AS Id;")
             .RawSql;

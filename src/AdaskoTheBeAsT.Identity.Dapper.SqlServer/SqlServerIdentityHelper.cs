@@ -51,10 +51,9 @@ public class SqlServerIdentityHelper
             case "System.Guid":
                 return $@"INSERT INTO {tableName}(
 /**insert**/)
-VALUES(
-/**values**/)
 OUTPUT inserted.Id
-VALUES(1);";
+VALUES(
+/**values**/);";
             case "int":
             case "Int32":
             case "System.Int32":

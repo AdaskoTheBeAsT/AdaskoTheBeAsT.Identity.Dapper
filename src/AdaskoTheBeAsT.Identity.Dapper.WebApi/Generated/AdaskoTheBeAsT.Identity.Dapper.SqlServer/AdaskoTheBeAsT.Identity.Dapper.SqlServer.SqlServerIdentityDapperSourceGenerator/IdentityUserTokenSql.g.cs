@@ -6,7 +6,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity
         : IIdentityUserTokenSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO id.AspNetUserTokens(
+            @"INSERT INTO dbo.AspNetUserTokens(
 [UserId]
 ,[LoginProvider]
 ,[Name]
@@ -18,7 +18,7 @@ VALUES(
 ,@Value);";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM id.AspNetUserTokens
+            @"DELETE FROM dbo.AspNetUserTokens
 WHERE LoginProvider=@LoginProvider
   AND Name=@Name
   AND Value=@Value
@@ -29,7 +29,7 @@ WHERE LoginProvider=@LoginProvider
 ,[LoginProvider] AS LoginProvider
 ,[Name] AS Name
 ,[Value] AS Value
-FROM id.AspNetUserTokens
+FROM dbo.AspNetUserTokens
 WHERE UserId=@UserId
   AND LoginProvider=@LoginProvider
   AND Name=@Name;";

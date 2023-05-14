@@ -189,7 +189,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
         }
 
         role.Name = roleName;
-        return UpdateAsync(role, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -287,7 +287,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
         }
 
         role.NormalizedName = normalizedName;
-        return UpdateAsync(role, cancellationToken);
+        return Task.CompletedTask;
     }
 
     /// <summary>

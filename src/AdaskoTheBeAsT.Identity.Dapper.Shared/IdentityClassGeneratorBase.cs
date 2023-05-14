@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
@@ -47,54 +48,70 @@ public class IdentityClassGeneratorBase
             .Replace(Normalized.ToLowerInvariant(), string.Empty);
     }
 
-    protected (IList<string> ColumnNames, IList<string> PropertyNames) GetListWithoutNormalized(
+    protected IList<PropertyColumnPair> GetListWithoutNormalized(
         bool skipNormalized,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         if (!skipNormalized)
         {
-            return (columnNames, propertyNames);
+            return propertyColumnPairs;
         }
 
-        var localColumnNames = new List<string>();
-        var localPropertyNames = new List<string>();
-
-        for (var i = 0; i < columnNames.Count; i++)
+        var newPairs = new List<PropertyColumnPair>();
+        foreach (var propertyColumnPair in propertyColumnPairs)
         {
-            var columnName = columnNames[i];
-            if (IsNormalizedName(columnName))
+            if (IsNormalizedName(propertyColumnPair.ColumnName))
             {
                 continue;
             }
 
-            localColumnNames.Add(columnName);
-            localPropertyNames.Add(propertyNames[i]);
+            newPairs.Add(new PropertyColumnPair(propertyColumnPair.PropertyName, propertyColumnPair.ColumnName));
         }
 
-        return (localColumnNames, localPropertyNames);
+        return newPairs;
     }
 
-    protected (IList<string> ColumnNames, IList<string> PropertyNames) GetNormalizedSelectList(
+    protected IList<PropertyColumnPair> GetNormalizedSelectList(
         bool skipNormalized,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         if (!skipNormalized)
         {
-            return (columnNames, propertyNames);
+            return propertyColumnPairs;
         }
 
-        var localColumnNames = new List<string>();
-        var localPropertyNames = new List<string>();
-
-        for (var i = 0; i < columnNames.Count; i++)
+        var newPairs = new List<PropertyColumnPair>();
+        foreach (var propertyColumnPair in propertyColumnPairs)
         {
-            var columnName = columnNames[i];
-            localColumnNames.Add(IsNormalizedName(columnName) ? TrimNormalizedName(columnName) : columnName);
-            localPropertyNames.Add(propertyNames[i]);
+            var columnName = IsNormalizedName(propertyColumnPair.ColumnName)
+                ? TrimNormalizedName(propertyColumnPair.ColumnName)
+                : propertyColumnPair.ColumnName;
+            newPairs.Add(
+                new PropertyColumnPair(
+                    propertyColumnPair.PropertyName,
+                    columnName));
         }
 
-        return (localColumnNames, localPropertyNames);
+        return newPairs;
+    }
+
+    protected IList<PropertyColumnPair> CombineStandardWithCustom(
+        IEnumerable<string> propertyNames,
+        IEnumerable<PropertyColumnPair> customs)
+    {
+        var dict = customs.ToDictionary(
+            i => i.PropertyName,
+            i => i.ColumnName,
+            StringComparer.OrdinalIgnoreCase);
+        var result = new List<PropertyColumnPair>();
+        foreach (var propertyName in propertyNames)
+        {
+            result.Add(
+                dict.TryGetValue(propertyName, out var columnName)
+                    ? new PropertyColumnPair(propertyName, columnName)
+                    : new PropertyColumnPair(propertyName, propertyName));
+        }
+
+        return result;
     }
 }

@@ -6,7 +6,33 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity;
 public class ApplicationUser
     : IdentityUser<Guid>
 {
-    public override string? NormalizedUserName { get => UserName; set => UserName = value; }
+    public override string? NormalizedUserName
+    {
+        get
+        {
+            return UserName;
+        }
 
-    public override string? NormalizedEmail { get => Email; set => Email = value; }
+#pragma warning disable S3237
+        set
+        {
+            // noop
+        }
+#pragma warning restore S3237
+    }
+
+    public override string? NormalizedEmail
+    {
+        get
+        {
+            return Email;
+        }
+
+#pragma warning disable S3237
+        set
+        {
+            // noop
+        }
+#pragma warning restore S3237
+    }
 }

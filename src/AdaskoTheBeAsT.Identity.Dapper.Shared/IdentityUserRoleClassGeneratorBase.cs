@@ -13,24 +13,20 @@ public abstract class IdentityUserRoleClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<string> propertyNames,
-        IEnumerable<string> columnNames)
+        IEnumerable<PropertyColumnPair> propertyColumnPairs)
     {
         var standardProperties = GetStandardPropertyNames();
-        var combinedColumnNames = new List<string>(standardProperties);
-        combinedColumnNames.AddRange(columnNames);
-        var combinedPropertyNames = new List<string>(standardProperties);
-        combinedPropertyNames.AddRange(propertyNames);
+        var combined = CombineStandardWithCustom(standardProperties, propertyColumnPairs);
 
         var sb = new StringBuilder();
         GenerateUsing(sb);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserRoleSql", "IIdentityUserRoleSql");
-        GenerateCreateSql(sb, config, combinedColumnNames, combinedPropertyNames);
+        GenerateCreateSql(sb, config, combined);
         GenerateDeleteSql(sb, config);
-        GenerateGetByUserIdRoleIdSql(sb, config, combinedColumnNames, combinedPropertyNames);
-        GenerateGetCountSql(sb, config, combinedColumnNames, combinedPropertyNames);
-        GenerateGetRoleNamesByUserIdSql(sb, config, combinedColumnNames, combinedPropertyNames);
+        GenerateGetByUserIdRoleIdSql(sb, config, combined);
+        GenerateGetCountSql(sb, config, combined);
+        GenerateGetRoleNamesByUserIdSql(sb, config, combined);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
@@ -38,33 +34,28 @@ public abstract class IdentityUserRoleClassGeneratorBase
 
     protected abstract string ProcessIdentityUserRoleCreateSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityUserRoleDeleteSql(IdentityDapperConfiguration config);
 
     protected abstract string ProcessIdentityUserRoleGetByUserIdRoleIdSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityUserRoleGetCount(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityUserRoleGetRoleNamesByUserId(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames);
+        IList<PropertyColumnPair> propertyColumnPairs);
 
     private void GenerateCreateSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> combinedColumnNames,
-        IList<string> combinedPropertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserRoleCreateSql(config, combinedColumnNames, combinedPropertyNames);
+        var content = ProcessIdentityUserRoleCreateSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");
@@ -85,10 +76,9 @@ public abstract class IdentityUserRoleClassGeneratorBase
     private void GenerateGetByUserIdRoleIdSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserRoleGetByUserIdRoleIdSql(config, columnNames, propertyNames);
+        var content = ProcessIdentityUserRoleGetByUserIdRoleIdSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string GetByUserIdRoleIdSql {{ get; }} =
             @""{content}"";");
@@ -98,10 +88,9 @@ public abstract class IdentityUserRoleClassGeneratorBase
     private void GenerateGetCountSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserRoleGetCount(config, columnNames, propertyNames);
+        var content = ProcessIdentityUserRoleGetCount(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string GetCountSql {{ get; }} =
             @""{content}"";");
@@ -111,17 +100,16 @@ public abstract class IdentityUserRoleClassGeneratorBase
     private void GenerateGetRoleNamesByUserIdSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
-        var content = ProcessIdentityUserRoleGetRoleNamesByUserId(config, columnNames, propertyNames);
+        var content = ProcessIdentityUserRoleGetRoleNamesByUserId(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string GetRoleNamesByUserIdSql {{ get; }} =
             @""{content}"";");
     }
 
     private IList<string> GetStandardPropertyNames() =>
-        typeof(IdentityUserLogin<>)
+        typeof(IdentityUserRole<>)
             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
             .Select(p => p.Name)
             .ToList();

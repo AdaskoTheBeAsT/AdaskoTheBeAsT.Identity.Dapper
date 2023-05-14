@@ -11,13 +11,12 @@ public class SqliteIdentityUserClaimClassGenerator
 {
     protected override string ProcessIdentityUserClaimCreateSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
-            .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
+            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
+            .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(
                 $"INSERT INTO {config.SchemaPart}AspNetUserClaims(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);\r\nSELECT LAST_INSERT_ROWID() AS Id;")
             .RawSql;
@@ -49,13 +48,12 @@ public class SqliteIdentityUserClaimClassGenerator
 
     protected override string ProcessIdentityUserClaimReplaceSql(
         IdentityDapperConfiguration config,
-        IList<string> columnNames,
-        IList<string> propertyNames)
+        IList<PropertyColumnPair> propertyColumnPairs)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", columnNames.Select(s => $"[{s}]")))
-            .Values(string.Join("\r\n,", propertyNames.Select(s => $"@{s}")))
+            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
+            .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(
                 $@"IF EXISTS(SELECT Id
             FROM {config.SchemaPart}AspNetUserClaims

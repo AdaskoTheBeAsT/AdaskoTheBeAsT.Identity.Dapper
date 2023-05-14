@@ -6,6 +6,5 @@ public interface IIdentityUserTokenClassGenerator
 {
     string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<string> propertyNames,
-        IEnumerable<string> columnNames);
+        IEnumerable<PropertyColumnPair> propertyColumnPairs);
 }
