@@ -69,7 +69,7 @@ container.AddMediatRAspNetCore(
     });
 
 container.Register<IUserRoleClaimStore<ApplicationUser>, ApplicationUserStore>(Lifestyle.Scoped);
-var tokenServiceOptions = builder.Configuration.GetSection("TokenServiceOptions").Get<TokenServiceOptions>();
+var tokenServiceOptions = builder.Configuration.GetSection(nameof(TokenServiceOptions)).Get<TokenServiceOptions>();
 if (tokenServiceOptions != null)
 {
     container.RegisterInstance(tokenServiceOptions);
