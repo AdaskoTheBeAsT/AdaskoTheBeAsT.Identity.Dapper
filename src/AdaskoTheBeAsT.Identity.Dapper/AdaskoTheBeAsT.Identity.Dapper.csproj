@@ -6,7 +6,7 @@
     <RepositoryType>github</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Description>Autogenerates Identity stores based on Dapper</Description>
-    <PackageVersion>1.1.5</PackageVersion>
+    <PackageVersion>1.1.6</PackageVersion>
     <Authors>Adam "AdaskoTheBeAsT" Pluciński</Authors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IncludeSymbols>true</IncludeSymbols>
@@ -24,8 +24,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.123" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="7.0.5" PrivateAssets="all" />
+    <PackageReference Include="Dapper" Version="2.0.143" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="7.0.9" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

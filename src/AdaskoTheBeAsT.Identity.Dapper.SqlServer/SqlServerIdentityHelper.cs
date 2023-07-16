@@ -60,6 +60,11 @@ VALUES(
             case "uint":
             case "UInt32":
             case "System.UInt32":
+                return $@"INSERT INTO {tableName}(
+/**insert**/)
+VALUES(
+/**values**/);
+SELECT CAST(SCOPE_IDENTITY() AS INT);";
             case "long":
             case "Int64":
             case "System.Int64":
@@ -70,7 +75,7 @@ VALUES(
 /**insert**/)
 VALUES(
 /**values**/);
-SELECT SCOPE_IDENTITY();";
+SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
             case "string":
             case "String":
             case "System.String":

@@ -1,16 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.123" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Dapper" Version="2.0.143" PrivateAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" PrivateAssets="all" GeneratePathProperty="true" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="7.0.5" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="7.0.9" PrivateAssets="all" GeneratePathProperty="true" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -31,6 +32,7 @@
 
   <ItemGroup>
     <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     <!-- Pack the generator dll in the analyzers/dotnet/cs path -->
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 

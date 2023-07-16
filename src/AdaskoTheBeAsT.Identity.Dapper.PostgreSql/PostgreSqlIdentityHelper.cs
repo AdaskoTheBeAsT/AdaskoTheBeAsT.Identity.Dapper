@@ -64,8 +64,7 @@ public class PostgreSqlIdentityHelper
                 return $@"INSERT INTO {tableName}(
 /**insert**/)
 VALUES(
-/**values**/);
-SELECT LASTVAL() AS Id;";
+/**values**/) RETURNING Id;";
             case "string":
             case "String":
             case "System.String":
