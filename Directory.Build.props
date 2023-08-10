@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
-    <NoWarn>$(NoWarn);1701;1702;1591;CC0091</NoWarn>
+    <NoWarn>$(NoWarn);1701;1702;1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
   </PropertyGroup>
@@ -17,25 +17,25 @@
     <!-- Add reference to analyzers to all projects  -->
     <PackageReference Include="AsyncFixer" Version="1.6.0" PrivateAssets="all" />
     <PackageReference Include="Asyncify" Version="0.9.7" PrivateAssets="all" />
-    <PackageReference Include="codecracker.CSharp" Version="1.1.0" PrivateAssets="all" />
+    <!--<PackageReference Include="codecracker.CSharp" Version="1.1.0" PrivateAssets="all" />-->
     <PackageReference Include="ConcurrencyLab.ParallelChecker" Version="2.7.0" PrivateAssets="all" />
     <PackageReference Include="IDisposableAnalyzers" Version="4.0.6" PrivateAssets="all" />
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.66" PrivateAssets="all" />
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.82" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.6.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.5-beta1.23320.2" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0-beta1.23364.2" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.6.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.6.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.6.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.6.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.3" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.4-preview1.23354.4" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.6.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.6.40" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.7.30" PrivateAssets="all" />
     <PackageReference Include="Puma.Security.Rules.2022" Version="2.4.23" PrivateAssets="all" />
-    <PackageReference Include="Roslynator.Analyzers" Version="4.3.0" PrivateAssets="all" />
-    <PackageReference Include="Roslynator.CodeAnalysis.Analyzers" Version="4.3.0" PrivateAssets="all" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.3.0" PrivateAssets="all" />
+    <PackageReference Include="Roslynator.Analyzers" Version="4.4.0" PrivateAssets="all" />
+    <PackageReference Include="Roslynator.CodeAnalysis.Analyzers" Version="4.4.0" PrivateAssets="all" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.4.0" PrivateAssets="all" />
     <!--<PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.7" PrivateAssets="all" />-->
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="9.5.0.73987" PrivateAssets="all" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="9.7.0.75501" PrivateAssets="all" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.507" PrivateAssets="all" />
 
     <!-- Common StyleCop configuration -->
