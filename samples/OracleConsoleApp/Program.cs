@@ -22,11 +22,17 @@ namespace OracleConsoleApp
             using (var conn = new OracleConnection(connStr))
             {
                 var first = conn.QueryFirstOrDefault<Sample>("SELECT ID AS Id, STRID AS StrId FROM ADASKO");
-                var second = conn.QueryFirstOrDefault<Sample>(
-                    "SELECT ID AS Id, STRID AS StrId FROM ADASKO WHERE ID=:Id",
-                    new { first.Id });
-                var str = second.Id.ToString();
-                Console.WriteLine(str);
+                if (first != null)
+                {
+                    var second = conn.QueryFirstOrDefault<Sample>(
+                        "SELECT ID AS Id, STRID AS StrId FROM ADASKO WHERE ID=:Id",
+                        new { first.Id });
+                    if (second != null)
+                    {
+                        var str = second.Id.ToString();
+                        Console.WriteLine(str);
+                    }
+                }
             }
 
             Console.WriteLine("Hello, World!");
