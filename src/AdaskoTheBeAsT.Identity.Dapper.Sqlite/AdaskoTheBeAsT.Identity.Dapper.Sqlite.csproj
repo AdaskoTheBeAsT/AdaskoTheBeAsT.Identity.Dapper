@@ -5,14 +5,30 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <RepositoryType>github</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <Description>Autogenerates Identity stores based on Dapper</Description>
+    <PackageVersion>1.1.7</PackageVersion>
+    <Authors>Adam "AdaskoTheBeAsT" Pluciński</Authors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/AdaskoTheBeAsT/AdaskoTheBeAsT.Identity.Dapper</PackageProjectUrl>
+    <Copyright>Adam "AdaskoTheBeAsT" Pluciński</Copyright>
+    <PackageTags>Identity;Dapper;Sqlite</PackageTags>
+    <PackageReleaseNotes>
+      - first release
+    </PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <NoWarn>$(NoWarn);CC0091;RS1038</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.21" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Dapper" Version="2.1.28" PrivateAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" PrivateAssets="all" GeneratePathProperty="true" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.0" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.1" PrivateAssets="all" GeneratePathProperty="true" />
   </ItemGroup>
 
   <PropertyGroup>

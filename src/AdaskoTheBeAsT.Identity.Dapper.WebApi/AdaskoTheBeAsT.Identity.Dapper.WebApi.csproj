@@ -30,20 +30,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AdaskoTheBeAsT.AutoMapper.SimpleInjector" Version="7.0.1" />
-    <PackageReference Include="AdaskoTheBeAsT.FluentValidation.MediatR" Version="10.2.0" />
-    <PackageReference Include="AdaskoTheBeAsT.FluentValidation.SimpleInjector" Version="8.2.0" />
-    <!--<PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="1.1.4" />
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.SqlServer" Version="1.1.4" />-->
-    <PackageReference Include="AdaskoTheBeAsT.MediatR.SimpleInjector.AspNetCore" Version="8.2.0" />
-    <PackageReference Include="Dapper" Version="2.1.21" />
+    <PackageReference Include="AdaskoTheBeAsT.AutoMapper.SimpleInjector" Version="8.0.0" />
+    <PackageReference Include="AdaskoTheBeAsT.FluentValidation.MediatR" Version="11.0.0" />
+    <PackageReference Include="AdaskoTheBeAsT.FluentValidation.SimpleInjector" Version="9.0.0" />
+    <!--<PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="1.1.7" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.SqlServer" Version="1.1.7" />-->
+    <PackageReference Include="AdaskoTheBeAsT.MediatR.SimpleInjector.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Dapper" Version="2.1.28" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.4" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
     <PackageReference Include="SimpleInjector.Integration.AspNetCore.Mvc.Core" Version="5.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.2.0" />
   </ItemGroup>
 
   <ItemGroup>
