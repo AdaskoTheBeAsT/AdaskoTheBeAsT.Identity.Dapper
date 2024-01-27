@@ -1,6 +1,5 @@
 namespace AdaskoTheBeAsT.Identity.Dapper.SqlServer.Test;
 
-[UsesVerify]
 public class SqlIdentityDapperSourceGeneratorSnapshotTest
 {
     [Fact]
