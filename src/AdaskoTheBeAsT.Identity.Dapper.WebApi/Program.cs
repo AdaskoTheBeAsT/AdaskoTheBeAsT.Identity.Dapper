@@ -17,7 +17,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SimpleInjector;
 
-#pragma warning disable AD0001
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -43,7 +42,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-using var container = new Container();
+await using var container = new Container();
 builder.Services.AddSimpleInjector(
     container,
     options =>
@@ -99,5 +98,4 @@ container.Verify();
 
 container.GetInstance<AutoMapper.IConfigurationProvider>().AssertConfigurationIsValid();
 
-app.Run();
-#pragma warning restore AD0001
+await app.RunAsync().ConfigureAwait(continueOnCapturedContext: false);

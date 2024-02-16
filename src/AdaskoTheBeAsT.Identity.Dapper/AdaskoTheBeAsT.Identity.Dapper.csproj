@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <NoWarn>$(NoWarn);CC0091</NoWarn>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>github</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
