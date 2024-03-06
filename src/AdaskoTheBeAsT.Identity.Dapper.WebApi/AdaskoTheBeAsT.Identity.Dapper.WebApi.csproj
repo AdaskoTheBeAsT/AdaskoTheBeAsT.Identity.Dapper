@@ -36,7 +36,7 @@
     <!--<PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="1.1.7" />
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.SqlServer" Version="1.1.7" />-->
     <PackageReference Include="AdaskoTheBeAsT.MediatR.SimpleInjector.AspNetCore" Version="9.0.2" />
-    <PackageReference Include="Dapper" Version="2.1.28" />
+    <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.2" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
