@@ -9,13 +9,15 @@ public class IdentityDapperConfiguration
         string keyTypeName,
         string namespaceName,
         string schemaPart,
-        bool skipNormalized)
+        bool skipNormalized,
+        bool insertOwnId)
     {
         BaseTypeName = baseTypeName ?? throw new ArgumentNullException(nameof(baseTypeName));
         KeyTypeName = keyTypeName ?? throw new ArgumentNullException(nameof(keyTypeName));
         NamespaceName = namespaceName ?? throw new ArgumentNullException(nameof(namespaceName));
         SchemaPart = schemaPart ?? throw new ArgumentNullException(nameof(schemaPart));
         SkipNormalized = skipNormalized;
+        InsertOwnId = insertOwnId;
     }
 
     public string BaseTypeName { get; }
@@ -27,4 +29,6 @@ public class IdentityDapperConfiguration
     public string SchemaPart { get; }
 
     public bool SkipNormalized { get; }
+
+    public bool InsertOwnId { get; }
 }

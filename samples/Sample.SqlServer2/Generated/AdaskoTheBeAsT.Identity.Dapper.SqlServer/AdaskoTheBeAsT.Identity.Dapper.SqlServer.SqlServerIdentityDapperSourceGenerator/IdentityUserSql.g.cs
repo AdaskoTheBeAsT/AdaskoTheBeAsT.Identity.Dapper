@@ -141,5 +141,23 @@ FROM id.AspNetUsers u
 INNER JOIN id.AspNetUserRoles ur ON u.Id=ur.UserId
 INNER JOIN id.AspNetRoles r ON ur.RolesId=r.Id
 WHERE r.Name=@NormalizedName;";
+        public string GetUsersSql { get; } =
+            @"SELECT u.Id
+,u.[UserName] AS UserName
+,u.[Email] AS Email
+,u.[EmailConfirmed] AS EmailConfirmed
+,u.[PasswordHash] AS PasswordHash
+,u.[SecurityStamp] AS SecurityStamp
+,u.[ConcurrencyStamp] AS ConcurrencyStamp
+,u.[PhoneNumber] AS PhoneNumber
+,u.[PhoneNumberConfirmed] AS PhoneNumberConfirmed
+,u.[TwoFactorEnabled] AS TwoFactorEnabled
+,u.[LockoutEnd] AS LockoutEnd
+,u.[LockoutEnabled] AS LockoutEnabled
+,u.[AccessFailedCount] AS AccessFailedCount
+FROM id.AspNetUsers u
+INNER JOIN id.AspNetUserRoles ur ON u.Id=ur.UserId
+INNER JOIN id.AspNetRoles r ON ur.RolesId=r.Id
+;";
     }
 }

@@ -1,8 +1,10 @@
 using System;
+using AdaskoTheBeAsT.Identity.Dapper.Attributes;
 using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity;
 
+[InsertOwnId]
 public class ApplicationUser
     : IdentityUser<Guid>
 {

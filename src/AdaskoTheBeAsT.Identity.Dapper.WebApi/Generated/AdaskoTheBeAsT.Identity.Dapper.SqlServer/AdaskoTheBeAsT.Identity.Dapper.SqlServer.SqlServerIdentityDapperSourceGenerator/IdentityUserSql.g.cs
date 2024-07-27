@@ -7,7 +7,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity
     {
         public string CreateSql { get; } =
             @"INSERT INTO dbo.AspNetUsers(
-[UserName]
+[Id]
+,[UserName]
 ,[Email]
 ,[EmailConfirmed]
 ,[PasswordHash]
@@ -21,7 +22,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity
 ,[AccessFailedCount])
 OUTPUT inserted.Id
 VALUES(
-@UserName
+@Id
+,@UserName
 ,@Email
 ,@EmailConfirmed
 ,@PasswordHash
@@ -36,7 +38,8 @@ VALUES(
 
         public string UpdateSql { get; } =
             @"UPDATE dbo.AspNetUsers
-SET [UserName]=@UserName
+SET [Id]=@Id
+,[UserName]=@UserName
 ,[Email]=@Email
 ,[EmailConfirmed]=@EmailConfirmed
 ,[PasswordHash]=@PasswordHash
@@ -55,6 +58,7 @@ WHERE Id=@Id;";
 
         public string FindByIdSql { get; } =
             @"SELECT Id
+,[Id] AS Id
 ,[UserName] AS UserName
 ,[Email] AS Email
 ,[EmailConfirmed] AS EmailConfirmed
@@ -72,6 +76,7 @@ WHERE Id=@Id;";
 
         public string FindByNameSql { get; } =
             @"SELECT Id
+,[Id] AS Id
 ,[UserName] AS UserName
 ,[Email] AS Email
 ,[EmailConfirmed] AS EmailConfirmed
@@ -89,6 +94,7 @@ WHERE UserName=@NormalizedUserName;";
 
         public string FindByEmailSql { get; } =
             @"SELECT Id
+,[Id] AS Id
 ,[UserName] AS UserName
 ,[Email] AS Email
 ,[EmailConfirmed] AS EmailConfirmed
@@ -106,6 +112,7 @@ WHERE Email=@NormalizedEmail;";
 
         public string GetUsersForClaimSql { get; } =
             @"SELECT u.Id
+,u.[Id] AS Id
 ,u.[UserName] AS UserName
 ,u.[Email] AS Email
 ,u.[EmailConfirmed] AS EmailConfirmed
@@ -125,6 +132,7 @@ WHERE c.ClaimType=@ClaimType
 
         public string GetUsersInRoleSql { get; } =
             @"SELECT u.Id
+,u.[Id] AS Id
 ,u.[UserName] AS UserName
 ,u.[Email] AS Email
 ,u.[EmailConfirmed] AS EmailConfirmed
@@ -143,6 +151,7 @@ INNER JOIN dbo.AspNetRoles r ON ur.RolesId=r.Id
 WHERE r.Name=@NormalizedName;";
         public string GetUsersSql { get; } =
             @"SELECT u.Id
+,u.[Id] AS Id
 ,u.[UserName] AS UserName
 ,u.[Email] AS Email
 ,u.[EmailConfirmed] AS EmailConfirmed

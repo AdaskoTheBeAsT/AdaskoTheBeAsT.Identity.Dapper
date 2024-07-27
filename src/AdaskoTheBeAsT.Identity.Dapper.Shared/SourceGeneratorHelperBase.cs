@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AdaskoTheBeAsT.Identity.Dapper.Attributes;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis;
@@ -63,6 +64,7 @@ public abstract class SourceGeneratorHelperBase
 
     public void GenerateCode(
         SourceProductionContext context,
+        Compilation compilation,
         IdentityDapperOptions options,
         (string KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) generationInfo)
     {
@@ -76,17 +78,22 @@ public abstract class SourceGeneratorHelperBase
         var namespaceName = "EmptyNamespace";
 
         var schemaPart = GenerateSchemaPart(options.Schema);
+        var attributeTypeSymbol = compilation.GetTypeByMetadataName("AdaskoTheBeAsT.Identity.Dapper.Attributes.InsertOwnIdAttribute");
 
         foreach (var group in grouped)
         {
             var baseTypeName = group.Key.BaseType?.Name ?? string.Empty;
             namespaceName = group.Key.ContainingNamespace.ToDisplayString();
+            var insertOwnId = group.Key.GetAttributes()
+                .Any(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeTypeSymbol));
+
             var config = new IdentityDapperConfiguration(
                 baseTypeName,
                 generationInfo.KeyTypeName,
                 namespaceName,
                 schemaPart,
-                options.SkipNormalized);
+                options.SkipNormalized,
+                insertOwnId);
             ProcessClass(context, config, group.ToList());
             set.Remove(baseTypeName);
         }
@@ -98,7 +105,8 @@ public abstract class SourceGeneratorHelperBase
                 generationInfo.KeyTypeName,
                 namespaceName,
                 schemaPart,
-                options.SkipNormalized);
+                options.SkipNormalized,
+                false);
             ProcessClass(context, config, new List<(IPropertySymbol PropertySymbol, string ColumnName)>());
         }
 

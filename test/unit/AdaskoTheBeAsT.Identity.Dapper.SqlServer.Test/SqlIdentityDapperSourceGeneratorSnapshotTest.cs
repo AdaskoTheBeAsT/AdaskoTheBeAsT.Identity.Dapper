@@ -9,10 +9,12 @@ public class SqlIdentityDapperSourceGeneratorSnapshotTest
         const string source = @"
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using AdaskoTheBeAsT.Identity.Dapper;
 using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Sample;
 
+[InsertOwnId]
 public class ApplicationUser
     : IdentityUser<Guid>
 {

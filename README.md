@@ -16,11 +16,11 @@ Sample using nuget within project is available here [Sample](https://github.com/
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="1.0.0" />
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.SqlServer" Version="1.0.0" />
-    <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="1.3.0" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.SqlServer" Version="1.3.0" />
+    <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="7.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.7" />
   </ItemGroup>
 ```
 
@@ -69,6 +69,11 @@ public class ApplicationRoleClaim
 {
 }
 
+// attribute is optional
+// if you want to use your own Id type you can use this attribute
+// it is helpful when for example you want to store MSAL user id
+// as your id
+[InsertOwnIdAttribute]
 public class ApplicationUser
     : IdentityUser<Guid>
 {

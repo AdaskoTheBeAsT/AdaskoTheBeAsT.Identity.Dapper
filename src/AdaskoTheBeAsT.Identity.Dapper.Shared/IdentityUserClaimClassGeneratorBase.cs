@@ -16,7 +16,7 @@ public abstract class IdentityUserClaimClassGeneratorBase
         IdentityDapperConfiguration config,
         IEnumerable<PropertyColumnPair> propertyColumnPairs)
     {
-        var standardProperties = GetStandardPropertyNames();
+        var standardProperties = GetStandardPropertyNames(config.InsertOwnId);
         var combined = CombineStandardWithCustom(standardProperties, propertyColumnPairs);
 
         var sb = new StringBuilder();
@@ -89,10 +89,10 @@ public abstract class IdentityUserClaimClassGeneratorBase
             @""{content}"";");
     }
 
-    private IList<string> GetStandardPropertyNames() =>
+    private IList<string> GetStandardPropertyNames(bool insertOwnId) =>
         typeof(IdentityUserClaim<>)
             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(p => !p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
+            .Where(p => insertOwnId || !p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
             .Select(p => p.Name)
             .ToList();
 }

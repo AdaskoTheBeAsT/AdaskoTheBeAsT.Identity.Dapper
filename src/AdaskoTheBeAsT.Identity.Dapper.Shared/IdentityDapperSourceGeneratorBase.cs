@@ -112,7 +112,7 @@ public abstract class IdentityDapperSourceGeneratorBase
         if (classesToGenerate.Items.Count > 0)
         {
             // generate the source code and add it to the output
-            _sourceGeneratorHelper.GenerateCode(context, options, classesToGenerate);
+            _sourceGeneratorHelper.GenerateCode(context, compilation, options, classesToGenerate);
         }
     }
 
