@@ -2,40 +2,39 @@ using AdaskoTheBeAsT.Identity.Dapper.Oracle;
 using Dapper;
 using Oracle.ManagedDataAccess.Client;
 
-namespace OracleConsoleApp
+namespace OracleConsoleApp;
+
+internal static class Program
 {
-    internal static class Program
+    private static void Main()
     {
-        private static void Main()
-        {
-            SqlMapper.RemoveTypeMap(typeof(Guid));
-            SqlMapper.RemoveTypeMap(typeof(Guid?));
-            SqlMapper.AddTypeHandler(typeof(Guid), new OracleGuidTypeHandler(
-                p =>
-                {
-                    if (p is OracleParameter oracleParameter)
-                    {
-                        oracleParameter.OracleDbType = OracleDbType.Raw;
-                    }
-                }));
-            var connStr = "Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521)))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=XEPDB1)));User Id=mydeveloper;Password=mypassword;";
-            using (var conn = new OracleConnection(connStr))
+        SqlMapper.RemoveTypeMap(typeof(Guid));
+        SqlMapper.RemoveTypeMap(typeof(Guid?));
+        SqlMapper.AddTypeHandler(typeof(Guid), new OracleGuidTypeHandler(
+            p =>
             {
-                var first = conn.QueryFirstOrDefault<Sample>("SELECT ID AS Id, STRID AS StrId FROM ADASKO");
-                if (first != null)
+                if (p is OracleParameter oracleParameter)
                 {
-                    var second = conn.QueryFirstOrDefault<Sample>(
-                        "SELECT ID AS Id, STRID AS StrId FROM ADASKO WHERE ID=:Id",
-                        new { first.Id });
-                    if (second != null)
-                    {
-                        var str = second.Id.ToString();
-                        Console.WriteLine(str);
-                    }
+                    oracleParameter.OracleDbType = OracleDbType.Raw;
+                }
+            }));
+        var connStr = "Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521)))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=XEPDB1)));User Id=mydeveloper;Password=mypassword;";
+        using (var conn = new OracleConnection(connStr))
+        {
+            var first = conn.QueryFirstOrDefault<Sample>("SELECT ID AS Id, STRID AS StrId FROM ADASKO");
+            if (first != null)
+            {
+                var second = conn.QueryFirstOrDefault<Sample>(
+                    "SELECT ID AS Id, STRID AS StrId FROM ADASKO WHERE ID=:Id",
+                    new { first.Id });
+                if (second != null)
+                {
+                    var str = second.Id.ToString();
+                    Console.WriteLine(str);
                 }
             }
-
-            Console.WriteLine("Hello, World!");
         }
+
+        Console.WriteLine("Hello, World!");
     }
 }

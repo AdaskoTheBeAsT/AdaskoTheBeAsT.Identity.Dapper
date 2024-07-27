@@ -105,4 +105,25 @@ public class MySqlIdentityRoleClassGenerator
                 $"SELECT /**select2**/FROM {config.SchemaPart}`aspnetroles`\r\n/**where2**/;")
             .RawSql;
     }
+
+    protected override string ProcessIdentityRoleGetRolesSql(
+        IdentityDapperConfiguration config,
+        IList<PropertyColumnPair> propertyColumnPairs)
+    {
+        var sqlBuilder = new AdvancedSqlBuilder();
+        var localPairs = GetNormalizedSelectList(
+            config.SkipNormalized,
+            propertyColumnPairs);
+        var list = new List<string> { nameof(IdentityRole.Id) };
+        foreach (var localPair in localPairs)
+        {
+            list.Add($"`{localPair.ColumnName}` AS {localPair.PropertyName}");
+        }
+
+        return sqlBuilder
+            .Select2(string.Join("\r\n,", list))
+            .AddTemplate(
+                $"SELECT /**select2**/FROM {config.SchemaPart}`aspnetroles`;")
+            .RawSql;
+    }
 }

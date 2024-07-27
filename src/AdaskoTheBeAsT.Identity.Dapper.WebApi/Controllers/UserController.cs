@@ -7,37 +7,100 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Controllers
+namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class UserController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UserController : ControllerBase
+    private readonly IMapper _mapper;
+    private readonly IMediator _mediator;
+
+    public UserController(
+        IMapper mapper,
+        IMediator mediator)
     {
-        private readonly IMapper _mapper;
-        private readonly IMediator _mediator;
+        _mapper = mapper;
+        _mediator = mediator;
+    }
 
-        public UserController(
-            IMapper mapper,
-            IMediator mediator)
+    [AllowAnonymous]
+    [HttpPost]
+    public async Task<IActionResult> CreateUserAsync([FromBody] UserModel userModel)
+    {
+        try
         {
-            _mapper = mapper;
-            _mediator = mediator;
+            var request = _mapper.Map<CreateUserRequest>(userModel);
+            await _mediator.Send(request).ConfigureAwait(false);
+            return Ok();
         }
-
-        [AllowAnonymous]
-        [HttpPost]
-        public async Task<IActionResult> CreateUserAsync([FromBody] UserModel userModel)
+        catch (Exception ex)
         {
-            try
+            return BadRequest(ex);
+        }
+    }
+
+    [AllowAnonymous]
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetUserByIdAsync(Guid id)
+    {
+        try
+        {
+            var request = new GetUserByIdRequest { UserId = id };
+            var user = await _mediator.Send(request).ConfigureAwait(false);
+            if (user == null)
             {
-                var request = _mapper.Map<CreateUserRequest>(userModel);
-                await _mediator.Send(request).ConfigureAwait(false);
-                return Ok();
+                return NotFound();
             }
-            catch (Exception ex)
+
+            return Ok(user);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [AllowAnonymous]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateUserAsync(Guid id, [FromBody] UpdateUserModel updateUserModel)
+    {
+        try
+        {
+            var request = _mapper.Map<UpdateUserRequest>(updateUserModel);
+            request.UserId = id;
+            var result = await _mediator.Send(request).ConfigureAwait(false);
+            if (result.Succeeded)
             {
-                return BadRequest(ex);
+                return NoContent();
             }
+
+            return BadRequest(result.Errors);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [AllowAnonymous]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUserAsync(Guid id)
+    {
+        try
+        {
+            var request = new DeleteUserRequest { UserId = id };
+            var result = await _mediator.Send(request).ConfigureAwait(false);
+            if (result.Succeeded)
+            {
+                return NoContent();
+            }
+
+            return BadRequest(result.Errors);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
         }
     }
 }

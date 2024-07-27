@@ -28,6 +28,7 @@ public abstract class IdentityRoleClassGeneratorBase
         GenerateDeleteSql(sb, config);
         GenerateFindByIdSql(sb, config, combined);
         GenerateFindByNameSql(sb, config, combined);
+        GenerateGetRolesSql(sb, config, combined);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
@@ -48,6 +49,10 @@ public abstract class IdentityRoleClassGeneratorBase
         IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityRoleFindByNameSql(
+        IdentityDapperConfiguration config,
+        IList<PropertyColumnPair> propertyColumnPairs);
+
+    protected abstract string ProcessIdentityRoleGetRolesSql(
         IdentityDapperConfiguration config,
         IList<PropertyColumnPair> propertyColumnPairs);
 
@@ -106,6 +111,17 @@ public abstract class IdentityRoleClassGeneratorBase
         var content = ProcessIdentityRoleFindByNameSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string FindByNameSql {{ get; }} =
+            @""{content}"";");
+    }
+
+    private void GenerateGetRolesSql(
+        StringBuilder sb,
+        IdentityDapperConfiguration config,
+        IList<PropertyColumnPair> propertyColumnPairs)
+    {
+        var content = ProcessIdentityRoleGetRolesSql(config, propertyColumnPairs);
+        sb.AppendLine(
+            $@"        public string GetRolesSql {{ get; }} =
             @""{content}"";");
     }
 

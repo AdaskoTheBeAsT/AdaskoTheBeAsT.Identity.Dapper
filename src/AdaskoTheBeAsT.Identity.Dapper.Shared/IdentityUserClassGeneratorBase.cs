@@ -31,6 +31,7 @@ public abstract class IdentityUserClassGeneratorBase
         GenerateFindByEmailSql(sb, config, combined);
         GenerateGetUsersForClaimSql(sb, config, combined);
         GenerateGetUsersInRoleSql(sb, config, combined);
+        GenerateGetUsersSql(sb, config, combined);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
@@ -63,6 +64,10 @@ public abstract class IdentityUserClassGeneratorBase
         IList<PropertyColumnPair> propertyColumnPairs);
 
     protected abstract string ProcessIdentityUserGetUsersInRoleSql(
+        IdentityDapperConfiguration config,
+        IList<PropertyColumnPair> propertyColumnPairs);
+
+    protected abstract string ProcessIdentityUserGetUsersSql(
         IdentityDapperConfiguration config,
         IList<PropertyColumnPair> propertyColumnPairs);
 
@@ -157,6 +162,17 @@ public abstract class IdentityUserClassGeneratorBase
         var content = ProcessIdentityUserGetUsersInRoleSql(config, propertyColumnPairs);
         sb.AppendLine(
             $@"        public string GetUsersInRoleSql {{ get; }} =
+            @""{content}"";");
+    }
+
+    private void GenerateGetUsersSql(
+        StringBuilder sb,
+        IdentityDapperConfiguration config,
+        IList<PropertyColumnPair> propertyColumnPairs)
+    {
+        var content = ProcessIdentityUserGetUsersSql(config, propertyColumnPairs);
+        sb.AppendLine(
+            $@"        public string GetUsersSql {{ get; }} =
             @""{content}"";");
     }
 

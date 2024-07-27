@@ -11,4 +11,6 @@ public interface IIdentityRoleSql
     string FindByIdSql { get; }
 
     string FindByNameSql { get; }
+
+    string GetRolesSql { get; }
 }

@@ -38,5 +38,11 @@ WHERE Id=@Id;";
 ,[ConcurrencyStamp] AS ConcurrencyStamp
 FROM id.AspNetRoles
 WHERE Name=@NormalizedName;";
+        public string GetRolesSql { get; } =
+            @"SELECT Id
+,[Name] AS Name
+,[Name] AS NormalizedName
+,[ConcurrencyStamp] AS ConcurrencyStamp
+FROM id.AspNetRoles;";
     }
 }

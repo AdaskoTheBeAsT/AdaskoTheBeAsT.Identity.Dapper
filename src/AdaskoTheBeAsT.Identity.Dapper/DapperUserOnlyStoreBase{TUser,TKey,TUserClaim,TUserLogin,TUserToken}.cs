@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
@@ -23,7 +24,8 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         IUserTwoFactorStore<TUser>,
         IUserAuthenticationTokenStore<TUser>,
         IUserAuthenticatorKeyStore<TUser>,
-        IUserTwoFactorRecoveryCodeStore<TUser>
+        IUserTwoFactorRecoveryCodeStore<TUser>,
+        IQueryableUserStore<TUser>
     where TUser : IdentityUser<TKey>
     where TKey : IEquatable<TKey>
     where TUserClaim : IdentityUserClaim<TKey>, new()
@@ -55,6 +57,15 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// Gets or sets the <see cref="T:Microsoft.AspNetCore.Identity.IdentityErrorDescriber" /> for any error that occurred with the current operation.
     /// </summary>
     public IdentityErrorDescriber ErrorDescriber { get; set; }
+
+    public IQueryable<TUser> Users
+    {
+        get
+        {
+            using var connection = ConnectionProvider.Provide();
+            return connection.Query<TUser>(IdentityUserSql.GetUsersSql).AsQueryable();
+        }
+    }
 
     protected IIdentityDbConnectionProvider ConnectionProvider { get; }
 

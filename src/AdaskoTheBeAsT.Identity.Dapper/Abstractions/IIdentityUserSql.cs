@@ -17,4 +17,6 @@ public interface IIdentityUserSql
     string GetUsersForClaimSql { get; }
 
     string GetUsersInRoleSql { get; }
+
+    string GetUsersSql { get; }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +13,8 @@ using Microsoft.AspNetCore.Identity;
 namespace AdaskoTheBeAsT.Identity.Dapper;
 
 public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
-    : IRoleClaimStore<TRole>
+    : IRoleClaimStore<TRole>,
+        IQueryableRoleStore<TRole>
     where TRole : IdentityRole<TKey>
     where TKey : IEquatable<TKey>
     where TRoleClaim : IdentityRoleClaim<TKey>, new()
@@ -42,6 +44,15 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     /// Gets or sets the <see cref="T:Microsoft.AspNetCore.Identity.IdentityErrorDescriber" /> for any error that occurred with the current operation.
     /// </summary>
     public IdentityErrorDescriber ErrorDescriber { get; set; }
+
+    public IQueryable<TRole> Roles
+    {
+        get
+        {
+            using var connection = ConnectionProvider.Provide();
+            return connection.Query<TRole>(IdentityRoleSql.GetRolesSql).AsQueryable();
+        }
+    }
 
     protected IIdentityDbConnectionProvider ConnectionProvider { get; }
 

@@ -183,4 +183,27 @@ public class MySqlIdentityUserClassGenerator
                 $"SELECT /**select2**/FROM {config.SchemaPart}`aspnetusers` u/**innerjoin2**//**where2**/;")
             .RawSql;
     }
+
+    protected override string ProcessIdentityUserGetUsersSql(
+        IdentityDapperConfiguration config,
+        IList<PropertyColumnPair> propertyColumnPairs)
+    {
+        var sqlBuilder = new AdvancedSqlBuilder();
+        var localPairs = GetNormalizedSelectList(
+            config.SkipNormalized,
+            propertyColumnPairs);
+        var list = new List<string> { $"u.{nameof(IdentityUser.Id)}" };
+        foreach (var localPair in localPairs)
+        {
+            list.Add($"u.[{localPair.ColumnName}] AS {localPair.PropertyName}");
+        }
+
+        return sqlBuilder
+            .Select2(string.Join("\r\n,", list))
+            .InnerJoin2($"{config.SchemaPart}`aspnetuserroles` ur ON u.Id=ur.UserId")
+            .InnerJoin2($"{config.SchemaPart}`aspnetroles` r ON ur.RolesId=r.Id")
+            .AddTemplate(
+                $"SELECT /**select2**/FROM {config.SchemaPart}`aspnetusers` u/**innerjoin2**/;")
+            .RawSql;
+    }
 }

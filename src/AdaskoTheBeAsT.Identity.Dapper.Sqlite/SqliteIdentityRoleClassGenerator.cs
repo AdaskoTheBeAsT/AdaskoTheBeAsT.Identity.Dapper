@@ -105,4 +105,25 @@ public class SqliteIdentityRoleClassGenerator
                 $"SELECT /**select2**/FROM {config.SchemaPart}AspNetRoles\r\n/**where2**/;")
             .RawSql;
     }
+
+    protected override string ProcessIdentityRoleGetRolesSql(
+        IdentityDapperConfiguration config,
+        IList<PropertyColumnPair> propertyColumnPairs)
+    {
+        var sqlBuilder = new AdvancedSqlBuilder();
+        var localPairs = GetListWithoutNormalized(
+            config.SkipNormalized,
+            propertyColumnPairs);
+        var list = new List<string> { nameof(IdentityRole.Id) };
+        foreach (var t in localPairs)
+        {
+            list.Add($"[{t.ColumnName}] AS {t.PropertyName}");
+        }
+
+        return sqlBuilder
+            .Select2(string.Join("\r\n,", list))
+            .AddTemplate(
+                $"SELECT /**select2**/FROM {config.SchemaPart}AspNetRoles;")
+            .RawSql;
+    }
 }

@@ -138,6 +138,11 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "WithoutNormalizedAspNetInde
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.WebApi", "src\AdaskoTheBeAsT.Identity.Dapper.WebApi\AdaskoTheBeAsT.Identity.Dapper.WebApi.csproj", "{51E6418B-38EF-4E8E-A823-1D2992604BFD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".sarif", ".sarif", "{7383D782-E429-4C53-8B51-C55D4ED18535}"
+	ProjectSection(SolutionItems) = preProject
+		.sarif\.gitkeep = .sarif\.gitkeep
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

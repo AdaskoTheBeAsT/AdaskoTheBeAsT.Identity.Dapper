@@ -1,3 +1,4 @@
+using System;
 using Dapper;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Builders;
@@ -39,4 +40,54 @@ public class AdvancedSqlBuilder
         string sql,
         dynamic? parameters = null) =>
         AddClause("innerjoin2", sql, parameters, "\r\nINNER JOIN ", "\r\nINNER JOIN ", "\r\n", isInclusive: false);
+
+    public AdvancedSqlBuilder Skip(
+        int skip,
+        DbType dbType) =>
+        (AddClause(
+            nameof(skip),
+            GetSkipClause(skip, dbType),
+            null,
+            string.Empty,
+            string.Empty,
+            string.Empty,
+            isInclusive: false) as AdvancedSqlBuilder)!;
+
+    public AdvancedSqlBuilder Take(
+        int take,
+        DbType dbType) =>
+        (AddClause(
+            nameof(take),
+            GetTakeClause(take, dbType),
+            null,
+            string.Empty,
+            string.Empty,
+            string.Empty,
+            isInclusive: false) as AdvancedSqlBuilder)!;
+
+    private string GetSkipClause(int skip, DbType dbType)
+    {
+        return dbType switch
+        {
+            DbType.SqlServer => $"OFFSET {skip} ROWS",
+            DbType.Postgres => $"OFFSET {skip}",
+            DbType.MySql => $"OFFSET {skip}",
+            DbType.Sqlite => $"OFFSET {skip}",
+            DbType.Oracle => $"OFFSET {skip} ROWS",
+            _ => throw new NotSupportedException($"Unsupported database type: {dbType}"),
+        };
+    }
+
+    private string GetTakeClause(int take, DbType dbType)
+    {
+        return dbType switch
+        {
+            DbType.SqlServer => $"FETCH NEXT {take} ROWS ONLY",
+            DbType.Postgres => $"LIMIT {take}",
+            DbType.MySql => $"LIMIT {take}",
+            DbType.Sqlite => $"LIMIT {take}",
+            DbType.Oracle => $"FETCH NEXT {take} ROWS ONLY",
+            _ => throw new NotSupportedException($"Unsupported database type: {dbType}"),
+        };
+    }
 }
