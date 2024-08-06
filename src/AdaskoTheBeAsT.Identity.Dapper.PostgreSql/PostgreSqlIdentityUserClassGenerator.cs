@@ -25,9 +25,12 @@ public class PostgreSqlIdentityUserClassGenerator
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
             propertyColumnPairs);
-        var template = _identityHelper.GetInsertTemplate($"{config.SchemaPart}AspNetUsers", config.KeyTypeName);
+        var template = _identityHelper.GetInsertTemplate(
+            $"{config.SchemaPart}AspNetUsers",
+            config.KeyTypeName,
+            config.InsertOwnId);
         return sqlBuilder
-            .Insert(string.Join("\r\n,", localPairs.Select(s => $"[{s.ColumnName}]")))
+            .Insert(string.Join("\r\n,", localPairs.Select(s => $"{s.ColumnName.ToLowerInvariant()}")))
             .Values(string.Join("\r\n,", localPairs.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(template)
             .RawSql;
@@ -44,7 +47,7 @@ public class PostgreSqlIdentityUserClassGenerator
         var list = new List<string>();
         foreach (var localPair in localPairs)
         {
-            list.Add($"[{localPair.ColumnName}]=@{localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName.ToLowerInvariant()}=@{localPair.PropertyName}");
         }
 
         return sqlBuilder
@@ -66,10 +69,16 @@ public class PostgreSqlIdentityUserClassGenerator
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
             propertyColumnPairs);
-        var list = new List<string> { nameof(IdentityUser.Id) };
+        var list = new List<string>();
+
+        if (!config.InsertOwnId)
+        {
+            list.Add($"{nameof(IdentityUser.Id)}  AS \"\"{nameof(IdentityUser.Id)}\"\"");
+        }
+
         foreach (var localPair in localPairs)
         {
-            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName.ToLowerInvariant()} AS \"\"{localPair.PropertyName}\"\"");
         }
 
         return sqlBuilder
@@ -88,10 +97,16 @@ public class PostgreSqlIdentityUserClassGenerator
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
             propertyColumnPairs);
-        var list = new List<string> { nameof(IdentityUser.Id) };
+        var list = new List<string>();
+
+        if (!config.InsertOwnId)
+        {
+            list.Add($"{nameof(IdentityUser.Id)}  AS \"\"{nameof(IdentityUser.Id)}\"\"");
+        }
+
         foreach (var localPair in localPairs)
         {
-            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName.ToLowerInvariant()} AS \"\"{localPair.PropertyName}\"\"");
         }
 
         var where = config.SkipNormalized
@@ -114,10 +129,15 @@ public class PostgreSqlIdentityUserClassGenerator
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
             propertyColumnPairs);
-        var list = new List<string> { nameof(IdentityUser.Id) };
+        var list = new List<string>();
+
+        if (!config.InsertOwnId)
+        {
+            list.Add($"{nameof(IdentityUser.Id)}  AS \"\"{nameof(IdentityUser.Id)}\"\"");
+        }
         foreach (var localPair in localPairs)
         {
-            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName.ToLowerInvariant()} AS \"\"{localPair.PropertyName}\"\"");
         }
 
         var where = config.SkipNormalized
@@ -140,10 +160,15 @@ public class PostgreSqlIdentityUserClassGenerator
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
             propertyColumnPairs);
-        var list = new List<string> { $"u.{nameof(IdentityUser.Id)}" };
+        var list = new List<string>();
+
+        if (!config.InsertOwnId)
+        {
+            list.Add($"{nameof(IdentityUser.Id)}  AS \"\"{nameof(IdentityUser.Id)}\"\"");
+        }
         foreach (var localPair in localPairs)
         {
-            list.Add($"u.[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"u.{localPair.ColumnName} AS \"\"{localPair.PropertyName}\"\"");
         }
 
         return sqlBuilder
@@ -164,10 +189,15 @@ public class PostgreSqlIdentityUserClassGenerator
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
             propertyColumnPairs);
-        var list = new List<string> { $"u.{nameof(IdentityUser.Id)}" };
+        var list = new List<string>();
+
+        if (!config.InsertOwnId)
+        {
+            list.Add($"{nameof(IdentityUser.Id)}  AS \"\"{nameof(IdentityUser.Id)}\"\"");
+        }
         foreach (var localPair in localPairs)
         {
-            list.Add($"u.[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"u.{localPair.ColumnName} AS \"\"{localPair.PropertyName}\"\"");
         }
 
         var where = config.SkipNormalized
@@ -192,10 +222,16 @@ public class PostgreSqlIdentityUserClassGenerator
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
             propertyColumnPairs);
-        var list = new List<string> { $"u.{nameof(IdentityUser.Id)}" };
+        var list = new List<string>();
+
+        if (!config.InsertOwnId)
+        {
+            list.Add($"{nameof(IdentityUser.Id)}  AS \"\"{nameof(IdentityUser.Id)}\"\"");
+        }
+
         foreach (var localPair in localPairs)
         {
-            list.Add($"u.[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"u.{localPair.ColumnName} AS \"\"{localPair.PropertyName}\"\"");
         }
 
         return sqlBuilder

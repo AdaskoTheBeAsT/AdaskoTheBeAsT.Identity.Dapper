@@ -43,7 +43,8 @@ public class SqliteIdentityHelper
 
     public string GetInsertTemplate(
         string tableName,
-        string keyTypeName)
+        string keyTypeName,
+        bool insertOwnId)
     {
         switch (keyTypeName)
         {

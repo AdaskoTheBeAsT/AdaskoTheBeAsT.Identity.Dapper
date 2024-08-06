@@ -25,7 +25,10 @@ public class SqlServerIdentityRoleClassGenerator
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
             propertyColumnPairs);
-        var template = _identityHelper.GetInsertTemplate($"{config.SchemaPart}AspNetRoles", config.KeyTypeName);
+        var template = _identityHelper.GetInsertTemplate(
+            $"{config.SchemaPart}AspNetRoles",
+            config.KeyTypeName,
+            config.InsertOwnId);
         return sqlBuilder
             .Insert(string.Join("\r\n,", localPairs.Select(s => $"[{s.ColumnName}]")))
             .Values(string.Join("\r\n,", localPairs.Select(s => $"@{s.PropertyName}")))

@@ -43,12 +43,23 @@ public class MySqlIdentityHelper
 
     public string GetInsertTemplate(
         string tableName,
-        string keyTypeName)
+        string keyTypeName,
+        bool insertOwnId)
     {
         switch (keyTypeName)
         {
             case "Guid":
             case "System.Guid":
+            {
+                if (insertOwnId)
+                {
+                    return $@"INSERT INTO {tableName}(
+/**insert**/)
+VALUES(
+/**values**/);
+SELECT id;";
+                }
+
                 return $@"SET id=UUID();
 INSERT INTO {tableName}(
 Id,
@@ -57,6 +68,7 @@ VALUES(
 id
 /**values**/);
 SELECT id;";
+            }
             case "int":
             case "Int32":
             case "System.Int32":
@@ -77,13 +89,25 @@ SELECT CAST(LAST_INSERT_ID() AS UNSIGNED INTEGER);";
             case "string":
             case "String":
             case "System.String":
-                return $@"INSERT INTO {tableName}(
+            {
+                if (insertOwnId)
+                {
+                    return $@"INSERT INTO {tableName}(
+/**insert**/)
+VALUES(
+/**values**/);
+SELECT @Id;";
+                }
+
+                return $@"SET id=UUID();
+INSERT INTO {tableName}(
 Id,
 /**insert**/)
 VALUES(
-@Id,
+id,
 /**values**/);
 SELECT @Id;";
+            }
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));
         }

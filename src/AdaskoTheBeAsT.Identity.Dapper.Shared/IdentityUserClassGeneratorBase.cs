@@ -163,6 +163,7 @@ public abstract class IdentityUserClassGeneratorBase
         sb.AppendLine(
             $@"        public string GetUsersInRoleSql {{ get; }} =
             @""{content}"";");
+        sb.AppendLine();
     }
 
     private void GenerateGetUsersSql(

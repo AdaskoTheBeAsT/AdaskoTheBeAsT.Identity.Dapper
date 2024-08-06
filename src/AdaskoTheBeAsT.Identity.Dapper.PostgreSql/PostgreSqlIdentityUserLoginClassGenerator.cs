@@ -15,7 +15,7 @@ public class PostgreSqlIdentityUserLoginClassGenerator
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
+            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"{s.ColumnName.ToLowerInvariant()}")))
             .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(
                 $"INSERT INTO {schemaPart}AspNetUserLogins(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
@@ -43,7 +43,7 @@ public class PostgreSqlIdentityUserLoginClassGenerator
         var list = new List<string>(propertyColumnPairs.Count);
         for (var i = 0; i < propertyColumnPairs.Count; i++)
         {
-            list.Add($"[{propertyColumnPairs[i].ColumnName}] AS {propertyColumnPairs[i].PropertyName}");
+            list.Add($"{propertyColumnPairs[i].ColumnName.ToLowerInvariant()} AS \"\"{propertyColumnPairs[i].PropertyName}\"\"");
         }
 
         return sqlBuilder
@@ -62,7 +62,7 @@ public class PostgreSqlIdentityUserLoginClassGenerator
         var list = new List<string>(propertyColumnPairs.Count);
         foreach (var localPair in propertyColumnPairs)
         {
-            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName.ToLowerInvariant()} AS \"\"{localPair.PropertyName}\"\"");
         }
 
         return sqlBuilder
@@ -83,7 +83,7 @@ public class PostgreSqlIdentityUserLoginClassGenerator
         var list = new List<string>(propertyColumnPairs.Count);
         foreach (var localPair in propertyColumnPairs)
         {
-            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName.ToLowerInvariant()} AS \"\"{localPair.PropertyName}\"\"");
         }
 
         return sqlBuilder

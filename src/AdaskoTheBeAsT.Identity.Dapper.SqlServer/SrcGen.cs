@@ -1,14 +1,15 @@
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
+using AdaskoTheBeAsT.Identity.Dapper.SqlServer;
 using Microsoft.CodeAnalysis;
 
-namespace AdaskoTheBeAsT.Identity.Dapper.SqlServer;
+namespace Atb.SqlG;
 
 [Generator]
-public class SqlServerIdentityDapperSourceGenerator
+public class SrcGen
     : IdentityDapperSourceGeneratorBase,
         IIncrementalGenerator
 {
-    public SqlServerIdentityDapperSourceGenerator()
+    public SrcGen()
         : base(new SqlServerSourceGenerationHelper())
     {
     }

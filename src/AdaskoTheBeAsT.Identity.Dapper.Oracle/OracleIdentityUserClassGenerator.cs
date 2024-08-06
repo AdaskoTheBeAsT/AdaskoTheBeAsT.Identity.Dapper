@@ -25,7 +25,10 @@ public class OracleIdentityUserClassGenerator
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
             propertyColumnPairs);
-        var template = _identityHelper.GetInsertTemplate($"{config.SchemaPart}AspNetUsers", config.KeyTypeName);
+        var template = _identityHelper.GetInsertTemplate(
+            $"{config.SchemaPart}AspNetUsers",
+            config.KeyTypeName,
+            config.InsertOwnId);
         return sqlBuilder
             .Insert(string.Join("\r\n,", localPairs.Select(s => $"[{s.ColumnName}]")))
             .Values(string.Join("\r\n,", localPairs.Select(s => $":{s.PropertyName}")))

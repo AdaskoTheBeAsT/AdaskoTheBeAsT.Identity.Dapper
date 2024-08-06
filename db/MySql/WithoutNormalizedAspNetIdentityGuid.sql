@@ -1,6 +1,6 @@
-CREATE DATABASE `identity` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+--CREATE DATABASE `identity` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 
-CREATE TABLE identity.aspnetroleclaims (
+CREATE TABLE WithoutNormalizedAspNetIdentityGuid.aspnetroleclaims (
     Id         INT                                  NOT NULL AUTO_INCREMENT,
     RoleId     CHAR(36)                             NOT NULL,
     ClaimType  VARCHAR(256) CHARACTER SET utf8mb4   NULL,
@@ -9,9 +9,9 @@ CREATE TABLE identity.aspnetroleclaims (
 );
 
 CREATE INDEX IX_AspNetRoleClaims_RoleId
-    ON identity.aspnetroleclaims(RoleId ASC);
+    ON WithoutNormalizedAspNetIdentityGuid.aspnetroleclaims(RoleId ASC);
 	
-CREATE TABLE identity.aspnetroles (
+CREATE TABLE WithoutNormalizedAspNetIdentityGuid.aspnetroles (
     Id               CHAR(36)     UNIQUE NOT NULL,
     Name             VARCHAR(256) CHARACTER SET utf8mb4 NULL,
     ConcurrencyStamp VARCHAR(256) CHARACTER SET utf8mb4 NULL,
@@ -19,9 +19,9 @@ CREATE TABLE identity.aspnetroles (
 );
 
 CREATE UNIQUE INDEX RoleNameIndex
-    ON identity.aspnetroles(Name ASC);
+    ON WithoutNormalizedAspNetIdentityGuid.aspnetroles(Name ASC);
 	
-CREATE TABLE identity.aspnetuserclaims (
+CREATE TABLE WithoutNormalizedAspNetIdentityGuid.aspnetuserclaims (
     Id         INT              NOT NULL AUTO_INCREMENT,
     UserId     CHAR(36)         NOT NULL,
     ClaimType  VARCHAR(256) CHARACTER SET utf8mb4     NULL,
@@ -30,9 +30,9 @@ CREATE TABLE identity.aspnetuserclaims (
 );
 
 CREATE INDEX IX_AspNetUserClaims_UserId
-    ON identity.aspnetuserclaims(UserId ASC);
+    ON WithoutNormalizedAspNetIdentityGuid.aspnetuserclaims(UserId ASC);
 	
-CREATE TABLE identity.aspnetuserlogins (
+CREATE TABLE WithoutNormalizedAspNetIdentityGuid.aspnetuserlogins (
     LoginProvider       VARCHAR(128) CHARACTER SET utf8mb4   NOT NULL,
     ProviderKey         VARCHAR(128) CHARACTER SET utf8mb4   NOT NULL,
     ProviderDisplayName VARCHAR(256) CHARACTER SET utf8mb4   NULL,
@@ -41,18 +41,18 @@ CREATE TABLE identity.aspnetuserlogins (
 );
 
 CREATE INDEX IX_AspNetUserLogins_UserId
-    ON identity.aspnetuserlogins(UserId ASC);
+    ON WithoutNormalizedAspNetIdentityGuid.aspnetuserlogins(UserId ASC);
 	
-CREATE TABLE identity.aspnetuserroles (
+CREATE TABLE WithoutNormalizedAspNetIdentityGuid.aspnetuserroles (
     UserId CHAR(36)  NOT NULL,
     RoleId CHAR(36)  NOT NULL,
     CONSTRAINT PK_AspNetUserRoles PRIMARY KEY CLUSTERED (UserId ASC, RoleId ASC)
 );
 
 CREATE INDEX IX_AspNetUserRoles_RoleId
-    ON identity.aspnetuserroles(RoleId ASC);
+    ON WithoutNormalizedAspNetIdentityGuid.aspnetuserroles(RoleId ASC);
 	
-CREATE TABLE identity.aspnetusers (
+CREATE TABLE WithoutNormalizedAspNetIdentityGuid.aspnetusers (
     Id                   CHAR(36)     UNIQUE NOT NULL,
     UserName             VARCHAR(256) CHARACTER SET utf8mb4     NULL,
     Email                VARCHAR(256) CHARACTER SET utf8mb4     NULL,
@@ -70,12 +70,12 @@ CREATE TABLE identity.aspnetusers (
 );
 
 CREATE INDEX EmailIndex
-    ON identity.aspnetusers(Email ASC);
+    ON WithoutNormalizedAspNetIdentityGuid.aspnetusers(Email ASC);
 	
 CREATE UNIQUE INDEX UserNameIndex
-    ON identity.aspnetusers(UserName ASC);
+    ON WithoutNormalizedAspNetIdentityGuid.aspnetusers(UserName ASC);
 	
-CREATE TABLE identity.aspnetusertokens (
+CREATE TABLE WithoutNormalizedAspNetIdentityGuid.aspnetusertokens (
     UserId        CHAR(36) NOT NULL,
     LoginProvider VARCHAR(128) CHARACTER SET utf8mb4   NOT NULL,
     Name          VARCHAR(128) CHARACTER SET utf8mb4   NOT NULL,
@@ -83,20 +83,20 @@ CREATE TABLE identity.aspnetusertokens (
     CONSTRAINT PK_AspNetUserTokens PRIMARY KEY CLUSTERED (UserId ASC, LoginProvider ASC, Name ASC)
 );
 
-ALTER TABLE identity.aspnetroleclaims
-    ADD CONSTRAINT FK_AspNetRoleClaims_AspNetRoles_RoleId FOREIGN KEY (RoleId) REFERENCES identity.aspnetroles (Id) ON DELETE CASCADE;
+ALTER TABLE WithoutNormalizedAspNetIdentityGuid.aspnetroleclaims
+    ADD CONSTRAINT FK_AspNetRoleClaims_AspNetRoles_RoleId FOREIGN KEY (RoleId) REFERENCES WithoutNormalizedAspNetIdentityGuid.aspnetroles (Id) ON DELETE CASCADE;
 	
-ALTER TABLE identity.aspnetuserclaims
-    ADD CONSTRAINT FK_AspNetUserClaims_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES identity.aspnetusers (Id) ON DELETE CASCADE;
+ALTER TABLE WithoutNormalizedAspNetIdentityGuid.aspnetuserclaims
+    ADD CONSTRAINT FK_AspNetUserClaims_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES WithoutNormalizedAspNetIdentityGuid.aspnetusers (Id) ON DELETE CASCADE;
 
-ALTER TABLE identity.aspnetuserlogins
-    ADD CONSTRAINT FK_AspNetUserLogins_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES identity.aspnetusers (Id) ON DELETE CASCADE;
+ALTER TABLE WithoutNormalizedAspNetIdentityGuid.aspnetuserlogins
+    ADD CONSTRAINT FK_AspNetUserLogins_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES WithoutNormalizedAspNetIdentityGuid.aspnetusers (Id) ON DELETE CASCADE;
 	
-ALTER TABLE identity.aspnetuserroles
-    ADD CONSTRAINT FK_AspNetUserRoles_AspNetRoles_RoleId FOREIGN KEY (RoleId) REFERENCES identity.aspnetroles (Id) ON DELETE CASCADE;
+ALTER TABLE WithoutNormalizedAspNetIdentityGuid.aspnetuserroles
+    ADD CONSTRAINT FK_AspNetUserRoles_AspNetRoles_RoleId FOREIGN KEY (RoleId) REFERENCES WithoutNormalizedAspNetIdentityGuid.aspnetroles (Id) ON DELETE CASCADE;
 	
-ALTER TABLE identity.aspnetuserroles
-    ADD CONSTRAINT FK_AspNetUserRoles_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES identity.aspnetusers (Id) ON DELETE CASCADE;
+ALTER TABLE WithoutNormalizedAspNetIdentityGuid.aspnetuserroles
+    ADD CONSTRAINT FK_AspNetUserRoles_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES WithoutNormalizedAspNetIdentityGuid.aspnetusers (Id) ON DELETE CASCADE;
 	
-ALTER TABLE identity.aspnetusertokens
-    ADD CONSTRAINT FK_AspNetUserTokens_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES identity.aspnetusers (Id) ON DELETE CASCADE;
+ALTER TABLE WithoutNormalizedAspNetIdentityGuid.aspnetusertokens
+    ADD CONSTRAINT FK_AspNetUserTokens_AspNetUsers_UserId FOREIGN KEY (UserId) REFERENCES WithoutNormalizedAspNetIdentityGuid.aspnetusers (Id) ON DELETE CASCADE;

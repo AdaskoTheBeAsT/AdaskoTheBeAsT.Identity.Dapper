@@ -12,5 +12,6 @@ public interface IIdentityHelper
 
     string GetInsertTemplate(
         string tableName,
-        string keyTypeName);
+        string keyTypeName,
+        bool insertOwnId);
 }

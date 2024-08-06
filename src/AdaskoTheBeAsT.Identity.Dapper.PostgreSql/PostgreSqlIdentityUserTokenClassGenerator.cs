@@ -15,7 +15,7 @@ public class PostgreSqlIdentityUserTokenClassGenerator
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
+            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"{s.ColumnName.ToLowerInvariant()}")))
             .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(
                 $"INSERT INTO {config.SchemaPart}AspNetUserTokens(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
@@ -44,7 +44,7 @@ public class PostgreSqlIdentityUserTokenClassGenerator
         var list = new List<string>(propertyColumnPairs.Count);
         foreach (var localPair in propertyColumnPairs)
         {
-            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName.ToLowerInvariant()}  AS \"\"{localPair.PropertyName}\"\"");
         }
 
         return sqlBuilder

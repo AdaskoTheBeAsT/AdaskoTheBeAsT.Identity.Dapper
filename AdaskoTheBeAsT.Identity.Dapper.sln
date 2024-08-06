@@ -143,6 +143,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".sarif", ".sarif", "{7383D7
 		.sarif\.gitkeep = .sarif\.gitkeep
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.PostgreSql.IntegrationTest", "test\integ\AdaskoTheBeAsT.Identity.Dapper.PostgreSql.IntegrationTest\AdaskoTheBeAsT.Identity.Dapper.PostgreSql.IntegrationTest.csproj", "{D2FC8061-B93D-4C50-8D07-7F0D701ABD4E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.PostgreSql.Test", "test\unit\AdaskoTheBeAsT.Identity.Dapper.PostgreSql.Test\AdaskoTheBeAsT.Identity.Dapper.PostgreSql.Test.csproj", "{66E38038-26B6-4DF2-B71A-ED2BA8FC8D07}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest", "test\integ\AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest\AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest.csproj", "{DAC1D5C1-6B72-492B-965E-7A7414117053}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest", "test\integ\AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest\AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.csproj", "{21850892-5FD0-404E-A2E2-258DF8A7C8D9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest", "AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest\AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.csproj", "{98D07CA0-22DA-418D-BD45-E19F6DAF968D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -249,6 +259,26 @@ Global
 		{51E6418B-38EF-4E8E-A823-1D2992604BFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51E6418B-38EF-4E8E-A823-1D2992604BFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51E6418B-38EF-4E8E-A823-1D2992604BFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2FC8061-B93D-4C50-8D07-7F0D701ABD4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2FC8061-B93D-4C50-8D07-7F0D701ABD4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2FC8061-B93D-4C50-8D07-7F0D701ABD4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2FC8061-B93D-4C50-8D07-7F0D701ABD4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66E38038-26B6-4DF2-B71A-ED2BA8FC8D07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66E38038-26B6-4DF2-B71A-ED2BA8FC8D07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66E38038-26B6-4DF2-B71A-ED2BA8FC8D07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66E38038-26B6-4DF2-B71A-ED2BA8FC8D07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAC1D5C1-6B72-492B-965E-7A7414117053}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAC1D5C1-6B72-492B-965E-7A7414117053}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAC1D5C1-6B72-492B-965E-7A7414117053}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAC1D5C1-6B72-492B-965E-7A7414117053}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21850892-5FD0-404E-A2E2-258DF8A7C8D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21850892-5FD0-404E-A2E2-258DF8A7C8D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21850892-5FD0-404E-A2E2-258DF8A7C8D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21850892-5FD0-404E-A2E2-258DF8A7C8D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98D07CA0-22DA-418D-BD45-E19F6DAF968D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98D07CA0-22DA-418D-BD45-E19F6DAF968D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98D07CA0-22DA-418D-BD45-E19F6DAF968D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98D07CA0-22DA-418D-BD45-E19F6DAF968D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -285,6 +315,11 @@ Global
 		{50147B9D-9F88-482E-998F-850BD80BCAEE} = {265E36FF-3E33-407D-9E27-4A0995ED0600}
 		{F8FB334E-AA9A-4A74-8D9D-A7DC7983999A} = {265E36FF-3E33-407D-9E27-4A0995ED0600}
 		{51E6418B-38EF-4E8E-A823-1D2992604BFD} = {C28AEC30-FF71-4397-A8C5-5B26D183A45A}
+		{D2FC8061-B93D-4C50-8D07-7F0D701ABD4E} = {AE9D6DAA-9994-48E8-ACAA-9A962346CC16}
+		{66E38038-26B6-4DF2-B71A-ED2BA8FC8D07} = {0DDB0E47-5845-4861-95FC-AF248E2C6652}
+		{DAC1D5C1-6B72-492B-965E-7A7414117053} = {AE9D6DAA-9994-48E8-ACAA-9A962346CC16}
+		{21850892-5FD0-404E-A2E2-258DF8A7C8D9} = {AE9D6DAA-9994-48E8-ACAA-9A962346CC16}
+		{98D07CA0-22DA-418D-BD45-E19F6DAF968D} = {AE9D6DAA-9994-48E8-ACAA-9A962346CC16}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2DC60B14-2697-4908-AADC-3EA7874F6FF1}

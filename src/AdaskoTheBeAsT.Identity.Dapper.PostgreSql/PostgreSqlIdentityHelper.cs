@@ -43,7 +43,8 @@ public class PostgreSqlIdentityHelper
 
     public string GetInsertTemplate(
         string tableName,
-        string keyTypeName)
+        string keyTypeName,
+        bool insertOwnId)
     {
         switch (keyTypeName)
         {
@@ -64,7 +65,8 @@ public class PostgreSqlIdentityHelper
                 return $@"INSERT INTO {tableName}(
 /**insert**/)
 VALUES(
-/**values**/) RETURNING Id;";
+/**values**/)
+RETURNING Id AS """"Id"""";";
             case "string":
             case "String":
             case "System.String":
@@ -74,7 +76,7 @@ Id,
 VALUES(
 @Id,
 /**values**/);
-SELECT @Id;";
+SELECT @Id AS """"Id"""";";
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));
         }

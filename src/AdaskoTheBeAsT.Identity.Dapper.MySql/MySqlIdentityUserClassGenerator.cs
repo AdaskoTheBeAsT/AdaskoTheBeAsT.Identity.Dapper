@@ -25,7 +25,10 @@ public class MySqlIdentityUserClassGenerator
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
             propertyColumnPairs);
-        var template = _identityHelper.GetInsertTemplate($"{config.SchemaPart}`aspnetusers`", config.KeyTypeName);
+        var template = _identityHelper.GetInsertTemplate(
+            $"{config.SchemaPart}`aspnetusers`",
+            config.KeyTypeName,
+            config.InsertOwnId);
         return sqlBuilder
             .Insert(string.Join("\r\n,", localPairs.Select(s => $"[{s.ColumnName}]")))
             .Values(string.Join("\r\n,", localPairs.Select(s => $"@{s.PropertyName}")))

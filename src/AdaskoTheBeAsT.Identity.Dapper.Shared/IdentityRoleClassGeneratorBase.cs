@@ -112,6 +112,7 @@ public abstract class IdentityRoleClassGeneratorBase
         sb.AppendLine(
             $@"        public string FindByNameSql {{ get; }} =
             @""{content}"";");
+        sb.AppendLine();
     }
 
     private void GenerateGetRolesSql(

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "microsoft.sqlpackage": {
+      "version": "162.3.566",
+      "commands": [
+        "sqlpackage"
+      ],
+      "rollForward": false
+    },
+    "dotnet-tools-outdated": {
+      "version": "0.7.1",
+      "commands": [
+        "dotnet-tools-outdated"
+      ],
+      "rollForward": false
+    }
+  }
+}

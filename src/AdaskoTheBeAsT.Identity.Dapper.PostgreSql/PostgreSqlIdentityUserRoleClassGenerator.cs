@@ -15,7 +15,7 @@ public class PostgreSqlIdentityUserRoleClassGenerator
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
+            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"{s.ColumnName.ToLowerInvariant()}")))
             .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(
                 $"INSERT INTO {config.SchemaPart}AspNetUserRoles(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
@@ -42,7 +42,7 @@ public class PostgreSqlIdentityUserRoleClassGenerator
         var list = new List<string>(propertyColumnPairs.Count);
         foreach (var localPair in propertyColumnPairs)
         {
-            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName.ToLowerInvariant()} AS \"\"{localPair.PropertyName}\"\"");
         }
 
         return sqlBuilder
@@ -72,8 +72,8 @@ public class PostgreSqlIdentityUserRoleClassGenerator
         IList<PropertyColumnPair> propertyColumnPairs)
     {
         var template = config.SkipNormalized
-            ? $"SELECT r.Name\r\nFROM {config.SchemaPart}AspNetRoles r/**innerjoin2**//**where2**/;"
-            : $"SELECT r.NormalizedName\r\nFROM {config.SchemaPart}AspNetRoles r/**innerjoin2**//**where2**/;";
+            ? $"SELECT r.Name AS \"\"Name\"\"\r\nFROM {config.SchemaPart}AspNetRoles r/**innerjoin2**//**where2**/;"
+            : $"SELECT r.NormalizedName AS \"\"NormalizedName\"\"\r\nFROM {config.SchemaPart}AspNetRoles r/**innerjoin2**//**where2**/;";
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
             .InnerJoin2($"{config.SchemaPart}AspNetUserRoles ur ON r.Id=ur.RoleId")
