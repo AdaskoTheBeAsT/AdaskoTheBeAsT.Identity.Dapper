@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
@@ -5,6 +6,10 @@ namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 public class IdentityStoreGeneratorBase
     : IdentityClassGeneratorBase
 {
+    public override IList<PropertyColumnTypeTriple> GetAllProperties(
+        IEnumerable<PropertyColumnTypeTriple> customs,
+        bool insertOwnId) => [];
+
     protected override void GenerateUsing(
         StringBuilder sb,
         string keyTypeName)

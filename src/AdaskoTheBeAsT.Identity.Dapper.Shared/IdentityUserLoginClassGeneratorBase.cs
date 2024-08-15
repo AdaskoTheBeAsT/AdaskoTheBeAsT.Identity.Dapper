@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 using Microsoft.AspNetCore.Identity;
@@ -13,24 +11,26 @@ public abstract class IdentityUserLoginClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var standardProperties = GetStandardProperties();
-        var combined = CombineStandardWithCustom(standardProperties, propertyColumnTypeTriples);
-
         var sb = new StringBuilder();
         GenerateUsing(sb, config.KeyTypeName);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserLoginSql", "IIdentityUserLoginSql");
-        GenerateCreateSql(sb, config.SchemaPart, combined);
+        GenerateCreateSql(sb, config.SchemaPart, propertyColumnTypeTriples);
         GenerateDeleteSql(sb, config.SchemaPart);
-        GenerateGetByUserIdSql(sb, config.SchemaPart, combined);
-        GenerateGetByUserIdLoginProviderKeySql(sb, config.SchemaPart, combined);
-        GenerateGetByLoginProviderKeySql(sb, config.SchemaPart, combined);
+        GenerateGetByUserIdSql(sb, config.SchemaPart, propertyColumnTypeTriples);
+        GenerateGetByUserIdLoginProviderKeySql(sb, config.SchemaPart, propertyColumnTypeTriples);
+        GenerateGetByLoginProviderKeySql(sb, config.SchemaPart, propertyColumnTypeTriples);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
     }
+
+    public override IList<PropertyColumnTypeTriple> GetAllProperties(
+        IEnumerable<PropertyColumnTypeTriple> customs,
+        bool insertOwnId) =>
+        GetStandardWithCombinedProperties(typeof(IdentityUserLogin<>), insertOwnId, customs);
 
     protected abstract string ProcessIdentityUserLoginCreateSql(
         string schemaPart,
@@ -107,10 +107,4 @@ public abstract class IdentityUserLoginClassGeneratorBase
             $@"        public string GetByLoginProviderKeySql {{ get; }} =
             @""{content}"";");
     }
-
-    private IList<(string PropertyName, string PropertyType)> GetStandardProperties() =>
-        typeof(IdentityUserLogin<>)
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Select(p => (PropertyName: p.Name, PropertyType: p.PropertyType.Name))
-            .ToList();
 }

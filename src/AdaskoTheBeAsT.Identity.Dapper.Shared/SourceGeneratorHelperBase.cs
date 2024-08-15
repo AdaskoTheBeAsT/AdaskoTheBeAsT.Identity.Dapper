@@ -79,6 +79,7 @@ public abstract class SourceGeneratorHelperBase
         var schemaPart = GenerateSchemaPart(options.Schema);
         var attributeTypeSymbol = compilation.GetTypeByMetadataName("AdaskoTheBeAsT.Identity.Dapper.Attributes.InsertOwnIdAttribute");
 
+        var typePropertiesDict = new Dictionary<string, IList<PropertyColumnTypeTriple>>(StringComparer.OrdinalIgnoreCase);
         foreach (var group in grouped)
         {
             var baseTypeName = group.Key.BaseType?.Name ?? string.Empty;
@@ -93,7 +94,8 @@ public abstract class SourceGeneratorHelperBase
                 schemaPart,
                 options.SkipNormalized,
                 insertOwnId);
-            ProcessClass(context, config, group.ToList());
+            var allProperties = ProcessClass(context, config, group.ToList());
+            typePropertiesDict[baseTypeName] = allProperties;
             set.Remove(baseTypeName);
         }
 
@@ -106,15 +108,19 @@ public abstract class SourceGeneratorHelperBase
                 schemaPart,
                 options.SkipNormalized,
                 false);
-            ProcessClass(context, config, new List<(IPropertySymbol PropertySymbol, string ColumnName)>());
+            var allProperties = ProcessClass(
+                context,
+                config,
+                new List<(IPropertySymbol PropertySymbol, string ColumnName)>());
+            typePropertiesDict[baseTypeName] = allProperties;
         }
 
-        ProcessApplicationStores(context, generationInfo.KeyTypeName, namespaceName);
+        ProcessApplicationStores(context, typePropertiesDict, generationInfo.KeyTypeName, namespaceName);
     }
 
     protected abstract string GenerateSchemaPart(string dbSchema);
 
-    private void ProcessClass(
+    private IList<PropertyColumnTypeTriple> ProcessClass(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
         IList<(IPropertySymbol PropertySymbol, string ColumnName)> list)
@@ -123,111 +129,137 @@ public abstract class SourceGeneratorHelperBase
         switch (config.BaseTypeName)
         {
             case nameof(IdentityRole):
-                ProcessIdentityRole(context, config, propertyColumnTypeTriples);
-                break;
+                return ProcessIdentityRole(context, config, propertyColumnTypeTriples);
             case nameof(IdentityRoleClaim<int>):
-                ProcessIdentityRoleClaim(context, config, propertyColumnTypeTriples);
-                break;
+                return ProcessIdentityRoleClaim(context, config, propertyColumnTypeTriples);
             case nameof(IdentityUser):
-                ProcessIdentityUser(context, config, propertyColumnTypeTriples);
                 ProcessIdentityUserRoleClaim(context, config);
-                break;
+                return ProcessIdentityUser(context, config, propertyColumnTypeTriples);
             case nameof(IdentityUserClaim<int>):
-                ProcessIdentityUserClaim(context, config, propertyColumnTypeTriples);
-                break;
+                return ProcessIdentityUserClaim(context, config, propertyColumnTypeTriples);
             case nameof(IdentityUserLogin<int>):
-                ProcessIdentityUserLogin(context, config, propertyColumnTypeTriples);
-                break;
+                return ProcessIdentityUserLogin(context, config, propertyColumnTypeTriples);
             case nameof(IdentityUserRole<int>):
-                ProcessIdentityUserRole(context, config, propertyColumnTypeTriples);
-                break;
+                return ProcessIdentityUserRole(context, config, propertyColumnTypeTriples);
             case nameof(IdentityUserToken<int>):
-                ProcessIdentityUserToken(context, config, propertyColumnTypeTriples);
-                break;
+                return ProcessIdentityUserToken(context, config, propertyColumnTypeTriples);
 
             // ReSharper disable once RedundantEmptySwitchSection
             default:
-                break;
+                return new List<PropertyColumnTypeTriple>();
         }
     }
 
-    private void ProcessIdentityRole(
+    private IList<PropertyColumnTypeTriple> ProcessIdentityRole(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+        IEnumerable<PropertyColumnTypeTriple> customs)
     {
+        var propertyColumnTypeTriples = _identityRoleClassGenerator.GetAllProperties(
+            customs,
+            config.InsertOwnId);
         var content = _identityRoleClassGenerator.Generate(config, propertyColumnTypeTriples);
 
         context.AddSource("IdentityRoleSql.g.cs", SourceText.From(content, Encoding.UTF8));
+
+        return propertyColumnTypeTriples;
     }
 
-    private void ProcessIdentityRoleClaim(
+    private IList<PropertyColumnTypeTriple> ProcessIdentityRoleClaim(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+        IEnumerable<PropertyColumnTypeTriple> customs)
     {
+        var propertyColumnTypeTriples = _identityRoleClaimClassGenerator.GetAllProperties(
+            customs,
+            config.InsertOwnId);
         var content = _identityRoleClaimClassGenerator.Generate(config, propertyColumnTypeTriples);
 
         context.AddSource("IdentityRoleClaimSql.g.cs", SourceText.From(content, Encoding.UTF8));
+        return propertyColumnTypeTriples;
     }
 
-    private void ProcessIdentityUser(
+    private IList<PropertyColumnTypeTriple> ProcessIdentityUser(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+        IEnumerable<PropertyColumnTypeTriple> customs)
     {
+        var propertyColumnTypeTriples = _identityUserClassGenerator.GetAllProperties(
+            customs,
+            config.InsertOwnId);
         var content = _identityUserClassGenerator.Generate(config, propertyColumnTypeTriples);
 
         context.AddSource("IdentityUserSql.g.cs", SourceText.From(content, Encoding.UTF8));
+        return propertyColumnTypeTriples;
     }
 
-    private void ProcessIdentityUserRoleClaim(
+    private IList<PropertyColumnTypeTriple> ProcessIdentityUserRoleClaim(
         SourceProductionContext context,
         IdentityDapperConfiguration config)
     {
+        var propertyColumnTypeTriples = _identityUserRoleClaimClassGenerator.GetAllProperties(
+            new List<PropertyColumnTypeTriple>(),
+            config.InsertOwnId);
         var content = _identityUserRoleClaimClassGenerator.Generate(config);
 
         context.AddSource("IdentityUserRoleClaimSql.g.cs", SourceText.From(content, Encoding.UTF8));
+        return propertyColumnTypeTriples;
     }
 
-    private void ProcessIdentityUserClaim(
+    private IList<PropertyColumnTypeTriple> ProcessIdentityUserClaim(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+        IEnumerable<PropertyColumnTypeTriple> customs)
     {
+        var propertyColumnTypeTriples = _identityUserClaimClassGenerator.GetAllProperties(
+            customs,
+            config.InsertOwnId);
         var content = _identityUserClaimClassGenerator.Generate(config, propertyColumnTypeTriples);
 
         context.AddSource("IdentityUserClaimSql.g.cs", SourceText.From(content, Encoding.UTF8));
+        return propertyColumnTypeTriples;
     }
 
-    private void ProcessIdentityUserLogin(
+    private IList<PropertyColumnTypeTriple> ProcessIdentityUserLogin(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+        IEnumerable<PropertyColumnTypeTriple> customs)
     {
+        var propertyColumnTypeTriples = _identityUserLoginClassGenerator.GetAllProperties(
+            customs,
+            config.InsertOwnId);
         var content = _identityUserLoginClassGenerator.Generate(config, propertyColumnTypeTriples);
 
         context.AddSource("IdentityUserLoginSql.g.cs", SourceText.From(content, Encoding.UTF8));
+        return propertyColumnTypeTriples;
     }
 
-    private void ProcessIdentityUserRole(
+    private IList<PropertyColumnTypeTriple> ProcessIdentityUserRole(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+        IEnumerable<PropertyColumnTypeTriple> customs)
     {
+        var propertyColumnTypeTriples = _identityUserRoleClassGenerator.GetAllProperties(
+            customs,
+            config.InsertOwnId);
         var content = _identityUserRoleClassGenerator.Generate(config, propertyColumnTypeTriples);
 
         context.AddSource("IdentityUserRoleSql.g.cs", SourceText.From(content, Encoding.UTF8));
+        return propertyColumnTypeTriples;
     }
 
-    private void ProcessIdentityUserToken(
+    private IList<PropertyColumnTypeTriple> ProcessIdentityUserToken(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+        IEnumerable<PropertyColumnTypeTriple> customs)
     {
+        var propertyColumnTypeTriples = _identityUserTokenClassGenerator.GetAllProperties(
+            customs,
+            config.InsertOwnId);
         var content = _identityUserTokenClassGenerator.Generate(config, propertyColumnTypeTriples);
 
         context.AddSource("IdentityUserTokenSql.g.cs", SourceText.From(content, Encoding.UTF8));
+        return propertyColumnTypeTriples;
     }
 
     private IEnumerable<PropertyColumnTypeTriple> Extract(
@@ -240,40 +272,44 @@ public abstract class SourceGeneratorHelperBase
 
     private void ProcessApplicationStores(
         SourceProductionContext context,
+        IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
         string keyTypeName,
         string namespaceName)
     {
-        ProcessApplicationUserOnlyStore(context, keyTypeName, namespaceName);
-        ProcessApplicationUserStore(context, keyTypeName, namespaceName);
-        ProcessApplicationRoleStore(context, keyTypeName, namespaceName);
+        ProcessApplicationUserOnlyStore(context, typePropertiesDict, keyTypeName, namespaceName);
+        ProcessApplicationUserStore(context, typePropertiesDict, keyTypeName, namespaceName);
+        ProcessApplicationRoleStore(context, typePropertiesDict, keyTypeName, namespaceName);
     }
 
     private void ProcessApplicationUserOnlyStore(
         SourceProductionContext context,
+        IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
         string keyTypeName,
         string namespaceName)
     {
-        var content = _applicationUserOnlyStoreGenerator.Generate(keyTypeName, namespaceName);
+        var content = _applicationUserOnlyStoreGenerator.Generate(typePropertiesDict, keyTypeName, namespaceName);
 
         context.AddSource("ApplicationUserOnlyStore.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
     private void ProcessApplicationUserStore(
         SourceProductionContext context,
+        IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
         string keyTypeName,
         string namespaceName)
     {
-        var content = _applicationUserStoreGenerator.Generate(keyTypeName, namespaceName);
+        var content = _applicationUserStoreGenerator.Generate(typePropertiesDict, keyTypeName, namespaceName);
 
         context.AddSource("ApplicationUserStore.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
     private void ProcessApplicationRoleStore(
         SourceProductionContext context,
+        IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
         string keyTypeName,
         string namespaceName)
     {
-        var content = _applicationRoleStoreGenerator.Generate(keyTypeName, namespaceName);
+        var content = _applicationRoleStoreGenerator.Generate(typePropertiesDict, keyTypeName, namespaceName);
 
         context.AddSource("ApplicationRoleStore.g.cs", SourceText.From(content, Encoding.UTF8));
     }

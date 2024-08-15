@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 using Microsoft.AspNetCore.Identity;
@@ -14,25 +11,27 @@ public abstract class IdentityRoleClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var standardProperties = GetStandardProperties(config.InsertOwnId);
-        var combined = CombineStandardWithCustom(standardProperties, propertyColumnTypeTriples);
-
         var sb = new StringBuilder();
         GenerateUsing(sb, config.KeyTypeName);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityRoleSql", "IIdentityRoleSql");
-        GenerateCreateSql(sb, config, combined);
-        GenerateUpdateSql(sb, config, combined);
+        GenerateCreateSql(sb, config, propertyColumnTypeTriples);
+        GenerateUpdateSql(sb, config, propertyColumnTypeTriples);
         GenerateDeleteSql(sb, config);
-        GenerateFindByIdSql(sb, config, combined);
-        GenerateFindByNameSql(sb, config, combined);
-        GenerateGetRolesSql(sb, config, combined);
+        GenerateFindByIdSql(sb, config, propertyColumnTypeTriples);
+        GenerateFindByNameSql(sb, config, propertyColumnTypeTriples);
+        GenerateGetRolesSql(sb, config, propertyColumnTypeTriples);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
     }
+
+    public override IList<PropertyColumnTypeTriple> GetAllProperties(
+        IEnumerable<PropertyColumnTypeTriple> customs,
+        bool insertOwnId) =>
+        GetStandardWithCombinedProperties(typeof(IdentityRole<>), insertOwnId, customs);
 
     protected abstract string ProcessIdentityRoleCreateSql(
         IdentityDapperConfiguration config,
@@ -125,11 +124,4 @@ public abstract class IdentityRoleClassGeneratorBase
             $@"        public string GetRolesSql {{ get; }} =
             @""{content}"";");
     }
-
-    private IList<(string PropertyName, string PropertyType)> GetStandardProperties(bool insertOwnId) =>
-        typeof(IdentityRole<>)
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(p => insertOwnId || !p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
-            .Select(p => (PropertyName: p.Name, PropertyType: p.PropertyType.Name))
-            .ToList();
 }

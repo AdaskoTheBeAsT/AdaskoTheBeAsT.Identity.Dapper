@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 using Microsoft.AspNetCore.Identity;
@@ -14,23 +11,25 @@ public abstract class IdentityUserClaimClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var standardProperties = GetStandardProperties();
-        var combined = CombineStandardWithCustom(standardProperties, propertyColumnTypeTriples);
-
         var sb = new StringBuilder();
         GenerateUsing(sb, config.KeyTypeName);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserClaimSql", "IIdentityUserClaimSql");
-        GenerateCreateSql(sb, config, combined);
+        GenerateCreateSql(sb, config, propertyColumnTypeTriples);
         GenerateDeleteSql(sb, config);
         GenerateGetByUserIdSql(sb, config);
-        GenerateReplaceSql(sb, config, combined);
+        GenerateReplaceSql(sb, config, propertyColumnTypeTriples);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
     }
+
+    public override IList<PropertyColumnTypeTriple> GetAllProperties(
+        IEnumerable<PropertyColumnTypeTriple> customs,
+        bool insertOwnId) =>
+        GetStandardWithCombinedProperties(typeof(IdentityUserClaim<>), insertOwnId, customs);
 
     protected abstract string ProcessIdentityUserClaimCreateSql(
         IdentityDapperConfiguration config,
@@ -88,11 +87,4 @@ public abstract class IdentityUserClaimClassGeneratorBase
             $@"        public string ReplaceSql {{ get; }} =
             @""{content}"";");
     }
-
-    private IList<(string PropertyName, string PropertyType)> GetStandardProperties() =>
-        typeof(IdentityUserClaim<>)
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(p => !p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
-            .Select(p => (PropertyName: p.Name, PropertyType: p.PropertyType.Name))
-            .ToList();
 }

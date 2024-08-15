@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
@@ -8,7 +9,10 @@ public class SqlServerApplicationUserOnlyStoreGenerator
     : IdentityStoreGeneratorBase,
         IApplicationUserOnlyStoreGenerator
 {
-    public string Generate(string keyTypeName, string namespaceName)
+    public string Generate(
+        IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+        string keyTypeName,
+        string namespaceName)
     {
         var sb = new StringBuilder();
         GenerateUsing(sb, keyTypeName);

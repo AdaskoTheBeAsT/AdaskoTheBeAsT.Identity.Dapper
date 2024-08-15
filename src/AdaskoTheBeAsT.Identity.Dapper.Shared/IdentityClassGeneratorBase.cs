@@ -1,13 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
+using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 
-public class IdentityClassGeneratorBase
+public abstract class IdentityClassGeneratorBase
+    : IIdentityClassGeneratorBase
 {
     private const string Normalized = "Normalized";
+
+    public abstract IList<PropertyColumnTypeTriple> GetAllProperties(
+        IEnumerable<PropertyColumnTypeTriple> customs,
+        bool insertOwnId);
 
     protected virtual void GenerateUsing(
         StringBuilder sb,
@@ -102,6 +110,15 @@ public class IdentityClassGeneratorBase
         return newPairs;
     }
 
+    protected IList<PropertyColumnTypeTriple> GetStandardWithCombinedProperties(
+        Type type,
+        bool insertOwnId,
+        IEnumerable<PropertyColumnTypeTriple> customs)
+    {
+        var standardProperties = GetStandardProperties(type, insertOwnId);
+        return CombineStandardWithCustom(standardProperties, customs);
+    }
+
     protected IList<PropertyColumnTypeTriple> CombineStandardWithCustom(
         IEnumerable<(string PropertyName, string PropertyType)> propertyInfos,
         IEnumerable<PropertyColumnTypeTriple> customs)
@@ -121,4 +138,15 @@ public class IdentityClassGeneratorBase
 
         return result;
     }
+
+    protected IList<(string PropertyName, string PropertyType)> GetStandardProperties(
+        Type type,
+        bool insertOwnId) =>
+        type
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Where(
+                p => ((type == typeof(IdentityRole<>) || type == typeof(IdentityUser<>)) && insertOwnId) ||
+                     !p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
+            .Select(p => (PropertyName: p.Name, PropertyType: p.PropertyType.Name))
+            .ToList();
 }

@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 using Microsoft.AspNetCore.Identity;
@@ -13,22 +11,24 @@ public abstract class IdentityUserTokenClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var standardProperties = GetStandardProperties();
-        var combined = CombineStandardWithCustom(standardProperties, propertyColumnTypeTriples);
-
         var sb = new StringBuilder();
         GenerateUsing(sb, config.KeyTypeName);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserTokenSql", "IIdentityUserTokenSql");
-        GenerateCreateSql(sb, config, combined);
+        GenerateCreateSql(sb, config, propertyColumnTypeTriples);
         GenerateDeleteSql(sb, config);
-        GenerateGetByUserIdSql(sb, config, combined);
+        GenerateGetByUserIdSql(sb, config, propertyColumnTypeTriples);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
     }
+
+    public override IList<PropertyColumnTypeTriple> GetAllProperties(
+        IEnumerable<PropertyColumnTypeTriple> customs,
+        bool insertOwnId) =>
+        GetStandardWithCombinedProperties(typeof(IdentityUserToken<>), insertOwnId, customs);
 
     protected abstract string ProcessIdentityUserTokenCreateSql(
         IdentityDapperConfiguration config,
@@ -73,10 +73,4 @@ public abstract class IdentityUserTokenClassGeneratorBase
             $@"        public string GetByUserIdSql {{ get; }} =
             @""{content}"";");
     }
-
-    private IList<(string PropertyName, string PropertyType)> GetStandardProperties() =>
-        typeof(IdentityUserToken<>)
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Select(p => (PropertyName: p.Name, PropertyType: p.PropertyType.Name))
-            .ToList();
 }

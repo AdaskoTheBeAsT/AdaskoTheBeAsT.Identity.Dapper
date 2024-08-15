@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
@@ -9,6 +10,7 @@ public class PostgreSqlApplicationUserStoreGenerator
         IApplicationUserStoreGenerator
 {
     public string Generate(
+        IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
         string keyTypeName,
         string namespaceName)
     {

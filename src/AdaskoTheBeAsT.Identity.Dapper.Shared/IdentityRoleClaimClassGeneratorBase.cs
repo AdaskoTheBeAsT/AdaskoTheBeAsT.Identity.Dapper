@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 using Microsoft.AspNetCore.Identity;
@@ -14,22 +11,24 @@ public abstract class IdentityRoleClaimClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var standardProperties = GetStandardProperties();
-        var combined = CombineStandardWithCustom(standardProperties, propertyColumnTypeTriples);
-
         var sb = new StringBuilder();
         GenerateUsing(sb, config.KeyTypeName);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityRoleClaimSql", "IIdentityRoleClaimSql");
-        GenerateCreateSql(sb, config, combined);
+        GenerateCreateSql(sb, config, propertyColumnTypeTriples);
         GenerateDeleteSql(sb, config);
         GenerateGetByRoleIdSql(sb, config);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
     }
+
+    public override IList<PropertyColumnTypeTriple> GetAllProperties(
+        IEnumerable<PropertyColumnTypeTriple> customs,
+        bool insertOwnId) =>
+        GetStandardWithCombinedProperties(typeof(IdentityRoleClaim<>), insertOwnId, customs);
 
     protected abstract string ProcessIdentityRoleClaimCreateSql(
         IdentityDapperConfiguration config,
@@ -71,11 +70,4 @@ public abstract class IdentityRoleClaimClassGeneratorBase
             $@"        public string GetByRoleIdSql {{ get; }} =
             @""{content}"";");
     }
-
-    private IList<(string PropertyName, string PropertyType)> GetStandardProperties() =>
-        typeof(IdentityRoleClaim<>)
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(p => !p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
-            .Select(p => (PropertyName: p.Name, PropertyType: p.PropertyType.Name))
-            .ToList();
 }

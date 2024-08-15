@@ -3,8 +3,9 @@ using System.Collections.Generic;
 namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 
 public interface IIdentityUserLoginClassGenerator
+    : IIdentityClassGeneratorBase
 {
     string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 }

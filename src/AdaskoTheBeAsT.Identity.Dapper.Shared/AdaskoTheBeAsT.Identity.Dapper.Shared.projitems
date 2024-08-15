@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IApplicationRoleStoreGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IApplicationUserOnlyStoreGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IApplicationUserStoreGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityClassGeneratorBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityRoleClaimClassGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\IIdentityRoleClassGenerator.cs" />
