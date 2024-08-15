@@ -11,12 +11,12 @@ public class PostgreSqlIdentityUserLoginClassGenerator
 {
     protected override string ProcessIdentityUserLoginCreateSql(
         string schemaPart,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"{s.ColumnName.ToLowerInvariant()}")))
-            .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $"@{s.PropertyName}")))
+            .Insert(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"{s.ColumnName.ToLowerInvariant()}")))
+            .Values(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(
                 $"INSERT INTO {schemaPart}AspNetUserLogins(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
             .RawSql;
@@ -37,13 +37,13 @@ public class PostgreSqlIdentityUserLoginClassGenerator
 
     protected override string ProcessIdentityUserLoginGetByUserIdSql(
         string schemaPart,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var list = new List<string>(propertyColumnPairs.Count);
-        for (var i = 0; i < propertyColumnPairs.Count; i++)
+        var list = new List<string>(propertyColumnTypeTriples.Count);
+        for (var i = 0; i < propertyColumnTypeTriples.Count; i++)
         {
-            list.Add($"{propertyColumnPairs[i].ColumnName.ToLowerInvariant()} AS \"\"{propertyColumnPairs[i].PropertyName}\"\"");
+            list.Add($"{propertyColumnTypeTriples[i].ColumnName.ToLowerInvariant()} AS \"\"{propertyColumnTypeTriples[i].PropertyName}\"\"");
         }
 
         return sqlBuilder
@@ -56,11 +56,11 @@ public class PostgreSqlIdentityUserLoginClassGenerator
 
     protected override string ProcessIdentityUserLoginGetByUserIdLoginProviderKeySql(
         string schemaPart,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var list = new List<string>(propertyColumnPairs.Count);
-        foreach (var localPair in propertyColumnPairs)
+        var list = new List<string>(propertyColumnTypeTriples.Count);
+        foreach (var localPair in propertyColumnTypeTriples)
         {
             list.Add($"{localPair.ColumnName.ToLowerInvariant()} AS \"\"{localPair.PropertyName}\"\"");
         }
@@ -77,11 +77,11 @@ public class PostgreSqlIdentityUserLoginClassGenerator
 
     protected override string ProcessIdentityUserLoginGetByLoginProviderKeySql(
         string schemaPart,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var list = new List<string>(propertyColumnPairs.Count);
-        foreach (var localPair in propertyColumnPairs)
+        var list = new List<string>(propertyColumnTypeTriples.Count);
+        foreach (var localPair in propertyColumnTypeTriples)
         {
             list.Add($"{localPair.ColumnName.ToLowerInvariant()} AS \"\"{localPair.PropertyName}\"\"");
         }

@@ -11,12 +11,12 @@ public class SqliteIdentityUserRoleClassGenerator
 {
     protected override string ProcessIdentityUserRoleCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
-            .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $"@{s.PropertyName}")))
+            .Insert(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"[{s.ColumnName}]")))
+            .Values(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(
                 $"INSERT INTO {config.SchemaPart}AspNetUserRoles(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
             .RawSql;
@@ -36,11 +36,11 @@ public class SqliteIdentityUserRoleClassGenerator
 
     protected override string ProcessIdentityUserRoleGetByUserIdRoleIdSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var list = new List<string>(propertyColumnPairs.Count);
-        foreach (var localPair in propertyColumnPairs)
+        var list = new List<string>(propertyColumnTypeTriples.Count);
+        foreach (var localPair in propertyColumnTypeTriples)
         {
             list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
         }
@@ -56,7 +56,7 @@ public class SqliteIdentityUserRoleClassGenerator
 
     protected override string ProcessIdentityUserRoleGetCount(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
@@ -69,7 +69,7 @@ public class SqliteIdentityUserRoleClassGenerator
 
     protected override string ProcessIdentityUserRoleGetRoleNamesByUserId(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var template = config.SkipNormalized
             ? $"SELECT r.Name\r\nFROM {config.SchemaPart}AspNetRoles r/**innerjoin2**//**where2**/;"

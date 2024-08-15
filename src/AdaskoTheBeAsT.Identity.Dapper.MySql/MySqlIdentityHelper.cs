@@ -57,7 +57,7 @@ public class MySqlIdentityHelper
 /**insert**/)
 VALUES(
 /**values**/);
-SELECT id;";
+SELECT @Id AS Id;";
                 }
 
                 return $@"SET id=UUID();
@@ -65,9 +65,9 @@ INSERT INTO {tableName}(
 Id,
 /**insert**/)
 VALUES(
-id
+id,
 /**values**/);
-SELECT id;";
+SELECT id AS Id;";
             }
             case "int":
             case "Int32":
@@ -85,7 +85,7 @@ SELECT id;";
 /**insert**/)
 VALUES(
 /**values**/);
-SELECT CAST(LAST_INSERT_ID() AS UNSIGNED INTEGER);";
+SELECT CAST(LAST_INSERT_ID() AS UNSIGNED INTEGER) AS Id;";
             case "string":
             case "String":
             case "System.String":
@@ -96,7 +96,7 @@ SELECT CAST(LAST_INSERT_ID() AS UNSIGNED INTEGER);";
 /**insert**/)
 VALUES(
 /**values**/);
-SELECT @Id;";
+SELECT @Id AS Id;";
                 }
 
                 return $@"SET id=UUID();
@@ -106,7 +106,7 @@ Id,
 VALUES(
 id,
 /**values**/);
-SELECT @Id;";
+SELECT id AS Id;";
             }
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));

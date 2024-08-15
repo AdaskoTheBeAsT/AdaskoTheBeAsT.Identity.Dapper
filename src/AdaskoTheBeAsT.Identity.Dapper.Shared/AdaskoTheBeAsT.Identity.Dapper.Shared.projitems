@@ -39,7 +39,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)IdentityUserRoleClaimClassGeneratorBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IdentityUserRoleClassGeneratorBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IdentityUserTokenClassGeneratorBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)PropertyColumnPair.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PropertyColumnTypeTriple.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SourceGeneratorHelperBase.cs" />
   </ItemGroup>
 </Project>

@@ -7,22 +7,22 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
         : IIdentityUserRoleClaimSql
     {
         public string GetRoleClaimsByUserIdSql { get; } =
-            @"SELECT DISTINCT rc.ClaimType AS ""Type"",
-         rc.ClaimValue AS ""Value""
+            @"SELECT DISTINCT rc.ClaimType AS Type,
+rc.ClaimValue AS Value
 FROM dbo.AspNetRoleClaims rc
 INNER JOIN dbo.AspNetUserRoles ur ON ur.RoleId=rc.RoleId
-WHERE ur.UserId=@Id;";
+WHERE ur.UserId=:Id;";
 
         public string GetUserAndRoleClaimsByUserIdSql { get; } =
-            @"SELECT uc.ClaimType AS ""Type""
-      ,uc.ClaimValue AS ""Value""
+            @"SELECT uc.ClaimType AS Type
+      ,uc.ClaimValue AS Value
 FROM dbo.AspNetUserClaims uc
-WHERE uc.userid=@Id
+WHERE uc.UserId=:Id
 UNION
-SELECT rc.ClaimType AS ""Type""
-      ,rc.ClaimValue AS ""Value""
+SELECT rc.ClaimType AS Type
+      ,rc.ClaimValue AS Value
 FROM dbo.AspNetRoleClaims rc
 INNER JOIN dbo.AspNetUserRoles ur ON ur.RoleId=rc.RoleId
-WHERE ur.userid=@Id";
+WHERE ur.UserId=:Id";
     }
 }

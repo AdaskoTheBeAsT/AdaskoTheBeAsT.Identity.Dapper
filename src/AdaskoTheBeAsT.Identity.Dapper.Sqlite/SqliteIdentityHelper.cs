@@ -50,6 +50,25 @@ public class SqliteIdentityHelper
         {
             case "Guid":
             case "System.Guid":
+                if (insertOwnId)
+                {
+                    return $@"INSERT INTO {tableName}(
+    /**insert**/)
+VALUES(
+    /**values**/);
+SELECT LAST_INSERT_ROWID() AS Id;";
+                }
+
+                return $@"WITH new_id AS (
+    SELECT lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || '4' || substr(hex(randomblob(2)), 2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)), 2) || '-' || hex(randomblob(6))) AS id
+)
+INSERT INTO {tableName}(
+    Id,
+    /**insert**/)
+VALUES(
+    (SELECT id FROM new_id),
+    /**values**/)
+RETURNING (SELECT id FROM new_id) AS Id;";
             case "int":
             case "Int32":
             case "System.Int32":
@@ -70,13 +89,25 @@ SELECT LAST_INSERT_ROWID() AS Id;";
             case "string":
             case "String":
             case "System.String":
-                return $@"INSERT INTO {tableName}(
-Id,
-/**insert**/)
+                if (insertOwnId)
+                {
+                    return $@"INSERT INTO {tableName}(
+    /**insert**/)
 VALUES(
-@Id,
-/**values**/);
-SELECT @Id;";
+    /**values**/);
+SELECT LAST_INSERT_ROWID() AS Id;";
+                }
+
+                return $@"WITH new_id AS (
+    SELECT lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || '4' || substr(hex(randomblob(2)), 2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)), 2) || '-' || hex(randomblob(6))) AS id
+)
+INSERT INTO {tableName}(
+    Id,
+    /**insert**/)
+VALUES(
+    (SELECT id FROM new_id),
+    /**values**/)
+RETURNING (SELECT id FROM new_id) AS Id;";
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));
         }

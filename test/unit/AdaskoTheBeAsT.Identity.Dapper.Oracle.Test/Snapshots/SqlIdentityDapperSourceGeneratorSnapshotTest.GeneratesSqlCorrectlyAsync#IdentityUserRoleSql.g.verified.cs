@@ -8,34 +8,34 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
     {
         public string CreateSql { get; } =
             @"INSERT INTO dbo.AspNetUserRoles(
-userid
-,roleid)
+UserId
+,RoleId)
 VALUES(
-@UserId
-,@RoleId);";
+:UserId
+,:RoleId);";
 
         public string DeleteSql { get; } =
             @"DELETE FROM dbo.AspNetUserRoles
-WHERE UserId=@UserId
-  AND RoleId=@RoleId;";
+WHERE UserId=:UserId
+  AND RoleId=:RoleId;";
 
         public string GetByUserIdRoleIdSql { get; } =
-            @"SELECT userid AS ""UserId""
-,roleid AS ""RoleId""
+            @"SELECT UserId AS UserId
+,RoleId AS RoleId
 FROM dbo.AspNetUserRoles
-WHERE UserId=@UserId
-  AND RoleId=@RoleId;";
+WHERE UserId=:UserId
+  AND RoleId=:RoleId;";
 
         public string GetCountSql { get; } =
             @"SELECT COUNT(*)
 FROM dbo.AspNetUserRoles
-WHERE UserId=@UserId
-  AND RoleId=@RoleId;";
+WHERE UserId=:UserId
+  AND RoleId=:RoleId;";
 
         public string GetRoleNamesByUserIdSql { get; } =
-            @"SELECT r.NormalizedName AS ""NormalizedName""
+            @"SELECT r.NormalizedName
 FROM dbo.AspNetRoles r
 INNER JOIN dbo.AspNetUserRoles ur ON r.Id=ur.RoleId
-WHERE ur.UserId=@UserId;";
+WHERE ur.UserId=:UserId;";
     }
 }

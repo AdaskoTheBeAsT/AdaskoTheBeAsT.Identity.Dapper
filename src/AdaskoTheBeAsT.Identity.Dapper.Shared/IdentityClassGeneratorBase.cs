@@ -9,7 +9,9 @@ public class IdentityClassGeneratorBase
 {
     private const string Normalized = "Normalized";
 
-    protected virtual void GenerateUsing(StringBuilder sb)
+    protected virtual void GenerateUsing(
+        StringBuilder sb,
+        string keyTypeName)
     {
         sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper.Abstractions;");
         sb.AppendLine();
@@ -48,68 +50,73 @@ public class IdentityClassGeneratorBase
             .Replace(Normalized.ToLowerInvariant(), string.Empty);
     }
 
-    protected IList<PropertyColumnPair> GetListWithoutNormalized(
+    protected IList<PropertyColumnTypeTriple> GetListWithoutNormalized(
         bool skipNormalized,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         if (!skipNormalized)
         {
-            return propertyColumnPairs;
+            return propertyColumnTypeTriples;
         }
 
-        var newPairs = new List<PropertyColumnPair>();
-        foreach (var propertyColumnPair in propertyColumnPairs)
+        var newPairs = new List<PropertyColumnTypeTriple>();
+        foreach (var propertyColumnTypeTriple in propertyColumnTypeTriples)
         {
-            if (IsNormalizedName(propertyColumnPair.ColumnName))
+            if (IsNormalizedName(propertyColumnTypeTriple.ColumnName))
             {
                 continue;
             }
 
-            newPairs.Add(new PropertyColumnPair(propertyColumnPair.PropertyName, propertyColumnPair.ColumnName));
+            newPairs.Add(
+                new PropertyColumnTypeTriple(
+                    propertyColumnTypeTriple.PropertyName,
+                    propertyColumnTypeTriple.PropertyType,
+                    propertyColumnTypeTriple.ColumnName));
         }
 
         return newPairs;
     }
 
-    protected IList<PropertyColumnPair> GetNormalizedSelectList(
+    protected IList<PropertyColumnTypeTriple> GetNormalizedSelectList(
         bool skipNormalized,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         if (!skipNormalized)
         {
-            return propertyColumnPairs;
+            return propertyColumnTypeTriples;
         }
 
-        var newPairs = new List<PropertyColumnPair>();
-        foreach (var propertyColumnPair in propertyColumnPairs)
+        var newPairs = new List<PropertyColumnTypeTriple>();
+        foreach (var propertyColumnTypeTriple in propertyColumnTypeTriples)
         {
-            var columnName = IsNormalizedName(propertyColumnPair.ColumnName)
-                ? TrimNormalizedName(propertyColumnPair.ColumnName)
-                : propertyColumnPair.ColumnName;
+            var columnName = IsNormalizedName(propertyColumnTypeTriple.ColumnName)
+                ? TrimNormalizedName(propertyColumnTypeTriple.ColumnName)
+                : propertyColumnTypeTriple.ColumnName;
             newPairs.Add(
-                new PropertyColumnPair(
-                    propertyColumnPair.PropertyName,
+                new PropertyColumnTypeTriple(
+                    propertyColumnTypeTriple.PropertyName,
+                    propertyColumnTypeTriple.PropertyType,
                     columnName));
         }
 
         return newPairs;
     }
 
-    protected IList<PropertyColumnPair> CombineStandardWithCustom(
-        IEnumerable<string> propertyNames,
-        IEnumerable<PropertyColumnPair> customs)
+    protected IList<PropertyColumnTypeTriple> CombineStandardWithCustom(
+        IEnumerable<(string PropertyName, string PropertyType)> propertyInfos,
+        IEnumerable<PropertyColumnTypeTriple> customs)
     {
         var dict = customs.ToDictionary(
             i => i.PropertyName,
-            i => i.ColumnName,
+            i => new { i.PropertyType, i.ColumnName},
             StringComparer.OrdinalIgnoreCase);
-        var result = new List<PropertyColumnPair>();
-        foreach (var propertyName in propertyNames)
+        var result = new List<PropertyColumnTypeTriple>();
+        foreach (var propertyInfo in propertyInfos)
         {
             result.Add(
-                dict.TryGetValue(propertyName, out var columnName)
-                    ? new PropertyColumnPair(propertyName, columnName)
-                    : new PropertyColumnPair(propertyName, propertyName));
+                dict.TryGetValue(propertyInfo.PropertyName, out var info)
+                    ? new PropertyColumnTypeTriple(propertyInfo.PropertyName, info.PropertyType, info.ColumnName)
+                    : new PropertyColumnTypeTriple(propertyInfo.PropertyName, propertyInfo.PropertyType, propertyInfo.PropertyName));
         }
 
         return result;

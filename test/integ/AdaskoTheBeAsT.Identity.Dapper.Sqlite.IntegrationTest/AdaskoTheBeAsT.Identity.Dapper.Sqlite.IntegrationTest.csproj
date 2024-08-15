@@ -16,11 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="1.4.0" />
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
     <PackageReference Include="dbup-sqlite" Version="6.0.0-beta.3" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.8" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
@@ -33,8 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\AdaskoTheBeAsT.Identity.Dapper.Sqlite\AdaskoTheBeAsT.Identity.Dapper.Sqlite.csproj" />
-    <ProjectReference Include="..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
+    <!--<ProjectReference Include="..\src\AdaskoTheBeAsT.Identity.Dapper.Sqlite\AdaskoTheBeAsT.Identity.Dapper.Sqlite.csproj" />
+    <ProjectReference Include="..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />-->
   </ItemGroup>
 
 </Project>

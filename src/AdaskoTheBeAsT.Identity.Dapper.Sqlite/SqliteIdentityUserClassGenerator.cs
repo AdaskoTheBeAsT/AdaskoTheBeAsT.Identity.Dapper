@@ -19,12 +19,12 @@ public class SqliteIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var template = _identityHelper.GetInsertTemplate(
             $"{config.SchemaPart}AspNetUsers",
             config.KeyTypeName,
@@ -38,12 +38,12 @@ public class SqliteIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserUpdateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string>();
         foreach (var localPair in localPairs)
         {
@@ -63,12 +63,12 @@ public class SqliteIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserFindByIdSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { nameof(IdentityUser.Id) };
         foreach (var localPair in localPairs)
         {
@@ -85,12 +85,12 @@ public class SqliteIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserFindByNameSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { nameof(IdentityUser.Id) };
         for (var i = 0; i < localPairs.Count; i++)
         {
@@ -111,12 +111,12 @@ public class SqliteIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserFindByEmailSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { nameof(IdentityUser.Id) };
         foreach (var localPair in localPairs)
         {
@@ -137,12 +137,12 @@ public class SqliteIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserGetUsersForClaimSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { $"u.{nameof(IdentityUser.Id)}" };
         foreach (var localPair in localPairs)
         {
@@ -161,12 +161,12 @@ public class SqliteIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserGetUsersInRoleSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { $"u.{nameof(IdentityUser.Id)}" };
         foreach (var localPair in localPairs)
         {
@@ -189,12 +189,12 @@ public class SqliteIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserGetUsersSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { $"u.{nameof(IdentityUser.Id)}" };
         foreach (var localPair in localPairs)
         {

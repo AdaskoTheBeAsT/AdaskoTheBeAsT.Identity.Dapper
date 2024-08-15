@@ -45,7 +45,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     /// </summary>
     public IdentityErrorDescriber ErrorDescriber { get; set; }
 
-    public IQueryable<TRole> Roles
+    public virtual IQueryable<TRole> Roles
     {
         get
         {
@@ -66,7 +66,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     /// <param name="role">The role to create in the store.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that represents the <see cref="T:Microsoft.AspNetCore.Identity.IdentityResult" /> of the asynchronous query.</returns>
-    public async Task<IdentityResult> CreateAsync(
+    public virtual async Task<IdentityResult> CreateAsync(
         TRole role,
         CancellationToken cancellationToken)
     {
@@ -95,7 +95,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     /// <param name="role">The role to update in the store.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that represents the <see cref="T:Microsoft.AspNetCore.Identity.IdentityResult" /> of the asynchronous query.</returns>
-    public async Task<IdentityResult> UpdateAsync(
+    public virtual async Task<IdentityResult> UpdateAsync(
         TRole role,
         CancellationToken cancellationToken)
     {
@@ -124,7 +124,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     /// <param name="role">The role to delete from the store.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that represents the <see cref="T:Microsoft.AspNetCore.Identity.IdentityResult" /> of the asynchronous query.</returns>
-    public async Task<IdentityResult> DeleteAsync(
+    public virtual async Task<IdentityResult> DeleteAsync(
         TRole role,
         CancellationToken cancellationToken)
     {
@@ -231,7 +231,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     /// <param name="roleId">The role ID to look for.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that result of the look up.</returns>
-    public async Task<TRole?> FindByIdAsync(
+    public virtual async Task<TRole?> FindByIdAsync(
         string roleId,
         CancellationToken cancellationToken)
     {
@@ -250,7 +250,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     /// <param name="normalizedRoleName">The normalized role name to look for.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that result of the look up.</returns>
-    public async Task<TRole?> FindByNameAsync(
+    public virtual async Task<TRole?> FindByNameAsync(
         string normalizedRoleName,
         CancellationToken cancellationToken)
     {
@@ -316,7 +316,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     /// <param name="role">The role whose claims should be retrieved.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that contains the claims granted to a role.</returns>
-    public async Task<IList<Claim>> GetClaimsAsync(
+    public virtual async Task<IList<Claim>> GetClaimsAsync(
         TRole role,
         CancellationToken cancellationToken = default)
     {
@@ -337,7 +337,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     /// <param name="claim">The claim to add to the role.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public async Task AddClaimAsync(
+    public virtual async Task AddClaimAsync(
         TRole role,
         Claim claim,
         CancellationToken cancellationToken = default)
@@ -358,7 +358,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     /// <param name="claim">The claim to remove from the role.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public async Task RemoveClaimAsync(
+    public virtual async Task RemoveClaimAsync(
         TRole role,
         Claim claim,
         CancellationToken cancellationToken = default)

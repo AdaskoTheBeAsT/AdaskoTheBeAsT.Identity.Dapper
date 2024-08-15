@@ -19,12 +19,12 @@ public class PostgreSqlIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var template = _identityHelper.GetInsertTemplate(
             $"{config.SchemaPart}AspNetUsers",
             config.KeyTypeName,
@@ -38,12 +38,12 @@ public class PostgreSqlIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserUpdateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string>();
         foreach (var localPair in localPairs)
         {
@@ -63,12 +63,12 @@ public class PostgreSqlIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserFindByIdSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string>();
 
         if (!config.InsertOwnId)
@@ -91,12 +91,12 @@ public class PostgreSqlIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserFindByNameSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string>();
 
         if (!config.InsertOwnId)
@@ -123,12 +123,12 @@ public class PostgreSqlIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserFindByEmailSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string>();
 
         if (!config.InsertOwnId)
@@ -154,12 +154,12 @@ public class PostgreSqlIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserGetUsersForClaimSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string>();
 
         if (!config.InsertOwnId)
@@ -183,12 +183,12 @@ public class PostgreSqlIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserGetUsersInRoleSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string>();
 
         if (!config.InsertOwnId)
@@ -216,12 +216,12 @@ public class PostgreSqlIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserGetUsersSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string>();
 
         if (!config.InsertOwnId)

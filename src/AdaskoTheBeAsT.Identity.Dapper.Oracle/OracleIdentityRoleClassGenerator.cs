@@ -19,18 +19,18 @@ public class OracleIdentityRoleClassGenerator
 
     protected override string ProcessIdentityRoleCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var template = _identityHelper.GetInsertTemplate(
             $"{config.SchemaPart}AspNetRoles",
             config.KeyTypeName,
             config.InsertOwnId);
         return sqlBuilder
-            .Insert(string.Join("\r\n,", localPairs.Select(s => $"[{s.ColumnName}]")))
+            .Insert(string.Join("\r\n,", localPairs.Select(s => $"{s.ColumnName}")))
             .Values(string.Join("\r\n,", localPairs.Select(s => $":{s.PropertyName}")))
             .AddTemplate(template)
             .RawSql;
@@ -38,16 +38,16 @@ public class OracleIdentityRoleClassGenerator
 
     protected override string ProcessIdentityRoleUpdateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string>();
         foreach (var localPair in localPairs)
         {
-            list.Add($"[{localPair.ColumnName}]=:{localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName}=:{localPair.PropertyName}");
         }
 
         return sqlBuilder
@@ -63,16 +63,16 @@ public class OracleIdentityRoleClassGenerator
 
     protected override string ProcessIdentityRoleFindByIdSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { nameof(IdentityRole.Id) };
         foreach (var localPair in localPairs)
         {
-            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName} AS {localPair.PropertyName}");
         }
 
         return sqlBuilder
@@ -85,16 +85,16 @@ public class OracleIdentityRoleClassGenerator
 
     protected override string ProcessIdentityRoleFindByNameSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { nameof(IdentityRole.Id) };
         foreach (var localPair in localPairs)
         {
-            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName} AS {localPair.PropertyName}");
         }
 
         var where = config.SkipNormalized
@@ -111,16 +111,16 @@ public class OracleIdentityRoleClassGenerator
 
     protected override string ProcessIdentityRoleGetRolesSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { nameof(IdentityRole.Id) };
         foreach (var localPair in localPairs)
         {
-            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName} AS {localPair.PropertyName}");
         }
 
         return sqlBuilder

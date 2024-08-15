@@ -13,13 +13,13 @@ public abstract class IdentityUserTokenClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnPair> propertyColumnPairs)
+        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var standardProperties = GetStandardPropertyNames();
-        var combined = CombineStandardWithCustom(standardProperties, propertyColumnPairs);
+        var standardProperties = GetStandardProperties();
+        var combined = CombineStandardWithCustom(standardProperties, propertyColumnTypeTriples);
 
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, config.KeyTypeName);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserTokenSql", "IIdentityUserTokenSql");
         GenerateCreateSql(sb, config, combined);
@@ -32,20 +32,20 @@ public abstract class IdentityUserTokenClassGeneratorBase
 
     protected abstract string ProcessIdentityUserTokenCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserTokenDeleteSql(IdentityDapperConfiguration config);
 
     protected abstract string ProcessIdentityUserTokenGetByUserIdSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     private void GenerateCreateSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserTokenCreateSql(config, propertyColumnPairs);
+        var content = ProcessIdentityUserTokenCreateSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");
@@ -66,17 +66,17 @@ public abstract class IdentityUserTokenClassGeneratorBase
     private void GenerateGetByUserIdSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserTokenGetByUserIdSql(config, propertyColumnPairs);
+        var content = ProcessIdentityUserTokenGetByUserIdSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string GetByUserIdSql {{ get; }} =
             @""{content}"";");
     }
 
-    private IList<string> GetStandardPropertyNames() =>
+    private IList<(string PropertyName, string PropertyType)> GetStandardProperties() =>
         typeof(IdentityUserToken<>)
             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Select(p => p.Name)
+            .Select(p => (PropertyName: p.Name, PropertyType: p.PropertyType.Name))
             .ToList();
 }

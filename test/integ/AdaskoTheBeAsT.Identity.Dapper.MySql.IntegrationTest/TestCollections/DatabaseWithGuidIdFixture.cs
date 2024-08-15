@@ -1,6 +1,6 @@
 using AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest.Util;
+using Dapper;
 using DbUp;
-using MySql.Data.MySqlClient;
 using Testcontainers.MySql;
 using Xunit;
 
@@ -17,11 +17,13 @@ public sealed class DatabaseWithGuidIdFixture
             .WithImage("mysql:9.0.1")
             .WithDatabase(DbName)
             .WithExposedPort(33060)
+            .WithUsername("root")
             .WithPassword("TestPass123!")
             .Build();
 
     public DatabaseWithGuidIdFixture()
     {
+        MySqlDapperConfig.ConfigureTypeHandlers();
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
         InitializeAsync().GetAwaiter().GetResult();
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
@@ -42,7 +44,7 @@ public sealed class DatabaseWithGuidIdFixture
 #pragma warning restore SCS0018
             ConnectionString = _mySqlContainer.GetConnectionString();
             var upgradeEngineBuilder = DeployChanges.To
-                .MySqlDatabase(ConnectionString, "dbo")
+                .MySqlDatabase(ConnectionString, "WithoutNormalizedAspNetIdentityGuid")
                 .WithScript(
                     "Script_000001_Init", content)
                 .LogTo(TestOutputHelperAdapter);

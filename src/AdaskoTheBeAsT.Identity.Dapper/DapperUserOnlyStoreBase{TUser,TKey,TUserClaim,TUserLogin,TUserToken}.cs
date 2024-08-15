@@ -57,7 +57,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// </summary>
     public IdentityErrorDescriber ErrorDescriber { get; set; }
 
-    public IQueryable<TUser> Users
+    public virtual IQueryable<TUser> Users
     {
         get
         {
@@ -182,7 +182,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user to create.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing the <see cref="T:Microsoft.AspNetCore.Identity.IdentityResult" /> of the creation operation.</returns>
-    public async Task<IdentityResult> CreateAsync(
+    public virtual async Task<IdentityResult> CreateAsync(
         TUser user,
         CancellationToken cancellationToken)
     {
@@ -211,7 +211,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user to update.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing the <see cref="T:Microsoft.AspNetCore.Identity.IdentityResult" /> of the update operation.</returns>
-    public async Task<IdentityResult> UpdateAsync(
+    public virtual async Task<IdentityResult> UpdateAsync(
         TUser user,
         CancellationToken cancellationToken)
     {
@@ -240,7 +240,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user to delete.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing the <see cref="T:Microsoft.AspNetCore.Identity.IdentityResult" /> of the update operation.</returns>
-    public async Task<IdentityResult> DeleteAsync(
+    public virtual async Task<IdentityResult> DeleteAsync(
         TUser user,
         CancellationToken cancellationToken)
     {
@@ -271,7 +271,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <returns>
     /// The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing the user matching the specified <paramref name="userId" /> if it exists.
     /// </returns>
-    public async Task<TUser?> FindByIdAsync(
+    public virtual async Task<TUser?> FindByIdAsync(
         string userId,
         CancellationToken cancellationToken)
     {
@@ -314,7 +314,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <returns>
     /// The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing the user matching the specified <paramref name="normalizedUserName" /> if it exists.
     /// </returns>
-    public async Task<TUser?> FindByNameAsync(
+    public virtual async Task<TUser?> FindByNameAsync(
         string normalizedUserName,
         CancellationToken cancellationToken)
     {
@@ -384,7 +384,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user whose claims should be retrieved.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that contains the claims granted to a user.</returns>
-    public async Task<IList<Claim>> GetClaimsAsync(
+    public virtual async Task<IList<Claim>> GetClaimsAsync(
         TUser user,
         CancellationToken cancellationToken)
     {
@@ -405,7 +405,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="claims">The claim to add to the user.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public async Task AddClaimsAsync(
+    public virtual async Task AddClaimsAsync(
         TUser user,
         IEnumerable<Claim> claims,
         CancellationToken cancellationToken)
@@ -430,7 +430,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="newClaim">The new claim replacing the <paramref name="claim" />.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public async Task ReplaceClaimAsync(
+    public virtual async Task ReplaceClaimAsync(
         TUser user,
         Claim claim,
         Claim newClaim,
@@ -459,7 +459,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="claims">The claim to remove.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public async Task RemoveClaimsAsync(
+    public virtual async Task RemoveClaimsAsync(
         TUser user,
         IEnumerable<Claim> claims,
         CancellationToken cancellationToken)
@@ -483,7 +483,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="login">The login to add to the user.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public async Task AddLoginAsync(
+    public virtual async Task AddLoginAsync(
         TUser user,
         UserLoginInfo login,
         CancellationToken cancellationToken)
@@ -503,7 +503,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="providerKey">The key provided by the <paramref name="loginProvider" /> to identify a user.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public async Task RemoveLoginAsync(
+    public virtual async Task RemoveLoginAsync(
         TUser user,
         string loginProvider,
         string providerKey,
@@ -529,7 +529,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <returns>
     /// The <see cref="T:System.Threading.Tasks.Task" /> for the asynchronous operation, containing a list of <see cref="T:Microsoft.AspNetCore.Identity.UserLoginInfo" /> for the specified <paramref name="user" />, if any.
     /// </returns>
-    public async Task<IList<UserLoginInfo>> GetLoginsAsync(
+    public virtual async Task<IList<UserLoginInfo>> GetLoginsAsync(
         TUser user,
         CancellationToken cancellationToken)
     {
@@ -691,7 +691,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <returns>
     /// The task object containing the results of the asynchronous lookup operation, the user if any associated with the specified normalized email address.
     /// </returns>
-    public async Task<TUser?> FindByEmailAsync(
+    public virtual async Task<TUser?> FindByEmailAsync(
         string normalizedEmail,
         CancellationToken cancellationToken)
     {
@@ -1015,7 +1015,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <returns>
     /// The <see cref="T:System.Threading.Tasks.Task" /> contains a list of users, if any, that contain the specified claim.
     /// </returns>
-    public async Task<IList<TUser>> GetUsersForClaimAsync(
+    public virtual async Task<IList<TUser>> GetUsersForClaimAsync(
         Claim claim,
         CancellationToken cancellationToken)
     {
@@ -1307,7 +1307,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="userId">The user's id.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The user if it exists.</returns>
-    protected async Task<TUser?> FindUserAsync(
+    protected virtual async Task<TUser?> FindUserAsync(
         TKey userId,
         CancellationToken cancellationToken)
     {
@@ -1328,7 +1328,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="providerKey">The key provided by the <paramref name="loginProvider" /> to identify a user.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The user login if it exists.</returns>
-    protected async Task<TUserLogin?> FindUserLoginAsync(
+    protected virtual async Task<TUserLogin?> FindUserLoginAsync(
         TKey userId,
         string loginProvider,
         string providerKey,
@@ -1355,7 +1355,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="providerKey">The key provided by the <paramref name="loginProvider" /> to identify a user.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The user login if it exists.</returns>
-    protected async Task<TUserLogin?> FindUserLoginAsync(
+    protected virtual async Task<TUserLogin?> FindUserLoginAsync(
         string loginProvider,
         string providerKey,
         CancellationToken cancellationToken)
@@ -1392,7 +1392,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="name">The name of the token.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The user token if it exists.</returns>
-    protected async Task<TUserToken?> FindTokenAsync(
+    protected virtual async Task<TUserToken?> FindTokenAsync(
         TUser user,
         string loginProvider,
         string name,
@@ -1412,7 +1412,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// </summary>
     /// <param name="token">The token to be added.</param>
     /// <returns></returns>
-    protected async Task AddUserTokenAsync(TUserToken token)
+    protected virtual async Task AddUserTokenAsync(TUserToken token)
     {
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
@@ -1427,7 +1427,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// </summary>
     /// <param name="token">The token to be removed.</param>
     /// <returns></returns>
-    protected async Task RemoveUserTokenAsync(TUserToken token)
+    protected virtual async Task RemoveUserTokenAsync(TUserToken token)
     {
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();

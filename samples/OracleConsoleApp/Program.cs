@@ -8,16 +8,7 @@ internal static class Program
 {
     private static void Main()
     {
-        SqlMapper.RemoveTypeMap(typeof(Guid));
-        SqlMapper.RemoveTypeMap(typeof(Guid?));
-        SqlMapper.AddTypeHandler(typeof(Guid), new OracleGuidTypeHandler(
-            p =>
-            {
-                if (p is OracleParameter oracleParameter)
-                {
-                    oracleParameter.OracleDbType = OracleDbType.Raw;
-                }
-            }));
+        OracleDapperConfig.ConfigureTypeHandlers(BooleanAs.Char);
         var connStr = "Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521)))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=XEPDB1)));User Id=mydeveloper;Password=mypassword;";
         using (var conn = new OracleConnection(connStr))
         {

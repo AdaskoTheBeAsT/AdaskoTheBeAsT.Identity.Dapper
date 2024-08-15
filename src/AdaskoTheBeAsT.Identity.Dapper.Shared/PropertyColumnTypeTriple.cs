@@ -1,16 +1,20 @@
 namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 
-public class PropertyColumnPair
+public class PropertyColumnTypeTriple
 {
-    public PropertyColumnPair(
+    public PropertyColumnTypeTriple(
         string propertyName,
+        string propertyType,
         string columnName)
     {
         PropertyName = propertyName;
+        PropertyType = propertyType;
         ColumnName = columnName;
     }
 
     public string PropertyName { get; set; }
+
+    public string PropertyType { get; set; }
 
     public string ColumnName { get; set; }
 }

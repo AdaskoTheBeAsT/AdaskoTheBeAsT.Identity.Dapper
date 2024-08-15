@@ -8,26 +8,18 @@ public class MySqlApplicationRoleStoreGenerator
     : IdentityStoreGeneratorBase,
         IApplicationRoleStoreGenerator
 {
-    private readonly IIdentityHelper _identityHelper;
-
-    public MySqlApplicationRoleStoreGenerator()
-    {
-        _identityHelper = new MySqlIdentityHelper();
-    }
-
     public string Generate(
         string keyTypeName,
         string namespaceName)
     {
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, keyTypeName);
         GenerateNamespaceStart(sb, namespaceName);
         GenerateClassStart(
             sb,
             "ApplicationRoleStore",
             $"DapperRoleStoreBase<ApplicationRole, {keyTypeName}, ApplicationRoleClaim>");
         GenerateConstructor(sb);
-        GenerateCreateImpl(sb, keyTypeName);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
@@ -45,24 +37,5 @@ public class MySqlApplicationRoleStoreGenerator
                 new IdentityRoleClaimSql())
         {
         }");
-    }
-
-    private void GenerateCreateImpl(
-        StringBuilder sb,
-        string keyTypeName)
-    {
-        if (!_identityHelper.NumberNameSet.Contains(keyTypeName))
-        {
-            return;
-        }
-
-        sb.AppendLine(
-            $@"        protected override async Task CreateImplAsync(
-            IDbConnection connection,
-            TRole role,
-            CancellationToken cancellationToken)
-        {{
-            role.Id = ({keyTypeName})(await connection.QueryFirstAsync<ulong>(IdentityRoleSql.CreateSql, role).ConfigureAwait(false));
-        }}");
     }
 }

@@ -11,7 +11,7 @@ public class SqlServerApplicationRoleStoreGenerator
     public string Generate(string keyTypeName, string namespaceName)
     {
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, keyTypeName);
         GenerateNamespaceStart(sb, namespaceName);
         GenerateClassStart(
             sb,

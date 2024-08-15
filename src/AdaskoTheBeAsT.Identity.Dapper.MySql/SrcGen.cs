@@ -1,14 +1,15 @@
+using AdaskoTheBeAsT.Identity.Dapper.MySql;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 using Microsoft.CodeAnalysis;
 
-namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
+namespace Atb.MySql;
 
 [Generator]
-public class MySqlIdentityDapperSourceGenerator
+public class SrcGen
     : IdentityDapperSourceGeneratorBase,
         IIncrementalGenerator
 {
-    public MySqlIdentityDapperSourceGenerator()
+    public SrcGen()
         : base(new MySqlSourceGenerationHelper())
     {
     }

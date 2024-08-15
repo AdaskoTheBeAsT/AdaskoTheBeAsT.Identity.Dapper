@@ -10,7 +10,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
     <PackageReference Include="Verify.SourceGenerators" Version="2.3.0" />
-    <PackageReference Include="Verify.Xunit" Version="26.1.6" />
+    <PackageReference Include="Verify.Xunit" Version="26.2.0" />
   </ItemGroup>
 
   <ItemGroup>

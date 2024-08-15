@@ -6,5 +6,5 @@ public interface IIdentityUserRoleClassGenerator
 {
     string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnPair> propertyColumnPairs);
+        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 }

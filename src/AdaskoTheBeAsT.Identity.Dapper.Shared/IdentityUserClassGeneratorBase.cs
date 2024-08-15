@@ -14,13 +14,13 @@ public abstract class IdentityUserClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnPair> propertyColumnPairs)
+        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var standardProperties = GetStandardPropertyNames(config.InsertOwnId);
-        var combined = CombineStandardWithCustom(standardProperties, propertyColumnPairs);
+        var standardProperties = GetStandardProperties(config.InsertOwnId);
+        var combined = CombineStandardWithCustom(standardProperties, propertyColumnTypeTriples);
 
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, config.KeyTypeName);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserSql", "IIdentityUserSql");
         GenerateCreateSql(sb, config, combined);
@@ -39,44 +39,44 @@ public abstract class IdentityUserClassGeneratorBase
 
     protected abstract string ProcessIdentityUserCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserUpdateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserDeleteSql(IdentityDapperConfiguration config);
 
     protected abstract string ProcessIdentityUserFindByIdSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserFindByNameSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserFindByEmailSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserGetUsersForClaimSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserGetUsersInRoleSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserGetUsersSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     private void GenerateCreateSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserCreateSql(config, propertyColumnPairs);
+        var content = ProcessIdentityUserCreateSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");
@@ -86,9 +86,9 @@ public abstract class IdentityUserClassGeneratorBase
     private void GenerateUpdateSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserUpdateSql(config, propertyColumnPairs);
+        var content = ProcessIdentityUserUpdateSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string UpdateSql {{ get; }} =
             @""{content}"";");
@@ -109,9 +109,9 @@ public abstract class IdentityUserClassGeneratorBase
     private void GenerateFindByIdSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserFindByIdSql(config, propertyColumnPairs);
+        var content = ProcessIdentityUserFindByIdSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string FindByIdSql {{ get; }} =
             @""{content}"";");
@@ -121,9 +121,9 @@ public abstract class IdentityUserClassGeneratorBase
     private void GenerateFindByNameSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserFindByNameSql(config, propertyColumnPairs);
+        var content = ProcessIdentityUserFindByNameSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string FindByNameSql {{ get; }} =
             @""{content}"";");
@@ -133,9 +133,9 @@ public abstract class IdentityUserClassGeneratorBase
     private void GenerateFindByEmailSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserFindByEmailSql(config, propertyColumnPairs);
+        var content = ProcessIdentityUserFindByEmailSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string FindByEmailSql {{ get; }} =
             @""{content}"";");
@@ -145,9 +145,9 @@ public abstract class IdentityUserClassGeneratorBase
     private void GenerateGetUsersForClaimSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserGetUsersForClaimSql(config, propertyColumnPairs);
+        var content = ProcessIdentityUserGetUsersForClaimSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string GetUsersForClaimSql {{ get; }} =
             @""{content}"";");
@@ -157,9 +157,9 @@ public abstract class IdentityUserClassGeneratorBase
     private void GenerateGetUsersInRoleSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserGetUsersInRoleSql(config, propertyColumnPairs);
+        var content = ProcessIdentityUserGetUsersInRoleSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string GetUsersInRoleSql {{ get; }} =
             @""{content}"";");
@@ -169,18 +169,18 @@ public abstract class IdentityUserClassGeneratorBase
     private void GenerateGetUsersSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserGetUsersSql(config, propertyColumnPairs);
+        var content = ProcessIdentityUserGetUsersSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string GetUsersSql {{ get; }} =
             @""{content}"";");
     }
 
-    private IList<string> GetStandardPropertyNames(bool insertOwnId) =>
+    private IList<(string PropertyName, string PropertyType)> GetStandardProperties(bool insertOwnId) =>
         typeof(IdentityUser<>)
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 .Where(p => insertOwnId || !p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
-                .Select(p => p.Name)
+                .Select(p => (PropertyName: p.Name, PropertyType: p.PropertyType.Name))
                 .ToList();
 }

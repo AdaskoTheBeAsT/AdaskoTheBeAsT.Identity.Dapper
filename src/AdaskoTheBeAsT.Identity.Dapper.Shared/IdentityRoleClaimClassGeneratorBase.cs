@@ -14,13 +14,13 @@ public abstract class IdentityRoleClaimClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnPair> propertyColumnPairs)
+        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var standardProperties = GetStandardPropertyNames(config.InsertOwnId);
-        var combined = CombineStandardWithCustom(standardProperties, propertyColumnPairs);
+        var standardProperties = GetStandardProperties();
+        var combined = CombineStandardWithCustom(standardProperties, propertyColumnTypeTriples);
 
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, config.KeyTypeName);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityRoleClaimSql", "IIdentityRoleClaimSql");
         GenerateCreateSql(sb, config, combined);
@@ -33,7 +33,7 @@ public abstract class IdentityRoleClaimClassGeneratorBase
 
     protected abstract string ProcessIdentityRoleClaimCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityRoleClaimDeleteSql(IdentityDapperConfiguration config);
 
@@ -42,9 +42,9 @@ public abstract class IdentityRoleClaimClassGeneratorBase
     private void GenerateCreateSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityRoleClaimCreateSql(config, propertyColumnPairs);
+        var content = ProcessIdentityRoleClaimCreateSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");
@@ -72,10 +72,10 @@ public abstract class IdentityRoleClaimClassGeneratorBase
             @""{content}"";");
     }
 
-    private IList<string> GetStandardPropertyNames(bool insertOwnId) =>
+    private IList<(string PropertyName, string PropertyType)> GetStandardProperties() =>
         typeof(IdentityRoleClaim<>)
             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(p => insertOwnId || !p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
-            .Select(p => p.Name)
+            .Where(p => !p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
+            .Select(p => (PropertyName: p.Name, PropertyType: p.PropertyType.Name))
             .ToList();
 }

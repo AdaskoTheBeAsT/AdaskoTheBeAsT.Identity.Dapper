@@ -8,31 +8,31 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
     {
         public string CreateSql { get; } =
             @"INSERT INTO dbo.AspNetUserTokens(
-userid
-,loginprovider
-,name
-,value)
+UserId
+,LoginProvider
+,Name
+,Value)
 VALUES(
-@UserId
-,@LoginProvider
-,@Name
-,@Value);";
+:UserId
+,:LoginProvider
+,:Name
+,:Value);";
 
         public string DeleteSql { get; } =
             @"DELETE FROM dbo.AspNetUserTokens
-WHERE LoginProvider=@LoginProvider
-  AND Name=@Name
-  AND Value=@Value
-  AND UserId=@UserId;";
+WHERE LoginProvider=:LoginProvider
+  AND Name=:Name
+  AND Value=:Value
+  AND UserId=:UserId;";
 
         public string GetByUserIdSql { get; } =
-            @"SELECT TOP 1 userid  AS ""UserId""
-,loginprovider  AS ""LoginProvider""
-,name  AS ""Name""
-,value  AS ""Value""
+            @"SELECT TOP 1 UserId AS UserId
+,LoginProvider AS LoginProvider
+,Name AS Name
+,Value AS Value
 FROM dbo.AspNetUserTokens
-WHERE UserId=@UserId
-  AND LoginProvider=@LoginProvider
-  AND Name=@Name;";
+WHERE UserId=:UserId
+  AND LoginProvider=:LoginProvider
+  AND Name=:Name;";
     }
 }

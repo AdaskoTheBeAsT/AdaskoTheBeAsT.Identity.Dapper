@@ -10,7 +10,7 @@ public abstract class IdentityUserRoleClaimClassGeneratorBase
     public string Generate(IdentityDapperConfiguration config)
     {
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, config.KeyTypeName);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserRoleClaimSql", "IIdentityUserRoleClaimSql");
         GenerateGetRoleClaimsByUserIdSql(sb, config);

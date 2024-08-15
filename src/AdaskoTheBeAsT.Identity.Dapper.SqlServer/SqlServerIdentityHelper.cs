@@ -80,13 +80,24 @@ SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
             case "string":
             case "String":
             case "System.String":
-                return $@"INSERT INTO {tableName}(
-Id,
+                if (insertOwnId)
+                {
+                    return $@"INSERT INTO {tableName}(
 /**insert**/)
 VALUES(
-@Id,
 /**values**/);
 SELECT @Id;";
+                }
+
+                return $@"DECLARE @Id uniqueidentifier;
+SET @Id = NEWSEQUENTIALID();
+INSERT INTO {tableName}(
+Id,
+/**insert**/)
+OUTPUT inserted.Id
+VALUES(
+CAST(@Id AS VARCHAR(36)),
+/**values**/);";
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));
         }

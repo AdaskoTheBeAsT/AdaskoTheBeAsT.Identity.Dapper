@@ -13,13 +13,13 @@ public abstract class IdentityUserLoginClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnPair> propertyColumnPairs)
+        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var standardProperties = GetStandardPropertyNames();
-        var combined = CombineStandardWithCustom(standardProperties, propertyColumnPairs);
+        var standardProperties = GetStandardProperties();
+        var combined = CombineStandardWithCustom(standardProperties, propertyColumnTypeTriples);
 
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, config.KeyTypeName);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserLoginSql", "IIdentityUserLoginSql");
         GenerateCreateSql(sb, config.SchemaPart, combined);
@@ -34,28 +34,28 @@ public abstract class IdentityUserLoginClassGeneratorBase
 
     protected abstract string ProcessIdentityUserLoginCreateSql(
         string schemaPart,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserLoginDeleteSql(string schemaPart);
 
     protected abstract string ProcessIdentityUserLoginGetByUserIdSql(
         string schemaPart,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserLoginGetByUserIdLoginProviderKeySql(
         string schemaPart,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserLoginGetByLoginProviderKeySql(
         string schemaPart,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     private void GenerateCreateSql(
         StringBuilder sb,
         string schemaPart,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserLoginCreateSql(schemaPart, propertyColumnPairs);
+        var content = ProcessIdentityUserLoginCreateSql(schemaPart, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");
@@ -76,9 +76,9 @@ public abstract class IdentityUserLoginClassGeneratorBase
     private void GenerateGetByUserIdSql(
         StringBuilder sb,
         string schemaPart,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserLoginGetByUserIdSql(schemaPart, propertyColumnPairs);
+        var content = ProcessIdentityUserLoginGetByUserIdSql(schemaPart, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string GetByUserIdSql {{ get; }} =
             @""{content}"";");
@@ -88,9 +88,9 @@ public abstract class IdentityUserLoginClassGeneratorBase
     private void GenerateGetByUserIdLoginProviderKeySql(
         StringBuilder sb,
         string schemaPart,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserLoginGetByUserIdLoginProviderKeySql(schemaPart, propertyColumnPairs);
+        var content = ProcessIdentityUserLoginGetByUserIdLoginProviderKeySql(schemaPart, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string GetByUserIdLoginProviderKeySql {{ get; }} =
             @""{content}"";");
@@ -100,17 +100,17 @@ public abstract class IdentityUserLoginClassGeneratorBase
     private void GenerateGetByLoginProviderKeySql(
         StringBuilder sb,
         string schemaPart,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserLoginGetByLoginProviderKeySql(schemaPart, propertyColumnPairs);
+        var content = ProcessIdentityUserLoginGetByLoginProviderKeySql(schemaPart, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string GetByLoginProviderKeySql {{ get; }} =
             @""{content}"";");
     }
 
-    private IList<string> GetStandardPropertyNames() =>
+    private IList<(string PropertyName, string PropertyType)> GetStandardProperties() =>
         typeof(IdentityUserLogin<>)
             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Select(p => p.Name)
+            .Select(p => (PropertyName: p.Name, PropertyType: p.PropertyType.Name))
             .ToList();
 }

@@ -5,7 +5,9 @@ namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 public class IdentityStoreGeneratorBase
     : IdentityClassGeneratorBase
 {
-    protected override void GenerateUsing(StringBuilder sb)
+    protected override void GenerateUsing(
+        StringBuilder sb,
+        string keyTypeName)
     {
         sb.AppendLine("using System;");
         sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper;");

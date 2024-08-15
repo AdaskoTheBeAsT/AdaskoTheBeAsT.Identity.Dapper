@@ -50,6 +50,18 @@ public class OracleIdentityHelper
         {
             case "Guid":
             case "System.Guid":
+                if (insertOwnId)
+                {
+                    return $@"DECLARE id {tableName}.ID%type;
+BEGIN
+    INSERT INTO {tableName}(
+    /**insert**/)
+    VALUES(
+    /**values**/)
+    RETURNING Id INTO :OutputId;
+END;";
+                }
+
                 return $@"DECLARE id {tableName}.ID%type;
 BEGIN
     id := SYS_GUID();
@@ -58,8 +70,8 @@ BEGIN
     /**insert**/)
     VALUES(
     id,
-    /**values**/);
-    SELECT id FROM DUAL;
+    /**values**/)
+    RETURNING Id INTO :OutputId;
 END;";
             case "int":
             case "Int32":
@@ -79,20 +91,35 @@ BEGIN
     /**insert**/)
     VALUES(
     /**values**/)
-    RETURNING Id INTO id;
-    SELECT id FROM DUAL;
+    RETURNING Id INTO :OutputId;
 END;";
             case "string":
             case "String":
             case "System.String":
-                return $@"BEGIN
+                if (insertOwnId)
+                {
+                    return $@"DECLARE id {tableName}.ID%type;
+BEGIN
+    INSERT INTO {tableName}(
+    /**insert**/)
+    VALUES(
+    /**values**/)
+    RETURNING Id INTO :OutputId;
+END;";
+                }
+
+                return $@"DECLARE
+    id {tableName}.ID%type;
+    guid_id RAW(16);
+BEGIN
+    guid_id := SYS_GUID();
     INSERT INTO {tableName}(
     Id,
     /**insert**/)
     VALUES(
-    :Id,
-    /**values**/);
-    SELECT :Id FROM DUAL;
+    RAWTOHEX(guid_id),
+    /**values**/)
+    RETURNING RAWTOHEX(guid_id) INTO :OutputId;
 END;";
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));

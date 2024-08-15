@@ -20,8 +20,8 @@ WHERE UserId=@UserId
   AND RoleId=@RoleId;";
 
         public string GetByUserIdRoleIdSql { get; } =
-            @"SELECT userid AS UserId
-,roleid AS RoleId
+            @"SELECT userid AS ""UserId""
+,roleid AS ""RoleId""
 FROM dbo.AspNetUserRoles
 WHERE UserId=@UserId
   AND RoleId=@RoleId;";
@@ -33,7 +33,7 @@ WHERE UserId=@UserId
   AND RoleId=@RoleId;";
 
         public string GetRoleNamesByUserIdSql { get; } =
-            @"SELECT r.NormalizedName
+            @"SELECT r.NormalizedName AS ""NormalizedName""
 FROM dbo.AspNetRoles r
 INNER JOIN dbo.AspNetUserRoles ur ON r.Id=ur.RoleId
 WHERE ur.UserId=@UserId;";

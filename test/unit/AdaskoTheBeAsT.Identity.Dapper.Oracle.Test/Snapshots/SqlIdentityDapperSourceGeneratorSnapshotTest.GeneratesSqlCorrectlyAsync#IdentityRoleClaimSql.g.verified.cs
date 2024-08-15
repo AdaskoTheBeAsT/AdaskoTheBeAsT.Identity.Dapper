@@ -7,26 +7,29 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
         : IIdentityRoleClaimSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO dbo.AspNetRoleClaims(
-roleid
-,claimtype
-,claimvalue)
+            @"DECLARE id dbo.AspNetRoleClaims.Id%type;
+INSERT INTO dbo.AspNetRoleClaims(
+RoleId
+,ClaimType
+,ClaimValue)
 VALUES(
-@RoleId
-,@ClaimType
-,@ClaimValue);
-SELECT LASTVAL() AS Id;";
+:RoleId
+,:ClaimType
+,:ClaimValue)
+RETURNING Id INTO id;
+SELECT id FROM DUAL;
+";
 
         public string DeleteSql { get; } =
             @"DELETE FROM dbo.AspNetRoleClaims
-WHERE RoleId=@RoleId
-  AND ClaimType=@ClaimType
-  AND ClaimValue=@ClaimValue;";
+WHERE RoleId=:RoleId
+  AND ClaimType=:ClaimType
+  AND ClaimValue=:ClaimValue;";
 
         public string GetByRoleIdSql { get; } =
-            @"SELECT ClaimType AS ""Type"",
-ClaimValue AS ""Value""
+            @"SELECT ClaimType AS Type,
+ClaimValue AS Value
 FROM dbo.AspNetRoleClaims
-WHERE RoleId=@Id;";
+WHERE RoleId=:Id;";
     }
 }

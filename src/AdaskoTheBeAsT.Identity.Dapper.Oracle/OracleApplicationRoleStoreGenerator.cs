@@ -13,7 +13,7 @@ public class OracleApplicationRoleStoreGenerator
         string namespaceName)
     {
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, keyTypeName);
         GenerateNamespaceStart(sb, namespaceName);
         GenerateClassStart(
             sb,
@@ -23,6 +23,33 @@ public class OracleApplicationRoleStoreGenerator
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
+    }
+
+    protected override void GenerateUsing(
+        StringBuilder sb,
+        string keyTypeName)
+    {
+        sb.AppendLine("using System;");
+        sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper;");
+        sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper.Abstractions;");
+        sb.AppendLine("using Dapper.Oracle;");
+        sb.AppendLine("using Microsoft.AspNetCore.Identity;");
+        sb.AppendLine("using Oracle.ManagedDataAccess.Client;");
+        sb.AppendLine();
+    }
+
+    protected void GenerateCreateImpl(
+        StringBuilder sb,
+        string keyTypeName)
+    {
+        sb.AppendLine(
+            $@"        protected override async Task CreateImplAsync(
+            IDbConnection connection,
+            TRole role,
+            CancellationToken cancellationToken)
+            {{
+                role.Id = await connection.QueryFirstAsync<TKey>(IdentityRoleSql.CreateSql, role).ConfigureAwait(false);
+            }}");
     }
 
     private void GenerateConstructor(StringBuilder sb)

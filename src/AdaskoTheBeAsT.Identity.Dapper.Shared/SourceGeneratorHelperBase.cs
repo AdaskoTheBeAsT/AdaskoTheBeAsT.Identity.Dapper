@@ -119,30 +119,30 @@ public abstract class SourceGeneratorHelperBase
         IdentityDapperConfiguration config,
         IList<(IPropertySymbol PropertySymbol, string ColumnName)> list)
     {
-        var propertyColumnPairs = Extract(list);
+        var propertyColumnTypeTriples = Extract(list);
         switch (config.BaseTypeName)
         {
             case nameof(IdentityRole):
-                ProcessIdentityRole(context, config, propertyColumnPairs);
+                ProcessIdentityRole(context, config, propertyColumnTypeTriples);
                 break;
             case nameof(IdentityRoleClaim<int>):
-                ProcessIdentityRoleClaim(context, config, propertyColumnPairs);
+                ProcessIdentityRoleClaim(context, config, propertyColumnTypeTriples);
                 break;
             case nameof(IdentityUser):
-                ProcessIdentityUser(context, config, propertyColumnPairs);
+                ProcessIdentityUser(context, config, propertyColumnTypeTriples);
                 ProcessIdentityUserRoleClaim(context, config);
                 break;
             case nameof(IdentityUserClaim<int>):
-                ProcessIdentityUserClaim(context, config, propertyColumnPairs);
+                ProcessIdentityUserClaim(context, config, propertyColumnTypeTriples);
                 break;
             case nameof(IdentityUserLogin<int>):
-                ProcessIdentityUserLogin(context, config, propertyColumnPairs);
+                ProcessIdentityUserLogin(context, config, propertyColumnTypeTriples);
                 break;
             case nameof(IdentityUserRole<int>):
-                ProcessIdentityUserRole(context, config, propertyColumnPairs);
+                ProcessIdentityUserRole(context, config, propertyColumnTypeTriples);
                 break;
             case nameof(IdentityUserToken<int>):
-                ProcessIdentityUserToken(context, config, propertyColumnPairs);
+                ProcessIdentityUserToken(context, config, propertyColumnTypeTriples);
                 break;
 
             // ReSharper disable once RedundantEmptySwitchSection
@@ -154,9 +154,9 @@ public abstract class SourceGeneratorHelperBase
     private void ProcessIdentityRole(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnPair> propertyColumnPairs)
+        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = _identityRoleClassGenerator.Generate(config, propertyColumnPairs);
+        var content = _identityRoleClassGenerator.Generate(config, propertyColumnTypeTriples);
 
         context.AddSource("IdentityRoleSql.g.cs", SourceText.From(content, Encoding.UTF8));
     }
@@ -164,9 +164,9 @@ public abstract class SourceGeneratorHelperBase
     private void ProcessIdentityRoleClaim(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnPair> propertyColumnPairs)
+        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = _identityRoleClaimClassGenerator.Generate(config, propertyColumnPairs);
+        var content = _identityRoleClaimClassGenerator.Generate(config, propertyColumnTypeTriples);
 
         context.AddSource("IdentityRoleClaimSql.g.cs", SourceText.From(content, Encoding.UTF8));
     }
@@ -174,9 +174,9 @@ public abstract class SourceGeneratorHelperBase
     private void ProcessIdentityUser(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnPair> propertyColumnPairs)
+        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = _identityUserClassGenerator.Generate(config, propertyColumnPairs);
+        var content = _identityUserClassGenerator.Generate(config, propertyColumnTypeTriples);
 
         context.AddSource("IdentityUserSql.g.cs", SourceText.From(content, Encoding.UTF8));
     }
@@ -193,9 +193,9 @@ public abstract class SourceGeneratorHelperBase
     private void ProcessIdentityUserClaim(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnPair> propertyColumnPairs)
+        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = _identityUserClaimClassGenerator.Generate(config, propertyColumnPairs);
+        var content = _identityUserClaimClassGenerator.Generate(config, propertyColumnTypeTriples);
 
         context.AddSource("IdentityUserClaimSql.g.cs", SourceText.From(content, Encoding.UTF8));
     }
@@ -203,9 +203,9 @@ public abstract class SourceGeneratorHelperBase
     private void ProcessIdentityUserLogin(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnPair> propertyColumnPairs)
+        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = _identityUserLoginClassGenerator.Generate(config, propertyColumnPairs);
+        var content = _identityUserLoginClassGenerator.Generate(config, propertyColumnTypeTriples);
 
         context.AddSource("IdentityUserLoginSql.g.cs", SourceText.From(content, Encoding.UTF8));
     }
@@ -213,9 +213,9 @@ public abstract class SourceGeneratorHelperBase
     private void ProcessIdentityUserRole(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnPair> propertyColumnPairs)
+        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = _identityUserRoleClassGenerator.Generate(config, propertyColumnPairs);
+        var content = _identityUserRoleClassGenerator.Generate(config, propertyColumnTypeTriples);
 
         context.AddSource("IdentityUserRoleSql.g.cs", SourceText.From(content, Encoding.UTF8));
     }
@@ -223,16 +223,20 @@ public abstract class SourceGeneratorHelperBase
     private void ProcessIdentityUserToken(
         SourceProductionContext context,
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnPair> propertyColumnPairs)
+        IEnumerable<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = _identityUserTokenClassGenerator.Generate(config, propertyColumnPairs);
+        var content = _identityUserTokenClassGenerator.Generate(config, propertyColumnTypeTriples);
 
         context.AddSource("IdentityUserTokenSql.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private IEnumerable<PropertyColumnPair> Extract(
+    private IEnumerable<PropertyColumnTypeTriple> Extract(
         IList<(IPropertySymbol PropertySymbol, string ColumnName)> list) =>
-        list.Select(i => new PropertyColumnPair(i.PropertySymbol.Name, i.ColumnName));
+        list.Select(
+            i => new PropertyColumnTypeTriple(
+                i.PropertySymbol.Name,
+                i.PropertySymbol.Type.ToDisplayString(),
+                i.ColumnName));
 
     private void ProcessApplicationStores(
         SourceProductionContext context,

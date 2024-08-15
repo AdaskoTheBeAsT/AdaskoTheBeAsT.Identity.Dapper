@@ -13,7 +13,7 @@ public class MySqlApplicationUserStoreGenerator
         string namespaceName)
     {
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, keyTypeName);
         GenerateNamespaceStart(sb, namespaceName);
         GenerateClassStart(
             sb,

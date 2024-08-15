@@ -1,0 +1,11 @@
+{
+  "solution": {
+    "path": "AdaskoTheBeAsT.Identity.Dapper.sln",
+    "projects": [
+      "src\\AdaskoTheBeAsT.Identity.Dapper.MySql\\AdaskoTheBeAsT.Identity.Dapper.MySql.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.Shared\\AdaskoTheBeAsT.Identity.Dapper.Shared.shproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper\\AdaskoTheBeAsT.Identity.Dapper.csproj",
+      "test\\integ\\AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest\\AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest.csproj"
+    ]
+  }
+}

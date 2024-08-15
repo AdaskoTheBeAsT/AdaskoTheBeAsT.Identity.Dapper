@@ -16,17 +16,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="1.3.0" />
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.MySql" Version="1.3.0" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="1.4.0" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.MySql" Version="1.4.0" />
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
     <PackageReference Include="dbup-mysql" Version="6.0.1-beta.41" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.8" />
     <PackageReference Include="MySql.Data" Version="9.0.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.4" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageReference Include="Testcontainers.MySql" Version="3.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--<ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.MySql\AdaskoTheBeAsT.Identity.Dapper.MySql.csproj" />
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />-->
   </ItemGroup>
 
   <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">

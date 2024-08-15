@@ -153,6 +153,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest", "test\integ\AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest\AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.csproj", "{27921E16-FBFB-487C-9CD2-3589DDEA36A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdaskoTheBeAsT.Identity.Dapper.Oracle.Test", "test\unit\AdaskoTheBeAsT.Identity.Dapper.Oracle.Test\AdaskoTheBeAsT.Identity.Dapper.Oracle.Test.csproj", "{680461CC-EFFF-4CBE-82AD-1C192D00E9C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -279,6 +281,10 @@ Global
 		{27921E16-FBFB-487C-9CD2-3589DDEA36A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27921E16-FBFB-487C-9CD2-3589DDEA36A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27921E16-FBFB-487C-9CD2-3589DDEA36A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{680461CC-EFFF-4CBE-82AD-1C192D00E9C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{680461CC-EFFF-4CBE-82AD-1C192D00E9C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{680461CC-EFFF-4CBE-82AD-1C192D00E9C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{680461CC-EFFF-4CBE-82AD-1C192D00E9C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -320,6 +326,7 @@ Global
 		{DAC1D5C1-6B72-492B-965E-7A7414117053} = {AE9D6DAA-9994-48E8-ACAA-9A962346CC16}
 		{21850892-5FD0-404E-A2E2-258DF8A7C8D9} = {AE9D6DAA-9994-48E8-ACAA-9A962346CC16}
 		{27921E16-FBFB-487C-9CD2-3589DDEA36A6} = {AE9D6DAA-9994-48E8-ACAA-9A962346CC16}
+		{680461CC-EFFF-4CBE-82AD-1C192D00E9C3} = {0DDB0E47-5845-4861-95FC-AF248E2C6652}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2DC60B14-2697-4908-AADC-3EA7874F6FF1}

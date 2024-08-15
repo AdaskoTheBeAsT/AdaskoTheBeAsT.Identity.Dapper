@@ -59,7 +59,7 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     /// <returns>
     /// The <see cref="T:System.Threading.Tasks.Task" /> contains a list of users, if any, that are in the specified role.
     /// </returns>
-    public async Task<IList<TUser>> GetUsersInRoleAsync(
+    public virtual async Task<IList<TUser>> GetUsersInRoleAsync(
         string roleName,
         CancellationToken cancellationToken)
     {
@@ -80,7 +80,7 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     /// <param name="roleName">The role to add.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public async Task AddToRoleAsync(
+    public virtual async Task AddToRoleAsync(
         TUser user,
         string roleName,
         CancellationToken cancellationToken)
@@ -107,7 +107,7 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     /// <param name="roleName">The role to remove.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public async Task RemoveFromRoleAsync(
+    public virtual async Task RemoveFromRoleAsync(
         TUser user,
         string roleName,
         CancellationToken cancellationToken)
@@ -133,7 +133,7 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     /// <param name="user">The user whose roles should be retrieved.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that contains the roles the user is a member of.</returns>
-    public async Task<IList<string>> GetRolesAsync(
+    public virtual async Task<IList<string>> GetRolesAsync(
         TUser user,
         CancellationToken cancellationToken)
     {
@@ -155,7 +155,7 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> containing a flag indicating if the specified user is a member of the given group. If the
     /// user is a member of the group the returned value with be true, otherwise it will be false.</returns>
-    public async Task<bool> IsInRoleAsync(
+    public virtual async Task<bool> IsInRoleAsync(
         TUser user,
         string roleName,
         CancellationToken cancellationToken)
@@ -181,7 +181,7 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     /// <param name="user">The user whose claims should be retrieved from his roles.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that contains the claims granted to all roles of given user.</returns>
-    public async Task<IList<Claim>> GetRoleClaimsAsync(
+    public virtual async Task<IList<Claim>> GetRoleClaimsAsync(
         TUser user,
         CancellationToken cancellationToken)
     {
@@ -201,7 +201,7 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     /// <param name="user">The user whose claims should be retrieved from him and his roles.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that contains the claims granted to a given user and all of his roles.</returns>
-    public async Task<IList<Claim>> GetUserAndRoleClaimsAsync(
+    public virtual async Task<IList<Claim>> GetUserAndRoleClaimsAsync(
         TUser user,
         CancellationToken cancellationToken)
     {
@@ -236,7 +236,7 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     /// <param name="roleName">The normalized role name.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The role if it exists.</returns>
-    protected async Task<TRole?> FindRoleAsync(
+    protected virtual async Task<TRole?> FindRoleAsync(
         string roleName,
         CancellationToken cancellationToken)
     {
@@ -256,7 +256,7 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     /// <param name="roleId">The role's id.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The user role if it exists.</returns>
-    protected async Task<TUserRole?> FindUserRoleAsync(
+    protected virtual async Task<TUserRole?> FindUserRoleAsync(
         TKey userId,
         TKey roleId,
         CancellationToken cancellationToken)

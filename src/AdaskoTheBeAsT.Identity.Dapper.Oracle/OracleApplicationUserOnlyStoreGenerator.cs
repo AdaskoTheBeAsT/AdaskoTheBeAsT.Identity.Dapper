@@ -13,7 +13,7 @@ public class OracleApplicationUserOnlyStoreGenerator
         string namespaceName)
     {
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, keyTypeName);
         GenerateNamespaceStart(sb, namespaceName);
         GenerateClassStart(
             sb,
@@ -23,6 +23,19 @@ public class OracleApplicationUserOnlyStoreGenerator
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
+    }
+
+    protected override void GenerateUsing(
+        StringBuilder sb,
+        string keyTypeName)
+    {
+        sb.AppendLine("using System;");
+        sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper;");
+        sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper.Abstractions;");
+        sb.AppendLine("using Dapper.Oracle;");
+        sb.AppendLine("using Microsoft.AspNetCore.Identity;");
+        sb.AppendLine("using Oracle.ManagedDataAccess.Client;");
+        sb.AppendLine();
     }
 
     private void GenerateConstructor(StringBuilder sb)
