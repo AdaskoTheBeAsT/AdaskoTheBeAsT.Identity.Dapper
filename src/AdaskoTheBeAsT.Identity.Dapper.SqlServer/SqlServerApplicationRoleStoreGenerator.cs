@@ -6,13 +6,15 @@ using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 namespace AdaskoTheBeAsT.Identity.Dapper.SqlServer;
 
 public class SqlServerApplicationRoleStoreGenerator
-    : IdentityStoreGeneratorBase,
+    : SqlServerIdentityStoreGeneratorBase,
         IApplicationRoleStoreGenerator
 {
     public string Generate(
         IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+        IdentityDapperOptions options,
         string keyTypeName,
-        string namespaceName)
+        string namespaceName,
+        bool insertOwnId)
     {
         var sb = new StringBuilder();
         GenerateUsing(sb, keyTypeName);
@@ -20,7 +22,7 @@ public class SqlServerApplicationRoleStoreGenerator
         GenerateClassStart(
             sb,
             "ApplicationRoleStore",
-            $"DapperRoleStoreBase<ApplicationRole, {keyTypeName}, ApplicationRoleClaim>");
+            $"DapperRoleStoreBase<ApplicationRole, {keyTypeName}, ApplicationRoleClaim, SqlConnection>");
         GenerateConstructor(sb);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
@@ -31,7 +33,7 @@ public class SqlServerApplicationRoleStoreGenerator
     {
         sb.AppendLine(
             @"        public ApplicationRoleStore(
-            IIdentityDbConnectionProvider connectionProvider)
+            IIdentityDbConnectionProvider<SqlConnection> connectionProvider)
             : base(
                 new IdentityErrorDescriber(),
                 connectionProvider,

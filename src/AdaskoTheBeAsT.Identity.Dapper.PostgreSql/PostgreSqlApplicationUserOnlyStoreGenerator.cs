@@ -6,13 +6,14 @@ using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 namespace AdaskoTheBeAsT.Identity.Dapper.PostgreSql;
 
 public class PostgreSqlApplicationUserOnlyStoreGenerator
-    : IdentityStoreGeneratorBase,
+    : PostgreSqlIdentityStoreGeneratorBase,
         IApplicationUserOnlyStoreGenerator
 {
     public string Generate(
         IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
         string keyTypeName,
-        string namespaceName)
+        string namespaceName,
+        bool insertOwnId)
     {
         var sb = new StringBuilder();
         GenerateUsing(sb, keyTypeName);
@@ -20,7 +21,7 @@ public class PostgreSqlApplicationUserOnlyStoreGenerator
         GenerateClassStart(
             sb,
             "ApplicationUserOnlyStore",
-            $"DapperUserOnlyStoreBase<ApplicationUser, {keyTypeName}, ApplicationUserClaim, ApplicationUserLogin, ApplicationUserToken>");
+            $"DapperUserOnlyStoreBase<ApplicationUser, {keyTypeName}, ApplicationUserClaim, ApplicationUserLogin, ApplicationUserToken, NpgsqlConnection>");
         GenerateConstructor(sb);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
@@ -31,7 +32,7 @@ public class PostgreSqlApplicationUserOnlyStoreGenerator
     {
         sb.AppendLine(
             @"        public ApplicationUserOnlyStore(
-            IIdentityDbConnectionProvider connectionProvider)
+            IIdentityDbConnectionProvider<NpgsqlConnection> connectionProvider)
             : base(
                 new IdentityErrorDescriber(),
                 connectionProvider,

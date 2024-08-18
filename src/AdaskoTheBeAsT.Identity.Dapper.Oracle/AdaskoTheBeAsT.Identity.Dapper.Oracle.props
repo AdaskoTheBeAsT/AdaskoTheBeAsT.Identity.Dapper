@@ -2,5 +2,7 @@
   <ItemGroup>
     <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_DbSchema" />
 	<CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_SkipNormalized" />
+	<!-- Possible values char, string, numeric -->
+	<CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_StoreBooleanAs" />
   </ItemGroup>
 </Project>

@@ -6,13 +6,15 @@ using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 
 public class OracleApplicationRoleStoreGenerator
-    : IdentityStoreGeneratorBase,
+    : OracleIdentityStoreGeneratorBase,
         IApplicationRoleStoreGenerator
 {
     public string Generate(
         IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+        IdentityDapperOptions options,
         string keyTypeName,
-        string namespaceName)
+        string namespaceName,
+        bool insertOwnId)
     {
         var sb = new StringBuilder();
         GenerateUsing(sb, keyTypeName);
@@ -20,45 +22,18 @@ public class OracleApplicationRoleStoreGenerator
         GenerateClassStart(
             sb,
             "ApplicationRoleStore",
-            $"DapperRoleStoreBase<ApplicationRole, {keyTypeName}, ApplicationRoleClaim>");
+            $"DapperRoleStoreBase<ApplicationRole, {keyTypeName}, ApplicationRoleClaim, OracleConnection>");
         GenerateConstructor(sb);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
     }
 
-    protected override void GenerateUsing(
-        StringBuilder sb,
-        string keyTypeName)
-    {
-        sb.AppendLine("using System;");
-        sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper;");
-        sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper.Abstractions;");
-        sb.AppendLine("using Dapper.Oracle;");
-        sb.AppendLine("using Microsoft.AspNetCore.Identity;");
-        sb.AppendLine("using Oracle.ManagedDataAccess.Client;");
-        sb.AppendLine();
-    }
-
-    protected void GenerateCreateImpl(
-        StringBuilder sb,
-        string keyTypeName)
-    {
-        sb.AppendLine(
-            $@"        protected override async Task CreateImplAsync(
-            IDbConnection connection,
-            TRole role,
-            CancellationToken cancellationToken)
-            {{
-                role.Id = await connection.QueryFirstAsync<TKey>(IdentityRoleSql.CreateSql, role).ConfigureAwait(false);
-            }}");
-    }
-
     private void GenerateConstructor(StringBuilder sb)
     {
         sb.AppendLine(
             @"        public ApplicationRoleStore(
-            IIdentityDbConnectionProvider connectionProvider)
+            IIdentityDbConnectionProvider<OracleConnection> connectionProvider)
             : base(
                 new IdentityErrorDescriber(),
                 connectionProvider,

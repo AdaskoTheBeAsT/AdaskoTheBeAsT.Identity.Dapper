@@ -1,4 +1,5 @@
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
+using Microsoft.CodeAnalysis;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.SqlServer;
 
@@ -23,4 +24,11 @@ public class SqlServerSourceGenerationHelper
 
     protected override string GenerateSchemaPart(string dbSchema) =>
         string.IsNullOrEmpty(dbSchema) ? string.Empty : $"{dbSchema}.";
+
+    protected override void GenerateAdditionalFiles(
+        SourceProductionContext context,
+        IdentityDapperOptions options)
+    {
+        // noop
+    }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,8 +11,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper;
 
-public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken>
-    : DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken>,
+public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TDbConnection>
+    : DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken, TDbConnection>,
         IUserRoleStore<TUser>,
         IUserRoleClaimStore<TUser>
     where TUser : IdentityUser<TKey>
@@ -21,10 +22,11 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     where TUserRole : IdentityUserRole<TKey>, new()
     where TUserLogin : IdentityUserLogin<TKey>, new()
     where TUserToken : IdentityUserToken<TKey>, new()
+    where TDbConnection : IDbConnection
 {
     public DapperUserStoreBase(
         IdentityErrorDescriber describer,
-        IIdentityDbConnectionProvider connectionProvider,
+        IIdentityDbConnectionProvider<TDbConnection> connectionProvider,
         IIdentityUserSql identityUserSql,
         IIdentityUserClaimSql identityUserClaimSql,
         IIdentityUserLoginSql identityUserLoginSql,

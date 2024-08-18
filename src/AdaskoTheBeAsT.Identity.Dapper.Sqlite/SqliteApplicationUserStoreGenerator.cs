@@ -6,7 +6,7 @@ using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite;
 
 public class SqliteApplicationUserStoreGenerator
-    : IdentityStoreGeneratorBase,
+    : SqliteIdentityStoreGeneratorBase,
         IApplicationUserStoreGenerator
 {
     public string Generate(
@@ -20,7 +20,7 @@ public class SqliteApplicationUserStoreGenerator
         GenerateClassStart(
             sb,
             "ApplicationUserStore",
-            $"DapperUserStoreBase<ApplicationUser, ApplicationRole, {keyTypeName}, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationUserToken>");
+            $"DapperUserStoreBase<ApplicationUser, ApplicationRole, {keyTypeName}, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationUserToken, SqliteConnection>");
         GenerateConstructor(sb);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
@@ -31,7 +31,7 @@ public class SqliteApplicationUserStoreGenerator
     {
         sb.AppendLine(
             @"        public ApplicationUserStore(
-            IIdentityDbConnectionProvider connectionProvider)
+            IIdentityDbConnectionProvider<SqliteConnection> connectionProvider)
             : base(
                 new IdentityErrorDescriber(),
                 connectionProvider,

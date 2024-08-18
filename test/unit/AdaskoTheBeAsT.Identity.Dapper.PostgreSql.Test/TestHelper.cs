@@ -20,7 +20,7 @@ public static class TestHelper
         {
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(ColumnAttribute).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(IIdentityDbConnectionProvider).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(IIdentityDbConnectionProvider<>).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(AdvancedSqlBuilder).Assembly.Location),
         };
 

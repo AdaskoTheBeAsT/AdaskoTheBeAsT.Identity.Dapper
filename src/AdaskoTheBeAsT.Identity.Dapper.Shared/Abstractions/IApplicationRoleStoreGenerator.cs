@@ -6,6 +6,8 @@ public interface IApplicationRoleStoreGenerator
 {
     string Generate(
         IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+        IdentityDapperOptions options,
         string keyTypeName,
-        string namespaceName);
+        string namespaceName,
+        bool insertOwnId);
 }

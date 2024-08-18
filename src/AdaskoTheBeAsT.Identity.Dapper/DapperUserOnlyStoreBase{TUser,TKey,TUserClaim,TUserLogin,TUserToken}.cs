@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper;
 
-public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken>
+public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken, TDbConnection>
     : IUserLoginStore<TUser>,
         IUserClaimStore<TUser>,
         IUserPasswordStore<TUser>,
@@ -30,6 +30,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     where TUserClaim : IdentityUserClaim<TKey>, new()
     where TUserLogin : IdentityUserLogin<TKey>, new()
     where TUserToken : IdentityUserToken<TKey>, new()
+    where TDbConnection : IDbConnection
 {
     private const string InternalLoginProvider = "[AspNetUserStore]";
     private const string AuthenticatorKeyTokenName = "AuthenticatorKey";
@@ -38,7 +39,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
 
     protected DapperUserOnlyStoreBase(
         IdentityErrorDescriber describer,
-        IIdentityDbConnectionProvider connectionProvider,
+        IIdentityDbConnectionProvider<TDbConnection> connectionProvider,
         IIdentityUserSql identityUserSql,
         IIdentityUserClaimSql identityUserClaimSql,
         IIdentityUserLoginSql identityUserLoginSql,
@@ -66,7 +67,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
     }
 
-    protected IIdentityDbConnectionProvider ConnectionProvider { get; }
+    protected IIdentityDbConnectionProvider<TDbConnection> ConnectionProvider { get; }
 
     protected IIdentityUserSql IdentityUserSql { get; }
 
@@ -1445,7 +1446,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     }
 
     protected virtual async Task CreateImplAsync(
-        IDbConnection connection,
+        TDbConnection connection,
         TUser user,
         CancellationToken cancellationToken)
     {

@@ -1,4 +1,5 @@
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
+using Microsoft.CodeAnalysis;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite;
 
@@ -22,4 +23,11 @@ public class SqliteSourceGenerationHelper
     }
 
     protected override string GenerateSchemaPart(string dbSchema) => string.Empty;
+
+    protected override void GenerateAdditionalFiles(
+        SourceProductionContext context,
+        IdentityDapperOptions options)
+    {
+        // noop
+    }
 }

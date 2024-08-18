@@ -16,8 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="1.4.0" />
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.PostgreSql" Version="1.4.0" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.0" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.PostgreSql" Version="2.0.0" />
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
     <PackageReference Include="dbup-postgresql" Version="5.0.40" />

@@ -20,7 +20,8 @@ public sealed class DatabaseWithGuidIdFixture
 
     public DatabaseWithGuidIdFixture()
     {
-        OracleDapperConfig.ConfigureTypeHandlers(BooleanAs.Char);
+        OracleDapperConfig.ConfigureTypeHandlers();
+        //OracleDapperConfig.ConfigureTypeHandlers(BooleanAs.Char);
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
         InitializeAsync().GetAwaiter().GetResult();
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits

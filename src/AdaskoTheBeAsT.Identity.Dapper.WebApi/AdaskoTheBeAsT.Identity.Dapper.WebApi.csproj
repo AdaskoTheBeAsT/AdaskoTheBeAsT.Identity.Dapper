@@ -46,8 +46,4 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
-    <Folder Include="Generated\AdaskoTheBeAsT.Identity.Dapper.SqlServer\AdaskoTheBeAsT.Identity.Dapper.SqlServer.SqlServerIdentityDapperSourceGenerator\" />
-  </ItemGroup>
-
 </Project>

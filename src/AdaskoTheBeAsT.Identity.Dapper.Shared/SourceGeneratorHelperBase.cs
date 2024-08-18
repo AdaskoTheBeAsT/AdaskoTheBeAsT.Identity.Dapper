@@ -80,12 +80,25 @@ public abstract class SourceGeneratorHelperBase
         var attributeTypeSymbol = compilation.GetTypeByMetadataName("AdaskoTheBeAsT.Identity.Dapper.Attributes.InsertOwnIdAttribute");
 
         var typePropertiesDict = new Dictionary<string, IList<PropertyColumnTypeTriple>>(StringComparer.OrdinalIgnoreCase);
+        var userInsertOwnId = false;
+        var roleInsertOwnId = false;
         foreach (var group in grouped)
         {
             var baseTypeName = group.Key.BaseType?.Name ?? string.Empty;
             namespaceName = group.Key.ContainingNamespace.ToDisplayString();
             var insertOwnId = group.Key.GetAttributes()
                 .Any(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeTypeSymbol));
+            if (insertOwnId)
+            {
+                if (baseTypeName == nameof(IdentityUser))
+                {
+                    userInsertOwnId = true;
+                }
+                else if (baseTypeName == nameof(IdentityRole))
+                {
+                    roleInsertOwnId = true;
+                }
+            }
 
             var config = new IdentityDapperConfiguration(
                 baseTypeName,
@@ -115,10 +128,23 @@ public abstract class SourceGeneratorHelperBase
             typePropertiesDict[baseTypeName] = allProperties;
         }
 
-        ProcessApplicationStores(context, typePropertiesDict, generationInfo.KeyTypeName, namespaceName);
+        ProcessApplicationStores(
+            context,
+            typePropertiesDict,
+            options,
+            generationInfo.KeyTypeName,
+            namespaceName,
+            userInsertOwnId,
+            roleInsertOwnId);
+
+        GenerateAdditionalFiles(context, options);
     }
 
     protected abstract string GenerateSchemaPart(string dbSchema);
+
+    protected abstract void GenerateAdditionalFiles(
+        SourceProductionContext context,
+        IdentityDapperOptions options);
 
     private IList<PropertyColumnTypeTriple> ProcessClass(
         SourceProductionContext context,
@@ -273,21 +299,31 @@ public abstract class SourceGeneratorHelperBase
     private void ProcessApplicationStores(
         SourceProductionContext context,
         IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+        IdentityDapperOptions options,
         string keyTypeName,
-        string namespaceName)
+        string namespaceName,
+        bool userInsertOwnId,
+        bool roleInsertOwnId)
     {
-        ProcessApplicationUserOnlyStore(context, typePropertiesDict, keyTypeName, namespaceName);
-        ProcessApplicationUserStore(context, typePropertiesDict, keyTypeName, namespaceName);
-        ProcessApplicationRoleStore(context, typePropertiesDict, keyTypeName, namespaceName);
+        ProcessApplicationUserOnlyStore(context, typePropertiesDict, options, keyTypeName, namespaceName, userInsertOwnId);
+        ProcessApplicationUserStore(context, typePropertiesDict, options, keyTypeName, namespaceName, userInsertOwnId);
+        ProcessApplicationRoleStore(context, typePropertiesDict, options, keyTypeName, namespaceName, roleInsertOwnId);
     }
 
     private void ProcessApplicationUserOnlyStore(
         SourceProductionContext context,
         IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+        IdentityDapperOptions options,
         string keyTypeName,
-        string namespaceName)
+        string namespaceName,
+        bool insertOwnId)
     {
-        var content = _applicationUserOnlyStoreGenerator.Generate(typePropertiesDict, keyTypeName, namespaceName);
+        var content = _applicationUserOnlyStoreGenerator.Generate(
+            typePropertiesDict,
+            options,
+            keyTypeName,
+            namespaceName,
+            insertOwnId);
 
         context.AddSource("ApplicationUserOnlyStore.g.cs", SourceText.From(content, Encoding.UTF8));
     }
@@ -295,10 +331,12 @@ public abstract class SourceGeneratorHelperBase
     private void ProcessApplicationUserStore(
         SourceProductionContext context,
         IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+        IdentityDapperOptions options,
         string keyTypeName,
-        string namespaceName)
+        string namespaceName,
+        bool insertOwnId)
     {
-        var content = _applicationUserStoreGenerator.Generate(typePropertiesDict, keyTypeName, namespaceName);
+        var content = _applicationUserStoreGenerator.Generate(typePropertiesDict, options, keyTypeName, namespaceName, insertOwnId);
 
         context.AddSource("ApplicationUserStore.g.cs", SourceText.From(content, Encoding.UTF8));
     }
@@ -306,10 +344,17 @@ public abstract class SourceGeneratorHelperBase
     private void ProcessApplicationRoleStore(
         SourceProductionContext context,
         IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+        IdentityDapperOptions options,
         string keyTypeName,
-        string namespaceName)
+        string namespaceName,
+        bool insertOwnId)
     {
-        var content = _applicationRoleStoreGenerator.Generate(typePropertiesDict, keyTypeName, namespaceName);
+        var content = _applicationRoleStoreGenerator.Generate(
+            typePropertiesDict,
+            options,
+            keyTypeName,
+            namespaceName,
+            insertOwnId);
 
         context.AddSource("ApplicationRoleStore.g.cs", SourceText.From(content, Encoding.UTF8));
     }

@@ -6,11 +6,12 @@ using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
 
 public class MySqlApplicationUserStoreGenerator
-    : IdentityStoreGeneratorBase,
+    : MySqlIdentityStoreGeneratorBase,
         IApplicationUserStoreGenerator
 {
     public string Generate(
         IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+        IdentityDapperOptions options,
         string keyTypeName,
         string namespaceName)
     {
@@ -20,7 +21,7 @@ public class MySqlApplicationUserStoreGenerator
         GenerateClassStart(
             sb,
             "ApplicationUserStore",
-            $"DapperUserStoreBase<ApplicationUser, ApplicationRole, {keyTypeName}, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationUserToken>");
+            $"DapperUserStoreBase<ApplicationUser, ApplicationRole, {keyTypeName}, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationUserToken, MySqlConnection>");
         GenerateConstructor(sb);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
@@ -31,7 +32,7 @@ public class MySqlApplicationUserStoreGenerator
     {
         sb.AppendLine(
             @"        public ApplicationUserStore(
-            IIdentityDbConnectionProvider connectionProvider)
+            IIdentityDbConnectionProvider<MySqlConnection> connectionProvider)
             : base(
                 new IdentityErrorDescriber(),
                 connectionProvider,

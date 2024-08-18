@@ -12,12 +12,13 @@ using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper;
 
-public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
+public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
     : IRoleClaimStore<TRole>,
         IQueryableRoleStore<TRole>
     where TRole : IdentityRole<TKey>
     where TKey : IEquatable<TKey>
     where TRoleClaim : IdentityRoleClaim<TKey>, new()
+    where TDbConnection : IDbConnection
 {
     private bool _disposed;
 
@@ -25,12 +26,12 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     /// Constructs a new instance of <see cref="T:DapperRoleStore`3" />.
     /// </summary>
     /// <param name="describer">The <see cref="T:Microsoft.AspNetCore.Identity.IdentityErrorDescriber" />.</param>
-    /// <param name="connectionProvider">The <see cref="IIdentityDbConnectionProvider"/> instance.</param>
+    /// <param name="connectionProvider">The <see cref="IIdentityDbConnectionProvider{T}"/> instance.</param>
     /// <param name="identityRoleSql">The <see cref="IIdentityRoleSql"/> instance.</param>
     /// <param name="identityRoleClaimSql">The <see cref="IdentityRoleClaimSql"/> instance.</param>
     public DapperRoleStoreBase(
         IdentityErrorDescriber describer,
-        IIdentityDbConnectionProvider connectionProvider,
+        IIdentityDbConnectionProvider<TDbConnection> connectionProvider,
         IIdentityRoleSql identityRoleSql,
         IIdentityRoleClaimSql identityRoleClaimSql)
     {
@@ -54,7 +55,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
         }
     }
 
-    protected IIdentityDbConnectionProvider ConnectionProvider { get; }
+    protected IIdentityDbConnectionProvider<TDbConnection> ConnectionProvider { get; }
 
     protected IIdentityRoleSql IdentityRoleSql { get; }
 
@@ -408,7 +409,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim>
     }
 
     protected virtual async Task CreateImplAsync(
-        IDbConnection connection,
+        TDbConnection connection,
         TRole role,
         CancellationToken cancellationToken)
     {

@@ -12,6 +12,7 @@ using AdaskoTheBeAsT.MediatR.SimpleInjector.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,7 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddSingleton<IIdentityDbConnectionProvider>(_ => new IdentityDbConnectionProvider(connectionString));
+builder.Services.AddSingleton<IIdentityDbConnectionProvider<SqlConnection>>(_ => new IdentityDbConnectionProvider(connectionString));
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
     .AddDefaultTokenProviders();

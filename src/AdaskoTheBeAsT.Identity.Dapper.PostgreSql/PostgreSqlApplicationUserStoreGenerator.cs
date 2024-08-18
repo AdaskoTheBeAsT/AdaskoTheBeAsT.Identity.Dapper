@@ -6,7 +6,7 @@ using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 namespace AdaskoTheBeAsT.Identity.Dapper.PostgreSql;
 
 public class PostgreSqlApplicationUserStoreGenerator
-    : IdentityStoreGeneratorBase,
+    : PostgreSqlIdentityStoreGeneratorBase,
         IApplicationUserStoreGenerator
 {
     public string Generate(
@@ -20,7 +20,7 @@ public class PostgreSqlApplicationUserStoreGenerator
         GenerateClassStart(
             sb,
             "ApplicationUserStore",
-            $"DapperUserStoreBase<ApplicationUser, ApplicationRole, {keyTypeName}, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationUserToken>");
+            $"DapperUserStoreBase<ApplicationUser, ApplicationRole, {keyTypeName}, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationUserToken, NpgsqlConnection>");
         GenerateConstructor(sb);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
@@ -31,7 +31,7 @@ public class PostgreSqlApplicationUserStoreGenerator
     {
         sb.AppendLine(
             @"        public ApplicationUserStore(
-            IIdentityDbConnectionProvider connectionProvider)
+            IIdentityDbConnectionProvider<NpgsqlConnection> connectionProvider)
             : base(
                 new IdentityErrorDescriber(),
                 connectionProvider,

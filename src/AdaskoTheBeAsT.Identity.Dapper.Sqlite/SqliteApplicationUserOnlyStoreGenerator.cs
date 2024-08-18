@@ -6,13 +6,14 @@ using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite;
 
 public class SqliteApplicationUserOnlyStoreGenerator
-    : IdentityStoreGeneratorBase,
+    : SqliteIdentityStoreGeneratorBase,
         IApplicationUserOnlyStoreGenerator
 {
     public string Generate(
         IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
         string keyTypeName,
-        string namespaceName)
+        string namespaceName,
+        bool insertOwnId)
     {
         var sb = new StringBuilder();
         GenerateUsing(sb, keyTypeName);
@@ -20,7 +21,7 @@ public class SqliteApplicationUserOnlyStoreGenerator
         GenerateClassStart(
             sb,
             "ApplicationUserOnlyStore",
-            $"DapperUserOnlyStoreBase<ApplicationUser, {keyTypeName}, ApplicationUserClaim, ApplicationUserLogin, ApplicationUserToken>");
+            $"DapperUserOnlyStoreBase<ApplicationUser, {keyTypeName}, ApplicationUserClaim, ApplicationUserLogin, ApplicationUserToken, SqliteConnection>");
         GenerateConstructor(sb);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
@@ -31,7 +32,7 @@ public class SqliteApplicationUserOnlyStoreGenerator
     {
         sb.AppendLine(
             @"        public ApplicationUserOnlyStore(
-            IIdentityDbConnectionProvider connectionProvider)
+            IIdentityDbConnectionProvider<SqliteConnection> connectionProvider)
             : base(
                 new IdentityErrorDescriber(),
                 connectionProvider,

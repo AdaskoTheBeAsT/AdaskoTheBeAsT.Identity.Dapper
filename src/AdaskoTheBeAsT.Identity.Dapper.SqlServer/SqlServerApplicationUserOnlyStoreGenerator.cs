@@ -6,13 +6,14 @@ using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 namespace AdaskoTheBeAsT.Identity.Dapper.SqlServer;
 
 public class SqlServerApplicationUserOnlyStoreGenerator
-    : IdentityStoreGeneratorBase,
+    : SqlServerIdentityStoreGeneratorBase,
         IApplicationUserOnlyStoreGenerator
 {
     public string Generate(
         IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
         string keyTypeName,
-        string namespaceName)
+        string namespaceName,
+        bool insertOwnId)
     {
         var sb = new StringBuilder();
         GenerateUsing(sb, keyTypeName);
@@ -20,7 +21,7 @@ public class SqlServerApplicationUserOnlyStoreGenerator
         GenerateClassStart(
             sb,
             "ApplicationUserOnlyStore",
-            $"DapperUserOnlyStoreBase<ApplicationUser, {keyTypeName}, ApplicationUserClaim, ApplicationUserLogin, ApplicationUserToken>");
+            $"DapperUserOnlyStoreBase<ApplicationUser, {keyTypeName}, ApplicationUserClaim, ApplicationUserLogin, ApplicationUserToken, SqlConnection>");
         GenerateConstructor(sb);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
@@ -31,7 +32,7 @@ public class SqlServerApplicationUserOnlyStoreGenerator
     {
         sb.AppendLine(
             @"        public ApplicationUserOnlyStore(
-            IIdentityDbConnectionProvider connectionProvider)
+            IIdentityDbConnectionProvider<SqlConnection> connectionProvider)
             : base(
                 new IdentityErrorDescriber(),
                 connectionProvider,

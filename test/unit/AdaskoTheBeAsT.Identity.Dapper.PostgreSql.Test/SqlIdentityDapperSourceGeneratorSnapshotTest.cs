@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace AdaskoTheBeAsT.Identity.Dapper.PostgreSql.Test;
 
 public class SqlIdentityDapperSourceGeneratorSnapshotTest

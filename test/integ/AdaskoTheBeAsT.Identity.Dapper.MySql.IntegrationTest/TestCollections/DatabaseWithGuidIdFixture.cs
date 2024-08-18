@@ -1,5 +1,4 @@
 using AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest.Util;
-using Dapper;
 using DbUp;
 using Testcontainers.MySql;
 using Xunit;
