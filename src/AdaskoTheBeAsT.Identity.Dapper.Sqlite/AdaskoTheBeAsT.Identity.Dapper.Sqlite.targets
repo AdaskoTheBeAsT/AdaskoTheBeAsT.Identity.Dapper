@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup>
+    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_SkipNormalized" />
+  </ItemGroup>
+</Project>

@@ -5,15 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
-    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-    <AdaskoTheBeAsTIdentityDapper_DbSchema>WithoutNormalizedAspNetIdentityGuid</AdaskoTheBeAsTIdentityDapper_DbSchema>
     <AdaskoTheBeAsTIdentityDapper_SkipNormalized>true</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
   </PropertyGroup>
-
-  <ItemGroup>
-    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_DbSchema" />
-    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_SkipNormalized" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.0" />

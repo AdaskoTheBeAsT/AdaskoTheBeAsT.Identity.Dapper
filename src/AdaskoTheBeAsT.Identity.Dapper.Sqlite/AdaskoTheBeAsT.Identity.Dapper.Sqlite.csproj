@@ -66,6 +66,9 @@
 
     <!-- Package the props file -->
     <None Include="AdaskoTheBeAsT.Identity.Dapper.Sqlite.props" Pack="true" PackagePath="build" Visible="false" />
+
+    <!-- Package the targets file -->
+    <None Include="AdaskoTheBeAsT.Identity.Dapper.Sqlite.targets" Pack="true" PackagePath="build" Visible="false" />
   </ItemGroup>
 
   <Import Project="..\AdaskoTheBeAsT.Identity.Dapper.Shared\AdaskoTheBeAsT.Identity.Dapper.Shared.projitems" Label="Shared" />

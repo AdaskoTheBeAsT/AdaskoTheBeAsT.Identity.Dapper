@@ -1,8 +1,10 @@
 <Project>
-  <ItemGroup>
-    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_DbSchema" />
-	<CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_SkipNormalized" />
-	<!-- Possible values char, string, numeric -->
-	<CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_StoreBooleanAs" />
-  </ItemGroup>
+  <PropertyGroup>
+    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+    <AdaskoTheBeAsTIdentityDapper_DbSchema></AdaskoTheBeAsTIdentityDapper_DbSchema>
+    <AdaskoTheBeAsTIdentityDapper_SkipNormalized>false</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
+    <!-- Possible values char, string, numeric -->
+    <AdaskoTheBeAsTIdentityDapper_StoreBooleanAs>char</AdaskoTheBeAsTIdentityDapper_StoreBooleanAs>
+  </PropertyGroup>
 </Project>

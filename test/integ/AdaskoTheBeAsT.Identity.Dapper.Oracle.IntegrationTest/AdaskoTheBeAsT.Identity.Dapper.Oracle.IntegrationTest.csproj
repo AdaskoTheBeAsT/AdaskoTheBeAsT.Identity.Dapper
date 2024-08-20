@@ -5,17 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
-    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-    <AdaskoTheBeAsTIdentityDapper_DbSchema></AdaskoTheBeAsTIdentityDapper_DbSchema>
     <AdaskoTheBeAsTIdentityDapper_SkipNormalized>true</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
-    <AdaskoTheBeAsTIdentityDapper_StoreBooleanAs>char</AdaskoTheBeAsTIdentityDapper_StoreBooleanAs>
   </PropertyGroup>
-
-  <ItemGroup>
-    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_DbSchema" />
-    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_SkipNormalized" />
-    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_StoreBooleanAs" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.0" />
