@@ -7,7 +7,7 @@ internal static class Program
 {
     private static void Main()
     {
-        OracleDapperConfig.ConfigureTypeHandlers(BooleanAs.Char);
+        // OracleDapperConfig.ConfigureTypeHandlers();
         var connStr = "Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521)))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=XEPDB1)));User Id=mydeveloper;Password=mypassword;";
         using (var conn = new OracleConnection(connStr))
         {

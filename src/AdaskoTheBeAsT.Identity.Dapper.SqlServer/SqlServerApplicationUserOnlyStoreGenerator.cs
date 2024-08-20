@@ -11,6 +11,7 @@ public class SqlServerApplicationUserOnlyStoreGenerator
 {
     public string Generate(
         IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+        IdentityDapperOptions options,
         string keyTypeName,
         string namespaceName,
         bool insertOwnId)

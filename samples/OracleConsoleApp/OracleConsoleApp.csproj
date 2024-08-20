@@ -1,20 +1,23 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+    <AdaskoTheBeAsTIdentityDapper_DbSchema></AdaskoTheBeAsTIdentityDapper_DbSchema>
+    <AdaskoTheBeAsTIdentityDapper_SkipNormalized>true</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
+    <AdaskoTheBeAsTIdentityDapper_StoreBooleanAs>char</AdaskoTheBeAsTIdentityDapper_StoreBooleanAs>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.0" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.Oracle" Version="2.0.0" />
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Dapper.Oracle" Version="2.0.3" />
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.5.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\AdaskoTheBeAsT.Identity.Dapper.Oracle\AdaskoTheBeAsT.Identity.Dapper.Oracle.csproj" />
   </ItemGroup>
 
 </Project>

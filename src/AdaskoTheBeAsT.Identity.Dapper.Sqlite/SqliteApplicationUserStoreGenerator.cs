@@ -11,8 +11,10 @@ public class SqliteApplicationUserStoreGenerator
 {
     public string Generate(
         IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+        IdentityDapperOptions options,
         string keyTypeName,
-        string namespaceName)
+        string namespaceName,
+        bool insertOwnId)
     {
         var sb = new StringBuilder();
         GenerateUsing(sb, keyTypeName);
