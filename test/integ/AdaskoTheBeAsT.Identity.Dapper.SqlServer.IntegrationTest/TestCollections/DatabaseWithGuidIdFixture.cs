@@ -15,7 +15,10 @@ public sealed class DatabaseWithGuidIdFixture
 
     private readonly MsSqlContainer _msSqlContainer
         = new MsSqlBuilder()
-            //// .WithImage("mcr.microsoft.com/mssql/server:latest")
+            //.WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+            //.WithEnvironment("ACCEPT_EULA", "Y")
+            //.WithEnvironment("MSSQL_SA_PASSWORD", "TestPass123!")
+            //.WithEnvironment("MSSQL_PID", "Developer")
             .WithExposedPort(55123)
             .WithPassword("TestPass123!")
             .Build();

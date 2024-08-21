@@ -12,7 +12,8 @@ public sealed class DatabaseWithGuidIdFixture
 {
     public DatabaseWithGuidIdFixture()
     {
-        Connection = new SqliteConnection("Data Source=:memory:;Version=3;");
+        SqliteDapperConfig.ConfigureTypeHandlers();
+        Connection = new SqliteConnection("Data Source=:memory:;");
 
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
         InitializeAsync().GetAwaiter().GetResult();

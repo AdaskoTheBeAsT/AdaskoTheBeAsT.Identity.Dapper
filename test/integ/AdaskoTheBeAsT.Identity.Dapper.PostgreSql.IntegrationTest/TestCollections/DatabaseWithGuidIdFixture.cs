@@ -13,6 +13,7 @@ public sealed class DatabaseWithGuidIdFixture
 
     private readonly PostgreSqlContainer _postgreSqlContainer
         = new PostgreSqlBuilder()
+            .WithImage("postgres:16.4")
             .WithDatabase(DbName)
             .WithUsername("admin")
             .WithPassword("TestPass123!")

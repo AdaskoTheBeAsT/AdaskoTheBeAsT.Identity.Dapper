@@ -56,7 +56,7 @@ public abstract class IdentityDapperSourceGeneratorBase
         AnalyzerConfigOptionsProvider provider,
         CancellationToken token)
     {
-        var dbSchema = "dbo";
+        var dbSchema = string.Empty;
         if (provider.GlobalOptions.TryGetValue(
                 "build_property.AdaskoTheBeAsTIdentityDapper_DbSchema",
                 out var schemaProperty))
