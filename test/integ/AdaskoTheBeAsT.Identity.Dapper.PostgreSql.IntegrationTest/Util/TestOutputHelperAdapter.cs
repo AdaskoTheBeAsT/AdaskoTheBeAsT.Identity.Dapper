@@ -55,4 +55,47 @@ public class TestOutputHelperAdapter
     {
         WriteLine("WARNING: " + format, args);
     }
+
+    public void LogTrace(
+        string format,
+        params object[] args)
+    {
+        WriteLine("Trace:" + format, args);
+    }
+
+    public void LogDebug(
+        string format,
+        params object[] args)
+    {
+        WriteLine("Debug:" + format, args);
+    }
+
+    public void LogInformation(
+        string format,
+        params object[] args)
+    {
+        WriteLine("Information:" + format, args);
+    }
+
+    public void LogWarning(
+        string format,
+        params object[] args)
+    {
+        WriteLine("Warning:" + format, args);
+    }
+
+    public void LogError(
+        string format,
+        params object[] args)
+    {
+        WriteLine("Error:" + format, args);
+    }
+
+    public void LogError(
+        Exception ex,
+        string format,
+        params object[] args)
+    {
+        WriteLine("Error:" + format, args);
+    }
 }

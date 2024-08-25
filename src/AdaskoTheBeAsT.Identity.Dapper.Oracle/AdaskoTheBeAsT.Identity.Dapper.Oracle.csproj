@@ -51,8 +51,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
-    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="" Visible="false" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
     <!-- Pack the generator dll in the analyzers/dotnet/cs path -->
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 
@@ -64,13 +64,15 @@
     <None Include="$(PKGMicrosoft_Extensions_Identity_Stores)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 
     <!-- Pack the attributes dll in the lib\netstandard2.0 path -->
-    <None Include="$(OutputPath)\AdaskoTheBeAsT.Identity.Dapper.dll" Pack="true" PackagePath="lib\netstandard2.0" Visible="true" />
+    <None Include="$(OutputPath)\AdaskoTheBeAsT.Identity.Dapper.dll" Pack="true" PackagePath="lib\netstandard2.0" Visible="false" />
 
     <!-- Package the props file -->
-    <None Include="AdaskoTheBeAsT.Identity.Dapper.Oracle.props" Pack="true" PackagePath="build" Visible="false" />
+    <None Include="AdaskoTheBeAsT.Identity.Dapper.Oracle.props" Pack="true" PackagePath="build" />
+    <None Include="AdaskoTheBeAsT.Identity.Dapper.Oracle.props" Pack="true" PackagePath="buildTransitive" />
 
     <!-- Package the targets file -->
-    <None Include="AdaskoTheBeAsT.Identity.Dapper.Oracle.targets" Pack="true" PackagePath="build" Visible="false" />
+    <None Include="AdaskoTheBeAsT.Identity.Dapper.Oracle.targets" Pack="true" PackagePath="build" />
+    <None Include="AdaskoTheBeAsT.Identity.Dapper.Oracle.targets" Pack="true" PackagePath="buildTransitive" />
   </ItemGroup>
 
   <Import Project="..\AdaskoTheBeAsT.Identity.Dapper.Shared\AdaskoTheBeAsT.Identity.Dapper.Shared.projitems" Label="Shared" />

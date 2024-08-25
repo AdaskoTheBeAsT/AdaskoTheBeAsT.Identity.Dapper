@@ -23,13 +23,13 @@ public class DeleteUserRequestHandler
             return IdentityResult.Failed(new IdentityError { Description = "User id not provided" });
         }
 
-        var user = await _userManager.FindByIdAsync(request.UserId.Value.ToString("D")).ConfigureAwait(false);
+        var user = await _userManager.FindByIdAsync(request.UserId.Value.ToString("D")).ConfigureAwait(continueOnCapturedContext: false);
         if (user == null)
         {
             return IdentityResult.Failed(new IdentityError { Description = "User not found" });
         }
 
-        var result = await _userManager.DeleteAsync(user).ConfigureAwait(false);
+        var result = await _userManager.DeleteAsync(user).ConfigureAwait(continueOnCapturedContext: false);
         return result;
     }
 }

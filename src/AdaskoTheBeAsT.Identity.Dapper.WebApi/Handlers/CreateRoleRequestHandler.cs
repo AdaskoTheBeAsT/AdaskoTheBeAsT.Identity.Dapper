@@ -19,7 +19,7 @@ public class CreateRoleRequestHandler
     public async Task<IdentityResult> Handle(CreateRoleRequest request, CancellationToken cancellationToken)
     {
         var role = new ApplicationRole { Name = request.Name };
-        var result = await _roleManager.CreateAsync(role).ConfigureAwait(false);
+        var result = await _roleManager.CreateAsync(role).ConfigureAwait(continueOnCapturedContext: false);
         return result;
     }
 }

@@ -31,7 +31,7 @@ public class RoleController : ControllerBase
         try
         {
             var request = _mapper.Map<CreateRoleRequest>(roleModel);
-            var result = await _mediator.Send(request).ConfigureAwait(false);
+            var result = await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
             if (result.Succeeded)
             {
                 return Ok();
@@ -52,7 +52,7 @@ public class RoleController : ControllerBase
         try
         {
             var request = new GetAllRolesRequest();
-            var roles = await _mediator.Send(request).ConfigureAwait(false);
+            var roles = await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
             return Ok(roles);
         }
         catch (Exception ex)

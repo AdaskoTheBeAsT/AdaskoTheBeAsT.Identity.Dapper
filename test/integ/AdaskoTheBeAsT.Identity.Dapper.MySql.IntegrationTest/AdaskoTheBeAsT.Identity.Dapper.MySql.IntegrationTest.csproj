@@ -22,19 +22,18 @@
     <PackageReference Include="Testcontainers.MySql" Version="3.9.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <!--<ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.MySql\AdaskoTheBeAsT.Identity.Dapper.MySql.csproj" />
-    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />-->
+  <!--<ItemGroup>
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.MySql\AdaskoTheBeAsT.Identity.Dapper.MySql.csproj" />
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
-    <!-- Exclude the output of source generators from the compilation -->
     <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
     <None Include="Generated/**/*" />
-  </ItemGroup>
+  </ItemGroup>-->
 
   <ItemGroup>
     <None Include="..\..\..\db\MySql\AspNetIdentityBigInt.sql" Link="Scripts\AspNetIdentityBigInt.sql">

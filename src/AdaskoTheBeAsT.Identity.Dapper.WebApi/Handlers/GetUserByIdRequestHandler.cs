@@ -27,13 +27,13 @@ public class GetUserByIdRequestHandler
             return null;
         }
 
-        var user = await _userManager.FindByIdAsync(request.UserId!.Value.ToString("D")).ConfigureAwait(false);
+        var user = await _userManager.FindByIdAsync(request.UserId!.Value.ToString("D")).ConfigureAwait(continueOnCapturedContext: false);
         if (user == null)
         {
             return null;
         }
 
-        var roles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+        var roles = await _userManager.GetRolesAsync(user).ConfigureAwait(continueOnCapturedContext: false);
         var userModel = _mapper.Map<UserModel>(user);
         userModel.Roles = roles;
         return userModel;

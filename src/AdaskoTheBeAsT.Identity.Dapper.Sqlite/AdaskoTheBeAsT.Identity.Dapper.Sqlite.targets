@@ -2,4 +2,12 @@
   <ItemGroup>
     <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_SkipNormalized" />
   </ItemGroup>
+
+  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
+    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
+    <None Include="$(CompilerGeneratedFilesOutputPath)/**/*" />
+  </ItemGroup>
 </Project>

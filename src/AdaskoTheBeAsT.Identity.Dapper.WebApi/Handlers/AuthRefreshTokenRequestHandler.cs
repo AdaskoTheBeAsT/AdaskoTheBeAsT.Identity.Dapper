@@ -37,14 +37,14 @@ public class AuthRefreshTokenRequestHandler
             throw new InvalidRefreshTokenException();
         }
 
-        var user = await _userManager.FindByNameAsync(refreshToken.Subject ?? string.Empty).ConfigureAwait(false);
+        var user = await _userManager.FindByNameAsync(refreshToken.Subject ?? string.Empty).ConfigureAwait(continueOnCapturedContext: false);
         if (user == null)
         {
             throw new UserNotFoundException($"User {refreshToken.Subject} not found");
         }
 
-        var roles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
-        var claims = await _userRoleClaimStore.GetUserAndRoleClaimsAsync(user, cancellationToken).ConfigureAwait(false);
+        var roles = await _userManager.GetRolesAsync(user).ConfigureAwait(continueOnCapturedContext: false);
+        var claims = await _userRoleClaimStore.GetUserAndRoleClaimsAsync(user, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         return _tokenService.GenerateToken(user, roles, claims);
     }
 }

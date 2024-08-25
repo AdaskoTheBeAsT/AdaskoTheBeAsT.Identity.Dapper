@@ -12,6 +12,7 @@ public class OracleIdentityStoreGeneratorBase
     {
         sb.AppendLine("using System;");
         sb.AppendLine("using System.Data;");
+        sb.AppendLine("using System.Security.Claims;");
         sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper;");
         sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper.Abstractions;");
         sb.AppendLine("using Dapper;");

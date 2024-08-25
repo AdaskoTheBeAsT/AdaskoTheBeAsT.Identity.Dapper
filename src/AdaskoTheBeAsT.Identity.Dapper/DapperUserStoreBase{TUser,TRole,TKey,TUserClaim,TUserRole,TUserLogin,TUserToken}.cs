@@ -68,11 +68,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        return (await connection.QueryAsync<TUser>(
-                    IdentityUserSql.GetUsersInRoleSql,
-                    new { NormalizedName = roleName })
-                .ConfigureAwait(false))
-            .AsList();
+        return await GetUsersInRoleImplAsync(connection, roleName, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
     }
 
     /// <summary>
@@ -89,17 +86,16 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
-        var role = await FindRoleAsync(roleName, cancellationToken).ConfigureAwait(false);
+        using var connection = ConnectionProvider.Provide();
+
+        var role = await FindRoleImplAsync(connection, roleName, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         if (role == null)
         {
             throw new RoleNotFoundException($"Role {roleName} not found");
         }
 
-        using var connection = ConnectionProvider.Provide();
-        await connection.ExecuteAsync(
-                IdentityUserRoleSql.CreateSql,
-                CreateUserRole(user, role))
-            .ConfigureAwait(false);
+        await AddToRoleImplAsync(connection, user, role, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
     }
 
     /// <summary>
@@ -116,17 +112,15 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
-        var role = await FindRoleAsync(roleName, cancellationToken).ConfigureAwait(false);
+        using var connection = ConnectionProvider.Provide();
+        var role = await FindRoleImplAsync(connection, roleName, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         if (role == null)
         {
             throw new RoleNotFoundException($"Role {roleName} not found");
         }
 
-        using var connection = ConnectionProvider.Provide();
-        await connection.ExecuteAsync(
-                IdentityUserRoleSql.DeleteSql,
-                CreateUserRole(user, role))
-            .ConfigureAwait(false);
+        await RemoveFromRoleImplAsync(connection, user, role, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
     }
 
     /// <summary>
@@ -142,11 +136,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        return (await connection.QueryAsync<string>(
-                    IdentityUserRoleSql.GetRoleNamesByUserIdSql,
-                    new { UserId = user.Id })
-                .ConfigureAwait(false))
-            .AsList();
+        return await GetRolesImplAsync(connection, user, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
     }
 
     /// <summary>
@@ -164,17 +155,15 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
-        var role = await FindRoleAsync(roleName, cancellationToken).ConfigureAwait(false);
+        using var connection = ConnectionProvider.Provide();
+        var role = await FindRoleImplAsync(connection, roleName, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         if (role == null)
         {
             throw new RoleNotFoundException($"Role {roleName} not found");
         }
 
-        using var connection = ConnectionProvider.Provide();
-        return (await connection.QueryFirstOrDefaultAsync<int>(
-                IdentityUserRoleSql.GetCountSql,
-                CreateUserRole(user, role))
-            .ConfigureAwait(false)) > 0;
+        return await IsInRoleImplAsync(connection, user, role, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
     }
 
     /// <summary>
@@ -190,11 +179,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        return (await connection.QueryAsync<Claim>(
-                    IdentityUserRoleClaimSql.GetRoleClaimsByUserIdSql,
-                    user)
-                .ConfigureAwait(false))
-            .AsList();
+        return await GetRoleClaimsImplAsync(connection, user, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
     }
 
     /// <summary>
@@ -210,11 +196,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        return (await connection.QueryAsync<Claim>(
-                    IdentityUserRoleClaimSql.GetUserAndRoleClaimsByUserIdSql,
-                    user)
-                .ConfigureAwait(false))
-            .AsList();
+        return await GetUserAndRoleClaimsImplAsync(connection, user, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
     }
 
     /// <summary>
@@ -232,47 +215,111 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         };
     }
 
+    protected virtual async Task<IList<TUser>> GetUsersInRoleImplAsync(
+        TDbConnection connection,
+        string roleName,
+        CancellationToken cancellationToken) =>
+        (await connection.QueryAsync<TUser>(
+                IdentityUserSql.GetUsersInRoleSql,
+                new { NormalizedName = roleName })
+            .ConfigureAwait(continueOnCapturedContext: false))
+        .AsList();
+
+    protected virtual async Task AddToRoleImplAsync(
+        TDbConnection connection,
+        TUser user,
+        TRole role,
+        CancellationToken cancellationToken) =>
+        await connection.ExecuteAsync(
+                IdentityUserRoleSql.CreateSql,
+                CreateUserRole(user, role))
+            .ConfigureAwait(continueOnCapturedContext: false);
+
+    protected virtual async Task RemoveFromRoleImplAsync(
+        TDbConnection connection,
+        TUser user,
+        TRole role,
+        CancellationToken cancellationToken) =>
+        await connection.ExecuteAsync(
+                IdentityUserRoleSql.DeleteSql,
+                CreateUserRole(user, role))
+            .ConfigureAwait(continueOnCapturedContext: false);
+
+    protected virtual async Task<IList<string>> GetRolesImplAsync(
+        TDbConnection connection,
+        TUser user,
+        CancellationToken cancellationToken) =>
+        (await connection.QueryAsync<string>(
+                IdentityUserRoleSql.GetRoleNamesByUserIdSql,
+                new { UserId = user.Id })
+            .ConfigureAwait(continueOnCapturedContext: false))
+        .AsList();
+
+    protected virtual async Task<bool> IsInRoleImplAsync(
+        TDbConnection connection,
+        TUser user,
+        TRole role,
+        CancellationToken cancellationToken) =>
+        (await connection.QueryFirstOrDefaultAsync<int>(
+                IdentityUserRoleSql.GetCountSql,
+                CreateUserRole(user, role))
+            .ConfigureAwait(continueOnCapturedContext: false)) > 0;
+
+    protected virtual async Task<IList<Claim>> GetRoleClaimsImplAsync(
+        TDbConnection connection,
+        TUser user,
+        CancellationToken cancellationToken) =>
+        (await connection.QueryAsync<Claim>(
+                IdentityUserRoleClaimSql.GetRoleClaimsByUserIdSql,
+                user)
+            .ConfigureAwait(continueOnCapturedContext: false))
+        .AsList();
+
+    protected virtual async Task<IList<Claim>> GetUserAndRoleClaimsImplAsync(
+        TDbConnection connection,
+        TUser user,
+        CancellationToken cancellationToken) =>
+        (await connection.QueryAsync<Claim>(
+                IdentityUserRoleClaimSql.GetUserAndRoleClaimsByUserIdSql,
+                user)
+            .ConfigureAwait(continueOnCapturedContext: false))
+        .AsList();
+
     /// <summary>
     /// Return a role with the normalized name if it exists.
     /// </summary>
+    /// <param name="connection">Connection to db.</param>
     /// <param name="roleName">The normalized role name.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The role if it exists.</returns>
-    protected virtual async Task<TRole?> FindRoleAsync(
+    protected virtual async Task<TRole?> FindRoleImplAsync(
+        TDbConnection connection,
         string roleName,
-        CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        ThrowIfDisposed();
-        using var connection = ConnectionProvider.Provide();
-        return await connection.QueryFirstOrDefaultAsync<TRole?>(
+        CancellationToken cancellationToken) =>
+        await connection.QueryFirstOrDefaultAsync<TRole?>(
                 IdentityRoleSql.FindByNameSql,
                 new { NormalizedName = roleName })
-            .ConfigureAwait(false);
-    }
+            .ConfigureAwait(continueOnCapturedContext: false);
 
     /// <summary>
     /// Return a user role for the userId and roleId if it exists.
     /// </summary>
+    /// <param name="connection">Connection to db.</param>
     /// <param name="userId">The user's id.</param>
     /// <param name="roleId">The role's id.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The user role if it exists.</returns>
     protected virtual async Task<TUserRole?> FindUserRoleAsync(
+        TDbConnection connection,
         TKey userId,
         TKey roleId,
-        CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        ThrowIfDisposed();
-        using var connection = ConnectionProvider.Provide();
-        return await connection.QueryFirstOrDefaultAsync<TUserRole?>(
+        CancellationToken cancellationToken) =>
+        await connection.QueryFirstOrDefaultAsync<TUserRole?>(
                 IdentityUserRoleSql.GetByUserIdRoleIdSql,
                 new
                 {
                     UserId = userId,
                     RoleId = roleId,
                 })
-            .ConfigureAwait(false);
-    }
+            .ConfigureAwait(continueOnCapturedContext: false);
 }

@@ -32,7 +32,7 @@ public class TokenController : ControllerBase
         try
         {
             var request = Map(model);
-            var result = await _mediator.Send(request).ConfigureAwait(false);
+            var result = await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
             return Ok(result);
         }
         catch (UserNotFoundException)

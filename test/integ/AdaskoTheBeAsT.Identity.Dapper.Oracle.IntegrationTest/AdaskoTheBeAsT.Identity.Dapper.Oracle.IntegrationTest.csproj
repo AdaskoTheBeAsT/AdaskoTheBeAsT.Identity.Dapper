@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <AdaskoTheBeAsTIdentityDapper_SkipNormalized>true</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
   </PropertyGroup>
 
@@ -23,20 +23,18 @@
     <PackageReference Include="Testcontainers.Oracle" Version="3.9.0" />
   </ItemGroup>
 
-  <ItemGroup><!--<ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.PostgreSql\AdaskoTheBeAsT.Identity.Dapper.PostgreSql.csproj" />
-    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />-->
-  
-    <Folder Include="Scripts\" />
-  </ItemGroup>
+  <!--<ItemGroup>
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.PostgreSql\AdaskoTheBeAsT.Identity.Dapper.PostgreSql.csproj" />
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
+  </ItemGroup>-->
 
-  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
-    <!-- Exclude the output of source generators from the compilation -->
+  <!--<ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
     <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
-    <None Include="Generated/**/*" />
-  </ItemGroup>
+    <None Include="$(CompilerGeneratedFilesOutputPath)/**/*" />
+  </ItemGroup>-->
 
   <ItemGroup>
     <None Include="..\..\..\db\Oracle\AspNetIdentityBigInt.sql" Link="Scripts\AspNetIdentityBigInt.sql">
