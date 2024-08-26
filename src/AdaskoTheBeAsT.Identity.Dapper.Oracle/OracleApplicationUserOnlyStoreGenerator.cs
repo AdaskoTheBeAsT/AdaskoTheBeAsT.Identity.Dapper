@@ -39,7 +39,7 @@ public class OracleApplicationUserOnlyStoreGenerator
         OracleApplicationUserHelper.GenerateFindByIdImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateFindByNameImpl(sb);
         OracleApplicationUserHelper.GenerateGetClaimsImpl(sb, keyTypeName);
-        OracleApplicationUserHelper.GenerateAddClaimImpl(sb, keyTypeName);
+        OracleApplicationUserHelper.GenerateAddClaimsImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateReplaceClaimImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateRemoveClaimsImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateAddLoginImpl(sb, keyTypeName);

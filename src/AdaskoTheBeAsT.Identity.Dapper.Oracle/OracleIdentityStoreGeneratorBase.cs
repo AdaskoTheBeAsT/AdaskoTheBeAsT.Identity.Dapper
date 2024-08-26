@@ -10,6 +10,7 @@ public class OracleIdentityStoreGeneratorBase
         StringBuilder sb,
         string keyTypeName)
     {
+        sb.AppendLine("#nullable enable");
         sb.AppendLine("using System;");
         sb.AppendLine("using System.Data;");
         sb.AppendLine("using System.Security.Claims;");

@@ -260,7 +260,7 @@ public static class OracleApplicationUserHelper
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task<ApplicationUser> FindByIdImplAsync(
+            $@"        protected override async Task<ApplicationUser?> FindByIdImplAsync(
             OracleConnection connection,
             {keyTypeName} userId,
             CancellationToken cancellationToken)
@@ -286,7 +286,7 @@ public static class OracleApplicationUserHelper
         StringBuilder sb)
     {
         sb.AppendLine(
-            $@"        protected override async Task<ApplicationUser> FindByNameImplAsync(
+            $@"        protected override async Task<ApplicationUser?> FindByNameImplAsync(
             OracleConnection connection,
             string normalizedUserName,
             CancellationToken cancellationToken)
@@ -334,29 +334,34 @@ public static class OracleApplicationUserHelper
         sb.AppendLine();
     }
 
-    public static void GenerateAddClaimImpl(
+    public static void GenerateAddClaimsImpl(
         StringBuilder sb,
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task AddClaimImplAsync(
+            $@"        protected override async Task AddClaimsImplAsync(
             OracleConnection connection,
-            ApplicationUserClaim userClaim,
+            ApplicationUser user,
+            IEnumerable<Claim> claims,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserClaimSql.CreateSql;
-            var parameters = new OracleDynamicParameters();");
+            var sql = IdentityUserClaimSql.CreateSql;");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
+        sb.AppendLine($@"            foreach (var claim in claims)
+            {{");
         sb.AppendLine(
-            $@"            parameters.Add(""UserId"", userClaim.UserId, {idType}, ParameterDirection.Input, {idSize});
-            parameters.Add(""ClaimType"", userClaim.ClaimType, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-            parameters.Add(""ClaimValue"", userClaim.ClaimValue, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+            $@"                var parameters = new OracleDynamicParameters();
+                parameters.Add(""UserId"", user.Id, {idType}, ParameterDirection.Input, {idSize});
+                parameters.Add(""ClaimType"", claim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+                parameters.Add(""ClaimValue"", claim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
 
         sb.AppendLine(
-            $@"            await connection.ExecuteAsync(sql, parameters)
-                .ConfigureAwait(continueOnCapturedContext: false);");
+            $@"                await connection.ExecuteAsync(sql, parameters)
+                    .ConfigureAwait(continueOnCapturedContext: false);");
+
+        sb.AppendLine("            }");
 
         sb.AppendLine("        }");
 
@@ -525,7 +530,7 @@ public static class OracleApplicationUserHelper
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task<ApplicationUser> FindUserImplAsync(
+            $@"        protected override async Task<ApplicationUser?> FindUserImplAsync(
             OracleConnection connection,
             {keyTypeName} userId,
             CancellationToken cancellationToken)
@@ -552,7 +557,7 @@ public static class OracleApplicationUserHelper
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task<ApplicationUserLogin> FindUserLoginImplAsync(
+            $@"        protected override async Task<ApplicationUserLogin?> FindUserLoginImplAsync(
             OracleConnection connection,
             {keyTypeName} userId,
             string loginProvider,
@@ -582,7 +587,7 @@ public static class OracleApplicationUserHelper
         StringBuilder sb)
     {
         sb.AppendLine(
-            $@"        protected override async Task<ApplicationUserLogin> FindUserLoginImplAsync(
+            $@"        protected override async Task<ApplicationUserLogin?> FindUserLoginImplAsync(
             OracleConnection connection,
             string loginProvider,
             string providerKey,
@@ -606,7 +611,7 @@ public static class OracleApplicationUserHelper
         StringBuilder sb)
     {
         sb.AppendLine(
-            $@"        protected override async Task<ApplicationUser> FindByEmailImplAsync(
+            $@"        protected override async Task<ApplicationUser?> FindByEmailImplAsync(
             OracleConnection connection,
             string normalizedEmail,
             CancellationToken cancellationToken)
@@ -639,7 +644,7 @@ public static class OracleApplicationUserHelper
             parameters.Add(""ClaimValue"", claim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
 
         sb.AppendLine(
-            $@"            return (await connection.QueryFirstOrDefaultAsync<ApplicationUser>(sql, parameters)
+            $@"            return (await connection.QueryAsync<ApplicationUser>(sql, parameters)
                         .ConfigureAwait(continueOnCapturedContext: false))
                     .AsList();");
 
@@ -653,7 +658,7 @@ public static class OracleApplicationUserHelper
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task<IList<ApplicationUserToken>> FindTokenImplAsync(
+            $@"        protected override async Task<ApplicationUserToken?> FindTokenImplAsync(
             OracleConnection connection,
             ApplicationUser user,
             string loginProvider,
@@ -701,7 +706,7 @@ public static class OracleApplicationUserHelper
             parameters.Add(""Value"", token.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 128);");
 
         sb.AppendLine(
-            $@"            return await connection.ExecuteAsync(sql, parameters)
+            $@"            await connection.ExecuteAsync(sql, parameters)
                      .ConfigureAwait(continueOnCapturedContext: false);");
 
         sb.AppendLine("        }");
@@ -731,7 +736,7 @@ public static class OracleApplicationUserHelper
             parameters.Add(""UserId"", token.UserId, {idType}, ParameterDirection.Input, {idSize});");
 
         sb.AppendLine(
-            $@"            return await connection.ExecuteAsync(sql, parameters)
+            $@"            await connection.ExecuteAsync(sql, parameters)
                      .ConfigureAwait(continueOnCapturedContext: false);");
 
         sb.AppendLine("        }");

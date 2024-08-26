@@ -225,7 +225,7 @@ public class OracleApplicationRoleStoreGenerator
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task<ApplicationRole> FindByIdImplAsync(
+            $@"        protected override async Task<ApplicationRole?> FindByIdImplAsync(
             OracleConnection connection,
             {keyTypeName} roleId,
             CancellationToken cancellationToken)
@@ -251,7 +251,7 @@ public class OracleApplicationRoleStoreGenerator
         StringBuilder sb)
     {
         sb.AppendLine(
-            $@"        protected override async Task<ApplicationRole> FindByNameImplAsync(
+            $@"        protected override async Task<ApplicationRole?> FindByNameImplAsync(
             OracleConnection connection,
             string normalizedRoleName,
             CancellationToken cancellationToken)

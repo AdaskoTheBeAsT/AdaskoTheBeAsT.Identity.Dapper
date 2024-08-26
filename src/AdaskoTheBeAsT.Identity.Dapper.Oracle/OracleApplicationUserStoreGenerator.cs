@@ -39,7 +39,7 @@ public class OracleApplicationUserStoreGenerator
         OracleApplicationUserHelper.GenerateFindByIdImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateFindByNameImpl(sb);
         OracleApplicationUserHelper.GenerateGetClaimsImpl(sb, keyTypeName);
-        OracleApplicationUserHelper.GenerateAddClaimImpl(sb, keyTypeName);
+        OracleApplicationUserHelper.GenerateAddClaimsImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateReplaceClaimImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateRemoveClaimsImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateAddLoginImpl(sb, keyTypeName);
@@ -132,7 +132,7 @@ public class OracleApplicationUserStoreGenerator
             parameters.Add(""RoleId"", role.Id, {idType}, ParameterDirection.Input, {idSize});");
 
         sb.AppendLine(
-            $@"            return await connection.ExecuteAsync(sql, parameters)
+            $@"            await connection.ExecuteAsync(sql, parameters)
                 .ConfigureAwait(continueOnCapturedContext: false);");
 
         sb.AppendLine("        }");
@@ -160,7 +160,7 @@ public class OracleApplicationUserStoreGenerator
             parameters.Add(""RoleId"", role.Id, {idType}, ParameterDirection.Input, {idSize});");
 
         sb.AppendLine(
-            $@"            return await connection.ExecuteAsync(sql, parameters)
+            $@"            await connection.ExecuteAsync(sql, parameters)
                 .ConfigureAwait(continueOnCapturedContext: false);");
 
         sb.AppendLine("        }");
@@ -255,10 +255,9 @@ public class OracleApplicationUserStoreGenerator
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task<bool> IsInRoleImplAsync(
+            $@"        protected override async Task<IList<Claim>> GetUserAndRoleClaimsImplAsync(
             OracleConnection connection,
             ApplicationUser user,
-            ApplicationRole role,
             CancellationToken cancellationToken)
         {{
             var sql = IdentityUserRoleClaimSql.GetUserAndRoleClaimsByUserIdSql;
@@ -282,12 +281,12 @@ public class OracleApplicationUserStoreGenerator
         StringBuilder sb)
     {
         sb.AppendLine(
-            $@"        protected override async Task<ApplicationRole> FindRoleImplAsync(
+            $@"        protected override async Task<ApplicationRole?> FindRoleImplAsync(
             OracleConnection connection,
             string roleName,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserRoleClaimSql.FindByNameSql;
+            var sql = IdentityRoleSql.FindByNameSql;
             var parameters = new OracleDynamicParameters();");
         sb.AppendLine(
             $@"            parameters.Add(""NormalizedName"", roleName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
@@ -306,13 +305,13 @@ public class OracleApplicationUserStoreGenerator
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task<ApplicationUserRole> FindUserRoleAsync(
+            $@"        protected override async Task<ApplicationUserRole?> FindUserRoleAsync(
             OracleConnection connection,
-            TKey userId,
-            TKey roleId,
+            {keyTypeName} userId,
+            {keyTypeName} roleId,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserRoleClaimSql.GetByUserIdRoleIdSql;
+            var sql = IdentityUserRoleSql.GetByUserIdRoleIdSql;
             var parameters = new OracleDynamicParameters();");
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
