@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+    <AdaskoTheBeAsTIdentityDapper_SkipNormalized>true</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.0" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.PostgreSql" Version="2.0.0" />
+    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
+    <PackageReference Include="dbup-postgresql" Version="6.0.0-beta.13" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.8" />
+    <PackageReference Include="Npgsql" Version="8.0.3" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="3.9.0" />
+  </ItemGroup>
+
+  <!--<ItemGroup>
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.PostgreSql\AdaskoTheBeAsT.Identity.Dapper.PostgreSql.csproj" />
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
+    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
+    <None Include="Generated/**/*" />
+  </ItemGroup>-->
+
+  <ItemGroup>
+    <None Include="..\..\..\db\PostgreSQL\AspNetIdentityBigInt.sql" Link="Scripts\AspNetIdentityBigInt.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\PostgreSQL\AspNetIdentityGuid.sql" Link="Scripts\AspNetIdentityGuid.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\PostgreSQL\AspNetIdentityInt.sql" Link="Scripts\AspNetIdentityInt.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\PostgreSQL\AspNetIdentityString.sql" Link="Scripts\AspNetIdentityString.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\PostgreSQL\WithoutNormalizedAspNetIdentityBigInt.sql" Link="Scripts\WithoutNormalizedAspNetIdentityBigInt.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\PostgreSQL\WithoutNormalizedAspNetIdentityGuid.sql" Link="Scripts\WithoutNormalizedAspNetIdentityGuid.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\PostgreSQL\WithoutNormalizedAspNetIdentityInt.sql" Link="Scripts\WithoutNormalizedAspNetIdentityInt.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\PostgreSQL\WithoutNormalizedAspNetIdentityString.sql" Link="Scripts\WithoutNormalizedAspNetIdentityString.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

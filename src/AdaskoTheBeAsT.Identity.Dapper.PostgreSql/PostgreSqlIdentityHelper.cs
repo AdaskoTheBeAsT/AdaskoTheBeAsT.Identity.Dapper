@@ -43,7 +43,8 @@ public class PostgreSqlIdentityHelper
 
     public string GetInsertTemplate(
         string tableName,
-        string keyTypeName)
+        string keyTypeName,
+        bool insertOwnId)
     {
         switch (keyTypeName)
         {
@@ -64,17 +65,32 @@ public class PostgreSqlIdentityHelper
                 return $@"INSERT INTO {tableName}(
 /**insert**/)
 VALUES(
-/**values**/) RETURNING Id;";
+/**values**/)
+RETURNING Id AS """"Id"""";";
             case "string":
             case "String":
             case "System.String":
-                return $@"INSERT INTO {tableName}(
-Id,
+                if (insertOwnId)
+                {
+                    return $@"INSERT INTO {tableName}(
 /**insert**/)
 VALUES(
-@Id,
 /**values**/);
-SELECT @Id;";
+SELECT @Id AS """"Id"""";";
+                }
+
+                return $@"DO $$ 
+DECLARE
+    id UUID := gen_random_uuid();
+BEGIN
+    INSERT INTO {{tableName}}(
+    Id,
+    /**insert**/)
+    VALUES(
+    id::text,
+    /**values**/);
+    SELECT id::text AS """"Id"""";
+END $$;";
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));
         }

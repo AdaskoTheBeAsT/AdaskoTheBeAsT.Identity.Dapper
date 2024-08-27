@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 
@@ -10,7 +11,7 @@ public abstract class IdentityUserRoleClaimClassGeneratorBase
     public string Generate(IdentityDapperConfiguration config)
     {
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, config.KeyTypeName);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserRoleClaimSql", "IIdentityUserRoleClaimSql");
         GenerateGetRoleClaimsByUserIdSql(sb, config);
@@ -19,6 +20,10 @@ public abstract class IdentityUserRoleClaimClassGeneratorBase
         GenerateNamespaceEnd(sb);
         return sb.ToString();
     }
+
+    public override IList<PropertyColumnTypeTriple> GetAllProperties(
+        IEnumerable<PropertyColumnTypeTriple> customs,
+        bool insertOwnId) => [];
 
     protected abstract string ProcessIdentityUserRoleClaimGetRoleClaimsByUserIdSql(IdentityDapperConfiguration config);
 

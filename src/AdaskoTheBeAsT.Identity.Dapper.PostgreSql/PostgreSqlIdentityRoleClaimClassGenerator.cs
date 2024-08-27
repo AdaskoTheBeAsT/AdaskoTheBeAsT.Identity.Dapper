@@ -11,12 +11,12 @@ public class PostgreSqlIdentityRoleClaimClassGenerator
 {
     protected override string ProcessIdentityRoleClaimCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
-            .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $"@{s.PropertyName}")))
+            .Insert(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"{s.ColumnName.ToLowerInvariant()}")))
+            .Values(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(
                 $"INSERT INTO {config.SchemaPart}AspNetRoleClaims(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);\r\nSELECT LASTVAL() AS Id;")
             .RawSql;
@@ -39,7 +39,7 @@ public class PostgreSqlIdentityRoleClaimClassGenerator
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Select2("ClaimType AS Type,\r\nClaimValue AS Value")
+            .Select2("ClaimType AS \"\"Type\"\",\r\nClaimValue AS \"\"Value\"\"")
             .Where2($"RoleId=@{nameof(IdentityRole.Id)}")
             .AddTemplate(
                 $"SELECT /**select2**/FROM {config.SchemaPart}AspNetRoleClaims\r\n/**where2**/;")

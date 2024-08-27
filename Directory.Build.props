@@ -11,12 +11,12 @@
     <NoWarn>$(NoWarn);1701;1702;1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
-    <ErrorLog>$(SolutionDir)\.sarif\$(MSBuildProjectName).json</ErrorLog>
+    <!--<ErrorLog>$(SolutionDir)\.sarif\$(MSBuildProjectName).json</ErrorLog>-->
   </PropertyGroup>
 
   <ItemGroup>
     <!-- Add reference to analyzers to all projects  -->
-    <PackageReference Include="AdaskoTheBeAsT.AsyncFixer" Version="1.6.0.10" PrivateAssets="all" ExcludeAssets="runtime" />
+    <!--<PackageReference Include="AdaskoTheBeAsT.AsyncFixer" Version="1.6.0.10" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="AdaskoTheBeAsT.Asyncify" Version="0.9.7.10" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="AdaskoTheBeAsT.CodeCracker.CSharp" Version="1.1.0.30" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="AdaskoTheBeAsT.ConcurrencyLab.ParallelChecker" Version="2.7.0.10" PrivateAssets="all" ExcludeAssets="runtime" />
@@ -24,7 +24,7 @@
     <PackageReference Include="AdaskoTheBeAsT.Puma.Security.Rules.2022" Version="2.3.1.10" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="AdaskoTheBeAsT.ReflectionAnalyzer" Version="0.3.1.10" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="AdaskoTheBeAsT.SecurityCodeScan.VS2022" Version="5.6.7.30" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.162" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.163" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.10.0" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0-beta1.24225.1" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.10.0" PrivateAssets="all" ExcludeAssets="runtime" />
@@ -38,11 +38,10 @@
     <PackageReference Include="Roslynator.CodeAnalysis.Analyzers" Version="4.12.4" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.12.4" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="SonarAnalyzer.CSharp" Version="9.30.0.95878" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="all" ExcludeAssets="runtime" />-->
 
     <!-- Common StyleCop configuration -->
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" />
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)SecurityCodeScan.config.yml" />
   </ItemGroup>
-
 </Project>

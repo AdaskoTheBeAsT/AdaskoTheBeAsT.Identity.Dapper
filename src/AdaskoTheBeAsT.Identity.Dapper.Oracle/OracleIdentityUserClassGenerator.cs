@@ -19,15 +19,18 @@ public class OracleIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
-        var template = _identityHelper.GetInsertTemplate($"{config.SchemaPart}AspNetUsers", config.KeyTypeName);
+            propertyColumnTypeTriples);
+        var template = _identityHelper.GetInsertTemplate(
+            $"{config.SchemaPart}AspNetUsers",
+            config.KeyTypeName,
+            config.InsertOwnId);
         return sqlBuilder
-            .Insert(string.Join("\r\n,", localPairs.Select(s => $"[{s.ColumnName}]")))
+            .Insert(string.Join("\r\n,", localPairs.Select(s => $"{s.ColumnName}")))
             .Values(string.Join("\r\n,", localPairs.Select(s => $":{s.PropertyName}")))
             .AddTemplate(template)
             .RawSql;
@@ -35,16 +38,16 @@ public class OracleIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserUpdateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string>();
         foreach (var localPair in localPairs)
         {
-            list.Add($"[{localPair.ColumnName}]=:{localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName}=:{localPair.PropertyName}");
         }
 
         return sqlBuilder
@@ -60,16 +63,16 @@ public class OracleIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserFindByIdSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { nameof(IdentityUser.Id) };
         foreach (var localPair in localPairs)
         {
-            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName} AS {localPair.PropertyName}");
         }
 
         return sqlBuilder
@@ -82,16 +85,16 @@ public class OracleIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserFindByNameSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { nameof(IdentityUser.Id) };
         foreach (var localPair in localPairs)
         {
-            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName} AS {localPair.PropertyName}");
         }
 
         var where = config.SkipNormalized
@@ -108,16 +111,16 @@ public class OracleIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserFindByEmailSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { nameof(IdentityUser.Id) };
         foreach (var localPair in localPairs)
         {
-            list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"{localPair.ColumnName} AS {localPair.PropertyName}");
         }
 
         var where = config.SkipNormalized
@@ -134,16 +137,16 @@ public class OracleIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserGetUsersForClaimSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { $"u.{nameof(IdentityUser.Id)}" };
         foreach (var localPair in localPairs)
         {
-            list.Add($"u.[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"u.{localPair.ColumnName} AS {localPair.PropertyName}");
         }
 
         return sqlBuilder
@@ -158,16 +161,16 @@ public class OracleIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserGetUsersInRoleSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { $"u.{nameof(IdentityUser.Id)}" };
         foreach (var localPair in localPairs)
         {
-            list.Add($"u.[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"u.{localPair.ColumnName} AS {localPair.PropertyName}");
         }
 
         var where = config.SkipNormalized
@@ -186,16 +189,16 @@ public class OracleIdentityUserClassGenerator
 
     protected override string ProcessIdentityUserGetUsersSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetNormalizedSelectList(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { $"u.{nameof(IdentityUser.Id)}" };
         foreach (var localPair in localPairs)
         {
-            list.Add($"u.[{localPair.ColumnName}] AS {localPair.PropertyName}");
+            list.Add($"u.{localPair.ColumnName} AS {localPair.PropertyName}");
         }
 
         return sqlBuilder

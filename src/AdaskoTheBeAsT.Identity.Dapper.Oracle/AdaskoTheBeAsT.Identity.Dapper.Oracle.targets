@@ -1,0 +1,16 @@
+<Project>
+  <ItemGroup>
+    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_DbSchema" />
+    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_SkipNormalized" />
+    <!-- Possible values char, string, numeric -->
+    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_StoreBooleanAs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
+    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
+    <None Include="$(CompilerGeneratedFilesOutputPath)/**/*" />
+  </ItemGroup>
+</Project>

@@ -7,6 +7,7 @@ using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Exceptions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 
@@ -24,29 +25,7 @@ public abstract class IdentityDapperSourceGeneratorBase
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var dbSchemaProvider = context.AnalyzerConfigOptionsProvider.Select(
-            (
-                config,
-                _) =>
-            {
-                var dbSchema = "dbo";
-                var skipNormalized = false;
-                if (config.GlobalOptions.TryGetValue(
-                        "build_property.AdaskoTheBeAsTIdentityDapper_DbSchema",
-                        out var schemaProperty))
-                {
-                    dbSchema = schemaProperty;
-                }
-
-                if (config.GlobalOptions.TryGetValue(
-                        "build_property.AdaskoTheBeAsTIdentityDapper_SkipNormalized",
-                        out var strValue) && bool.TryParse(strValue, out var result))
-                {
-                    skipNormalized = result;
-                }
-
-                return new IdentityDapperOptions(dbSchema, skipNormalized);
-            });
+        var dbSchemaProvider = context.AnalyzerConfigOptionsProvider.Select(SelectOptions);
 
         var classDeclarations =
             context.SyntaxProvider.CreateSyntaxProvider(
@@ -71,6 +50,37 @@ public abstract class IdentityDapperSourceGeneratorBase
                     spc,
                     source) =>
                 Execute(spc, source.Left.Left, source.Left.Right, source.Right));
+    }
+
+    protected IdentityDapperOptions SelectOptions(
+        AnalyzerConfigOptionsProvider provider,
+        CancellationToken token)
+    {
+        var dbSchema = string.Empty;
+        if (provider.GlobalOptions.TryGetValue(
+                "build_property.AdaskoTheBeAsTIdentityDapper_DbSchema",
+                out var schemaProperty))
+        {
+            dbSchema = schemaProperty;
+        }
+
+        var skipNormalized = false;
+        if (provider.GlobalOptions.TryGetValue(
+                "build_property.AdaskoTheBeAsTIdentityDapper_SkipNormalized",
+                out var strValue) && bool.TryParse(strValue, out var result))
+        {
+            skipNormalized = result;
+        }
+
+        var storeBooleanAs = string.Empty;
+        if (provider.GlobalOptions.TryGetValue(
+                "build_property.AdaskoTheBeAsTIdentityDapper_StoreBooleanAs",
+                out var storeBooleanAsProperty))
+        {
+            storeBooleanAs = storeBooleanAsProperty;
+        }
+
+        return new IdentityDapperOptions(dbSchema, skipNormalized, storeBooleanAs);
     }
 
     private static bool IsSyntaxTargetForGeneration(SyntaxNode node)

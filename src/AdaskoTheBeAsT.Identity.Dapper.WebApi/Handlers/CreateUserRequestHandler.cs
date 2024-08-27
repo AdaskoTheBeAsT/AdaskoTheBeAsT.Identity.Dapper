@@ -29,7 +29,7 @@ public class CreateUserRequestHandler
         {
             foreach (var roleName in request.Roles)
             {
-                var role = await _roleManager.FindByNameAsync(roleName).ConfigureAwait(false);
+                var role = await _roleManager.FindByNameAsync(roleName).ConfigureAwait(continueOnCapturedContext: false);
                 if (role == null)
                 {
                     role = new ApplicationRole
@@ -38,7 +38,7 @@ public class CreateUserRequestHandler
                         Name = roleName,
                     };
 
-                    var roleResult = await _roleManager.CreateAsync(role).ConfigureAwait(false);
+                    var roleResult = await _roleManager.CreateAsync(role).ConfigureAwait(continueOnCapturedContext: false);
                     if (!roleResult.Succeeded)
                     {
                         return roleResult;
@@ -59,14 +59,14 @@ public class CreateUserRequestHandler
             var result = await _userManager.CreateAsync(
                     user,
                     request.Password ?? string.Empty)
-                .ConfigureAwait(false);
+                .ConfigureAwait(continueOnCapturedContext: false);
 
             if (!result.Succeeded)
             {
                 return result;
             }
 
-            var userRoleResult = await _userManager.AddToRolesAsync(user, request.Roles).ConfigureAwait(false);
+            var userRoleResult = await _userManager.AddToRolesAsync(user, request.Roles).ConfigureAwait(continueOnCapturedContext: false);
             return userRoleResult;
         }
         catch (Exception ex)

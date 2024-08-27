@@ -1,6 +1,7 @@
 <Project>
-  <ItemGroup>
-    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_DbSchema" />
-	<CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_SkipNormalized" />
-  </ItemGroup>
+  <PropertyGroup>
+    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+    <AdaskoTheBeAsTIdentityDapper_SkipNormalized>false</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
+  </PropertyGroup>
 </Project>

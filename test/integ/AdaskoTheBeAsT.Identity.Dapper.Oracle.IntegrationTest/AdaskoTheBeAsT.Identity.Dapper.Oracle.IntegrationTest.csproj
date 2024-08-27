@@ -1,0 +1,68 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+    <AdaskoTheBeAsTIdentityDapper_SkipNormalized>true</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.0" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.Oracle" Version="2.0.0" />
+    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Dapper.Oracle" Version="2.0.3" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
+    <PackageReference Include="dbup-oracle" Version="6.0.0-beta.6" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.8" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.5.1" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <PackageReference Include="Testcontainers.Oracle" Version="3.9.0" />
+  </ItemGroup>
+
+  <!--<ItemGroup>
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.PostgreSql\AdaskoTheBeAsT.Identity.Dapper.PostgreSql.csproj" />
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
+  </ItemGroup>-->
+
+  <!--<ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
+    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
+    <None Include="$(CompilerGeneratedFilesOutputPath)/**/*" />
+  </ItemGroup>-->
+
+  <ItemGroup>
+    <None Include="..\..\..\db\Oracle\AspNetIdentityBigInt.sql" Link="Scripts\AspNetIdentityBigInt.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\Oracle\AspNetIdentityGuid.sql" Link="Scripts\AspNetIdentityGuid.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\Oracle\AspNetIdentityInt.sql" Link="Scripts\AspNetIdentityInt.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\Oracle\AspNetIdentityString.sql" Link="Scripts\AspNetIdentityString.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\Oracle\OracleSetup.sql" Link="Scripts\OracleSetup.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\Oracle\WithoutNormalizedAspNetIdentityBigInt.sql" Link="Scripts\WithoutNormalizedAspNetIdentityBigInt.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\Oracle\WithoutNormalizedAspNetIdentityGuid.sql" Link="Scripts\WithoutNormalizedAspNetIdentityGuid.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\Oracle\WithoutNormalizedAspNetIdentityInt.sql" Link="Scripts\WithoutNormalizedAspNetIdentityInt.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\Oracle\WithoutNormalizedAspNetIdentityString.sql" Link="Scripts\WithoutNormalizedAspNetIdentityString.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

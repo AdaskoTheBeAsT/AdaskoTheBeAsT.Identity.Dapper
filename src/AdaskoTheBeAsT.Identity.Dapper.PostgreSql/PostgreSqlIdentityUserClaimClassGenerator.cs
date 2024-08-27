@@ -11,12 +11,12 @@ public class PostgreSqlIdentityUserClaimClassGenerator
 {
     protected override string ProcessIdentityUserClaimCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
-            .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $"@{s.PropertyName}")))
+            .Insert(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"{s.ColumnName.ToLowerInvariant()}")))
+            .Values(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(
                 $"INSERT INTO {config.SchemaPart}AspNetUserClaims(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);\r\nSELECT LASTVAL() AS Id;")
             .RawSql;
@@ -39,7 +39,7 @@ public class PostgreSqlIdentityUserClaimClassGenerator
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Select2("ClaimType AS Type,\r\nClaimValue AS Value")
+            .Select2("ClaimType AS \"\"Type\"\",\r\nClaimValue AS \"\"Value\"\"")
             .Where2($"UserId=@{nameof(IdentityUser.Id)}")
             .AddTemplate(
                 $"SELECT /**select2**/FROM {config.SchemaPart}AspNetUserClaims\r\n/**where2**/;")
@@ -48,12 +48,12 @@ public class PostgreSqlIdentityUserClaimClassGenerator
 
     protected override string ProcessIdentityUserClaimReplaceSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
-            .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $"@{s.PropertyName}")))
+            .Insert(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"{s.ColumnName.ToLowerInvariant()}")))
+            .Values(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(
                 $@"IF EXISTS(SELECT Id
             FROM {config.SchemaPart}AspNetUserClaims

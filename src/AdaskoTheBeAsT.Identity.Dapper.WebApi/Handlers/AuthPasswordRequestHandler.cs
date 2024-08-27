@@ -31,19 +31,19 @@ public class AuthPasswordRequestHandler
         AuthPasswordRequest request,
         CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByNameAsync(request.Username ?? string.Empty).ConfigureAwait(false);
+        var user = await _userManager.FindByNameAsync(request.Username ?? string.Empty).ConfigureAwait(continueOnCapturedContext: false);
         if (user == null)
         {
             throw new UserNotFoundException($"User {request.Username} not found");
         }
 
-        if (!(await _userManager.CheckPasswordAsync(user, request.Password ?? string.Empty).ConfigureAwait(false)))
+        if (!(await _userManager.CheckPasswordAsync(user, request.Password ?? string.Empty).ConfigureAwait(continueOnCapturedContext: false)))
         {
             throw new InvalidPasswordException();
         }
 
-        var roles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
-        var claims = await _userRoleClaimStore.GetUserAndRoleClaimsAsync(user, cancellationToken).ConfigureAwait(false);
+        var roles = await _userManager.GetRolesAsync(user).ConfigureAwait(continueOnCapturedContext: false);
+        var claims = await _userRoleClaimStore.GetUserAndRoleClaimsAsync(user, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         return _tokenService.GenerateToken(user, roles, claims);
     }
 }

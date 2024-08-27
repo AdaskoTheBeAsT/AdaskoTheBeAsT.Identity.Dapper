@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Builders;
+using Atb.SqlG;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -19,7 +20,7 @@ public static class TestHelper
         {
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(ColumnAttribute).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(IIdentityDbConnectionProvider).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(IIdentityDbConnectionProvider<>).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(AdvancedSqlBuilder).Assembly.Location),
         };
 
@@ -30,7 +31,7 @@ public static class TestHelper
             references: references);
 
         // Create an instance of our EnumGenerator incremental source generator
-        var generator = new SqlServerIdentityDapperSourceGenerator();
+        var generator = new SrcGen();
 
         // The GeneratorDriver is used to run our generator against a compilation
         GeneratorDriver driver = CSharpGeneratorDriver

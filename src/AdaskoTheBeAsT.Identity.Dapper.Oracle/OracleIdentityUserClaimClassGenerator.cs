@@ -12,7 +12,7 @@ public class OracleIdentityUserClaimClassGenerator
 {
     protected override string ProcessIdentityUserClaimCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var sb = new StringBuilder();
@@ -24,8 +24,8 @@ public class OracleIdentityUserClaimClassGenerator
         sb.AppendLine("RETURNING Id INTO id;");
         sb.AppendLine("SELECT id FROM DUAL;");
         return sqlBuilder
-            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
-            .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $":{s.PropertyName}")))
+            .Insert(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"{s.ColumnName}")))
+            .Values(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $":{s.PropertyName}")))
             .AddTemplate(sb.ToString())
             .RawSql;
     }
@@ -56,12 +56,12 @@ public class OracleIdentityUserClaimClassGenerator
 
     protected override string ProcessIdentityUserClaimReplaceSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
-            .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $":{s.PropertyName}")))
+            .Insert(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"{s.ColumnName}")))
+            .Values(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $":{s.PropertyName}")))
             .AddTemplate(
                 $@"IF EXISTS(SELECT Id
             FROM {config.SchemaPart}AspNetUserClaims

@@ -11,12 +11,12 @@ public class OracleIdentityUserTokenClassGenerator
 {
     protected override string ProcessIdentityUserTokenCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"[{s.ColumnName}]")))
-            .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $":{s.PropertyName}")))
+            .Insert(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"{s.ColumnName}")))
+            .Values(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $":{s.PropertyName}")))
             .AddTemplate(
                 $"INSERT INTO {config.SchemaPart}AspNetUserTokens(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
             .RawSql;
@@ -38,13 +38,13 @@ public class OracleIdentityUserTokenClassGenerator
 
     protected override string ProcessIdentityUserTokenGetByUserIdSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var list = new List<string>(propertyColumnPairs.Count);
-        for (var i = 0; i < propertyColumnPairs.Count; i++)
+        var list = new List<string>(propertyColumnTypeTriples.Count);
+        for (var i = 0; i < propertyColumnTypeTriples.Count; i++)
         {
-            list.Add($"[{propertyColumnPairs[i].ColumnName}] AS {propertyColumnPairs[i].PropertyName}");
+            list.Add($"{propertyColumnTypeTriples[i].ColumnName} AS {propertyColumnTypeTriples[i].PropertyName}");
         }
 
         return sqlBuilder

@@ -11,12 +11,12 @@ public class MySqlIdentityUserTokenClassGenerator
 {
     protected override string ProcessIdentityUserTokenCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .Insert(string.Join("\r\n,", propertyColumnPairs.Select(s => $"`{s.ColumnName}`")))
-            .Values(string.Join("\r\n,", propertyColumnPairs.Select(s => $"@{s.PropertyName}")))
+            .Insert(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"`{s.ColumnName}`")))
+            .Values(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(
                 $"INSERT INTO {config.SchemaPart}`aspnetusertokens`(\r\n/**insert**/)\r\nVALUES(\r\n/**values**/);")
             .RawSql;
@@ -38,11 +38,11 @@ public class MySqlIdentityUserTokenClassGenerator
 
     protected override string ProcessIdentityUserTokenGetByUserIdSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
-        var list = new List<string>(propertyColumnPairs.Count);
-        foreach (var localPair in propertyColumnPairs)
+        var list = new List<string>(propertyColumnTypeTriples.Count);
+        foreach (var localPair in propertyColumnTypeTriples)
         {
             list.Add($"`{localPair.ColumnName}` AS {localPair.PropertyName}");
         }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
@@ -5,29 +6,24 @@ using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
 
 public class MySqlApplicationUserOnlyStoreGenerator
-    : IdentityStoreGeneratorBase,
+    : MySqlIdentityStoreGeneratorBase,
         IApplicationUserOnlyStoreGenerator
 {
-    private readonly IIdentityHelper _identityHelper;
-
-    public MySqlApplicationUserOnlyStoreGenerator()
-    {
-        _identityHelper = new MySqlIdentityHelper();
-    }
-
     public string Generate(
+        IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+        IdentityDapperOptions options,
         string keyTypeName,
-        string namespaceName)
+        string namespaceName,
+        bool insertOwnId)
     {
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, keyTypeName);
         GenerateNamespaceStart(sb, namespaceName);
         GenerateClassStart(
             sb,
             "ApplicationUserOnlyStore",
-            $"DapperUserOnlyStoreBase<ApplicationUser, {keyTypeName}, ApplicationUserClaim, ApplicationUserLogin, ApplicationUserToken>");
+            $"DapperUserOnlyStoreBase<ApplicationUser, {keyTypeName}, ApplicationUserClaim, ApplicationUserLogin, ApplicationUserToken, MySqlConnection>");
         GenerateConstructor(sb);
-        GenerateCreateImpl(sb, keyTypeName);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
@@ -37,7 +33,7 @@ public class MySqlApplicationUserOnlyStoreGenerator
     {
         sb.AppendLine(
             @"        public ApplicationUserOnlyStore(
-            IIdentityDbConnectionProvider connectionProvider)
+            IIdentityDbConnectionProvider<MySqlConnection> connectionProvider)
             : base(
                 new IdentityErrorDescriber(),
                 connectionProvider,
@@ -47,24 +43,5 @@ public class MySqlApplicationUserOnlyStoreGenerator
                 new IdentityUserTokenSql())
         {
         }");
-    }
-
-    private void GenerateCreateImpl(
-        StringBuilder sb,
-        string keyTypeName)
-    {
-        if (!_identityHelper.NumberNameSet.Contains(keyTypeName))
-        {
-            return;
-        }
-
-        sb.AppendLine(
-            $@"        protected virtual async Task CreateImplAsync(
-            IDbConnection connection,
-            TUser user,
-            CancellationToken cancellationToken)
-        {{
-            user.Id = ({keyTypeName})(await connection.QueryFirstAsync<ulong>(IdentityUserSql.CreateSql, user).ConfigureAwait(false));
-        }}");
     }
 }

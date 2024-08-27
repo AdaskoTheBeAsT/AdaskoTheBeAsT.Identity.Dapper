@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
@@ -5,29 +6,24 @@ using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
 
 public class MySqlApplicationRoleStoreGenerator
-    : IdentityStoreGeneratorBase,
+    : MySqlIdentityStoreGeneratorBase,
         IApplicationRoleStoreGenerator
 {
-    private readonly IIdentityHelper _identityHelper;
-
-    public MySqlApplicationRoleStoreGenerator()
-    {
-        _identityHelper = new MySqlIdentityHelper();
-    }
-
     public string Generate(
+        IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+        IdentityDapperOptions options,
         string keyTypeName,
-        string namespaceName)
+        string namespaceName,
+        bool insertOwnId)
     {
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, keyTypeName);
         GenerateNamespaceStart(sb, namespaceName);
         GenerateClassStart(
             sb,
             "ApplicationRoleStore",
-            $"DapperRoleStoreBase<ApplicationRole, {keyTypeName}, ApplicationRoleClaim>");
+            $"DapperRoleStoreBase<ApplicationRole, {keyTypeName}, ApplicationRoleClaim, MySqlConnection>");
         GenerateConstructor(sb);
-        GenerateCreateImpl(sb, keyTypeName);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
@@ -37,7 +33,7 @@ public class MySqlApplicationRoleStoreGenerator
     {
         sb.AppendLine(
             @"        public ApplicationRoleStore(
-            IIdentityDbConnectionProvider connectionProvider)
+            IIdentityDbConnectionProvider<MySqlConnection> connectionProvider)
             : base(
                 new IdentityErrorDescriber(),
                 connectionProvider,
@@ -45,24 +41,5 @@ public class MySqlApplicationRoleStoreGenerator
                 new IdentityRoleClaimSql())
         {
         }");
-    }
-
-    private void GenerateCreateImpl(
-        StringBuilder sb,
-        string keyTypeName)
-    {
-        if (!_identityHelper.NumberNameSet.Contains(keyTypeName))
-        {
-            return;
-        }
-
-        sb.AppendLine(
-            $@"        protected override async Task CreateImplAsync(
-            IDbConnection connection,
-            TRole role,
-            CancellationToken cancellationToken)
-        {{
-            role.Id = ({keyTypeName})(await connection.QueryFirstAsync<ulong>(IdentityRoleSql.CreateSql, role).ConfigureAwait(false));
-        }}");
     }
 }

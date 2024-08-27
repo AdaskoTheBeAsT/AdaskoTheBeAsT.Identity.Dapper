@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 using Microsoft.AspNetCore.Identity;
@@ -14,16 +11,13 @@ public abstract class IdentityRoleClaimClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var standardProperties = GetStandardPropertyNames(config.InsertOwnId);
-        var combined = CombineStandardWithCustom(standardProperties, propertyColumnPairs);
-
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, config.KeyTypeName);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityRoleClaimSql", "IIdentityRoleClaimSql");
-        GenerateCreateSql(sb, config, combined);
+        GenerateCreateSql(sb, config, propertyColumnTypeTriples);
         GenerateDeleteSql(sb, config);
         GenerateGetByRoleIdSql(sb, config);
         GenerateClassEnd(sb);
@@ -31,9 +25,14 @@ public abstract class IdentityRoleClaimClassGeneratorBase
         return sb.ToString();
     }
 
+    public override IList<PropertyColumnTypeTriple> GetAllProperties(
+        IEnumerable<PropertyColumnTypeTriple> customs,
+        bool insertOwnId) =>
+        GetStandardWithCombinedProperties(typeof(IdentityRoleClaim<>), insertOwnId, customs);
+
     protected abstract string ProcessIdentityRoleClaimCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityRoleClaimDeleteSql(IdentityDapperConfiguration config);
 
@@ -42,9 +41,9 @@ public abstract class IdentityRoleClaimClassGeneratorBase
     private void GenerateCreateSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityRoleClaimCreateSql(config, propertyColumnPairs);
+        var content = ProcessIdentityRoleClaimCreateSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");
@@ -71,11 +70,4 @@ public abstract class IdentityRoleClaimClassGeneratorBase
             $@"        public string GetByRoleIdSql {{ get; }} =
             @""{content}"";");
     }
-
-    private IList<string> GetStandardPropertyNames(bool insertOwnId) =>
-        typeof(IdentityRoleClaim<>)
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(p => insertOwnId || !p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
-            .Select(p => p.Name)
-            .ToList();
 }

@@ -19,13 +19,16 @@ public class SqliteIdentityRoleClassGenerator
 
     protected override string ProcessIdentityRoleCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
-        var template = _identityHelper.GetInsertTemplate($"{config.SchemaPart}AspNetRoles", config.KeyTypeName);
+            propertyColumnTypeTriples);
+        var template = _identityHelper.GetInsertTemplate(
+            $"{config.SchemaPart}AspNetRoles",
+            config.KeyTypeName,
+            config.InsertOwnId);
         return sqlBuilder
             .Insert(string.Join("\r\n,", localPairs.Select(s => $"[{s.ColumnName}]")))
             .Values(string.Join("\r\n,", localPairs.Select(s => $"@{s.PropertyName}")))
@@ -35,12 +38,12 @@ public class SqliteIdentityRoleClassGenerator
 
     protected override string ProcessIdentityRoleUpdateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string>();
         foreach (var t in localPairs)
         {
@@ -60,12 +63,12 @@ public class SqliteIdentityRoleClassGenerator
 
     protected override string ProcessIdentityRoleFindByIdSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { nameof(IdentityRole.Id) };
         foreach (var t in localPairs)
         {
@@ -82,12 +85,12 @@ public class SqliteIdentityRoleClassGenerator
 
     protected override string ProcessIdentityRoleFindByNameSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { nameof(IdentityRole.Id) };
         for (var i = 0; i < localPairs.Count; i++)
         {
@@ -108,12 +111,12 @@ public class SqliteIdentityRoleClassGenerator
 
     protected override string ProcessIdentityRoleGetRolesSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
-            propertyColumnPairs);
+            propertyColumnTypeTriples);
         var list = new List<string> { nameof(IdentityRole.Id) };
         foreach (var t in localPairs)
         {

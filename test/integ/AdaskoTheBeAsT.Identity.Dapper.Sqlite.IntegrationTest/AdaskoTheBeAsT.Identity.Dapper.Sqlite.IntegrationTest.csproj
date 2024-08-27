@@ -1,0 +1,69 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+    <AdaskoTheBeAsTIdentityDapper_SkipNormalized>true</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.0" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.Sqlite" Version="2.0.0" />
+    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
+    <PackageReference Include="dbup-sqlite" Version="6.0.0-beta.3" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.8" />
+  </ItemGroup>
+
+  <!--<ItemGroup>
+    <ProjectReference Include="..\src\AdaskoTheBeAsT.Identity.Dapper.Sqlite\AdaskoTheBeAsT.Identity.Dapper.Sqlite.csproj" />
+    <ProjectReference Include="..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
+    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
+    <None Include="Generated/**/*" />
+  </ItemGroup>-->
+
+  <ItemGroup>
+    <None Include="..\..\..\db\SQLite\AspNetIdentityBigInt.sql" Link="Scripts\AspNetIdentityBigInt.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\SQLite\AspNetIdentityGuid.sql" Link="Scripts\AspNetIdentityGuid.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\SQLite\AspNetIdentityInt.sql" Link="Scripts\AspNetIdentityInt.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\SQLite\AspNetIdentityString.sql" Link="Scripts\AspNetIdentityString.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\SQLite\WithoutNormalizedAspNetIdentityBigInt.sql" Link="Scripts\WithoutNormalizedAspNetIdentityBigInt.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\SQLite\WithoutNormalizedAspNetIdentityGuid.sql" Link="Scripts\WithoutNormalizedAspNetIdentityGuid.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\SQLite\WithoutNormalizedAspNetIdentityInt.sql" Link="Scripts\WithoutNormalizedAspNetIdentityInt.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\db\SQLite\WithoutNormalizedAspNetIdentityString.sql" Link="Scripts\WithoutNormalizedAspNetIdentityString.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ReqnrollFeatureFiles Update="Features\WithoutNormalizedAspNetIdentityGuidUserStore.feature">
+      <Visible>$(UsingMicrosoftNETSdk)</Visible>
+      <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
+    </ReqnrollFeatureFiles>
+  </ItemGroup>
+
+</Project>

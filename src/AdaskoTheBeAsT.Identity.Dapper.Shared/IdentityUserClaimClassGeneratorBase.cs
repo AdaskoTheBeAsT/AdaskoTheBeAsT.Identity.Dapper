@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 using Microsoft.AspNetCore.Identity;
@@ -14,27 +11,29 @@ public abstract class IdentityUserClaimClassGeneratorBase
 {
     public string Generate(
         IdentityDapperConfiguration config,
-        IEnumerable<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var standardProperties = GetStandardPropertyNames(config.InsertOwnId);
-        var combined = CombineStandardWithCustom(standardProperties, propertyColumnPairs);
-
         var sb = new StringBuilder();
-        GenerateUsing(sb);
+        GenerateUsing(sb, config.KeyTypeName);
         GenerateNamespaceStart(sb, config.NamespaceName);
         GenerateClassStart(sb, "IdentityUserClaimSql", "IIdentityUserClaimSql");
-        GenerateCreateSql(sb, config, combined);
+        GenerateCreateSql(sb, config, propertyColumnTypeTriples);
         GenerateDeleteSql(sb, config);
         GenerateGetByUserIdSql(sb, config);
-        GenerateReplaceSql(sb, config, combined);
+        GenerateReplaceSql(sb, config, propertyColumnTypeTriples);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
     }
 
+    public override IList<PropertyColumnTypeTriple> GetAllProperties(
+        IEnumerable<PropertyColumnTypeTriple> customs,
+        bool insertOwnId) =>
+        GetStandardWithCombinedProperties(typeof(IdentityUserClaim<>), insertOwnId, customs);
+
     protected abstract string ProcessIdentityUserClaimCreateSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserClaimDeleteSql(IdentityDapperConfiguration config);
 
@@ -42,14 +41,14 @@ public abstract class IdentityUserClaimClassGeneratorBase
 
     protected abstract string ProcessIdentityUserClaimReplaceSql(
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs);
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     private void GenerateCreateSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserClaimCreateSql(config, propertyColumnPairs);
+        var content = ProcessIdentityUserClaimCreateSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string CreateSql {{ get; }} =
             @""{content}"";");
@@ -81,18 +80,11 @@ public abstract class IdentityUserClaimClassGeneratorBase
     private void GenerateReplaceSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
-        IList<PropertyColumnPair> propertyColumnPairs)
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserClaimReplaceSql(config, propertyColumnPairs);
+        var content = ProcessIdentityUserClaimReplaceSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
             $@"        public string ReplaceSql {{ get; }} =
             @""{content}"";");
     }
-
-    private IList<string> GetStandardPropertyNames(bool insertOwnId) =>
-        typeof(IdentityUserClaim<>)
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(p => insertOwnId || !p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
-            .Select(p => p.Name)
-            .ToList();
 }
