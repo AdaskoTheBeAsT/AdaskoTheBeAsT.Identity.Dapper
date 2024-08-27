@@ -15,7 +15,6 @@
     <PackageReference Include="Dapper.Oracle" Version="2.0.3" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
     <PackageReference Include="dbup-oracle" Version="6.0.0-beta.6" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.8" />
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.5.1" />
     <PackageReference Include="System.Text.Json" Version="8.0.4" />

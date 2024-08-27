@@ -25,10 +25,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddSingleton<IIdentityDbConnectionProvider<SqlConnection>>(_ => new IdentityDbConnectionProvider(connectionString));
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
+    .AddRoleStore<ApplicationRoleStore>()
+    .AddUserStore<ApplicationUserStore>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddScoped<IRoleStore<ApplicationRole>, ApplicationRoleStore>();
-builder.Services.AddScoped<IUserStore<ApplicationUser>, ApplicationUserStore>();
 builder.Services.AddMemoryCache();
 builder.Services.AddAntiforgery(options =>
 {
