@@ -273,6 +273,12 @@ MySqlDapperConfig.ConfigureTypeHandlers();
   </PropertyGroup>
 ```
 
+3. Please add this to your startup file
+
+```csharp
+OracleDapperConfig.ConfigureTypeHandlers();
+```
+
 ### Sqlite
 
 1. In your project add nuget packages
