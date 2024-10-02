@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build">
-  <Sdk Name="Microsoft.Build.Sql" Version="0.2.0-preview" />
+  <Sdk Name="Microsoft.Build.Sql" Version="0.2.3-preview" />
   <PropertyGroup>
     <Name>WithoutNormalizedAspNetIdentityGuid</Name>
     <!--Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider  Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider-->
@@ -28,13 +28,13 @@
     <Build Include="dbo\Tables\AspNetUserTokens.sql" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="dbo\" />
-    <Folder Include="dbo\Tables\" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
   </ItemGroup>
 </Project>

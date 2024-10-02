@@ -1,0 +1,15 @@
+CREATE TABLE [dbo].[AspNetClaimTypes]
+(
+	[Id]       INT IDENTITY (1, 1) NOT NULL,
+    [Name]     NVARCHAR (128)      NULL,
+    [SysStart] DATETIME2 (7) GENERATED ALWAYS AS ROW START NOT NULL,
+	[SysEnd]   DATETIME2 (7) GENERATED ALWAYS AS ROW END NOT NULL,
+	PERIOD FOR SYSTEM_TIME ([SysStart], [SysEnd]),
+    CONSTRAINT [PK_AspNetClaimTypes] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [UC_AspNetClaimTypes_Name] UNIQUE ([Name] ASC)
+)
+WITH (SYSTEM_VERSIONING = ON(HISTORY_TABLE=[dbo].[AspNetClaimTypes_HISTORY], DATA_CONSISTENCY_CHECK=ON));
+
+GO
+CREATE NONCLUSTERED INDEX [AspNetClaimTypesNameIndex]
+    ON [dbo].[AspNetClaimTypes]([Name] ASC);

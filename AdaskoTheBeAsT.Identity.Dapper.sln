@@ -153,7 +153,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest", "test\integ\AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest\AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.csproj", "{27921E16-FBFB-487C-9CD2-3589DDEA36A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdaskoTheBeAsT.Identity.Dapper.Oracle.Test", "test\unit\AdaskoTheBeAsT.Identity.Dapper.Oracle.Test\AdaskoTheBeAsT.Identity.Dapper.Oracle.Test.csproj", "{680461CC-EFFF-4CBE-82AD-1C192D00E9C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaskoTheBeAsT.Identity.Dapper.Oracle.Test", "test\unit\AdaskoTheBeAsT.Identity.Dapper.Oracle.Test\AdaskoTheBeAsT.Identity.Dapper.Oracle.Test.csproj", "{680461CC-EFFF-4CBE-82AD-1C192D00E9C3}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "WithoutNormalizedAspNetIdentityGuidOptimized", "db\SqlServer\WithoutNormalizedAspNetIdentityGuidOptimized\WithoutNormalizedAspNetIdentityGuidOptimized.sqlproj", "{5BDCF29F-00F9-45BE-82BD-684B2560C763}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -285,6 +287,12 @@ Global
 		{680461CC-EFFF-4CBE-82AD-1C192D00E9C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{680461CC-EFFF-4CBE-82AD-1C192D00E9C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{680461CC-EFFF-4CBE-82AD-1C192D00E9C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BDCF29F-00F9-45BE-82BD-684B2560C763}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BDCF29F-00F9-45BE-82BD-684B2560C763}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BDCF29F-00F9-45BE-82BD-684B2560C763}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{5BDCF29F-00F9-45BE-82BD-684B2560C763}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BDCF29F-00F9-45BE-82BD-684B2560C763}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BDCF29F-00F9-45BE-82BD-684B2560C763}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -327,6 +335,7 @@ Global
 		{21850892-5FD0-404E-A2E2-258DF8A7C8D9} = {AE9D6DAA-9994-48E8-ACAA-9A962346CC16}
 		{27921E16-FBFB-487C-9CD2-3589DDEA36A6} = {AE9D6DAA-9994-48E8-ACAA-9A962346CC16}
 		{680461CC-EFFF-4CBE-82AD-1C192D00E9C3} = {0DDB0E47-5845-4861-95FC-AF248E2C6652}
+		{5BDCF29F-00F9-45BE-82BD-684B2560C763} = {265E36FF-3E33-407D-9E27-4A0995ED0600}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2DC60B14-2697-4908-AADC-3EA7874F6FF1}

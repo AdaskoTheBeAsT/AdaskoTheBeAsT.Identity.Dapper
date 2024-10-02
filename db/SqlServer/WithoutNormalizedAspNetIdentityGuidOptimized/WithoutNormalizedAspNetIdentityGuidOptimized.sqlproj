@@ -1,19 +1,23 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build">
   <Sdk Name="Microsoft.Build.Sql" Version="0.2.3-preview" />
   <PropertyGroup>
-    <Name>AspNetIndentityString</Name>
+    <Name>WithoutNormalizedAspNetIdentityGuid</Name>
     <!--Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider  Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider-->
     <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
     <ModelCollation>1033,CI</ModelCollation>
     <TargetDatabaseSet>True</TargetDatabaseSet>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <ProjectGuid>{fc6af60d-3e65-45f3-a554-c2005b29dbc7}</ProjectGuid>
+    <ProjectGuid>{5bdcf29f-00f9-45be-82bd-684b2560c763}</ProjectGuid>
     <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
     <DefaultFilegroup>PRIMARY</DefaultFilegroup>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <NoWarn>$(NoWarn);CA1016;S3904;SA0001</NoWarn>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="WithoutNormalizedAspNetIdentityGuid.publish.xml" />
+    <None Include="generateInit.ps1" />
+  </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\AspNetRoleClaims.sql" />
     <Build Include="dbo\Tables\AspNetRoles.sql" />
@@ -22,6 +26,8 @@
     <Build Include="dbo\Tables\AspNetUserRoles.sql" />
     <Build Include="dbo\Tables\AspNetUsers.sql" />
     <Build Include="dbo\Tables\AspNetUserTokens.sql" />
+    <Build Include="dbo\Tables\AspNetClaimTypes.sql" />
+    <Build Include="dbo\Tables\AspNetClaims.sql" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
