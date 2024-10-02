@@ -7,7 +7,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
         : IIdentityUserSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO dbo.AspNetUsers(
+            @"INSERT INTO AspNetUsers(
 username
 ,normalizedusername
 ,email
@@ -40,7 +40,7 @@ VALUES(
 RETURNING Id AS ""Id"";";
 
         public string UpdateSql { get; } =
-            @"UPDATE dbo.AspNetUsers
+            @"UPDATE AspNetUsers
 SET username=@UserName
 ,normalizedusername=@NormalizedUserName
 ,email=@Email
@@ -58,7 +58,7 @@ SET username=@UserName
 WHERE Id=@Id;";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM dbo.AspNetUsers WHERE Id=@Id;";
+            @"DELETE FROM AspNetUsers WHERE Id=@Id;";
 
         public string FindByIdSql { get; } =
             @"SELECT Id  AS ""Id""
@@ -76,7 +76,7 @@ WHERE Id=@Id;";
 ,lockoutend AS ""LockoutEnd""
 ,lockoutenabled AS ""LockoutEnabled""
 ,accessfailedcount AS ""AccessFailedCount""
-FROM dbo.AspNetUsers
+FROM AspNetUsers
 WHERE Id=@Id;";
 
         public string FindByNameSql { get; } =
@@ -95,7 +95,7 @@ WHERE Id=@Id;";
 ,lockoutend AS ""LockoutEnd""
 ,lockoutenabled AS ""LockoutEnabled""
 ,accessfailedcount AS ""AccessFailedCount""
-FROM dbo.AspNetUsers
+FROM AspNetUsers
 WHERE NormalizedUserName=@NormalizedUserName;";
 
         public string FindByEmailSql { get; } =
@@ -114,7 +114,7 @@ WHERE NormalizedUserName=@NormalizedUserName;";
 ,lockoutend AS ""LockoutEnd""
 ,lockoutenabled AS ""LockoutEnabled""
 ,accessfailedcount AS ""AccessFailedCount""
-FROM dbo.AspNetUsers
+FROM AspNetUsers
 WHERE NormalizedEmail=@NormalizedEmail;";
 
         public string GetUsersForClaimSql { get; } =
@@ -133,8 +133,8 @@ WHERE NormalizedEmail=@NormalizedEmail;";
 ,u.LockoutEnd AS ""LockoutEnd""
 ,u.LockoutEnabled AS ""LockoutEnabled""
 ,u.AccessFailedCount AS ""AccessFailedCount""
-FROM dbo.AspNetUsers u
-INNER JOIN dbo.AspNetUserClaims c ON u.Id=c.UserId
+FROM AspNetUsers u
+INNER JOIN AspNetUserClaims c ON u.Id=c.UserId
 WHERE c.ClaimType=@ClaimType
   AND c.ClaimValue=@ClaimValue;";
 
@@ -154,9 +154,9 @@ WHERE c.ClaimType=@ClaimType
 ,u.LockoutEnd AS ""LockoutEnd""
 ,u.LockoutEnabled AS ""LockoutEnabled""
 ,u.AccessFailedCount AS ""AccessFailedCount""
-FROM dbo.AspNetUsers u
-INNER JOIN dbo.AspNetUserRoles ur ON u.Id=ur.UserId
-INNER JOIN dbo.AspNetRoles r ON ur.RolesId=r.Id
+FROM AspNetUsers u
+INNER JOIN AspNetUserRoles ur ON u.Id=ur.UserId
+INNER JOIN AspNetRoles r ON ur.RolesId=r.Id
 WHERE r.NormalizedName=@NormalizedName;";
 
         public string GetUsersSql { get; } =
@@ -175,9 +175,9 @@ WHERE r.NormalizedName=@NormalizedName;";
 ,u.LockoutEnd AS ""LockoutEnd""
 ,u.LockoutEnabled AS ""LockoutEnabled""
 ,u.AccessFailedCount AS ""AccessFailedCount""
-FROM dbo.AspNetUsers u
-INNER JOIN dbo.AspNetUserRoles ur ON u.Id=ur.UserId
-INNER JOIN dbo.AspNetRoles r ON ur.RolesId=r.Id
+FROM AspNetUsers u
+INNER JOIN AspNetUserRoles ur ON u.Id=ur.UserId
+INNER JOIN AspNetRoles r ON ur.RolesId=r.Id
 ;";
     }
 }

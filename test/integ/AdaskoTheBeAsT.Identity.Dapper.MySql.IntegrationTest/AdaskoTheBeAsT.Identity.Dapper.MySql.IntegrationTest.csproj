@@ -19,7 +19,7 @@
     <PackageReference Include="MySql.Data" Version="9.0.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.4" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
-    <PackageReference Include="Testcontainers.MySql" Version="3.9.0" />
+    <PackageReference Include="Testcontainers.MySql" Version="3.10.0" />
   </ItemGroup>
 
   <!--<ItemGroup>

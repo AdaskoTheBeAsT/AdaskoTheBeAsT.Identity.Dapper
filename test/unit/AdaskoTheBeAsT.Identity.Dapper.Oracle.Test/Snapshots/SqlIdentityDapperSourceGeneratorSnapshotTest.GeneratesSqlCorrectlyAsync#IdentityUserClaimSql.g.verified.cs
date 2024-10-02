@@ -7,8 +7,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
         : IIdentityUserClaimSql
     {
         public string CreateSql { get; } =
-            @"DECLARE id dbo.AspNetUserClaims.Id%type;
-INSERT INTO dbo.AspNetUserClaims(
+            @"DECLARE id AspNetUserClaims.Id%type;
+INSERT INTO AspNetUserClaims(
 UserId
 ,ClaimType
 ,ClaimValue)
@@ -21,7 +21,7 @@ SELECT id FROM DUAL;
 ";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM dbo.AspNetUserClaims
+            @"DELETE FROM AspNetUserClaims
 WHERE UserId=:UserId
   AND ClaimType=:ClaimType
   AND ClaimValue=:ClaimValue;";
@@ -29,28 +29,28 @@ WHERE UserId=:UserId
         public string GetByUserIdSql { get; } =
             @"SELECT ClaimType AS Type,
 ClaimValue AS Value
-FROM dbo.AspNetUserClaims
+FROM AspNetUserClaims
 WHERE UserId=:Id;";
 
         public string ReplaceSql { get; } =
             @"IF EXISTS(SELECT Id
-            FROM dbo.AspNetUserClaims
+            FROM AspNetUserClaims
             WHERE UserId=:UserId
               AND ClaimType=:ClaimTypeOld
               AND ClaimValue=:ClaimValueOld)
 BEGIN
-    DELETE FROM dbo.AspNetUserClaims
+    DELETE FROM AspNetUserClaims
     WHERE UserId=:UserId
       AND ClaimType=:ClaimTypeOld
       AND ClaimValue=:ClaimValueOld
 END;
 IF NOT EXISTS(SELECT Id
-             FROM dbo.AspNetUserClaims
+             FROM AspNetUserClaims
              WHERE UserId=:UserId
                AND ClaimType=:ClaimTypeNew
                AND ClaimValue=:ClaimValueNew)
 BEGIN
-    INSERT INTO dbo.AspNetUserClaims(
+    INSERT INTO AspNetUserClaims(
 UserId
 ,ClaimType
 ,ClaimValue)

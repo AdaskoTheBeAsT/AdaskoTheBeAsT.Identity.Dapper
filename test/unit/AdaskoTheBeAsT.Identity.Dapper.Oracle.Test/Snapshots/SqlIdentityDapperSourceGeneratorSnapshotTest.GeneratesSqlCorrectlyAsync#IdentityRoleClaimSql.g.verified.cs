@@ -7,8 +7,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
         : IIdentityRoleClaimSql
     {
         public string CreateSql { get; } =
-            @"DECLARE id dbo.AspNetRoleClaims.Id%type;
-INSERT INTO dbo.AspNetRoleClaims(
+            @"DECLARE id AspNetRoleClaims.Id%type;
+INSERT INTO AspNetRoleClaims(
 RoleId
 ,ClaimType
 ,ClaimValue)
@@ -21,7 +21,7 @@ SELECT id FROM DUAL;
 ";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM dbo.AspNetRoleClaims
+            @"DELETE FROM AspNetRoleClaims
 WHERE RoleId=:RoleId
   AND ClaimType=:ClaimType
   AND ClaimValue=:ClaimValue;";
@@ -29,7 +29,7 @@ WHERE RoleId=:RoleId
         public string GetByRoleIdSql { get; } =
             @"SELECT ClaimType AS Type,
 ClaimValue AS Value
-FROM dbo.AspNetRoleClaims
+FROM AspNetRoleClaims
 WHERE RoleId=:Id;";
     }
 }

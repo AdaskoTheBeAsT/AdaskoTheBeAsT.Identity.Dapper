@@ -7,10 +7,10 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
         : IIdentityRoleSql
     {
         public string CreateSql { get; } =
-            @"DECLARE id dbo.AspNetRoles.ID%type;
+            @"DECLARE id AspNetRoles.ID%type;
 BEGIN
     id := SYS_GUID();
-    INSERT INTO dbo.AspNetRoles(
+    INSERT INTO AspNetRoles(
     Id,
     Name
 ,NormalizedName
@@ -24,21 +24,21 @@ BEGIN
 END;";
 
         public string UpdateSql { get; } =
-            @"UPDATE dbo.AspNetRoles
+            @"UPDATE AspNetRoles
 SET Name=:Name
 ,NormalizedName=:NormalizedName
 ,ConcurrencyStamp=:ConcurrencyStamp
 WHERE Id=:Id;";
 
         public string DeleteSql { get; } =
-            @"DELETE FROM dbo.AspNetRoles WHERE Id=:Id;";
+            @"DELETE FROM AspNetRoles WHERE Id=:Id;";
 
         public string FindByIdSql { get; } =
             @"SELECT Id
 ,Name AS Name
 ,NormalizedName AS NormalizedName
 ,ConcurrencyStamp AS ConcurrencyStamp
-FROM dbo.AspNetRoles
+FROM AspNetRoles
 WHERE Id=:Id;";
 
         public string FindByNameSql { get; } =
@@ -46,7 +46,7 @@ WHERE Id=:Id;";
 ,Name AS Name
 ,NormalizedName AS NormalizedName
 ,ConcurrencyStamp AS ConcurrencyStamp
-FROM dbo.AspNetRoles
+FROM AspNetRoles
 WHERE NormalizedName=:NormalizedName;";
 
         public string GetRolesSql { get; } =
@@ -54,6 +54,6 @@ WHERE NormalizedName=:NormalizedName;";
 ,Name AS Name
 ,NormalizedName AS NormalizedName
 ,ConcurrencyStamp AS ConcurrencyStamp
-FROM dbo.AspNetRoles;";
+FROM AspNetRoles;";
     }
 }

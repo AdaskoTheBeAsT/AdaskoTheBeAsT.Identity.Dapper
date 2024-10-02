@@ -3,14 +3,15 @@ using System;
 using AdaskoTheBeAsT.Identity.Dapper;
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 using Microsoft.AspNetCore.Identity;
+using Npgsql;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Sample
 {
     public class ApplicationUserStore
-        : DapperUserStoreBase<ApplicationUser, ApplicationRole, Guid, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationUserToken>
+        : DapperUserStoreBase<ApplicationUser, ApplicationRole, Guid, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationUserToken, NpgsqlConnection>
     {
         public ApplicationUserStore(
-            IIdentityDbConnectionProvider connectionProvider)
+            IIdentityDbConnectionProvider<NpgsqlConnection> connectionProvider)
             : base(
                 new IdentityErrorDescriber(),
                 connectionProvider,
