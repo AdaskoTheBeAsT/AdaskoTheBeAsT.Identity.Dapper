@@ -69,7 +69,12 @@ public class SqliteIdentityUserClassGenerator
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
             propertyColumnTypeTriples);
-        var list = new List<string> { nameof(IdentityUser.Id) };
+        var list = new List<string>();
+        if (!config.InsertOwnId)
+        {
+            list.Add(nameof(IdentityUser.Id));
+        }
+
         foreach (var localPair in localPairs)
         {
             list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");
@@ -91,7 +96,12 @@ public class SqliteIdentityUserClassGenerator
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
             propertyColumnTypeTriples);
-        var list = new List<string> { nameof(IdentityUser.Id) };
+        var list = new List<string>();
+        if (!config.InsertOwnId)
+        {
+            list.Add(nameof(IdentityUser.Id));
+        }
+
         for (var i = 0; i < localPairs.Count; i++)
         {
             list.Add($"[{localPairs[i].ColumnName}] AS {localPairs[i].PropertyName}");
@@ -117,7 +127,12 @@ public class SqliteIdentityUserClassGenerator
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
             propertyColumnTypeTriples);
-        var list = new List<string> { nameof(IdentityUser.Id) };
+        var list = new List<string>();
+        if (!config.InsertOwnId)
+        {
+            list.Add(nameof(IdentityUser.Id));
+        }
+
         foreach (var localPair in localPairs)
         {
             list.Add($"[{localPair.ColumnName}] AS {localPair.PropertyName}");

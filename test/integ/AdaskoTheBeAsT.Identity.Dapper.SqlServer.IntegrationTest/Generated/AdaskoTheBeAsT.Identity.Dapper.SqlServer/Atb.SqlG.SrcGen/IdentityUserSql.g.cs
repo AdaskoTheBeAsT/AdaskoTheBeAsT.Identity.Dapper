@@ -57,8 +57,7 @@ WHERE Id=@Id;";
             @"DELETE FROM dbo.AspNetUsers WHERE Id=@Id;";
 
         public string FindByIdSql { get; } =
-            @"SELECT Id
-,[Id] AS Id
+            @"SELECT [Id] AS Id
 ,[UserName] AS UserName
 ,[Email] AS Email
 ,[EmailConfirmed] AS EmailConfirmed
@@ -75,8 +74,7 @@ FROM dbo.AspNetUsers
 WHERE Id=@Id;";
 
         public string FindByNameSql { get; } =
-            @"SELECT Id
-,[Id] AS Id
+            @"SELECT [Id] AS Id
 ,[UserName] AS UserName
 ,[Email] AS Email
 ,[EmailConfirmed] AS EmailConfirmed
@@ -93,8 +91,7 @@ FROM dbo.AspNetUsers
 WHERE UserName=@NormalizedUserName;";
 
         public string FindByEmailSql { get; } =
-            @"SELECT Id
-,[Id] AS Id
+            @"SELECT [Id] AS Id
 ,[UserName] AS UserName
 ,[Email] AS Email
 ,[EmailConfirmed] AS EmailConfirmed

@@ -69,7 +69,12 @@ public class SqliteIdentityRoleClassGenerator
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
             propertyColumnTypeTriples);
-        var list = new List<string> { nameof(IdentityRole.Id) };
+        var list = new List<string>();
+        if (!config.InsertOwnId)
+        {
+            list.Add(nameof(IdentityRole.Id));
+        }
+
         foreach (var t in localPairs)
         {
             list.Add($"[{t.ColumnName}] AS {t.PropertyName}");
@@ -91,7 +96,12 @@ public class SqliteIdentityRoleClassGenerator
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
             propertyColumnTypeTriples);
-        var list = new List<string> { nameof(IdentityRole.Id) };
+        var list = new List<string>();
+        if (!config.InsertOwnId)
+        {
+            list.Add(nameof(IdentityRole.Id));
+        }
+
         for (var i = 0; i < localPairs.Count; i++)
         {
             list.Add($"[{localPairs[i].ColumnName}] AS {localPairs[i].PropertyName}");
@@ -117,7 +127,12 @@ public class SqliteIdentityRoleClassGenerator
         var localPairs = GetListWithoutNormalized(
             config.SkipNormalized,
             propertyColumnTypeTriples);
-        var list = new List<string> { nameof(IdentityRole.Id) };
+        var list = new List<string>();
+        if (!config.InsertOwnId)
+        {
+            list.Add(nameof(IdentityRole.Id));
+        }
+
         foreach (var t in localPairs)
         {
             list.Add($"[{t.ColumnName}] AS {t.PropertyName}");
