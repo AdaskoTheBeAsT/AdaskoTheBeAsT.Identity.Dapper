@@ -23,7 +23,7 @@ public sealed class WithoutNormalizedAspNetIdentityGuidUserStoreStepDefinitions(
     [Given("I have configured Identity Connection Provider without normalized and Guid id")]
     public void GivenIHaveConfiguredIdentityConnectionProviderWithoutNormalizedAndGuidId()
     {
-        var mockConnectionProvider = new Mock<IIdentityDbConnectionProvider<MySqlConnection>>();
+        var mockConnectionProvider = new Mock<IIdentityDbConnectionProvider<MySqlConnection>>(MockBehavior.Strict);
 
 #pragma warning disable IDISP004,CA2000 // Don't ignore created IDisposable
         mockConnectionProvider.Setup(x => x.Provide())
