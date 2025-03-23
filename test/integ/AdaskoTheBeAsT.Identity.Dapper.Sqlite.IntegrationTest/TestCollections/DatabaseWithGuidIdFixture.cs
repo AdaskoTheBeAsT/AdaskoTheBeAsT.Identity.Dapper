@@ -1,6 +1,6 @@
 using AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Util;
 using DbUp;
-using DbUp.SQLite.Helpers;
+using DbUp.Sqlite.Helpers;
 using Microsoft.Data.Sqlite;
 using Xunit;
 
@@ -35,7 +35,7 @@ public sealed class DatabaseWithGuidIdFixture
 
             using var sharedConnection = new SharedConnection(Connection);
             var upgradeEngineBuilder = DeployChanges.To
-                .SQLiteDatabase(sharedConnection)
+                .SqliteDatabase(sharedConnection)
                 .WithScript(
                     "Script_000001_Init", content)
                 .LogTo(TestOutputHelperAdapter);

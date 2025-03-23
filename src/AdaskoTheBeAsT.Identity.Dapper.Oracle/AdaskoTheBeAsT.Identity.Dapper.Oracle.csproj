@@ -27,11 +27,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.35" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Dapper" Version="2.1.66" PrivateAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="Dapper.Oracle" Version="2.0.3" PrivateAssets="all" GeneratePathProperty="true" />
-    <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" PrivateAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.10" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="9.0.3" PrivateAssets="all" GeneratePathProperty="true" />
   </ItemGroup>
 
   <PropertyGroup>

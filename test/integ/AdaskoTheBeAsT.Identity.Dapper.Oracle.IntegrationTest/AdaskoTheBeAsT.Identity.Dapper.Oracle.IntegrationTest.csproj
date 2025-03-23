@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
@@ -11,15 +11,14 @@
   <ItemGroup>
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.1" />
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.Oracle" Version="2.0.1" />
-    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Dapper.Oracle" Version="2.0.3" />
-    <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
-    <PackageReference Include="dbup-oracle" Version="6.0.0-beta.6" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.10" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.6.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
-    <PackageReference Include="Testcontainers.Oracle" Version="3.10.0" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
+    <PackageReference Include="dbup-oracle" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="9.0.3" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.7.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.3" />
+    <PackageReference Include="Testcontainers.Oracle" Version="4.3.0" />
   </ItemGroup>
 
   <!--<ItemGroup>

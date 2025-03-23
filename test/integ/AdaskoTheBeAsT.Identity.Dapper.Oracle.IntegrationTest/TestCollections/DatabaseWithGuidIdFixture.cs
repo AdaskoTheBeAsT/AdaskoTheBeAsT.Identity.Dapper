@@ -10,7 +10,7 @@ public sealed class DatabaseWithGuidIdFixture
     : IAsyncLifetime,
         IDisposable
 {
-    private const string DbName = OracleBuilder.DefaultDatabase;
+    private const string DbName = "XEPDB1";
 
     private readonly OracleContainer _oracleContainer
         = new OracleBuilder()

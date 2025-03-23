@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
@@ -11,15 +11,14 @@
   <ItemGroup>
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.1" />
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.MySql" Version="2.0.1" />
-    <PackageReference Include="Dapper" Version="2.1.35" />
-    <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
     <PackageReference Include="dbup-mysql" Version="6.0.4" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.10" />
-    <PackageReference Include="MySql.Data" Version="9.1.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
-    <PackageReference Include="Testcontainers.MySql" Version="3.10.0" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="9.0.3" />
+    <PackageReference Include="MySql.Data" Version="9.2.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.3" />
+    <PackageReference Include="Testcontainers.MySql" Version="4.3.0" />
   </ItemGroup>
 
   <!--<ItemGroup>

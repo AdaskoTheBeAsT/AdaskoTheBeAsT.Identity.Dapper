@@ -1,4 +1,5 @@
 using AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Util;
+using DotNet.Testcontainers.Builders;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
@@ -15,11 +16,23 @@ public sealed class DatabaseWithGuidIdFixture
 
     private readonly MsSqlContainer _msSqlContainer
         = new MsSqlBuilder()
+            .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+            .WithEnvironment("ACCEPT_EULA", "Y")
+            .WithPortBinding(55123, 1433)
+            .WithWaitStrategy(
+                Wait.ForUnixContainer()
+                    .UntilCommandIsCompleted(
+                        "/opt/mssql-tools18/bin/sqlcmd",
+                        "-C",
+                        "-Q",
+                        "SELECT 1;"
+                    )
+            )
             //.WithImage("mcr.microsoft.com/mssql/server:2022-latest")
             //.WithEnvironment("ACCEPT_EULA", "Y")
             //.WithEnvironment("MSSQL_SA_PASSWORD", "TestPass123!")
             //.WithEnvironment("MSSQL_PID", "Developer")
-            .WithExposedPort(55123)
+            //.WithExposedPort(55123)
             .WithPassword("TestPass123!")
             .Build();
 

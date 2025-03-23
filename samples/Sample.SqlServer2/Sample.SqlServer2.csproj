@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
@@ -22,10 +22,10 @@
   <ItemGroup>
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.1" />
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.SqlServer" Version="2.0.1" />
-    <PackageReference Include="Dapper" Version="2.1.35" />
-    <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.10" />
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="9.0.3" />
   </ItemGroup>
 
   <ItemGroup>
