@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
@@ -9,14 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.1" />
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.PostgreSql" Version="2.0.1" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="3.0.0" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.PostgreSql" Version="3.0.0" />
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
-    <PackageReference Include="dbup-postgresql" Version="6.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="9.0.3" />
-    <PackageReference Include="Npgsql" Version="9.0.3" />
-    <PackageReference Include="Testcontainers.PostgreSql" Version="4.3.0" />
+    <PackageReference Include="dbup-postgresql" Version="6.1.5" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.0" />
+    <PackageReference Include="Npgsql" Version="10.0.0" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.8.1" />
   </ItemGroup>
 
   <!--<ItemGroup>

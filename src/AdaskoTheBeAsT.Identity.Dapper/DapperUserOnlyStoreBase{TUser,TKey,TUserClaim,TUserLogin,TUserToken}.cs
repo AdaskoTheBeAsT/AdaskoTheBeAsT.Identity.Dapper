@@ -1008,7 +1008,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
             throw new ArgumentNullException(nameof(user));
         }
 
-        var connection = ConnectionProvider.Provide();
+        using var connection = ConnectionProvider.Provide();
 
         return SetTokenImplAsync(connection, user, loginProvider, name, value, cancellationToken);
     }
@@ -1030,7 +1030,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
             throw new ArgumentNullException(nameof(user));
         }
 
-        var connection = ConnectionProvider.Provide();
+        using var connection = ConnectionProvider.Provide();
 
         return RemoveTokenImplAsync(connection, user, loginProvider, name, cancellationToken);
     }
@@ -1052,9 +1052,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
             throw new ArgumentNullException(nameof(user));
         }
 
-        var connection = ConnectionProvider.Provide();
+        using var connection = ConnectionProvider.Provide();
 
-        return GetTokenImplAsync(connection,user, loginProvider, name, cancellationToken);
+        return GetTokenImplAsync(connection, user, loginProvider, name, cancellationToken);
     }
 
     /// <summary>
@@ -1503,7 +1503,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
             .ConfigureAwait(continueOnCapturedContext: false))
         .AsList();
 
-   
+
 
     /// <summary>
     /// Find a user token if it exists.

@@ -38,11 +38,13 @@ public class SqlExpressionVisitor(char parameterPrefix)
         {
             if (string.Equals(node.Method.Name, nameof(Skip), StringComparison.Ordinal))
             {
-                Skip = (int)((ConstantExpression)node.Arguments[1]).Value;
+                var value = ((ConstantExpression)node.Arguments[1]).Value;
+                Skip = value as int?;
             }
             else if (string.Equals(node.Method.Name, nameof(Take), StringComparison.Ordinal))
             {
-                Take = (int)((ConstantExpression)node.Arguments[1]).Value;
+                var value = ((ConstantExpression)node.Arguments[1]).Value;
+                Take = value as int?;
             }
 
             Visit(node.Arguments[0]); // Continue processing the source IQueryable
@@ -158,8 +160,16 @@ public class SqlExpressionVisitor(char parameterPrefix)
                 return ((ConstantExpression)member).Value;
             case ExpressionType.MemberAccess:
                 var memberExpression = (MemberExpression)member;
-                var constantExpression = (ConstantExpression)memberExpression.Expression;
-                var fieldInfo = (FieldInfo)memberExpression.Member;
+                if (memberExpression.Expression is not ConstantExpression constantExpression)
+                {
+                    return null;
+                }
+
+                if (memberExpression.Member is not FieldInfo fieldInfo)
+                {
+                    return null;
+                }
+
                 return fieldInfo.GetValue(constantExpression.Value);
             default:
                 throw new NotSupportedException($"The expression type '{member.NodeType}' is not supported");

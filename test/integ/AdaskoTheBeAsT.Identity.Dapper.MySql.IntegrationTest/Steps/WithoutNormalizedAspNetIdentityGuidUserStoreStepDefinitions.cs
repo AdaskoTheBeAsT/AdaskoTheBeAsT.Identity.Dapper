@@ -2,7 +2,7 @@ using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 using AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest.Identity;
 using AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest.TestCollections;
 using Bogus;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;

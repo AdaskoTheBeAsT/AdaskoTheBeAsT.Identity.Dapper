@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net8.0;net9.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <NoWarn>$(NoWarn);CC0091</NoWarn>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>github</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Description>Autogenerates Identity stores based on Dapper</Description>
-    <PackageVersion>2.0.1</PackageVersion>
+    <PackageVersion>3.0.1</PackageVersion>
     <Authors>Adam "AdaskoTheBeAsT" Pluciński</Authors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IncludeSymbols>true</IncludeSymbols>
@@ -26,7 +26,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.66" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="9.0.3" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.0" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,7 +34,4 @@
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Attributes\" />
-  </ItemGroup>
 </Project>

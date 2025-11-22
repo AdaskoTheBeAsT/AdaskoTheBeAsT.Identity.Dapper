@@ -2,7 +2,7 @@ using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 using AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Identity;
 using AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.TestCollections;
 using Bogus;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
