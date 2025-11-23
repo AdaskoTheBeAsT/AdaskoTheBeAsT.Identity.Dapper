@@ -84,7 +84,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
             return IdentityResult.Failed(
                 new IdentityError
                 {
-                    Code = "1",
+                    Code = IdentityErrorCodes.CreateFailed,
                     Description = ex.Message,
                 });
         }
@@ -113,7 +113,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
             return IdentityResult.Failed(
                 new IdentityError
                 {
-                    Code = "2",
+                    Code = IdentityErrorCodes.UpdateFailed,
                     Description = ex.Message,
                 });
         }
@@ -142,7 +142,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
             return IdentityResult.Failed(
                 new IdentityError
                 {
-                    Code = "3",
+                    Code = IdentityErrorCodes.DeleteFailed,
                     Description = ex.Message,
                 });
         }

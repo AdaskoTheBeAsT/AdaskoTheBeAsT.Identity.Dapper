@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using AdaskoTheBeAsT.Identity.Dapper;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -73,7 +74,7 @@ public class CreateUserRequestHandler
         {
             return IdentityResult.Failed(new IdentityError
             {
-                Code = "1",
+                Code = IdentityErrorCodes.CreateFailed,
                 Description = ex.Message,
             });
         }

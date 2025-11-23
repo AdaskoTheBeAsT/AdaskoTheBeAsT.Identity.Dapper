@@ -200,7 +200,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
             return IdentityResult.Failed(
                 new IdentityError
                 {
-                    Code = "1",
+                    Code = IdentityErrorCodes.CreateFailed,
                     Description = ex.Message,
                 });
         }
@@ -229,7 +229,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
             return IdentityResult.Failed(
                 new IdentityError
                 {
-                    Code = "2",
+                    Code = IdentityErrorCodes.UpdateFailed,
                     Description = ex.Message,
                 });
         }
@@ -258,7 +258,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
             return IdentityResult.Failed(
                 new IdentityError
                 {
-                    Code = "3",
+                    Code = IdentityErrorCodes.DeleteFailed,
                     Description = ex.Message,
                 });
         }

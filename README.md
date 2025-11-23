@@ -344,11 +344,12 @@ OracleDapperConfig.ConfigureTypeHandlers();
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.8" />
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.8" />
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.8" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.10" />
   </ItemGroup>
 ```
 
 2. Optional settings which you can add to project file - below are default values
-   - it is safe to skip - add only if you want to modify them (MySql does not have schema)
+   - it is safe to skip - add only if you want to modify them (SQLite does not have schema)
 
 ```xml
   <PropertyGroup>
@@ -363,6 +364,12 @@ OracleDapperConfig.ConfigureTypeHandlers();
         - there is no need to create them in database-->
     <AdaskoTheBeAsTIdentityDapper_SkipNormalized>false</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
   </PropertyGroup>
+```
+
+3. Please add this to your startup file
+
+```csharp
+SQLitePCL.Batteries.Init();
 ```
 
 ## Recompile your project
@@ -652,18 +659,6 @@ During recent code review, the following observations were made:
 - Good null checking and validation
 - Modern C# features utilized effectively
 - Strong type safety with nullable reference types
-
-### ⚠️ Known Issues
-
-**Critical - Resource Leak (Fixed in upcoming release)**:
-Location: `DapperUserOnlyStoreBase.cs` methods `SetTokenAsync`, `RemoveTokenAsync`, `GetTokenAsync`
-- Database connections not properly disposed in these methods
-- Will be fixed in next patch release
-- Workaround: Ensure connection pool settings can handle this until patched
-
-**Minor**:
-- Generic exception catching (acceptable for IdentityResult pattern but could be more specific)
-- Hard-coded error codes could be constants
 
 ## 📄 License
 

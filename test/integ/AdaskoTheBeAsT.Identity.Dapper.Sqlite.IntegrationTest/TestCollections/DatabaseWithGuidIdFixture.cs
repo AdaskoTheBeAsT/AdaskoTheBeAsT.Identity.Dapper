@@ -12,6 +12,7 @@ public sealed class DatabaseWithGuidIdFixture
 {
     public DatabaseWithGuidIdFixture()
     {
+        SQLitePCL.Batteries.Init();
         SqliteDapperConfig.ConfigureTypeHandlers();
         Connection = new SqliteConnection("Data Source=:memory:;");
 
