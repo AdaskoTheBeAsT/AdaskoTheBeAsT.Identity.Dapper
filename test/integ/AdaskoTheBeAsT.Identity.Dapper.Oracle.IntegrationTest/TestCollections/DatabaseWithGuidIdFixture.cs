@@ -13,7 +13,7 @@ public sealed class DatabaseWithGuidIdFixture
     private const string DbName = "XEPDB1";
 
     private readonly OracleContainer _oracleContainer
-        = new OracleBuilder()
+        = new OracleBuilder("gvenzl/oracle-xe:21.3.0-slim-faststart")
             .WithPassword("TestPass123!")
             .WithPortBinding(64797, 1521)
             .Build();

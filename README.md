@@ -175,11 +175,11 @@ Choose your database provider and configure accordingly:
   <ItemGroup>
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.0" />
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.SqlServer" Version="2.0.0" />
-    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.1" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" />
   </ItemGroup>
 ```
 
@@ -212,10 +212,10 @@ Choose your database provider and configure accordingly:
   <ItemGroup>
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.0" />
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.PostgreSql" Version="2.0.0" />
-    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" />
     <PackageReference Include="Npgsql" Version="6.0.0" />
   </ItemGroup>
 ```
@@ -249,10 +249,10 @@ Choose your database provider and configure accordingly:
   <ItemGroup>
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.0" />
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.MySql" Version="2.0.0" />
-    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" />
     <PackageReference Include="MySql.Data" Version="9.0.0" />
   </ItemGroup>
 ```
@@ -290,10 +290,10 @@ MySqlDapperConfig.ConfigureTypeHandlers();
   <ItemGroup>
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.0" />
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.Oracle" Version="2.0.0" />
-    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="Dapper.Oracle" Version="2.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" />
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.5.1" />
   </ItemGroup>
 ```
@@ -339,11 +339,11 @@ OracleDapperConfig.ConfigureTypeHandlers();
   <ItemGroup>
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="2.0.0" />
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.Sqlite" Version="2.0.0" />
-    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.8" />
-    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.5" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.10" />
   </ItemGroup>
 ```
@@ -387,9 +387,9 @@ SQLitePCL.Batteries.Init();
   <ItemGroup>
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="1.3.0" />
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.SqlServer" Version="1.3.0" />
-    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" />
   </ItemGroup>
 ```
 

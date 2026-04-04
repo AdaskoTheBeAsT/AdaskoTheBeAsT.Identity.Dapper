@@ -9,15 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="3.0.0" />
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.Oracle" Version="3.0.0" />
-    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="3.0.2" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.Oracle" Version="3.0.2" />
+    <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="Dapper.Oracle" Version="2.0.3" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
-    <PackageReference Include="dbup-oracle" Version="6.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.0" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.0" />
-    <PackageReference Include="Testcontainers.Oracle" Version="4.8.1" />
+    <PackageReference Include="dbup-oracle" Version="6.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.100" />
+    <PackageReference Include="Testcontainers.Oracle" Version="4.11.0" />
   </ItemGroup>
 
   <!--<ItemGroup>

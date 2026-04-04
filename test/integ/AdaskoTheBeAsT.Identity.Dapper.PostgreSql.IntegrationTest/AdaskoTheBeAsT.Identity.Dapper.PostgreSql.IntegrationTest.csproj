@@ -9,14 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="3.0.0" />
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.PostgreSql" Version="3.0.0" />
-    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="3.0.2" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.PostgreSql" Version="3.0.2" />
+    <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
-    <PackageReference Include="dbup-postgresql" Version="6.1.5" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.0" />
-    <PackageReference Include="Npgsql" Version="10.0.0" />
-    <PackageReference Include="Testcontainers.PostgreSql" Version="4.8.1" />
+    <PackageReference Include="dbup-postgresql" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" />
+    <PackageReference Include="Npgsql" Version="10.0.2" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.11.0" />
   </ItemGroup>
 
   <!--<ItemGroup>

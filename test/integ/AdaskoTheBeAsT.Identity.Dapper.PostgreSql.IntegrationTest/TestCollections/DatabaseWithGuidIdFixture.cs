@@ -12,8 +12,7 @@ public sealed class DatabaseWithGuidIdFixture
     private const string DbName = "WithoutNormalizedAspNetIdentityGuid";
 
     private readonly PostgreSqlContainer _postgreSqlContainer
-        = new PostgreSqlBuilder()
-            .WithImage("postgres:16.4")
+        = new PostgreSqlBuilder("postgres:18.3")
             .WithDatabase(DbName)
             .WithUsername("admin")
             .WithPassword("TestPass123!")

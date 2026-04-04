@@ -12,8 +12,7 @@ public sealed class DatabaseWithGuidIdFixture
     private const string DbName = "WithoutNormalizedAspNetIdentityGuid";
 
     private readonly MySqlContainer _mySqlContainer
-        = new MySqlBuilder()
-            .WithImage("mysql:9.0.1")
+        = new MySqlBuilder("mysql:9.6.0")
             .WithDatabase(DbName)
             .WithExposedPort(33060)
             .WithUsername("root")

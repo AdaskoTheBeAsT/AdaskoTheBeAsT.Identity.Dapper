@@ -25,8 +25,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.66" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.0" PrivateAssets="all" />
+    <PackageReference Include="Dapper" Version="2.1.72" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

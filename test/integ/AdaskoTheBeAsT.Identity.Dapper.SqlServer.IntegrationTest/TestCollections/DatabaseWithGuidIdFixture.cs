@@ -15,8 +15,7 @@ public sealed class DatabaseWithGuidIdFixture
     private const string DbName = "WithoutNormalizedAspNetIdentityGuid";
 
     private readonly MsSqlContainer _msSqlContainer
-        = new MsSqlBuilder()
-            .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+        = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2025-latest")
             .WithEnvironment("ACCEPT_EULA", "Y")
             .WithPortBinding(55123, 1433)
             .WithWaitStrategy(
