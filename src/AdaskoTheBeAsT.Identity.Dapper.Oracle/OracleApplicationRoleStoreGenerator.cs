@@ -35,6 +35,8 @@ public class OracleApplicationRoleStoreGenerator
             "ApplicationRoleStore",
             $"DapperRoleStoreBase<ApplicationRole, {keyTypeName}, ApplicationRoleClaim, OracleConnection>");
         GenerateConstructor(sb);
+        GenerateRolesProperty(sb);
+        GenerateNormalizeSqlMethod(sb);
         GenerateCreateImpl(
             typePropertiesDict,
             options,
@@ -68,6 +70,21 @@ public class OracleApplicationRoleStoreGenerator
                 new IdentityRoleSql(),
                 new IdentityRoleClaimSql())
         {
+        }");
+
+        sb.AppendLine();
+    }
+
+    private void GenerateRolesProperty(StringBuilder sb)
+    {
+        sb.AppendLine(
+            @"        public override IQueryable<ApplicationRole> Roles
+        {
+            get
+            {
+                using var connection = ConnectionProvider.Provide();
+                return connection.Query<ApplicationRole>(NormalizeSql(IdentityRoleSql.GetRolesSql)).AsQueryable();
+            }
         }");
 
         sb.AppendLine();
@@ -155,7 +172,7 @@ public class OracleApplicationRoleStoreGenerator
             ApplicationRole role,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityRoleSql.UpdateSql;
+            var sql = NormalizeSql(IdentityRoleSql.UpdateSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -203,7 +220,7 @@ public class OracleApplicationRoleStoreGenerator
             ApplicationRole role,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityRoleSql.DeleteSql;
+            var sql = NormalizeSql(IdentityRoleSql.DeleteSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -230,7 +247,7 @@ public class OracleApplicationRoleStoreGenerator
             {keyTypeName} roleId,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityRoleSql.FindByIdSql;
+            var sql = NormalizeSql(IdentityRoleSql.FindByIdSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -256,7 +273,7 @@ public class OracleApplicationRoleStoreGenerator
             string normalizedRoleName,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityRoleSql.FindByNameSql;
+            var sql = NormalizeSql(IdentityRoleSql.FindByNameSql);
             var parameters = new OracleDynamicParameters();");
 
         sb.AppendLine(
@@ -281,7 +298,7 @@ public class OracleApplicationRoleStoreGenerator
             {keyTypeName} roleId,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityRoleClaimSql.GetByRoleIdSql;
+            var sql = NormalizeSql(IdentityRoleClaimSql.GetByRoleIdSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -338,7 +355,7 @@ public class OracleApplicationRoleStoreGenerator
             ApplicationRoleClaim roleClaim,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityRoleClaimSql.DeleteSql;
+            var sql = NormalizeSql(IdentityRoleClaimSql.DeleteSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);

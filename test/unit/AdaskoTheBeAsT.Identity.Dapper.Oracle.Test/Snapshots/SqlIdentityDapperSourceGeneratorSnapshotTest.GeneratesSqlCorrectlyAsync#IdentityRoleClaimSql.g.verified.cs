@@ -7,7 +7,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
         : IIdentityRoleClaimSql
     {
         public string CreateSql { get; } =
-            @"DECLARE id AspNetRoleClaims.Id%type;
+            @"BEGIN
 INSERT INTO AspNetRoleClaims(
 RoleId
 ,ClaimType
@@ -15,9 +15,8 @@ RoleId
 VALUES(
 :RoleId
 ,:ClaimType
-,:ClaimValue)
-RETURNING Id INTO id;
-SELECT id FROM DUAL;
+,:ClaimValue);
+END;
 ";
 
         public string DeleteSql { get; } =

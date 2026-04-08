@@ -60,14 +60,14 @@ VALUES(
 SELECT @Id AS Id;";
                 }
 
-                return $@"SET id=UUID();
+                return $@"SET @NewId=UUID();
 INSERT INTO {tableName}(
 Id,
 /**insert**/)
 VALUES(
-id,
+@NewId,
 /**values**/);
-SELECT id AS Id;";
+SELECT @NewId AS Id;";
             }
             case "int":
             case "Int32":
@@ -99,14 +99,14 @@ VALUES(
 SELECT @Id AS Id;";
                 }
 
-                return $@"SET id=UUID();
+                return $@"SET @NewId=UUID();
 INSERT INTO {tableName}(
 Id,
 /**insert**/)
 VALUES(
-id,
+@NewId,
 /**values**/);
-SELECT id AS Id;";
+SELECT @NewId AS Id;";
             }
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));

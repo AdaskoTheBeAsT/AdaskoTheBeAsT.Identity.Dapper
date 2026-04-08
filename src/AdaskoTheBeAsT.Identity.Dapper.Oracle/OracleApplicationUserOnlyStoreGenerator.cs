@@ -24,6 +24,8 @@ public class OracleApplicationUserOnlyStoreGenerator
             "ApplicationUserOnlyStore",
             $"DapperUserOnlyStoreBase<ApplicationUser, {keyTypeName}, ApplicationUserClaim, ApplicationUserLogin, ApplicationUserToken, OracleConnection>");
         GenerateConstructor(sb);
+        GenerateUsersProperty(sb);
+        GenerateNormalizeSqlMethod(sb);
         OracleApplicationUserHelper.GenerateCreateImpl(
             typePropertiesDict,
             options,
@@ -71,6 +73,20 @@ public class OracleApplicationUserOnlyStoreGenerator
                 new IdentityUserLoginSql(),
                 new IdentityUserTokenSql())
         {
+        }");
+        sb.AppendLine();
+    }
+
+    private void GenerateUsersProperty(StringBuilder sb)
+    {
+        sb.AppendLine(
+            @"        public override IQueryable<ApplicationUser> Users
+        {
+            get
+            {
+                using var connection = ConnectionProvider.Provide();
+                return connection.Query<ApplicationUser>(NormalizeSql(IdentityUserSql.GetUsersSql)).AsQueryable();
+            }
         }");
         sb.AppendLine();
     }

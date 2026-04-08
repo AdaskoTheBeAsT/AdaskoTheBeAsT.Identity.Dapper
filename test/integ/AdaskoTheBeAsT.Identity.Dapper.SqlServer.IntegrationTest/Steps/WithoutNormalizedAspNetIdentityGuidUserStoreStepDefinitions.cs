@@ -1,67 +1,132 @@
-using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
-using AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Identity;
-using AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.TestCollections;
-using Bogus;
-using AwesomeAssertions;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using Reqnroll;
+using SqlServerUserOnlyStoreBase =
+    AdaskoTheBeAsT.Identity.Dapper.DapperUserOnlyStoreBase<
+        AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Identity.ApplicationUser,
+        System.Guid,
+        AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Identity.ApplicationUserClaim,
+        AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Identity.ApplicationUserLogin,
+        AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Identity.ApplicationUserToken,
+        Microsoft.Data.SqlClient.SqlConnection>;
+using SqlServerUserStoreBase =
+    AdaskoTheBeAsT.Identity.Dapper.DapperUserStoreBase<
+        AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Identity.ApplicationUser,
+        AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Identity.ApplicationRole,
+        System.Guid,
+        AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Identity.ApplicationUserClaim,
+        AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Identity.ApplicationUserRole,
+        AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Identity.ApplicationUserLogin,
+        AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Identity.ApplicationUserToken,
+        Microsoft.Data.SqlClient.SqlConnection>;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Steps;
 
 [Binding]
-public sealed class WithoutNormalizedAspNetIdentityGuidUserStoreStepDefinitions(
-    DatabaseWithGuidIdFixture databaseWithGuidIdFixture)
-    : IDisposable
+public sealed class WithoutNormalizedAspNetIdentityGuidUserStoreStepDefinitions
+    : SqlServerUserStoreTableDrivenStepDefinitionsBase
 {
-    private ServiceProvider? _serviceProvider;
-    private IUserStore<ApplicationUser> _sut = null!;
-    private IdentityResult? _result;
-
-    [Given("I have configured Identity Connection Provider without normalized and Guid id")]
-    public void GivenIHaveConfiguredIdentityConnectionProviderWithoutNormalizedAndGuidId()
+    public WithoutNormalizedAspNetIdentityGuidUserStoreStepDefinitions(
+        FeatureContext featureContext,
+        ScenarioContext scenarioContext)
+        : base(featureContext, scenarioContext)
     {
-        var mockConnectionProvider = new Mock<IIdentityDbConnectionProvider<SqlConnection>>(MockBehavior.Strict);
-
-#pragma warning disable IDISP004,CA2000 // Don't ignore created IDisposable
-        mockConnectionProvider.Setup(x => x.Provide())
-            .Returns(
-                new SqlConnection(
-                    databaseWithGuidIdFixture.ConnectionString));
-#pragma warning restore IDISP004,CA2000 // Don't ignore created IDisposable
-
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton(mockConnectionProvider.Object);
-        serviceCollection.AddScoped<IUserStore<ApplicationUser>, ApplicationUserStore>();
-        _serviceProvider?.Dispose();
-        _serviceProvider = serviceCollection.BuildServiceProvider();
-        _sut = _serviceProvider.GetRequiredService<IUserStore<ApplicationUser>>();
     }
 
-    [When("I add the user without normalized and Guid id to the user store")]
-    public async Task WhenIAddTheUserWithoutNormalizedAndGuidIdToTheUserStoreAsync()
-    {
-        var user = new Faker<ApplicationUser>()
-            .RuleFor(u => u.UserName, f => f.Person.UserName)
-            .RuleFor(u => u.Email, f => f.Person.Email)
-            .RuleFor(u => u.PasswordHash, f => f.Internet.Password())
-            .RuleFor(u => u.PhoneNumberConfirmed, _ => true)
-            .Generate();
+    protected override SqlServerUserOnlyStoreBase CreateUserStoreInstance() => CreateUserStore();
 
-        _result = await _sut.CreateAsync(user, CancellationToken.None);
+    protected override SqlServerUserStoreBase CreateRoleCapableUserStoreInstance() => CreateUserStore();
+
+    [Given("I have configured SQL Server UserStore without normalized and Guid id")]
+    public Task GivenIHaveConfiguredSqlServerUserStoreWithoutNormalizedAndGuidId() => ResetUserStoreScenarioAsync();
+
+    [Given("I created users for SQL Server UserStore")]
+    public Task GivenICreatedUsersForSqlServerUserStore(Table table) => CreateUsersFromTableAsync(table);
+
+    [Given("I created roles for SQL Server UserStore")]
+    public Task GivenICreatedRolesForSqlServerUserStore(Table table) => CreateRolesFromTableAsync(table);
+
+    [Given("I added user claims for SQL Server UserStore")]
+    public Task GivenIAddedUserClaimsForSqlServerUserStore(Table table) => AddUserClaimsFromTableAsync(table);
+
+    [Given("I added role claims for SQL Server UserStore")]
+    public Task GivenIAddedRoleClaimsForSqlServerUserStore(Table table) => AddRoleClaimsFromTableAsync(table);
+
+    [Given("I added user logins for SQL Server UserStore")]
+    public Task GivenIAddedUserLoginsForSqlServerUserStore(Table table) => AddUserLoginsFromTableAsync(table);
+
+    [Given("I added user tokens for SQL Server UserStore")]
+    public Task GivenIAddedUserTokensForSqlServerUserStore(Table table) => AddUserTokensFromTableAsync(table);
+
+    [Given("I set authenticator keys for SQL Server UserStore")]
+    public Task GivenISetAuthenticatorKeysForSqlServerUserStore(Table table) => SetAuthenticatorKeysFromTableAsync(table);
+
+    [Given("I replaced recovery codes for SQL Server UserStore")]
+    public Task GivenIReplacedRecoveryCodesForSqlServerUserStore(Table table) => ReplaceRecoveryCodesFromTableAsync(table);
+
+    [Given("I added users to roles for SQL Server UserStore")]
+    public Task GivenIAddedUsersToRolesForSqlServerUserStore(Table table) => AddUsersToRolesFromTableAsync(table);
+
+    [When("I verify {string} on SQL Server UserStore without normalized and Guid id")]
+    public async Task WhenIVerifyMethodOnSqlServerUserStoreWithoutNormalizedAndGuidId(string methodName)
+    {
+        await VerifyUserStoreMethodAsync(methodName);
+        LastVerifiedMethodName = methodName;
     }
 
-    [Then("the user without normalized and Guid id should be in the user store")]
-    public void ThenTheUserWithoutNormalizedAndGuidIdShouldBeInTheUserStore()
-    {
-        _result.Should().Be(IdentityResult.Success);
-    }
+    [When("I execute {string} on SQL Server UserStore")]
+    public Task WhenIExecuteMethodOnSqlServerUserStore(string methodName) =>
+        ExecuteUserStoreDatabaseMethodAsync(methodName, table: null);
 
-    public void Dispose()
+    [When("I execute {string} on SQL Server UserStore with parameters")]
+    public Task WhenIExecuteMethodOnSqlServerUserStoreWithParameters(string methodName, Table table) =>
+        ExecuteUserStoreDatabaseMethodAsync(methodName, table);
+
+    [Then("the last identity result for SQL Server UserStore should be successful")]
+    public void ThenTheLastIdentityResultForSqlServerUserStoreShouldBeSuccessful() =>
+        AssertLastIdentityResultSuccessful();
+
+    [Then("the last user result for SQL Server UserStore should match")]
+    public void ThenTheLastUserResultForSqlServerUserStoreShouldMatch(Table table) =>
+        AssertLastUserMatches(table);
+
+    [Then("the last user result for SQL Server UserStore should be null")]
+    public void ThenTheLastUserResultForSqlServerUserStoreShouldBeNull() =>
+        AssertLastUserIsNull();
+
+    [Then("the last users result for SQL Server UserStore should match")]
+    public void ThenTheLastUsersResultForSqlServerUserStoreShouldMatch(Table table) =>
+        AssertLastUsersMatch(table);
+
+    [Then("the last claims result for SQL Server UserStore should match")]
+    public void ThenTheLastClaimsResultForSqlServerUserStoreShouldMatch(Table table) =>
+        AssertLastClaimsMatch(table);
+
+    [Then("the last logins result for SQL Server UserStore should match")]
+    public void ThenTheLastLoginsResultForSqlServerUserStoreShouldMatch(Table table) =>
+        AssertLastLoginsMatch(table);
+
+    [Then("the last strings result for SQL Server UserStore should match")]
+    public void ThenTheLastStringsResultForSqlServerUserStoreShouldMatch(Table table) =>
+        AssertLastStringsMatch(table);
+
+    [Then("the last string result for SQL Server UserStore should be {string}")]
+    public void ThenTheLastStringResultForSqlServerUserStoreShouldBe(string expected) =>
+        AssertLastString(expected);
+
+    [Then("the last string result for SQL Server UserStore should be null")]
+    public void ThenTheLastStringResultForSqlServerUserStoreShouldBeNull() =>
+        AssertLastString(expected: null);
+
+    [Then("the last boolean result for SQL Server UserStore should be {string}")]
+    public void ThenTheLastBooleanResultForSqlServerUserStoreShouldBe(string expected) =>
+        AssertLastBoolean(bool.Parse(expected));
+
+    [Then("the last integer result for SQL Server UserStore should be {int}")]
+    public void ThenTheLastIntegerResultForSqlServerUserStoreShouldBe(int expected) =>
+        AssertLastInteger(expected);
+
+    [Then("{string} on SQL Server UserStore should work without normalized and Guid id")]
+    public void ThenMethodOnSqlServerUserStoreShouldWorkWithoutNormalizedAndGuidId(string methodName)
     {
-        _sut.Dispose();
-        _serviceProvider?.Dispose();
+        AssertLastVerifiedMethod(methodName);
     }
 }

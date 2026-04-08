@@ -53,7 +53,7 @@ public class PostgreSqlIdentityUserTokenClassGenerator
             .Where2($"{nameof(IdentityUserToken<int>.LoginProvider)}=@{nameof(IdentityUserToken<int>.LoginProvider)}")
             .Where2($"{nameof(IdentityUserToken<int>.Name)}=@{nameof(IdentityUserToken<int>.Name)}")
             .AddTemplate(
-                $"SELECT TOP 1 /**select2**/FROM {config.SchemaPart}AspNetUserTokens\r\n/**where2**/;")
+                $"SELECT /**select2**/FROM {config.SchemaPart}AspNetUserTokens\r\n/**where2**/\r\nLIMIT 1;")
             .RawSql;
     }
 }

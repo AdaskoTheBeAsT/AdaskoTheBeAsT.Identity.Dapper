@@ -32,7 +32,10 @@ public class OracleSourceGenerationHelper
         SourceProductionContext context,
         IdentityDapperOptions options)
     {
+        GenerateGuidRaw16TypeHandler(context);
         GenerateNullableGuidRaw16TypeHandler(context);
+        GenerateDateTimeOffsetTypeHandler(context);
+        GenerateNullableDateTimeOffsetTypeHandler(context);
         if (string.Equals(options.StoreBooleanAs, "char", StringComparison.OrdinalIgnoreCase))
         {
             GenerateBooleanCharTypeHandler(context);
@@ -48,6 +51,45 @@ public class OracleSourceGenerationHelper
         }
 
         GenerateOracleDapperConfig(context, options);
+    }
+
+    private void GenerateGuidRaw16TypeHandler(
+        SourceProductionContext context)
+    {
+        const string content =
+            """
+            using System;
+            using System.Data;
+            using Dapper;
+
+            namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
+
+            public class GuidRaw16TypeHandler
+                : SqlMapper.TypeHandler<Guid>
+            {
+                public override void SetValue(IDbDataParameter parameter, Guid value)
+                {
+                    parameter.Value = value.ToByteArray();
+                }
+
+                public override Guid Parse(object value)
+                {
+                    if (value == DBNull.Value)
+                    {
+                        return Guid.Empty;
+                    }
+
+                    if (value is byte[] b)
+                    {
+                        return new Guid(b);
+                    }
+
+                    return Guid.Empty;
+                }
+            }
+            """;
+
+        context.AddSource("GuidRaw16TypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
     private void GenerateBooleanCharTypeHandler(
@@ -296,6 +338,114 @@ public class OracleSourceGenerationHelper
         context.AddSource("NullableGuidRaw16TypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
+    private void GenerateDateTimeOffsetTypeHandler(
+        SourceProductionContext context)
+    {
+        const string content =
+            """
+            using System;
+            using System.Data;
+            using System.Globalization;
+            using Dapper.Oracle.TypeHandler;
+
+            namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
+
+            public class DateTimeOffsetTypeHandler
+                : TypeHandlerBase<DateTimeOffset>
+            {
+                public override void SetValue(IDbDataParameter parameter, DateTimeOffset value)
+                {
+                    SetOracleDbTypeOnParameter(parameter, "TimeStamp");
+                    parameter.Value = value.UtcDateTime;
+                }
+
+                public override DateTimeOffset Parse(object value)
+                {
+                    if (value == DBNull.Value)
+                    {
+                        return default;
+                    }
+
+                    return value switch
+                    {
+                        DateTimeOffset dto => dto.ToUniversalTime(),
+                        DateTime dt => new DateTimeOffset(DateTime.SpecifyKind(dt, DateTimeKind.Utc)),
+                        string text when DateTimeOffset.TryParse(
+                            text,
+                            CultureInfo.InvariantCulture,
+                            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                            out var parsedOffset) => parsedOffset,
+                        string text when DateTime.TryParse(
+                            text,
+                            CultureInfo.InvariantCulture,
+                            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                            out var parsedDateTime) => new DateTimeOffset(parsedDateTime, TimeSpan.Zero),
+                        _ => new DateTimeOffset(
+                            DateTime.SpecifyKind(
+                                Convert.ToDateTime(value, CultureInfo.InvariantCulture),
+                                DateTimeKind.Utc)),
+                    };
+                }
+            }
+            """;
+
+        context.AddSource("DateTimeOffsetTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
+    }
+
+    private void GenerateNullableDateTimeOffsetTypeHandler(
+        SourceProductionContext context)
+    {
+        const string content =
+            """
+            using System;
+            using System.Data;
+            using System.Globalization;
+            using Dapper.Oracle.TypeHandler;
+
+            namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
+
+            public class NullableDateTimeOffsetTypeHandler
+                : TypeHandlerBase<DateTimeOffset?>
+            {
+                public override void SetValue(IDbDataParameter parameter, DateTimeOffset? value)
+                {
+                    SetOracleDbTypeOnParameter(parameter, "TimeStamp");
+                    parameter.Value = value.HasValue ? value.Value.UtcDateTime : DBNull.Value;
+                }
+
+                public override DateTimeOffset? Parse(object value)
+                {
+                    if (value == DBNull.Value)
+                    {
+                        return null;
+                    }
+
+                    return value switch
+                    {
+                        DateTimeOffset dto => dto.ToUniversalTime(),
+                        DateTime dt => new DateTimeOffset(DateTime.SpecifyKind(dt, DateTimeKind.Utc)),
+                        string text when DateTimeOffset.TryParse(
+                            text,
+                            CultureInfo.InvariantCulture,
+                            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                            out var parsedOffset) => parsedOffset,
+                        string text when DateTime.TryParse(
+                            text,
+                            CultureInfo.InvariantCulture,
+                            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                            out var parsedDateTime) => new DateTimeOffset(parsedDateTime, TimeSpan.Zero),
+                        _ => new DateTimeOffset(
+                            DateTime.SpecifyKind(
+                                Convert.ToDateTime(value, CultureInfo.InvariantCulture),
+                                DateTimeKind.Utc)),
+                    };
+                }
+            }
+            """;
+
+        context.AddSource("NullableDateTimeOffsetTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
+    }
+
     private void GenerateOracleDapperConfig(
         SourceProductionContext context,
         IdentityDapperOptions options)
@@ -315,6 +465,8 @@ public class OracleSourceGenerationHelper
                 {
                     SqlMapper.RemoveTypeMap(typeof(Guid));
                     SqlMapper.RemoveTypeMap(typeof(Guid?));
+                    SqlMapper.RemoveTypeMap(typeof(DateTimeOffset));
+                    SqlMapper.RemoveTypeMap(typeof(DateTimeOffset?));
             """;
 
         sb.AppendLine(content1);
@@ -333,6 +485,10 @@ public class OracleSourceGenerationHelper
 
         var content3 =
             """
+                    SqlMapper.AddTypeHandler(new GuidRaw16TypeHandler());
+                    SqlMapper.AddTypeHandler(new NullableGuidRaw16TypeHandler());
+                    OracleTypeMapper.AddTypeHandler(typeof(DateTimeOffset), new DateTimeOffsetTypeHandler());
+                    OracleTypeMapper.AddTypeHandler(typeof(DateTimeOffset?), new NullableDateTimeOffsetTypeHandler());
                     OracleTypeMapper.AddTypeHandler(typeof(bool), new BooleanCharTypeHandler(StringComparison.OrdinalIgnoreCase));
                     OracleTypeMapper.AddTypeHandler(
                         typeof(bool?),

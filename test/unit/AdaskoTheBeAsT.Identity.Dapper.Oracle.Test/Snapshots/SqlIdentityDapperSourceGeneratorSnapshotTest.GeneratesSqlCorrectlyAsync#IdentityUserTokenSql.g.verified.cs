@@ -26,13 +26,14 @@ WHERE LoginProvider=:LoginProvider
   AND UserId=:UserId;";
 
         public string GetByUserIdSql { get; } =
-            @"SELECT TOP 1 UserId AS UserId
+            @"SELECT UserId AS UserId
 ,LoginProvider AS LoginProvider
 ,Name AS Name
 ,Value AS Value
 FROM AspNetUserTokens
 WHERE UserId=:UserId
   AND LoginProvider=:LoginProvider
-  AND Name=:Name;";
+  AND Name=:Name
+FETCH FIRST 1 ROWS ONLY;";
     }
 }

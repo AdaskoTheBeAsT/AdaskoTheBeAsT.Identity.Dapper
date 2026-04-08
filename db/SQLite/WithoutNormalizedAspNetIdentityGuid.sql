@@ -41,7 +41,7 @@ CREATE INDEX IX_AspNetRoleClaims_RoleId
     ON aspnetroleclaims(RoleId ASC);
 	
 CREATE TABLE aspnetuserclaims (
-    Id         INT              NOT NULL PRIMARY KEY,
+    Id         INTEGER          NOT NULL PRIMARY KEY,
     UserId     VARCHAR(36)              NOT NULL,
     ClaimType  VARCHAR(256)     NULL,
     ClaimValue VARCHAR(256)     NULL,

@@ -1,6 +1,4 @@
 using System;
-using Dapper.Oracle;
-using Microsoft.Extensions.Options;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 

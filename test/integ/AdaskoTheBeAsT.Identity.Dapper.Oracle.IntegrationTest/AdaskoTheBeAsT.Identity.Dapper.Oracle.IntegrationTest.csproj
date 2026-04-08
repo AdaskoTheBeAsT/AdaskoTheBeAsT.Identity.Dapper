@@ -5,25 +5,32 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+    <AdaskoTheBeAsTIdentityDapper_DbSchema></AdaskoTheBeAsTIdentityDapper_DbSchema>
     <AdaskoTheBeAsTIdentityDapper_SkipNormalized>true</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
+    <AdaskoTheBeAsTIdentityDapper_StoreBooleanAs>char</AdaskoTheBeAsTIdentityDapper_StoreBooleanAs>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="3.0.2" />
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.Oracle" Version="3.0.2" />
     <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="Dapper.Oracle" Version="2.0.3" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
     <PackageReference Include="dbup-oracle" Version="6.2.0" />
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.100" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.200" />
     <PackageReference Include="Testcontainers.Oracle" Version="4.11.0" />
   </ItemGroup>
 
-  <!--<ItemGroup>
-    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.PostgreSql\AdaskoTheBeAsT.Identity.Dapper.PostgreSql.csproj" />
+  <ItemGroup>
+    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_DbSchema" />
+    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_SkipNormalized" />
+    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_StoreBooleanAs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.Oracle\AdaskoTheBeAsT.Identity.Dapper.Oracle.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
-  </ItemGroup>-->
+  </ItemGroup>
 
   <!--<ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
     <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />

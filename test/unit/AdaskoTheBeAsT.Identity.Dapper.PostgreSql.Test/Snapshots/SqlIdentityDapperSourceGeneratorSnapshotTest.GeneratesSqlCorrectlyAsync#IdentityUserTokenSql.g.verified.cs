@@ -26,13 +26,14 @@ WHERE LoginProvider=@LoginProvider
   AND UserId=@UserId;";
 
         public string GetByUserIdSql { get; } =
-            @"SELECT TOP 1 userid  AS ""UserId""
+            @"SELECT userid  AS ""UserId""
 ,loginprovider  AS ""LoginProvider""
 ,name  AS ""Name""
 ,value  AS ""Value""
 FROM AspNetUserTokens
 WHERE UserId=@UserId
   AND LoginProvider=@LoginProvider
-  AND Name=@Name;";
+  AND Name=@Name
+LIMIT 1;";
     }
 }

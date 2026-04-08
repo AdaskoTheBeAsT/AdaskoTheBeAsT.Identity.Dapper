@@ -56,7 +56,7 @@ public class SqliteIdentityHelper
     /**insert**/)
 VALUES(
     /**values**/);
-SELECT LAST_INSERT_ROWID() AS Id;";
+SELECT @Id AS Id;";
                 }
 
                 return $@"WITH new_id AS (
@@ -95,7 +95,7 @@ SELECT LAST_INSERT_ROWID() AS Id;";
     /**insert**/)
 VALUES(
     /**values**/);
-SELECT LAST_INSERT_ROWID() AS Id;";
+SELECT @Id AS Id;";
                 }
 
                 return $@"WITH new_id AS (

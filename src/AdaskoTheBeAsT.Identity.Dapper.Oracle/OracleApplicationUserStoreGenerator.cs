@@ -24,6 +24,8 @@ public class OracleApplicationUserStoreGenerator
             "ApplicationUserStore",
             $"DapperUserStoreBase<ApplicationUser, ApplicationRole, {keyTypeName}, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationUserToken, OracleConnection>");
         GenerateConstructor(sb);
+        GenerateUsersProperty(sb);
+        GenerateNormalizeSqlMethod(sb);
         OracleApplicationUserHelper.GenerateCreateImpl(
             typePropertiesDict,
             options,
@@ -87,6 +89,20 @@ public class OracleApplicationUserStoreGenerator
         sb.AppendLine();
     }
 
+    private void GenerateUsersProperty(StringBuilder sb)
+    {
+        sb.AppendLine(
+            @"        public override IQueryable<ApplicationUser> Users
+        {
+            get
+            {
+                using var connection = ConnectionProvider.Provide();
+                return connection.Query<ApplicationUser>(NormalizeSql(IdentityUserSql.GetUsersSql)).AsQueryable();
+            }
+        }");
+        sb.AppendLine();
+    }
+
     private void GenerateGetUsersInRoleImpl(
         StringBuilder sb)
     {
@@ -96,7 +112,7 @@ public class OracleApplicationUserStoreGenerator
             string roleName,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserSql.GetUsersInRoleSql;
+            var sql = NormalizeSql(IdentityUserSql.GetUsersInRoleSql);
             var parameters = new OracleDynamicParameters();");
 
         sb.AppendLine(
@@ -123,7 +139,7 @@ public class OracleApplicationUserStoreGenerator
             ApplicationRole role,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserRoleSql.CreateSql;
+            var sql = NormalizeSql(IdentityUserRoleSql.CreateSql);
             var parameters = new OracleDynamicParameters();");
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
@@ -151,7 +167,7 @@ public class OracleApplicationUserStoreGenerator
             ApplicationRole role,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserRoleSql.DeleteSql;
+            var sql = NormalizeSql(IdentityUserRoleSql.DeleteSql);
             var parameters = new OracleDynamicParameters();");
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
@@ -178,7 +194,7 @@ public class OracleApplicationUserStoreGenerator
             ApplicationUser user,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserRoleSql.GetRoleNamesByUserIdSql;
+            var sql = NormalizeSql(IdentityUserRoleSql.GetRoleNamesByUserIdSql);
             var parameters = new OracleDynamicParameters();");
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
@@ -206,7 +222,7 @@ public class OracleApplicationUserStoreGenerator
             ApplicationRole role,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserRoleSql.GetCountSql;
+            var sql = NormalizeSql(IdentityUserRoleSql.GetCountSql);
             var parameters = new OracleDynamicParameters();");
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
@@ -233,7 +249,7 @@ public class OracleApplicationUserStoreGenerator
             ApplicationUser user,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserRoleClaimSql.GetRoleClaimsByUserIdSql;
+            var sql = NormalizeSql(IdentityUserRoleClaimSql.GetRoleClaimsByUserIdSql);
             var parameters = new OracleDynamicParameters();");
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
@@ -260,7 +276,7 @@ public class OracleApplicationUserStoreGenerator
             ApplicationUser user,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserRoleClaimSql.GetUserAndRoleClaimsByUserIdSql;
+            var sql = NormalizeSql(IdentityUserRoleClaimSql.GetUserAndRoleClaimsByUserIdSql);
             var parameters = new OracleDynamicParameters();");
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
@@ -286,7 +302,7 @@ public class OracleApplicationUserStoreGenerator
             string roleName,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityRoleSql.FindByNameSql;
+            var sql = NormalizeSql(IdentityRoleSql.FindByNameSql);
             var parameters = new OracleDynamicParameters();");
         sb.AppendLine(
             $@"            parameters.Add(""NormalizedName"", roleName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
@@ -311,7 +327,7 @@ public class OracleApplicationUserStoreGenerator
             {keyTypeName} roleId,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserRoleSql.GetByUserIdRoleIdSql;
+            var sql = NormalizeSql(IdentityUserRoleSql.GetByUserIdRoleIdSql);
             var parameters = new OracleDynamicParameters();");
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);

@@ -6,6 +6,19 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 public class OracleIdentityStoreGeneratorBase
     : IdentityStoreGeneratorBase
 {
+    protected void GenerateNormalizeSqlMethod(StringBuilder sb)
+    {
+        sb.AppendLine(
+            @"        private static string NormalizeSql(string sql)
+        {
+            return sql.StartsWith(""DECLARE"", StringComparison.OrdinalIgnoreCase) ||
+                   sql.StartsWith(""BEGIN"", StringComparison.OrdinalIgnoreCase)
+                ? sql
+                : sql.Trim().TrimEnd(';');
+        }");
+        sb.AppendLine();
+    }
+
     protected override void GenerateUsing(
         StringBuilder sb,
         string keyTypeName)

@@ -5,12 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
     <AdaskoTheBeAsTIdentityDapper_SkipNormalized>true</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="3.0.2" />
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.Sqlite" Version="3.0.2" />
     <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
     <PackageReference Include="dbup-sqlite" Version="6.0.4" />
@@ -22,18 +21,14 @@
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.2" />
   </ItemGroup>
 
-  <!--<ItemGroup>
-    <ProjectReference Include="..\src\AdaskoTheBeAsT.Identity.Dapper.Sqlite\AdaskoTheBeAsT.Identity.Dapper.Sqlite.csproj" />
-    <ProjectReference Include="..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
+  <ItemGroup>
+    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_SkipNormalized" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
-    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.Sqlite\AdaskoTheBeAsT.Identity.Dapper.Sqlite.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
   </ItemGroup>
-
-  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
-    <None Include="Generated/**/*" />
-  </ItemGroup>-->
 
   <ItemGroup>
     <None Include="..\..\..\db\SQLite\AspNetIdentityBigInt.sql" Link="Scripts\AspNetIdentityBigInt.sql">
@@ -63,7 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ReqnrollFeatureFiles Update="Features\WithoutNormalizedAspNetIdentityGuidUserStore.feature">
+    <ReqnrollFeatureFiles Update="Features\*.feature">
       <Visible>$(UsingMicrosoftNETSdk)</Visible>
       <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
     </ReqnrollFeatureFiles>

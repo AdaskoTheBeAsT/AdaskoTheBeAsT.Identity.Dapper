@@ -150,7 +150,7 @@ public static class OracleApplicationUserHelper
             ApplicationUser user,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserSql.UpdateSql;
+            var sql = NormalizeSql(IdentityUserSql.UpdateSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -238,7 +238,7 @@ public static class OracleApplicationUserHelper
             ApplicationUser user,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserSql.DeleteSql;
+            var sql = NormalizeSql(IdentityUserSql.DeleteSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -265,7 +265,7 @@ public static class OracleApplicationUserHelper
             {keyTypeName} userId,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserSql.FindByIdSql;
+            var sql = NormalizeSql(IdentityUserSql.FindByIdSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -291,11 +291,11 @@ public static class OracleApplicationUserHelper
             string normalizedUserName,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserSql.FindByNameSql;
+            var sql = NormalizeSql(IdentityUserSql.FindByNameSql);
             var parameters = new OracleDynamicParameters();");
 
         sb.AppendLine(
-            $@"            parameters.Add(""NormalizedName"", normalizedUserName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+            $@"            parameters.Add(""NormalizedUserName"", normalizedUserName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
 
         sb.AppendLine(
             $@"            return await connection.QueryFirstOrDefaultAsync<ApplicationUser>(sql, parameters)
@@ -316,7 +316,7 @@ public static class OracleApplicationUserHelper
             {keyTypeName} userId,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserClaimSql.GetByUserIdSql;
+            var sql = NormalizeSql(IdentityUserClaimSql.GetByUserIdSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -380,7 +380,7 @@ public static class OracleApplicationUserHelper
             Claim newClaim,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserClaimSql.ReplaceSql;
+            var sql = NormalizeSql(IdentityUserClaimSql.ReplaceSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -389,6 +389,8 @@ public static class OracleApplicationUserHelper
             $@"            parameters.Add(""UserId"", user.Id, {idType}, ParameterDirection.Input, {idSize});
             parameters.Add(""ClaimTypeOld"", claim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             parameters.Add(""ClaimValueOld"", claim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+            parameters.Add(""ClaimType"", newClaim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+            parameters.Add(""ClaimValue"", newClaim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             parameters.Add(""ClaimTypeNew"", newClaim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             parameters.Add(""ClaimValueNew"", newClaim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
 
@@ -412,7 +414,7 @@ public static class OracleApplicationUserHelper
             IEnumerable<Claim> claims,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserClaimSql.DeleteSql;
+            var sql = NormalizeSql(IdentityUserClaimSql.DeleteSql);
             foreach (var claim in claims)
             {{
                 var parameters = new OracleDynamicParameters();");
@@ -446,7 +448,7 @@ public static class OracleApplicationUserHelper
             UserLoginInfo login,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserLoginSql.CreateSql;
+            var sql = NormalizeSql(IdentityUserLoginSql.CreateSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -478,7 +480,7 @@ public static class OracleApplicationUserHelper
             string providerKey,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserLoginSql.DeleteSql;
+            var sql = NormalizeSql(IdentityUserLoginSql.DeleteSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -507,7 +509,7 @@ public static class OracleApplicationUserHelper
             ApplicationUser user,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserLoginSql.GetByUserIdSql;
+            var sql = NormalizeSql(IdentityUserLoginSql.GetByUserIdSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -516,8 +518,13 @@ public static class OracleApplicationUserHelper
             $@"            parameters.Add(""Id"", user.Id, {idType}, ParameterDirection.Input, {idSize});");
 
         sb.AppendLine(
-            $@"            return (await connection.QueryAsync<UserLoginInfo>(sql, parameters)
+            $@"            return (await connection.QueryAsync<ApplicationUserLogin>(sql, parameters)
                     .ConfigureAwait(continueOnCapturedContext: false))
+                .Select(
+                    login => new UserLoginInfo(
+                        login.LoginProvider,
+                        login.ProviderKey,
+                        login.ProviderDisplayName))
                 .AsList();");
 
         sb.AppendLine("        }");
@@ -535,7 +542,7 @@ public static class OracleApplicationUserHelper
             {keyTypeName} userId,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserSql.FindByIdSql;
+            var sql = NormalizeSql(IdentityUserSql.FindByIdSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -564,7 +571,7 @@ public static class OracleApplicationUserHelper
             string providerKey,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserLoginSql.GetByUserIdLoginProviderKeySql;
+            var sql = NormalizeSql(IdentityUserLoginSql.GetByUserIdLoginProviderKeySql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -593,7 +600,7 @@ public static class OracleApplicationUserHelper
             string providerKey,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserLoginSql.GetByLoginProviderKeySql;
+            var sql = NormalizeSql(IdentityUserLoginSql.GetByLoginProviderKeySql);
             var parameters = new OracleDynamicParameters();
             parameters.Add(""LoginProvider"", loginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);
             parameters.Add(""ProviderKey"", providerKey, OracleMappingType.Varchar2, ParameterDirection.Input, 128);");
@@ -616,7 +623,7 @@ public static class OracleApplicationUserHelper
             string normalizedEmail,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserSql.FindByEmailSql;
+            var sql = NormalizeSql(IdentityUserSql.FindByEmailSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add(""NormalizedEmail"", normalizedEmail, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
 
@@ -638,7 +645,7 @@ public static class OracleApplicationUserHelper
             Claim claim,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserSql.GetUsersForClaimSql;
+            var sql = NormalizeSql(IdentityUserSql.GetUsersForClaimSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add(""ClaimType"", claim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             parameters.Add(""ClaimValue"", claim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
@@ -665,7 +672,7 @@ public static class OracleApplicationUserHelper
             string name,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserTokenSql.GetByUserIdSql;
+            var sql = NormalizeSql(IdentityUserTokenSql.GetByUserIdSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -694,7 +701,7 @@ public static class OracleApplicationUserHelper
             ApplicationUserToken token,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserTokenSql.CreateSql;
+            var sql = NormalizeSql(IdentityUserTokenSql.CreateSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
@@ -724,7 +731,7 @@ public static class OracleApplicationUserHelper
             ApplicationUserToken token,
             CancellationToken cancellationToken)
         {{
-            var sql = IdentityUserTokenSql.DeleteSql;
+            var sql = NormalizeSql(IdentityUserTokenSql.DeleteSql);
             var parameters = new OracleDynamicParameters();");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);

@@ -195,7 +195,7 @@ public class OracleIdentityUserClassGenerator
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))
             .InnerJoin2($"{config.SchemaPart}AspNetUserRoles ur ON u.Id=ur.UserId")
-            .InnerJoin2($"{config.SchemaPart}AspNetRoles r ON ur.RolesId=r.Id")
+            .InnerJoin2($"{config.SchemaPart}AspNetRoles r ON ur.RoleId=r.Id")
             .Where2(where)
             .AddTemplate(
                 $"SELECT /**select2**/FROM {config.SchemaPart}AspNetUsers u/**innerjoin2**//**where2**/;")
@@ -219,7 +219,7 @@ public class OracleIdentityUserClassGenerator
         return sqlBuilder
             .Select2(string.Join("\r\n,", list))
             .InnerJoin2($"{config.SchemaPart}AspNetUserRoles ur ON u.Id=ur.UserId")
-            .InnerJoin2($"{config.SchemaPart}AspNetRoles r ON ur.RolesId=r.Id")
+            .InnerJoin2($"{config.SchemaPart}AspNetRoles r ON ur.RoleId=r.Id")
             .AddTemplate(
                 $"SELECT /**select2**/FROM {config.SchemaPart}AspNetUsers u/**innerjoin2**/;")
             .RawSql;

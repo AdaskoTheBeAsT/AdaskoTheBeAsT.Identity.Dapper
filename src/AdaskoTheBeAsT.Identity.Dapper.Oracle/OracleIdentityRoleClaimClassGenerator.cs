@@ -16,13 +16,12 @@ public class OracleIdentityRoleClaimClassGenerator
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var sb = new StringBuilder();
-        sb.AppendLine($"DECLARE id {config.SchemaPart}AspNetRoleClaims.Id%type;");
+        sb.AppendLine("BEGIN");
         sb.AppendLine($"INSERT INTO {config.SchemaPart}AspNetRoleClaims(");
         sb.AppendLine("/**insert**/)");
         sb.AppendLine("VALUES(");
-        sb.AppendLine("/**values**/)");
-        sb.AppendLine("RETURNING Id INTO id;");
-        sb.AppendLine("SELECT id FROM DUAL;");
+        sb.AppendLine("/**values**/);");
+        sb.AppendLine("END;");
         return sqlBuilder
             .Insert(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"{s.ColumnName}")))
             .Values(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $":{s.PropertyName}")))

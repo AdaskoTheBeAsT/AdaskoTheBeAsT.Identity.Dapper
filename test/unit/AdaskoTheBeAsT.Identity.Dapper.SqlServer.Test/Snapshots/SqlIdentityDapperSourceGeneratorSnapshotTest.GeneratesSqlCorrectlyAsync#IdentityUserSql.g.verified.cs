@@ -156,7 +156,7 @@ WHERE c.ClaimType=@ClaimType
 ,u.[AccessFailedCount] AS AccessFailedCount
 FROM AspNetUsers u
 INNER JOIN AspNetUserRoles ur ON u.Id=ur.UserId
-INNER JOIN AspNetRoles r ON ur.RolesId=r.Id
+INNER JOIN AspNetRoles r ON ur.RoleId=r.Id
 WHERE r.NormalizedName=@NormalizedName;";
 
         public string GetUsersSql { get; } =
@@ -177,7 +177,7 @@ WHERE r.NormalizedName=@NormalizedName;";
 ,u.[AccessFailedCount] AS AccessFailedCount
 FROM AspNetUsers u
 INNER JOIN AspNetUserRoles ur ON u.Id=ur.UserId
-INNER JOIN AspNetRoles r ON ur.RolesId=r.Id
+INNER JOIN AspNetRoles r ON ur.RoleId=r.Id
 ;";
     }
 }

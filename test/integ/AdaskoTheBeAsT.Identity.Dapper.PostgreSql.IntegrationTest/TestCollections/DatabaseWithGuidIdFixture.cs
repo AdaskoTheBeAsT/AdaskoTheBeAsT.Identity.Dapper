@@ -1,4 +1,5 @@
 using AdaskoTheBeAsT.Identity.Dapper.PostgreSql.IntegrationTest.Util;
+using AdaskoTheBeAsT.Identity.Dapper.PostgreSql;
 using DbUp;
 using Testcontainers.PostgreSql;
 using Xunit;
@@ -10,6 +11,8 @@ public sealed class DatabaseWithGuidIdFixture
         IDisposable
 {
     private const string DbName = "WithoutNormalizedAspNetIdentityGuid";
+    private readonly SemaphoreSlim _initializationLock = new(1, 1);
+    private bool _initialized;
 
     private readonly PostgreSqlContainer _postgreSqlContainer
         = new PostgreSqlBuilder("postgres:18.3")
@@ -19,11 +22,11 @@ public sealed class DatabaseWithGuidIdFixture
             .WithPortBinding(64320, 5432)
             .Build();
 
+    public static DatabaseWithGuidIdFixture Shared { get; } = new();
+
     public DatabaseWithGuidIdFixture()
     {
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-        InitializeAsync().GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+        PostgreSqlDapperConfig.ConfigureTypeHandlers();
     }
 
     public string ConnectionString { get; set; } = string.Empty;
@@ -32,8 +35,19 @@ public sealed class DatabaseWithGuidIdFixture
 
     public async Task InitializeAsync()
     {
+        if (_initialized)
+        {
+            return;
+        }
+
+        await _initializationLock.WaitAsync();
         try
         {
+            if (_initialized)
+            {
+                return;
+            }
+
             await _postgreSqlContainer.StartAsync();
             var path = Path.Combine("Scripts", "WithoutNormalizedAspNetIdentityGuid.sql");
 #pragma warning disable SCS0018
@@ -53,15 +67,24 @@ public sealed class DatabaseWithGuidIdFixture
                 ? "Successfully ran migrations"
                 : $"Failed to run migrations {result.Error}";
             TestOutputHelperAdapter.WriteInformation($"final {msg}");
+            _initialized = true;
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
             throw;
         }
+        finally
+        {
+            _initializationLock.Release();
+        }
     }
 
-    public Task DisposeAsync() => _postgreSqlContainer.DisposeAsync().AsTask();
+    public async Task DisposeAsync()
+    {
+        await _postgreSqlContainer.DisposeAsync().AsTask();
+        _initializationLock.Dispose();
+    }
 
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
     public void Dispose() => DisposeAsync().GetAwaiter().GetResult();

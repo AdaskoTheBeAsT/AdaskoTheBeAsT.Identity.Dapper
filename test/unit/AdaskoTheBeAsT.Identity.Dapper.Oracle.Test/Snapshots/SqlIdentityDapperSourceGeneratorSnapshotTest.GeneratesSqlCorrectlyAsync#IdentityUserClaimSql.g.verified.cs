@@ -7,7 +7,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
         : IIdentityUserClaimSql
     {
         public string CreateSql { get; } =
-            @"DECLARE id AspNetUserClaims.Id%type;
+            @"BEGIN
 INSERT INTO AspNetUserClaims(
 UserId
 ,ClaimType
@@ -15,9 +15,8 @@ UserId
 VALUES(
 :UserId
 ,:ClaimType
-,:ClaimValue)
-RETURNING Id INTO id;
-SELECT id FROM DUAL;
+,:ClaimValue);
+END;
 ";
 
         public string DeleteSql { get; } =
@@ -33,23 +32,11 @@ FROM AspNetUserClaims
 WHERE UserId=:Id;";
 
         public string ReplaceSql { get; } =
-            @"IF EXISTS(SELECT Id
-            FROM AspNetUserClaims
-            WHERE UserId=:UserId
-              AND ClaimType=:ClaimTypeOld
-              AND ClaimValue=:ClaimValueOld)
-BEGIN
+            @"BEGIN
     DELETE FROM AspNetUserClaims
     WHERE UserId=:UserId
       AND ClaimType=:ClaimTypeOld
-      AND ClaimValue=:ClaimValueOld
-END;
-IF NOT EXISTS(SELECT Id
-             FROM AspNetUserClaims
-             WHERE UserId=:UserId
-               AND ClaimType=:ClaimTypeNew
-               AND ClaimValue=:ClaimValueNew)
-BEGIN
+      AND ClaimValue=:ClaimValueOld;
     INSERT INTO AspNetUserClaims(
 UserId
 ,ClaimType

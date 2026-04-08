@@ -72,11 +72,11 @@ public class MySqlIdentityUserRoleClassGenerator
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var template = config.SkipNormalized
-            ? $"SELECT r.Name\r\nFROM {config.SchemaPart}AspNetRoles r/**innerjoin2**//**where2**/;"
-            : $"SELECT r.NormalizedName\r\nFROM {config.SchemaPart}AspNetRoles r/**innerjoin2**//**where2**/;";
+            ? $"SELECT r.Name\r\nFROM {config.SchemaPart}`aspnetroles` r/**innerjoin2**//**where2**/;"
+            : $"SELECT r.NormalizedName\r\nFROM {config.SchemaPart}`aspnetroles` r/**innerjoin2**//**where2**/;";
         var sqlBuilder = new AdvancedSqlBuilder();
         return sqlBuilder
-            .InnerJoin2($"{config.SchemaPart}`aspnetroles` ur ON r.Id=ur.RoleId")
+            .InnerJoin2($"{config.SchemaPart}`aspnetuserroles` ur ON r.Id=ur.RoleId")
             .Where2($"ur.{nameof(IdentityUserRole<int>.UserId)}=@{nameof(IdentityUserRole<int>.UserId)}")
             .AddTemplate(template)
             .RawSql;

@@ -27,6 +27,23 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
         {
         }
 
+        public override IQueryable<ApplicationUser> Users
+        {
+            get
+            {
+                using var connection = ConnectionProvider.Provide();
+                return connection.Query<ApplicationUser>(NormalizeSql(IdentityUserSql.GetUsersSql)).AsQueryable();
+            }
+        }
+
+        private static string NormalizeSql(string sql)
+        {
+            return sql.StartsWith("DECLARE", StringComparison.OrdinalIgnoreCase) ||
+                   sql.StartsWith("BEGIN", StringComparison.OrdinalIgnoreCase)
+                ? sql
+                : sql.Trim().TrimEnd(';');
+        }
+
         protected override async Task CreateImplAsync(
             OracleConnection connection,
             ApplicationUser user,
@@ -55,7 +72,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             ApplicationUser user,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserSql.UpdateSql;
+            var sql = NormalizeSql(IdentityUserSql.UpdateSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("Id", user.Id, OracleMappingType.Raw, ParameterDirection.Input, 16);
             parameters.Add("UserName", user.UserName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
@@ -76,7 +93,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             ApplicationUser user,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserSql.DeleteSql;
+            var sql = NormalizeSql(IdentityUserSql.DeleteSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("Id", user.Id, OracleMappingType.Raw, ParameterDirection.Input, 16);
             await connection.ExecuteAsync(sql, parameters).ConfigureAwait(continueOnCapturedContext: false);
@@ -87,7 +104,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             Guid userId,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserSql.FindByIdSql;
+            var sql = NormalizeSql(IdentityUserSql.FindByIdSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("Id", userId, OracleMappingType.Raw, ParameterDirection.Input, 16);
             return await connection.QueryFirstOrDefaultAsync<ApplicationUser>(sql, parameters)
@@ -99,9 +116,9 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             string normalizedUserName,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserSql.FindByNameSql;
+            var sql = NormalizeSql(IdentityUserSql.FindByNameSql);
             var parameters = new OracleDynamicParameters();
-            parameters.Add("NormalizedName", normalizedUserName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+            parameters.Add("NormalizedUserName", normalizedUserName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             return await connection.QueryFirstOrDefaultAsync<ApplicationUser>(sql, parameters)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
@@ -111,7 +128,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             Guid userId,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserClaimSql.GetByUserIdSql;
+            var sql = NormalizeSql(IdentityUserClaimSql.GetByUserIdSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("Id", userId, OracleMappingType.Raw, ParameterDirection.Input, 16);
             return (await connection.QueryAsync<Claim>(sql, parameters)
@@ -144,11 +161,13 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             Claim newClaim,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserClaimSql.ReplaceSql;
+            var sql = NormalizeSql(IdentityUserClaimSql.ReplaceSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("UserId", user.Id, OracleMappingType.Raw, ParameterDirection.Input, 16);
             parameters.Add("ClaimTypeOld", claim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             parameters.Add("ClaimValueOld", claim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+            parameters.Add("ClaimType", newClaim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+            parameters.Add("ClaimValue", newClaim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             parameters.Add("ClaimTypeNew", newClaim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             parameters.Add("ClaimValueNew", newClaim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             await connection.ExecuteAsync(sql, parameters)
@@ -161,7 +180,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             IEnumerable<Claim> claims,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserClaimSql.DeleteSql;
+            var sql = NormalizeSql(IdentityUserClaimSql.DeleteSql);
             foreach (var claim in claims)
             {
                 var parameters = new OracleDynamicParameters();
@@ -179,7 +198,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             UserLoginInfo login,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserLoginSql.CreateSql;
+            var sql = NormalizeSql(IdentityUserLoginSql.CreateSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("LoginProvider", login.LoginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);
             parameters.Add("ProviderKey", login.ProviderKey, OracleMappingType.Varchar2, ParameterDirection.Input, 128);
@@ -196,7 +215,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             string providerKey,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserLoginSql.DeleteSql;
+            var sql = NormalizeSql(IdentityUserLoginSql.DeleteSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("LoginProvider", loginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);
             parameters.Add("ProviderKey", providerKey, OracleMappingType.Varchar2, ParameterDirection.Input, 128);
@@ -210,11 +229,16 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             ApplicationUser user,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserLoginSql.GetByUserIdSql;
+            var sql = NormalizeSql(IdentityUserLoginSql.GetByUserIdSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("Id", user.Id, OracleMappingType.Raw, ParameterDirection.Input, 16);
-            return (await connection.QueryAsync<UserLoginInfo>(sql, parameters)
+            return (await connection.QueryAsync<ApplicationUserLogin>(sql, parameters)
                     .ConfigureAwait(continueOnCapturedContext: false))
+                .Select(
+                    login => new UserLoginInfo(
+                        login.LoginProvider,
+                        login.ProviderKey,
+                        login.ProviderDisplayName))
                 .AsList();
         }
 
@@ -223,7 +247,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             Guid userId,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserSql.FindByIdSql;
+            var sql = NormalizeSql(IdentityUserSql.FindByIdSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("Id", userId, OracleMappingType.Raw, ParameterDirection.Input, 16);
             return await connection.QueryFirstOrDefaultAsync<ApplicationUser>(sql, parameters)
@@ -237,7 +261,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             string providerKey,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserLoginSql.GetByUserIdLoginProviderKeySql;
+            var sql = NormalizeSql(IdentityUserLoginSql.GetByUserIdLoginProviderKeySql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("Id", userId, OracleMappingType.Raw, ParameterDirection.Input, 16);
             parameters.Add("LoginProvider", loginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);
@@ -252,7 +276,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             string providerKey,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserLoginSql.GetByLoginProviderKeySql;
+            var sql = NormalizeSql(IdentityUserLoginSql.GetByLoginProviderKeySql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("LoginProvider", loginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);
             parameters.Add("ProviderKey", providerKey, OracleMappingType.Varchar2, ParameterDirection.Input, 128);
@@ -265,7 +289,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             string normalizedEmail,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserSql.FindByEmailSql;
+            var sql = NormalizeSql(IdentityUserSql.FindByEmailSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("NormalizedEmail", normalizedEmail, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             return await connection.QueryFirstOrDefaultAsync<ApplicationUser>(sql, parameters)
@@ -277,7 +301,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             Claim claim,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserSql.GetUsersForClaimSql;
+            var sql = NormalizeSql(IdentityUserSql.GetUsersForClaimSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("ClaimType", claim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             parameters.Add("ClaimValue", claim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
@@ -293,7 +317,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             string name,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserTokenSql.GetByUserIdSql;
+            var sql = NormalizeSql(IdentityUserTokenSql.GetByUserIdSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("UserId", user.Id, OracleMappingType.Raw, ParameterDirection.Input, 16);
             parameters.Add("LoginProvider", loginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);
@@ -307,7 +331,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             ApplicationUserToken token,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserTokenSql.CreateSql;
+            var sql = NormalizeSql(IdentityUserTokenSql.CreateSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("UserId", token.UserId, OracleMappingType.Raw, ParameterDirection.Input, 16);
             parameters.Add("LoginProvider", token.LoginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);
@@ -322,7 +346,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             ApplicationUserToken token,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityUserTokenSql.DeleteSql;
+            var sql = NormalizeSql(IdentityUserTokenSql.DeleteSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("LoginProvider", token.LoginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);
             parameters.Add("Name", token.Name, OracleMappingType.Varchar2, ParameterDirection.Input, 128);

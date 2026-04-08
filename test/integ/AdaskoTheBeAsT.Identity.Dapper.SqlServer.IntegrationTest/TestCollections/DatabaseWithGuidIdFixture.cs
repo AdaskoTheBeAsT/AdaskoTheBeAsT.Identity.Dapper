@@ -13,11 +13,13 @@ public sealed class DatabaseWithGuidIdFixture
         IDisposable
 {
     private const string DbName = "WithoutNormalizedAspNetIdentityGuid";
+    private readonly SemaphoreSlim _initializationLock = new(1, 1);
+    private bool _initialized;
 
     private readonly MsSqlContainer _msSqlContainer
-        = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2025-latest")
+        = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest")
             .WithEnvironment("ACCEPT_EULA", "Y")
-            .WithPortBinding(55123, 1433)
+            .WithExposedPort(1433)
             .WithWaitStrategy(
                 Wait.ForUnixContainer()
                     .UntilCommandIsCompleted(
@@ -35,19 +37,29 @@ public sealed class DatabaseWithGuidIdFixture
             .WithPassword("TestPass123!")
             .Build();
 
+    public static DatabaseWithGuidIdFixture Shared { get; } = new();
+
     public DatabaseWithGuidIdFixture()
     {
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-        InitializeAsync().GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
     }
 
     public string ConnectionString { get; set; } = string.Empty;
 
     public async Task InitializeAsync()
     {
+        if (_initialized)
+        {
+            return;
+        }
+
+        await _initializationLock.WaitAsync();
         try
         {
+            if (_initialized)
+            {
+                return;
+            }
+
             await _msSqlContainer.StartAsync();
             ConnectionString = _msSqlContainer.GetConnectionString();
             await using var connection = new SqlConnection(ConnectionString);
@@ -57,15 +69,24 @@ public sealed class DatabaseWithGuidIdFixture
                 InitialCatalog = DbName,
             };
             ConnectionString = sqlConnectionStringBuilder.ConnectionString;
+            _initialized = true;
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
             throw;
         }
+        finally
+        {
+            _initializationLock.Release();
+        }
     }
 
-    public Task DisposeAsync() => _msSqlContainer.DisposeAsync().AsTask();
+    public async Task DisposeAsync()
+    {
+        await _msSqlContainer.DisposeAsync().AsTask();
+        _initializationLock.Dispose();
+    }
 
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
     public void Dispose() => DisposeAsync().GetAwaiter().GetResult();

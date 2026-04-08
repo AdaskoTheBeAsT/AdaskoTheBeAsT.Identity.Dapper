@@ -55,28 +55,20 @@ public class PostgreSqlIdentityUserClaimClassGenerator
             .Insert(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"{s.ColumnName.ToLowerInvariant()}")))
             .Values(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"@{s.PropertyName}")))
             .AddTemplate(
-                $@"IF EXISTS(SELECT Id
-            FROM {config.SchemaPart}AspNetUserClaims
-            WHERE UserId=@UserId
-              AND ClaimType=@ClaimTypeOld
-              AND ClaimValue=@ClaimValueOld)
-BEGIN
-    DELETE FROM {config.SchemaPart}AspNetUserClaims
-    WHERE UserId=@UserId
-      AND ClaimType=@ClaimTypeOld
-      AND ClaimValue=@ClaimValueOld
-END;
-IF NOT EXISTS(SELECT Id
-             FROM {config.SchemaPart}AspNetUserClaims
-             WHERE UserId=@UserId
-               AND ClaimType=@ClaimTypeNew
-               AND ClaimValue=@ClaimValueNew)
-BEGIN
-    INSERT INTO {config.SchemaPart}AspNetUserClaims(
+                $@"DELETE FROM {config.SchemaPart}AspNetUserClaims
+WHERE UserId=@UserId
+  AND ClaimType=@ClaimTypeOld
+  AND ClaimValue=@ClaimValueOld;
+INSERT INTO {config.SchemaPart}AspNetUserClaims(
 /**insert**/)
-VALUES(
-/**values**/);
-END;")
+SELECT
+/**values**/
+WHERE NOT EXISTS(
+    SELECT 1
+    FROM {config.SchemaPart}AspNetUserClaims
+    WHERE UserId=@UserId
+      AND ClaimType=@ClaimTypeNew
+      AND ClaimValue=@ClaimValueNew);")
             .RawSql;
     }
 }

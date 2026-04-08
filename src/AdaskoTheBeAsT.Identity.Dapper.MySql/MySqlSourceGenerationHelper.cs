@@ -33,6 +33,8 @@ public class MySqlSourceGenerationHelper
     {
         GenerateGuidTypeHandler(context, options);
         GenerateNullableGuidTypeHandler(context, options);
+        GenerateDateTimeOffsetTypeHandler(context, options);
+        GenerateNullableDateTimeOffsetTypeHandler(context, options);
         GenerateDapperConfig(context, options);
     }
 
@@ -128,6 +130,118 @@ public class MySqlSourceGenerationHelper
         context.AddSource("MySqlNullableGuidTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
+    private void GenerateDateTimeOffsetTypeHandler(
+        SourceProductionContext context,
+        IdentityDapperOptions options)
+    {
+        const string content =
+            """
+            using System;
+            using System.Data;
+            using System.Globalization;
+            using Dapper;
+            
+            namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
+            
+            public class MySqlDateTimeOffsetTypeHandler
+                : SqlMapper.TypeHandler<DateTimeOffset>
+            {
+                public override DateTimeOffset Parse(object value)
+                {
+                    if (value == DBNull.Value)
+                    {
+                        return default;
+                    }
+
+                    return value switch
+                    {
+                        DateTimeOffset dto => dto.ToUniversalTime(),
+                        DateTime dt => new DateTimeOffset(DateTime.SpecifyKind(dt, DateTimeKind.Utc)),
+                        string text when DateTimeOffset.TryParse(
+                            text,
+                            CultureInfo.InvariantCulture,
+                            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                            out var parsedOffset) => parsedOffset,
+                        string text when DateTime.TryParse(
+                            text,
+                            CultureInfo.InvariantCulture,
+                            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                            out var parsedDateTime) => new DateTimeOffset(parsedDateTime, TimeSpan.Zero),
+                        _ => new DateTimeOffset(
+                            DateTime.SpecifyKind(
+                                Convert.ToDateTime(value, CultureInfo.InvariantCulture),
+                                DateTimeKind.Utc)),
+                    };
+                }
+            
+                public override void SetValue(
+                    IDbDataParameter parameter,
+                    DateTimeOffset value)
+                {
+                    parameter.Value = value.UtcDateTime;
+                }
+            }
+            """;
+
+        context.AddSource("MySqlDateTimeOffsetTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
+    }
+
+    private void GenerateNullableDateTimeOffsetTypeHandler(
+        SourceProductionContext context,
+        IdentityDapperOptions options)
+    {
+        const string content =
+            """
+            using System;
+            using System.Data;
+            using System.Globalization;
+            using Dapper;
+
+            namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
+
+            public class MySqlNullableDateTimeOffsetTypeHandler
+                : SqlMapper.TypeHandler<DateTimeOffset?>
+            {
+                public override DateTimeOffset? Parse(object value)
+                {
+                    if (value == DBNull.Value)
+                    {
+                        return null;
+                    }
+
+                    return value switch
+                    {
+                        DateTimeOffset dto => dto.ToUniversalTime(),
+                        DateTime dt => new DateTimeOffset(DateTime.SpecifyKind(dt, DateTimeKind.Utc)),
+                        string text when DateTimeOffset.TryParse(
+                            text,
+                            CultureInfo.InvariantCulture,
+                            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                            out var parsedOffset) => parsedOffset,
+                        string text when DateTime.TryParse(
+                            text,
+                            CultureInfo.InvariantCulture,
+                            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                            out var parsedDateTime) => new DateTimeOffset(parsedDateTime, TimeSpan.Zero),
+                        _ => new DateTimeOffset(
+                            DateTime.SpecifyKind(
+                                Convert.ToDateTime(value, CultureInfo.InvariantCulture),
+                                DateTimeKind.Utc)),
+                    };
+                }
+
+                public override void SetValue(
+                    IDbDataParameter parameter,
+                    DateTimeOffset? value)
+                {
+                    parameter.Value = value.HasValue ? value.Value.UtcDateTime : DBNull.Value;
+                }
+            }
+            """;
+
+        context.AddSource("MySqlNullableDateTimeOffsetTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
+    }
+
     private void GenerateDapperConfig(
         SourceProductionContext context,
         IdentityDapperOptions options)
@@ -145,8 +259,12 @@ public class MySqlSourceGenerationHelper
                 {
                     SqlMapper.RemoveTypeMap(typeof(Guid));
                     SqlMapper.RemoveTypeMap(typeof(Guid?));
+                    SqlMapper.RemoveTypeMap(typeof(DateTimeOffset));
+                    SqlMapper.RemoveTypeMap(typeof(DateTimeOffset?));
                     SqlMapper.AddTypeHandler(new MySqlNullableGuidTypeHandler());
                     SqlMapper.AddTypeHandler(new MySqlGuidTypeHandler());
+                    SqlMapper.AddTypeHandler(new MySqlNullableDateTimeOffsetTypeHandler());
+                    SqlMapper.AddTypeHandler(new MySqlDateTimeOffsetTypeHandler());
                 }
             }
             """;

@@ -5,12 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
     <AdaskoTheBeAsTIdentityDapper_SkipNormalized>true</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="3.0.2" />
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.MySql" Version="3.0.2" />
     <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
     <PackageReference Include="dbup-mysql" Version="6.1.0" />
@@ -22,18 +21,14 @@
     <PackageReference Include="Testcontainers.MySql" Version="4.11.0" />
   </ItemGroup>
 
-  <!--<ItemGroup>
-    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.MySql\AdaskoTheBeAsT.Identity.Dapper.MySql.csproj" />
+  <ItemGroup>
+    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_SkipNormalized" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.MySql\AdaskoTheBeAsT.Identity.Dapper.MySql.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
   </ItemGroup>
-
-  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
-    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(EmitCompilerGeneratedFiles)' == 'true'">
-    <None Include="Generated/**/*" />
-  </ItemGroup>-->
 
   <ItemGroup>
     <None Include="..\..\..\db\MySql\AspNetIdentityBigInt.sql" Link="Scripts\AspNetIdentityBigInt.sql">

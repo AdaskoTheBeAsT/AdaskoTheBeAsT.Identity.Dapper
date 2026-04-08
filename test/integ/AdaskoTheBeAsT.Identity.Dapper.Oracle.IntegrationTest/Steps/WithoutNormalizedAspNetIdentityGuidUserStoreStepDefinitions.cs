@@ -1,68 +1,149 @@
-using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
+using AdaskoTheBeAsT.Identity.Dapper.IntegrationTest.Common;
+using AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest;
 using AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity;
-using AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.TestCollections;
-using Bogus;
-using AwesomeAssertions;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using Oracle.ManagedDataAccess.Client;
 using Reqnroll;
+using Oracle.ManagedDataAccess.Client;
+using OracleUserOnlyStoreBase =
+    AdaskoTheBeAsT.Identity.Dapper.DapperUserOnlyStoreBase<
+        AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity.ApplicationUser,
+        System.Guid,
+        AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity.ApplicationUserClaim,
+        AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity.ApplicationUserLogin,
+        AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity.ApplicationUserToken,
+        Oracle.ManagedDataAccess.Client.OracleConnection>;
+using OracleUserStoreBase =
+    AdaskoTheBeAsT.Identity.Dapper.DapperUserStoreBase<
+        AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity.ApplicationUser,
+        AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity.ApplicationRole,
+        System.Guid,
+        AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity.ApplicationUserClaim,
+        AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity.ApplicationUserRole,
+        AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity.ApplicationUserLogin,
+        AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity.ApplicationUserToken,
+        Oracle.ManagedDataAccess.Client.OracleConnection>;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Steps;
 
 [Binding]
-public sealed class WithoutNormalizedAspNetIdentityGuidUserStoreStepDefinitions(
-    DatabaseWithGuidIdFixture databaseWithGuidIdFixture)
-    : IDisposable
+public sealed class WithoutNormalizedAspNetIdentityGuidUserStoreStepDefinitions
+    : GuidUserStoreTableDrivenStepDefinitionsBase<
+        ApplicationUser,
+        ApplicationRole,
+        ApplicationUserClaim,
+        ApplicationUserRole,
+        ApplicationUserLogin,
+        ApplicationUserToken,
+        ApplicationRoleClaim,
+        OracleConnection>
 {
-    private ServiceProvider? _serviceProvider;
-    private IUserStore<ApplicationUser> _sut = null!;
-    private IdentityResult? _result;
-
-    [Given("I have configured Identity Connection Provider without normalized and Guid id")]
-    public void GivenIHaveConfiguredIdentityConnectionProviderWithoutNormalizedAndGuidId()
+    public WithoutNormalizedAspNetIdentityGuidUserStoreStepDefinitions(
+        FeatureContext featureContext,
+        ScenarioContext scenarioContext)
+        : base(
+            featureContext,
+            scenarioContext,
+            () => TestStoreFactory.CreateRoleStore(),
+            () => TestStoreFactory.CreateUserOnlyStore(),
+            () => TestStoreFactory.CreateUserStore())
     {
-        var mockConnectionProvider = new Mock<IIdentityDbConnectionProvider<OracleConnection>>(MockBehavior.Strict);
-
-#pragma warning disable IDISP004,CA2000 // Don't ignore created IDisposable
-        mockConnectionProvider.Setup(x => x.Provide())
-            .Returns(
-                new OracleConnection(
-                    databaseWithGuidIdFixture.ConnectionString));
-#pragma warning restore IDISP004,CA2000 // Don't ignore created IDisposable
-
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton(mockConnectionProvider.Object);
-        serviceCollection.AddScoped<IUserStore<ApplicationUser>, ApplicationUserStore>();
-        _serviceProvider?.Dispose();
-        _serviceProvider = serviceCollection.BuildServiceProvider();
-        _sut = _serviceProvider.GetRequiredService<IUserStore<ApplicationUser>>();
     }
 
-    [When("I add the user without normalized and Guid id to the user store")]
-    public async Task WhenIAddTheUserWithoutNormalizedAndGuidIdToTheUserStoreAsync()
-    {
-        var user = new Faker<ApplicationUser>()
-            .RuleFor(u => u.Id, _ => Guid.NewGuid())
-            .RuleFor(u => u.UserName, f => f.Person.UserName)
-            .RuleFor(u => u.Email, f => f.Person.Email)
-            .RuleFor(u => u.PasswordHash, f => f.Internet.Password())
-            .RuleFor(u => u.PhoneNumberConfirmed, _ => true)
-            .Generate();
+    protected override OracleUserOnlyStoreBase CreateUserStoreInstance() => CreateUserStore();
 
-        _result = await _sut.CreateAsync(user, CancellationToken.None);
+    protected override OracleUserStoreBase CreateRoleCapableUserStoreInstance() => CreateUserStore();
+
+    [Given("I have configured Oracle UserStore without normalized and Guid id")]
+    public Task GivenIHaveConfiguredUserStoreWithoutNormalizedAndGuidId() => ResetUserStoreScenarioAsync();
+
+    [Given("I created users for Oracle UserStore")]
+    public Task GivenICreatedUsersForUserStore(Table table) => CreateUsersFromTableAsync(table);
+
+    [Given("I created roles for Oracle UserStore")]
+    public Task GivenICreatedRolesForUserStore(Table table) => CreateRolesFromTableAsync(table);
+
+    [Given("I added user claims for Oracle UserStore")]
+    public Task GivenIAddedUserClaimsForUserStore(Table table) => AddUserClaimsFromTableAsync(table);
+
+    [Given("I added role claims for Oracle UserStore")]
+    public Task GivenIAddedRoleClaimsForUserStore(Table table) => AddRoleClaimsFromTableAsync(table);
+
+    [Given("I added user logins for Oracle UserStore")]
+    public Task GivenIAddedUserLoginsForUserStore(Table table) => AddUserLoginsFromTableAsync(table);
+
+    [Given("I added user tokens for Oracle UserStore")]
+    public Task GivenIAddedUserTokensForUserStore(Table table) => AddUserTokensFromTableAsync(table);
+
+    [Given("I set authenticator keys for Oracle UserStore")]
+    public Task GivenISetAuthenticatorKeysForUserStore(Table table) => SetAuthenticatorKeysFromTableAsync(table);
+
+    [Given("I replaced recovery codes for Oracle UserStore")]
+    public Task GivenIReplacedRecoveryCodesForUserStore(Table table) => ReplaceRecoveryCodesFromTableAsync(table);
+
+    [Given("I added users to roles for Oracle UserStore")]
+    public Task GivenIAddedUsersToRolesForUserStore(Table table) => AddUsersToRolesFromTableAsync(table);
+
+    [When("I verify {string} on Oracle UserStore without normalized and Guid id")]
+    public async Task WhenIVerifyMethodOnUserStoreWithoutNormalizedAndGuidId(string methodName)
+    {
+        await VerifyUserStoreMethodAsync(methodName);
+        LastVerifiedMethodName = methodName;
     }
 
-    [Then("the user without normalized and Guid id should be in the user store")]
-    public void ThenTheUserWithoutNormalizedAndGuidIdShouldBeInTheUserStore()
-    {
-        _result.Should().Be(IdentityResult.Success);
-    }
+    [When("I execute {string} on Oracle UserStore")]
+    public Task WhenIExecuteMethodOnUserStore(string methodName) =>
+        ExecuteUserStoreDatabaseMethodAsync(methodName, table: null);
 
-    public void Dispose()
+    [When("I execute {string} on Oracle UserStore with parameters")]
+    public Task WhenIExecuteMethodOnUserStoreWithParameters(string methodName, Table table) =>
+        ExecuteUserStoreDatabaseMethodAsync(methodName, table);
+
+    [Then("the last identity result for Oracle UserStore should be successful")]
+    public void ThenTheLastIdentityResultForUserStoreShouldBeSuccessful() =>
+        AssertLastIdentityResultSuccessful();
+
+    [Then("the last user result for Oracle UserStore should match")]
+    public void ThenTheLastUserResultForUserStoreShouldMatch(Table table) =>
+        AssertLastUserMatches(table);
+
+    [Then("the last user result for Oracle UserStore should be null")]
+    public void ThenTheLastUserResultForUserStoreShouldBeNull() =>
+        AssertLastUserIsNull();
+
+    [Then("the last users result for Oracle UserStore should match")]
+    public void ThenTheLastUsersResultForUserStoreShouldMatch(Table table) =>
+        AssertLastUsersMatch(table);
+
+    [Then("the last claims result for Oracle UserStore should match")]
+    public void ThenTheLastClaimsResultForUserStoreShouldMatch(Table table) =>
+        AssertLastClaimsMatch(table);
+
+    [Then("the last logins result for Oracle UserStore should match")]
+    public void ThenTheLastLoginsResultForUserStoreShouldMatch(Table table) =>
+        AssertLastLoginsMatch(table);
+
+    [Then("the last strings result for Oracle UserStore should match")]
+    public void ThenTheLastStringsResultForUserStoreShouldMatch(Table table) =>
+        AssertLastStringsMatch(table);
+
+    [Then("the last string result for Oracle UserStore should be {string}")]
+    public void ThenTheLastStringResultForUserStoreShouldBe(string expected) =>
+        AssertLastString(expected);
+
+    [Then("the last string result for Oracle UserStore should be null")]
+    public void ThenTheLastStringResultForUserStoreShouldBeNull() =>
+        AssertLastString(expected: null);
+
+    [Then("the last boolean result for Oracle UserStore should be {string}")]
+    public void ThenTheLastBooleanResultForUserStoreShouldBe(string expected) =>
+        AssertLastBoolean(bool.Parse(expected));
+
+    [Then("the last integer result for Oracle UserStore should be {int}")]
+    public void ThenTheLastIntegerResultForUserStoreShouldBe(int expected) =>
+        AssertLastInteger(expected);
+
+    [Then("{string} on Oracle UserStore should work without normalized and Guid id")]
+    public void ThenMethodOnUserStoreShouldWorkWithoutNormalizedAndGuidId(string methodName)
     {
-        _sut.Dispose();
-        _serviceProvider?.Dispose();
+        AssertLastVerifiedMethod(methodName);
     }
 }

@@ -1,19 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build">
-  <Sdk Name="Microsoft.Build.Sql" Version="0.2.3-preview" />
+  <Sdk Name="Microsoft.Build.Sql" Version="2.0.0" />
   <PropertyGroup>
     <Name>WithoutNormalizedAspNetIdentityBigInt</Name>
     <!--Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider  Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider-->
     <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
     <ModelCollation>1033,CI</ModelCollation>
+    <RootNamespace>WithoutNormalizedAspNetIdentityBigInt</RootNamespace>
+    <AssemblyName>WithoutNormalizedAspNetIdentityBigInt</AssemblyName>
     <TargetDatabaseSet>True</TargetDatabaseSet>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <ProjectGuid>{64ebcb32-1298-470e-91c2-6f5bacdb4bf7}</ProjectGuid>
     <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
     <DefaultFilegroup>PRIMARY</DefaultFilegroup>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <NoWarn>$(NoWarn);CA1016;S3904;SA0001</NoWarn>
+    <EnableDefaultSqlItems>false</EnableDefaultSqlItems>
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+  </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\AspNetRoleClaims.sql" />
     <Build Include="dbo\Tables\AspNetRoles.sql" />
@@ -23,14 +30,8 @@
     <Build Include="dbo\Tables\AspNetUsers.sql" />
     <Build Include="dbo\Tables\AspNetUserTokens.sql" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="dbo\" />
-    <Folder Include="dbo\Tables\" />
-  </ItemGroup>
+  <Target Name="EnsureNuGetRestore" BeforeTargets="PrepareForBuild" Condition="!Exists('$(MSBuildProjectDirectory)\obj\project.assets.json')">
+    <Message Importance="high" Text="Running NuGet restore for SQL project $(MSBuildProjectName)..." />
+    <Exec Command="dotnet restore $(MSBuildProjectFile)" ContinueOnError="false" />
+  </Target>
 </Project>

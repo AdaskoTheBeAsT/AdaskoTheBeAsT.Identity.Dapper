@@ -11,20 +11,21 @@ public sealed class DatabaseWithGuidIdFixture
         IDisposable
 {
     private const string DbName = "XEPDB1";
+    private readonly SemaphoreSlim _initializationLock = new(1, 1);
+    private bool _initialized;
 
     private readonly OracleContainer _oracleContainer
         = new OracleBuilder("gvenzl/oracle-xe:21.3.0-slim-faststart")
             .WithPassword("TestPass123!")
-            .WithPortBinding(64797, 1521)
+            .WithExposedPort(1521)
             .Build();
+
+    public static DatabaseWithGuidIdFixture Shared { get; } = new();
 
     public DatabaseWithGuidIdFixture()
     {
         OracleDapperConfig.ConfigureTypeHandlers();
         //OracleDapperConfig.ConfigureTypeHandlers(BooleanAs.Char);
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-        InitializeAsync().GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
     }
 
     public string ConnectionString { get; set; } = string.Empty;
@@ -33,8 +34,19 @@ public sealed class DatabaseWithGuidIdFixture
 
     public async Task InitializeAsync()
     {
+        if (_initialized)
+        {
+            return;
+        }
+
+        await _initializationLock.WaitAsync();
         try
         {
+            if (_initialized)
+            {
+                return;
+            }
+
             await _oracleContainer.StartAsync();
             var path = Path.Combine("Scripts", "WithoutNormalizedAspNetIdentityGuid.sql");
 #pragma warning disable SCS0018
@@ -55,15 +67,24 @@ public sealed class DatabaseWithGuidIdFixture
                 ? "Successfully ran migrations"
                 : $"Failed to run migrations {result?.Error}";
             TestOutputHelperAdapter.LogInformation($"final {msg}");
+            _initialized = true;
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
             throw;
         }
+        finally
+        {
+            _initializationLock.Release();
+        }
     }
 
-    public Task DisposeAsync() => _oracleContainer.DisposeAsync().AsTask();
+    public async Task DisposeAsync()
+    {
+        await _oracleContainer.DisposeAsync().AsTask();
+        _initializationLock.Dispose();
+    }
 
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
     public void Dispose() => DisposeAsync().GetAwaiter().GetResult();

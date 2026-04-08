@@ -105,7 +105,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Features
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/WithoutNormalizedAspNetIdentityGuidUserStore.feature.ndjson", 3);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/WithoutNormalizedAspNetIdentityGuidUserStore.feature.ndjson", 65);
         }
         
         async global::System.Threading.Tasks.Task global::Xunit.IAsyncLifetime.InitializeAsync()
@@ -133,17 +133,54 @@ namespace AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Features
             await this.TestTearDownAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Create a new user without normalized and Guid id")]
+        [global::Xunit.SkippableTheoryAttribute(DisplayName="Verify lightweight UserStore method <method> without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
-        [global::Xunit.TraitAttribute("Description", "Create a new user without normalized and Guid id")]
-        [global::Xunit.TraitAttribute("Category", "xunit:collection(DatabaseWithGuidIdCollection)")]
-        public async global::System.Threading.Tasks.Task CreateANewUserWithoutNormalizedAndGuidId()
+        [global::Xunit.TraitAttribute("Description", "Verify lightweight UserStore method <method> without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        [global::Xunit.InlineDataAttribute("Dispose", "0", new string[0])]
+        [global::Xunit.InlineDataAttribute("GetUserIdAsync", "1", new string[0])]
+        [global::Xunit.InlineDataAttribute("GetUserNameAsync", "2", new string[0])]
+        [global::Xunit.InlineDataAttribute("SetUserNameAsync", "3", new string[0])]
+        [global::Xunit.InlineDataAttribute("GetNormalizedUserNameAsync", "4", new string[0])]
+        [global::Xunit.InlineDataAttribute("SetNormalizedUserNameAsync", "5", new string[0])]
+        [global::Xunit.InlineDataAttribute("ConvertIdFromString", "6", new string[0])]
+        [global::Xunit.InlineDataAttribute("ConvertIdToString", "7", new string[0])]
+        [global::Xunit.InlineDataAttribute("SetPasswordHashAsync", "8", new string[0])]
+        [global::Xunit.InlineDataAttribute("GetPasswordHashAsync", "9", new string[0])]
+        [global::Xunit.InlineDataAttribute("HasPasswordAsync", "10", new string[0])]
+        [global::Xunit.InlineDataAttribute("GetEmailConfirmedAsync", "11", new string[0])]
+        [global::Xunit.InlineDataAttribute("SetEmailConfirmedAsync", "12", new string[0])]
+        [global::Xunit.InlineDataAttribute("SetEmailAsync", "13", new string[0])]
+        [global::Xunit.InlineDataAttribute("GetEmailAsync", "14", new string[0])]
+        [global::Xunit.InlineDataAttribute("GetNormalizedEmailAsync", "15", new string[0])]
+        [global::Xunit.InlineDataAttribute("SetNormalizedEmailAsync", "16", new string[0])]
+        [global::Xunit.InlineDataAttribute("GetLockoutEndDateAsync", "17", new string[0])]
+        [global::Xunit.InlineDataAttribute("SetLockoutEndDateAsync", "18", new string[0])]
+        [global::Xunit.InlineDataAttribute("ResetAccessFailedCountAsync", "19", new string[0])]
+        [global::Xunit.InlineDataAttribute("GetAccessFailedCountAsync", "20", new string[0])]
+        [global::Xunit.InlineDataAttribute("GetLockoutEnabledAsync", "21", new string[0])]
+        [global::Xunit.InlineDataAttribute("SetLockoutEnabledAsync", "22", new string[0])]
+        [global::Xunit.InlineDataAttribute("SetPhoneNumberAsync", "23", new string[0])]
+        [global::Xunit.InlineDataAttribute("GetPhoneNumberAsync", "24", new string[0])]
+        [global::Xunit.InlineDataAttribute("GetPhoneNumberConfirmedAsync", "25", new string[0])]
+        [global::Xunit.InlineDataAttribute("SetPhoneNumberConfirmedAsync", "26", new string[0])]
+        [global::Xunit.InlineDataAttribute("SetSecurityStampAsync", "27", new string[0])]
+        [global::Xunit.InlineDataAttribute("GetSecurityStampAsync", "28", new string[0])]
+        [global::Xunit.InlineDataAttribute("SetTwoFactorEnabledAsync", "29", new string[0])]
+        [global::Xunit.InlineDataAttribute("GetTwoFactorEnabledAsync", "30", new string[0])]
+        public async global::System.Threading.Tasks.Task VerifyLightweightUserStoreMethodMethodWithoutNormalizedAndGuidId(string method, string @__pickleIndex, string[] exampleTags)
         {
-            string[] tagsOfScenario = new string[] {
-                    "xunit:collection(DatabaseWithGuidIdCollection)"};
+            string[] @__tags = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            if ((exampleTags != null))
+            {
+                @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
+            }
+            string[] tagsOfScenario = @__tags;
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
-            string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Create a new user without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            argumentsOfScenario.Add("method", method);
+            string pickleIndex = @__pickleIndex;
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Verify lightweight UserStore method <method> without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 6
@@ -157,13 +194,2085 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             {
                 await this.ScenarioStartAsync();
 #line 7
- await testRunner.GivenAsync("I have configured Identity Connection Provider without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 8
-    await testRunner.WhenAsync("I add the user without normalized and Guid id to the user store", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync(string.Format("I verify \"{0}\" on SQL Server UserStore without normalized and Guid id", method), ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 9
-    await testRunner.ThenAsync("the user without normalized and Guid id should be in the user store", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync(string.Format("\"{0}\" on SQL Server UserStore should work without normalized and Guid id", method), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Query Users with Users without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Query Users with Users without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task QueryUsersWithUsersWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "31";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Query Users with Users without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 46
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 47
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table105 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table105.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 48
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table105, "And ");
+#line hidden
+                global::Reqnroll.Table table106 = new global::Reqnroll.Table(new string[] {
+                            "Name"});
+                table106.AddRow(new string[] {
+                            "Admin"});
+#line 51
+    await testRunner.AndAsync("I created roles for SQL Server UserStore", ((string)(null)), table106, "And ");
+#line hidden
+                global::Reqnroll.Table table107 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "RoleName"});
+                table107.AddRow(new string[] {
+                            "John",
+                            "Admin"});
+#line 54
+    await testRunner.AndAsync("I added users to roles for SQL Server UserStore", ((string)(null)), table107, "And ");
+#line hidden
+#line 57
+    await testRunner.WhenAsync("I execute \"Users\" on SQL Server UserStore", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+                global::Reqnroll.Table table108 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table108.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 58
+    await testRunner.ThenAsync("the last users result for SQL Server UserStore should match", ((string)(null)), table108, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Create user with CreateAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Create user with CreateAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task CreateUserWithCreateAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "32";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Create user with CreateAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 63
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 64
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table109 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table109.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 65
+    await testRunner.WhenAsync("I execute \"CreateAsync\" on SQL Server UserStore with parameters", ((string)(null)), table109, "When ");
+#line hidden
+#line 68
+    await testRunner.ThenAsync("the last identity result for SQL Server UserStore should be successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+                global::Reqnroll.Table table110 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table110.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 69
+    await testRunner.AndAsync("the last user result for SQL Server UserStore should match", ((string)(null)), table110, "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Update user with UpdateAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Update user with UpdateAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task UpdateUserWithUpdateAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "33";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Update user with UpdateAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 74
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 75
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table111 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table111.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 76
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table111, "And ");
+#line hidden
+                global::Reqnroll.Table table112 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "NewUserName",
+                            "NewEmail"});
+                table112.AddRow(new string[] {
+                            "John",
+                            "Johnny",
+                            "johnny@example.com"});
+#line 79
+    await testRunner.WhenAsync("I execute \"UpdateAsync\" on SQL Server UserStore with parameters", ((string)(null)), table112, "When ");
+#line hidden
+#line 82
+    await testRunner.ThenAsync("the last identity result for SQL Server UserStore should be successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+                global::Reqnroll.Table table113 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table113.AddRow(new string[] {
+                            "Johnny",
+                            "johnny@example.com"});
+#line 83
+    await testRunner.AndAsync("the last user result for SQL Server UserStore should match", ((string)(null)), table113, "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Delete user with DeleteAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Delete user with DeleteAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task DeleteUserWithDeleteAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "34";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Delete user with DeleteAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 88
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 89
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table114 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table114.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 90
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table114, "And ");
+#line hidden
+                global::Reqnroll.Table table115 = new global::Reqnroll.Table(new string[] {
+                            "UserName"});
+                table115.AddRow(new string[] {
+                            "John"});
+#line 93
+    await testRunner.WhenAsync("I execute \"DeleteAsync\" on SQL Server UserStore with parameters", ((string)(null)), table115, "When ");
+#line hidden
+#line 96
+    await testRunner.ThenAsync("the last identity result for SQL Server UserStore should be successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 97
+    await testRunner.AndAsync("the last user result for SQL Server UserStore should be null", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Find user with FindByIdAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Find user with FindByIdAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task FindUserWithFindByIdAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "35";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Find user with FindByIdAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 100
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 101
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table116 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table116.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 102
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table116, "And ");
+#line hidden
+                global::Reqnroll.Table table117 = new global::Reqnroll.Table(new string[] {
+                            "UserName"});
+                table117.AddRow(new string[] {
+                            "John"});
+#line 105
+    await testRunner.WhenAsync("I execute \"FindByIdAsync\" on SQL Server UserStore with parameters", ((string)(null)), table117, "When ");
+#line hidden
+                global::Reqnroll.Table table118 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table118.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 108
+    await testRunner.ThenAsync("the last user result for SQL Server UserStore should match", ((string)(null)), table118, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Find user with FindByNameAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Find user with FindByNameAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task FindUserWithFindByNameAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "36";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Find user with FindByNameAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 113
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 114
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table119 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table119.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 115
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table119, "And ");
+#line hidden
+                global::Reqnroll.Table table120 = new global::Reqnroll.Table(new string[] {
+                            "UserName"});
+                table120.AddRow(new string[] {
+                            "John"});
+#line 118
+    await testRunner.WhenAsync("I execute \"FindByNameAsync\" on SQL Server UserStore with parameters", ((string)(null)), table120, "When ");
+#line hidden
+                global::Reqnroll.Table table121 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table121.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 121
+    await testRunner.ThenAsync("the last user result for SQL Server UserStore should match", ((string)(null)), table121, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Find user with FindByEmailAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Find user with FindByEmailAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task FindUserWithFindByEmailAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "37";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Find user with FindByEmailAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 126
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 127
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table122 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table122.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 128
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table122, "And ");
+#line hidden
+                global::Reqnroll.Table table123 = new global::Reqnroll.Table(new string[] {
+                            "Email"});
+                table123.AddRow(new string[] {
+                            "john@example.com"});
+#line 131
+    await testRunner.WhenAsync("I execute \"FindByEmailAsync\" on SQL Server UserStore with parameters", ((string)(null)), table123, "When ");
+#line hidden
+                global::Reqnroll.Table table124 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table124.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 134
+    await testRunner.ThenAsync("the last user result for SQL Server UserStore should match", ((string)(null)), table124, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Get user claims with GetClaimsAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Get user claims with GetClaimsAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task GetUserClaimsWithGetClaimsAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "38";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Get user claims with GetClaimsAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 139
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 140
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table125 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table125.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 141
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table125, "And ");
+#line hidden
+                global::Reqnroll.Table table126 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "ClaimType",
+                            "ClaimValue"});
+                table126.AddRow(new string[] {
+                            "John",
+                            "permission",
+                            "read"});
+                table126.AddRow(new string[] {
+                            "John",
+                            "permission",
+                            "write"});
+#line 144
+    await testRunner.AndAsync("I added user claims for SQL Server UserStore", ((string)(null)), table126, "And ");
+#line hidden
+                global::Reqnroll.Table table127 = new global::Reqnroll.Table(new string[] {
+                            "UserName"});
+                table127.AddRow(new string[] {
+                            "John"});
+#line 148
+    await testRunner.WhenAsync("I execute \"GetClaimsAsync\" on SQL Server UserStore with parameters", ((string)(null)), table127, "When ");
+#line hidden
+                global::Reqnroll.Table table128 = new global::Reqnroll.Table(new string[] {
+                            "ClaimType",
+                            "ClaimValue"});
+                table128.AddRow(new string[] {
+                            "permission",
+                            "read"});
+                table128.AddRow(new string[] {
+                            "permission",
+                            "write"});
+#line 151
+    await testRunner.ThenAsync("the last claims result for SQL Server UserStore should match", ((string)(null)), table128, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Add user claims with AddClaimsAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Add user claims with AddClaimsAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task AddUserClaimsWithAddClaimsAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "39";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Add user claims with AddClaimsAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 157
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 158
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table129 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table129.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 159
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table129, "And ");
+#line hidden
+                global::Reqnroll.Table table130 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "ClaimType",
+                            "ClaimValue"});
+                table130.AddRow(new string[] {
+                            "John",
+                            "permission",
+                            "read"});
+                table130.AddRow(new string[] {
+                            "John",
+                            "permission",
+                            "write"});
+#line 162
+    await testRunner.WhenAsync("I execute \"AddClaimsAsync\" on SQL Server UserStore with parameters", ((string)(null)), table130, "When ");
+#line hidden
+                global::Reqnroll.Table table131 = new global::Reqnroll.Table(new string[] {
+                            "ClaimType",
+                            "ClaimValue"});
+                table131.AddRow(new string[] {
+                            "permission",
+                            "read"});
+                table131.AddRow(new string[] {
+                            "permission",
+                            "write"});
+#line 166
+    await testRunner.ThenAsync("the last claims result for SQL Server UserStore should match", ((string)(null)), table131, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Replace user claim with ReplaceClaimAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Replace user claim with ReplaceClaimAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task ReplaceUserClaimWithReplaceClaimAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "40";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Replace user claim with ReplaceClaimAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 172
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 173
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table132 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table132.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 174
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table132, "And ");
+#line hidden
+                global::Reqnroll.Table table133 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "ClaimType",
+                            "ClaimValue"});
+                table133.AddRow(new string[] {
+                            "John",
+                            "permission",
+                            "read"});
+#line 177
+    await testRunner.AndAsync("I added user claims for SQL Server UserStore", ((string)(null)), table133, "And ");
+#line hidden
+                global::Reqnroll.Table table134 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "ClaimTypeOld",
+                            "ClaimValueOld",
+                            "ClaimTypeNew",
+                            "ClaimValueNew"});
+                table134.AddRow(new string[] {
+                            "John",
+                            "permission",
+                            "read",
+                            "permission",
+                            "write"});
+#line 180
+    await testRunner.WhenAsync("I execute \"ReplaceClaimAsync\" on SQL Server UserStore with parameters", ((string)(null)), table134, "When ");
+#line hidden
+                global::Reqnroll.Table table135 = new global::Reqnroll.Table(new string[] {
+                            "ClaimType",
+                            "ClaimValue"});
+                table135.AddRow(new string[] {
+                            "permission",
+                            "write"});
+#line 183
+    await testRunner.ThenAsync("the last claims result for SQL Server UserStore should match", ((string)(null)), table135, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Remove user claims with RemoveClaimsAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Remove user claims with RemoveClaimsAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task RemoveUserClaimsWithRemoveClaimsAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "41";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Remove user claims with RemoveClaimsAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 188
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 189
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table136 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table136.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 190
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table136, "And ");
+#line hidden
+                global::Reqnroll.Table table137 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "ClaimType",
+                            "ClaimValue"});
+                table137.AddRow(new string[] {
+                            "John",
+                            "permission",
+                            "read"});
+#line 193
+    await testRunner.AndAsync("I added user claims for SQL Server UserStore", ((string)(null)), table137, "And ");
+#line hidden
+                global::Reqnroll.Table table138 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "ClaimType",
+                            "ClaimValue"});
+                table138.AddRow(new string[] {
+                            "John",
+                            "permission",
+                            "read"});
+#line 196
+    await testRunner.WhenAsync("I execute \"RemoveClaimsAsync\" on SQL Server UserStore with parameters", ((string)(null)), table138, "When ");
+#line hidden
+                global::Reqnroll.Table table139 = new global::Reqnroll.Table(new string[] {
+                            "ClaimType",
+                            "ClaimValue"});
+#line 199
+    await testRunner.ThenAsync("the last claims result for SQL Server UserStore should match", ((string)(null)), table139, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Add user login with AddLoginAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Add user login with AddLoginAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task AddUserLoginWithAddLoginAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "42";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Add user login with AddLoginAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 203
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 204
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table140 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table140.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 205
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table140, "And ");
+#line hidden
+                global::Reqnroll.Table table141 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "LoginProvider",
+                            "ProviderKey",
+                            "ProviderDisplayName"});
+                table141.AddRow(new string[] {
+                            "John",
+                            "GitHub",
+                            "john-gh",
+                            "GitHub"});
+#line 208
+    await testRunner.WhenAsync("I execute \"AddLoginAsync\" on SQL Server UserStore with parameters", ((string)(null)), table141, "When ");
+#line hidden
+                global::Reqnroll.Table table142 = new global::Reqnroll.Table(new string[] {
+                            "LoginProvider",
+                            "ProviderKey",
+                            "ProviderDisplayName"});
+                table142.AddRow(new string[] {
+                            "GitHub",
+                            "john-gh",
+                            "GitHub"});
+#line 211
+    await testRunner.ThenAsync("the last logins result for SQL Server UserStore should match", ((string)(null)), table142, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Remove user login with RemoveLoginAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Remove user login with RemoveLoginAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task RemoveUserLoginWithRemoveLoginAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "43";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Remove user login with RemoveLoginAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 216
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 217
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table143 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table143.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 218
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table143, "And ");
+#line hidden
+                global::Reqnroll.Table table144 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "LoginProvider",
+                            "ProviderKey",
+                            "ProviderDisplayName"});
+                table144.AddRow(new string[] {
+                            "John",
+                            "GitHub",
+                            "john-gh",
+                            "GitHub"});
+#line 221
+    await testRunner.AndAsync("I added user logins for SQL Server UserStore", ((string)(null)), table144, "And ");
+#line hidden
+                global::Reqnroll.Table table145 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "LoginProvider",
+                            "ProviderKey"});
+                table145.AddRow(new string[] {
+                            "John",
+                            "GitHub",
+                            "john-gh"});
+#line 224
+    await testRunner.WhenAsync("I execute \"RemoveLoginAsync\" on SQL Server UserStore with parameters", ((string)(null)), table145, "When ");
+#line hidden
+                global::Reqnroll.Table table146 = new global::Reqnroll.Table(new string[] {
+                            "LoginProvider",
+                            "ProviderKey",
+                            "ProviderDisplayName"});
+#line 227
+    await testRunner.ThenAsync("the last logins result for SQL Server UserStore should match", ((string)(null)), table146, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Get user logins with GetLoginsAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Get user logins with GetLoginsAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task GetUserLoginsWithGetLoginsAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "44";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Get user logins with GetLoginsAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 231
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 232
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table147 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table147.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 233
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table147, "And ");
+#line hidden
+                global::Reqnroll.Table table148 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "LoginProvider",
+                            "ProviderKey",
+                            "ProviderDisplayName"});
+                table148.AddRow(new string[] {
+                            "John",
+                            "GitHub",
+                            "john-gh",
+                            "GitHub"});
+#line 236
+    await testRunner.AndAsync("I added user logins for SQL Server UserStore", ((string)(null)), table148, "And ");
+#line hidden
+                global::Reqnroll.Table table149 = new global::Reqnroll.Table(new string[] {
+                            "UserName"});
+                table149.AddRow(new string[] {
+                            "John"});
+#line 239
+    await testRunner.WhenAsync("I execute \"GetLoginsAsync\" on SQL Server UserStore with parameters", ((string)(null)), table149, "When ");
+#line hidden
+                global::Reqnroll.Table table150 = new global::Reqnroll.Table(new string[] {
+                            "LoginProvider",
+                            "ProviderKey",
+                            "ProviderDisplayName"});
+                table150.AddRow(new string[] {
+                            "GitHub",
+                            "john-gh",
+                            "GitHub"});
+#line 242
+    await testRunner.ThenAsync("the last logins result for SQL Server UserStore should match", ((string)(null)), table150, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Find user by login with FindByLoginAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Find user by login with FindByLoginAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task FindUserByLoginWithFindByLoginAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "45";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Find user by login with FindByLoginAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 247
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 248
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table151 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table151.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 249
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table151, "And ");
+#line hidden
+                global::Reqnroll.Table table152 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "LoginProvider",
+                            "ProviderKey",
+                            "ProviderDisplayName"});
+                table152.AddRow(new string[] {
+                            "John",
+                            "GitHub",
+                            "john-gh",
+                            "GitHub"});
+#line 252
+    await testRunner.AndAsync("I added user logins for SQL Server UserStore", ((string)(null)), table152, "And ");
+#line hidden
+                global::Reqnroll.Table table153 = new global::Reqnroll.Table(new string[] {
+                            "LoginProvider",
+                            "ProviderKey"});
+                table153.AddRow(new string[] {
+                            "GitHub",
+                            "john-gh"});
+#line 255
+    await testRunner.WhenAsync("I execute \"FindByLoginAsync\" on SQL Server UserStore with parameters", ((string)(null)), table153, "When ");
+#line hidden
+                global::Reqnroll.Table table154 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table154.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 258
+    await testRunner.ThenAsync("the last user result for SQL Server UserStore should match", ((string)(null)), table154, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Increment access failed count with IncrementAccessFailedCountAsync without normal" +
+            "ized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Increment access failed count with IncrementAccessFailedCountAsync without normal" +
+            "ized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task IncrementAccessFailedCountWithIncrementAccessFailedCountAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "46";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Increment access failed count with IncrementAccessFailedCountAsync without normal" +
+                    "ized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 263
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 264
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table155 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email",
+                            "AccessFailedCount"});
+                table155.AddRow(new string[] {
+                            "John",
+                            "john@example.com",
+                            "0"});
+#line 265
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table155, "And ");
+#line hidden
+                global::Reqnroll.Table table156 = new global::Reqnroll.Table(new string[] {
+                            "UserName"});
+                table156.AddRow(new string[] {
+                            "John"});
+#line 268
+    await testRunner.WhenAsync("I execute \"IncrementAccessFailedCountAsync\" on SQL Server UserStore with paramete" +
+                        "rs", ((string)(null)), table156, "When ");
+#line hidden
+#line 271
+    await testRunner.ThenAsync("the last integer result for SQL Server UserStore should be 1", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+                global::Reqnroll.Table table157 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "AccessFailedCount"});
+                table157.AddRow(new string[] {
+                            "John",
+                            "1"});
+#line 272
+    await testRunner.AndAsync("the last user result for SQL Server UserStore should match", ((string)(null)), table157, "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Get users for claim with GetUsersForClaimAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Get users for claim with GetUsersForClaimAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task GetUsersForClaimWithGetUsersForClaimAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "47";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Get users for claim with GetUsersForClaimAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 277
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 278
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table158 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table158.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 279
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table158, "And ");
+#line hidden
+                global::Reqnroll.Table table159 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "ClaimType",
+                            "ClaimValue"});
+                table159.AddRow(new string[] {
+                            "John",
+                            "permission",
+                            "read"});
+#line 282
+    await testRunner.AndAsync("I added user claims for SQL Server UserStore", ((string)(null)), table159, "And ");
+#line hidden
+                global::Reqnroll.Table table160 = new global::Reqnroll.Table(new string[] {
+                            "ClaimType",
+                            "ClaimValue"});
+                table160.AddRow(new string[] {
+                            "permission",
+                            "read"});
+#line 285
+    await testRunner.WhenAsync("I execute \"GetUsersForClaimAsync\" on SQL Server UserStore with parameters", ((string)(null)), table160, "When ");
+#line hidden
+                global::Reqnroll.Table table161 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table161.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 288
+    await testRunner.ThenAsync("the last users result for SQL Server UserStore should match", ((string)(null)), table161, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Set token with SetTokenAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Set token with SetTokenAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task SetTokenWithSetTokenAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "48";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Set token with SetTokenAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 293
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 294
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table162 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table162.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 295
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table162, "And ");
+#line hidden
+                global::Reqnroll.Table table163 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "LoginProvider",
+                            "Name",
+                            "Value"});
+                table163.AddRow(new string[] {
+                            "John",
+                            "api",
+                            "refresh-token",
+                            "refresh-value"});
+#line 298
+    await testRunner.WhenAsync("I execute \"SetTokenAsync\" on SQL Server UserStore with parameters", ((string)(null)), table163, "When ");
+#line hidden
+#line 301
+    await testRunner.ThenAsync("the last string result for SQL Server UserStore should be \"refresh-value\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Remove token with RemoveTokenAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Remove token with RemoveTokenAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task RemoveTokenWithRemoveTokenAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "49";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Remove token with RemoveTokenAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 304
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 305
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table164 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table164.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 306
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table164, "And ");
+#line hidden
+                global::Reqnroll.Table table165 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "LoginProvider",
+                            "Name",
+                            "Value"});
+                table165.AddRow(new string[] {
+                            "John",
+                            "api",
+                            "refresh-token",
+                            "refresh-value"});
+#line 309
+    await testRunner.AndAsync("I added user tokens for SQL Server UserStore", ((string)(null)), table165, "And ");
+#line hidden
+                global::Reqnroll.Table table166 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "LoginProvider",
+                            "Name"});
+                table166.AddRow(new string[] {
+                            "John",
+                            "api",
+                            "refresh-token"});
+#line 312
+    await testRunner.WhenAsync("I execute \"RemoveTokenAsync\" on SQL Server UserStore with parameters", ((string)(null)), table166, "When ");
+#line hidden
+#line 315
+    await testRunner.ThenAsync("the last string result for SQL Server UserStore should be null", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Get token with GetTokenAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Get token with GetTokenAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task GetTokenWithGetTokenAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "50";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Get token with GetTokenAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 318
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 319
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table167 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table167.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 320
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table167, "And ");
+#line hidden
+                global::Reqnroll.Table table168 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "LoginProvider",
+                            "Name",
+                            "Value"});
+                table168.AddRow(new string[] {
+                            "John",
+                            "api",
+                            "refresh-token",
+                            "refresh-value"});
+#line 323
+    await testRunner.AndAsync("I added user tokens for SQL Server UserStore", ((string)(null)), table168, "And ");
+#line hidden
+                global::Reqnroll.Table table169 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "LoginProvider",
+                            "Name"});
+                table169.AddRow(new string[] {
+                            "John",
+                            "api",
+                            "refresh-token"});
+#line 326
+    await testRunner.WhenAsync("I execute \"GetTokenAsync\" on SQL Server UserStore with parameters", ((string)(null)), table169, "When ");
+#line hidden
+#line 329
+    await testRunner.ThenAsync("the last string result for SQL Server UserStore should be \"refresh-value\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Set authenticator key with SetAuthenticatorKeyAsync without normalized and Guid i" +
+            "d")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Set authenticator key with SetAuthenticatorKeyAsync without normalized and Guid i" +
+            "d")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task SetAuthenticatorKeyWithSetAuthenticatorKeyAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "51";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Set authenticator key with SetAuthenticatorKeyAsync without normalized and Guid i" +
+                    "d", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 332
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 333
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table170 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table170.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 334
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table170, "And ");
+#line hidden
+                global::Reqnroll.Table table171 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Key"});
+                table171.AddRow(new string[] {
+                            "John",
+                            "auth-key"});
+#line 337
+    await testRunner.WhenAsync("I execute \"SetAuthenticatorKeyAsync\" on SQL Server UserStore with parameters", ((string)(null)), table171, "When ");
+#line hidden
+#line 340
+    await testRunner.ThenAsync("the last string result for SQL Server UserStore should be \"auth-key\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Get authenticator key with GetAuthenticatorKeyAsync without normalized and Guid i" +
+            "d")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Get authenticator key with GetAuthenticatorKeyAsync without normalized and Guid i" +
+            "d")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task GetAuthenticatorKeyWithGetAuthenticatorKeyAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "52";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Get authenticator key with GetAuthenticatorKeyAsync without normalized and Guid i" +
+                    "d", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 343
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 344
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table172 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table172.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 345
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table172, "And ");
+#line hidden
+                global::Reqnroll.Table table173 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Key"});
+                table173.AddRow(new string[] {
+                            "John",
+                            "auth-key"});
+#line 348
+    await testRunner.AndAsync("I set authenticator keys for SQL Server UserStore", ((string)(null)), table173, "And ");
+#line hidden
+                global::Reqnroll.Table table174 = new global::Reqnroll.Table(new string[] {
+                            "UserName"});
+                table174.AddRow(new string[] {
+                            "John"});
+#line 351
+    await testRunner.WhenAsync("I execute \"GetAuthenticatorKeyAsync\" on SQL Server UserStore with parameters", ((string)(null)), table174, "When ");
+#line hidden
+#line 354
+    await testRunner.ThenAsync("the last string result for SQL Server UserStore should be \"auth-key\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Count recovery codes with CountCodesAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Count recovery codes with CountCodesAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task CountRecoveryCodesWithCountCodesAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "53";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Count recovery codes with CountCodesAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 357
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 358
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table175 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table175.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 359
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table175, "And ");
+#line hidden
+                global::Reqnroll.Table table176 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "RecoveryCodes"});
+                table176.AddRow(new string[] {
+                            "John",
+                            "code-1;code-2;code-3"});
+#line 362
+    await testRunner.AndAsync("I replaced recovery codes for SQL Server UserStore", ((string)(null)), table176, "And ");
+#line hidden
+                global::Reqnroll.Table table177 = new global::Reqnroll.Table(new string[] {
+                            "UserName"});
+                table177.AddRow(new string[] {
+                            "John"});
+#line 365
+    await testRunner.WhenAsync("I execute \"CountCodesAsync\" on SQL Server UserStore with parameters", ((string)(null)), table177, "When ");
+#line hidden
+#line 368
+    await testRunner.ThenAsync("the last integer result for SQL Server UserStore should be 3", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Replace recovery codes with ReplaceCodesAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Replace recovery codes with ReplaceCodesAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task ReplaceRecoveryCodesWithReplaceCodesAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "54";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Replace recovery codes with ReplaceCodesAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 371
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 372
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table178 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table178.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 373
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table178, "And ");
+#line hidden
+                global::Reqnroll.Table table179 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "RecoveryCodes"});
+                table179.AddRow(new string[] {
+                            "John",
+                            "code-1;code-2;code-3"});
+#line 376
+    await testRunner.WhenAsync("I execute \"ReplaceCodesAsync\" on SQL Server UserStore with parameters", ((string)(null)), table179, "When ");
+#line hidden
+#line 379
+    await testRunner.ThenAsync("the last integer result for SQL Server UserStore should be 3", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Redeem recovery code with RedeemCodeAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Redeem recovery code with RedeemCodeAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task RedeemRecoveryCodeWithRedeemCodeAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "55";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Redeem recovery code with RedeemCodeAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 382
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 383
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table180 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table180.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 384
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table180, "And ");
+#line hidden
+                global::Reqnroll.Table table181 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "RecoveryCodes"});
+                table181.AddRow(new string[] {
+                            "John",
+                            "code-1;code-2;code-3"});
+#line 387
+    await testRunner.AndAsync("I replaced recovery codes for SQL Server UserStore", ((string)(null)), table181, "And ");
+#line hidden
+                global::Reqnroll.Table table182 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Code"});
+                table182.AddRow(new string[] {
+                            "John",
+                            "code-1"});
+#line 390
+    await testRunner.WhenAsync("I execute \"RedeemCodeAsync\" on SQL Server UserStore with parameters", ((string)(null)), table182, "When ");
+#line hidden
+#line 393
+    await testRunner.ThenAsync("the last boolean result for SQL Server UserStore should be \"True\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Get users in role with GetUsersInRoleAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Get users in role with GetUsersInRoleAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task GetUsersInRoleWithGetUsersInRoleAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "56";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Get users in role with GetUsersInRoleAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 396
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 397
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table183 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table183.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 398
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table183, "And ");
+#line hidden
+                global::Reqnroll.Table table184 = new global::Reqnroll.Table(new string[] {
+                            "Name"});
+                table184.AddRow(new string[] {
+                            "Admin"});
+#line 401
+    await testRunner.AndAsync("I created roles for SQL Server UserStore", ((string)(null)), table184, "And ");
+#line hidden
+                global::Reqnroll.Table table185 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "RoleName"});
+                table185.AddRow(new string[] {
+                            "John",
+                            "Admin"});
+#line 404
+    await testRunner.AndAsync("I added users to roles for SQL Server UserStore", ((string)(null)), table185, "And ");
+#line hidden
+                global::Reqnroll.Table table186 = new global::Reqnroll.Table(new string[] {
+                            "RoleName"});
+                table186.AddRow(new string[] {
+                            "Admin"});
+#line 407
+    await testRunner.WhenAsync("I execute \"GetUsersInRoleAsync\" on SQL Server UserStore with parameters", ((string)(null)), table186, "When ");
+#line hidden
+                global::Reqnroll.Table table187 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table187.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 410
+    await testRunner.ThenAsync("the last users result for SQL Server UserStore should match", ((string)(null)), table187, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Add user to role with AddToRoleAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Add user to role with AddToRoleAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task AddUserToRoleWithAddToRoleAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "57";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Add user to role with AddToRoleAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 415
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 416
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table188 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table188.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 417
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table188, "And ");
+#line hidden
+                global::Reqnroll.Table table189 = new global::Reqnroll.Table(new string[] {
+                            "Name"});
+                table189.AddRow(new string[] {
+                            "Admin"});
+#line 420
+    await testRunner.AndAsync("I created roles for SQL Server UserStore", ((string)(null)), table189, "And ");
+#line hidden
+                global::Reqnroll.Table table190 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "RoleName"});
+                table190.AddRow(new string[] {
+                            "John",
+                            "Admin"});
+#line 423
+    await testRunner.WhenAsync("I execute \"AddToRoleAsync\" on SQL Server UserStore with parameters", ((string)(null)), table190, "When ");
+#line hidden
+                global::Reqnroll.Table table191 = new global::Reqnroll.Table(new string[] {
+                            "Name"});
+                table191.AddRow(new string[] {
+                            "Admin"});
+#line 426
+    await testRunner.ThenAsync("the last strings result for SQL Server UserStore should match", ((string)(null)), table191, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Remove user from role with RemoveFromRoleAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Remove user from role with RemoveFromRoleAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task RemoveUserFromRoleWithRemoveFromRoleAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "58";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Remove user from role with RemoveFromRoleAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 431
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 432
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table192 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table192.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 433
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table192, "And ");
+#line hidden
+                global::Reqnroll.Table table193 = new global::Reqnroll.Table(new string[] {
+                            "Name"});
+                table193.AddRow(new string[] {
+                            "Admin"});
+#line 436
+    await testRunner.AndAsync("I created roles for SQL Server UserStore", ((string)(null)), table193, "And ");
+#line hidden
+                global::Reqnroll.Table table194 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "RoleName"});
+                table194.AddRow(new string[] {
+                            "John",
+                            "Admin"});
+#line 439
+    await testRunner.AndAsync("I added users to roles for SQL Server UserStore", ((string)(null)), table194, "And ");
+#line hidden
+                global::Reqnroll.Table table195 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "RoleName"});
+                table195.AddRow(new string[] {
+                            "John",
+                            "Admin"});
+#line 442
+    await testRunner.WhenAsync("I execute \"RemoveFromRoleAsync\" on SQL Server UserStore with parameters", ((string)(null)), table195, "When ");
+#line hidden
+                global::Reqnroll.Table table196 = new global::Reqnroll.Table(new string[] {
+                            "Name"});
+#line 445
+    await testRunner.ThenAsync("the last strings result for SQL Server UserStore should match", ((string)(null)), table196, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Get roles for user with GetRolesAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Get roles for user with GetRolesAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task GetRolesForUserWithGetRolesAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "59";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Get roles for user with GetRolesAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 449
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 450
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table197 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table197.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 451
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table197, "And ");
+#line hidden
+                global::Reqnroll.Table table198 = new global::Reqnroll.Table(new string[] {
+                            "Name"});
+                table198.AddRow(new string[] {
+                            "Admin"});
+#line 454
+    await testRunner.AndAsync("I created roles for SQL Server UserStore", ((string)(null)), table198, "And ");
+#line hidden
+                global::Reqnroll.Table table199 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "RoleName"});
+                table199.AddRow(new string[] {
+                            "John",
+                            "Admin"});
+#line 457
+    await testRunner.AndAsync("I added users to roles for SQL Server UserStore", ((string)(null)), table199, "And ");
+#line hidden
+                global::Reqnroll.Table table200 = new global::Reqnroll.Table(new string[] {
+                            "UserName"});
+                table200.AddRow(new string[] {
+                            "John"});
+#line 460
+    await testRunner.WhenAsync("I execute \"GetRolesAsync\" on SQL Server UserStore with parameters", ((string)(null)), table200, "When ");
+#line hidden
+                global::Reqnroll.Table table201 = new global::Reqnroll.Table(new string[] {
+                            "Name"});
+                table201.AddRow(new string[] {
+                            "Admin"});
+#line 463
+    await testRunner.ThenAsync("the last strings result for SQL Server UserStore should match", ((string)(null)), table201, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Check role membership with IsInRoleAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Check role membership with IsInRoleAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task CheckRoleMembershipWithIsInRoleAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "60";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Check role membership with IsInRoleAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 468
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 469
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table202 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table202.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 470
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table202, "And ");
+#line hidden
+                global::Reqnroll.Table table203 = new global::Reqnroll.Table(new string[] {
+                            "Name"});
+                table203.AddRow(new string[] {
+                            "Admin"});
+#line 473
+    await testRunner.AndAsync("I created roles for SQL Server UserStore", ((string)(null)), table203, "And ");
+#line hidden
+                global::Reqnroll.Table table204 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "RoleName"});
+                table204.AddRow(new string[] {
+                            "John",
+                            "Admin"});
+#line 476
+    await testRunner.AndAsync("I added users to roles for SQL Server UserStore", ((string)(null)), table204, "And ");
+#line hidden
+                global::Reqnroll.Table table205 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "RoleName"});
+                table205.AddRow(new string[] {
+                            "John",
+                            "Admin"});
+#line 479
+    await testRunner.WhenAsync("I execute \"IsInRoleAsync\" on SQL Server UserStore with parameters", ((string)(null)), table205, "When ");
+#line hidden
+#line 482
+    await testRunner.ThenAsync("the last boolean result for SQL Server UserStore should be \"True\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Get role claims for user with GetRoleClaimsAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Get role claims for user with GetRoleClaimsAsync without normalized and Guid id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task GetRoleClaimsForUserWithGetRoleClaimsAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "61";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Get role claims for user with GetRoleClaimsAsync without normalized and Guid id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 485
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 486
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table206 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table206.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 487
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table206, "And ");
+#line hidden
+                global::Reqnroll.Table table207 = new global::Reqnroll.Table(new string[] {
+                            "Name"});
+                table207.AddRow(new string[] {
+                            "Admin"});
+#line 490
+    await testRunner.AndAsync("I created roles for SQL Server UserStore", ((string)(null)), table207, "And ");
+#line hidden
+                global::Reqnroll.Table table208 = new global::Reqnroll.Table(new string[] {
+                            "RoleName",
+                            "ClaimType",
+                            "ClaimValue"});
+                table208.AddRow(new string[] {
+                            "Admin",
+                            "permission",
+                            "manage-users"});
+#line 493
+    await testRunner.AndAsync("I added role claims for SQL Server UserStore", ((string)(null)), table208, "And ");
+#line hidden
+                global::Reqnroll.Table table209 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "RoleName"});
+                table209.AddRow(new string[] {
+                            "John",
+                            "Admin"});
+#line 496
+    await testRunner.AndAsync("I added users to roles for SQL Server UserStore", ((string)(null)), table209, "And ");
+#line hidden
+                global::Reqnroll.Table table210 = new global::Reqnroll.Table(new string[] {
+                            "UserName"});
+                table210.AddRow(new string[] {
+                            "John"});
+#line 499
+    await testRunner.WhenAsync("I execute \"GetRoleClaimsAsync\" on SQL Server UserStore with parameters", ((string)(null)), table210, "When ");
+#line hidden
+                global::Reqnroll.Table table211 = new global::Reqnroll.Table(new string[] {
+                            "ClaimType",
+                            "ClaimValue"});
+                table211.AddRow(new string[] {
+                            "permission",
+                            "manage-users"});
+#line 502
+    await testRunner.ThenAsync("the last claims result for SQL Server UserStore should match", ((string)(null)), table211, "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::Xunit.SkippableFactAttribute(DisplayName="Get user and role claims with GetUserAndRoleClaimsAsync without normalized and Gu" +
+            "id id")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserStore")]
+        [global::Xunit.TraitAttribute("Description", "Get user and role claims with GetUserAndRoleClaimsAsync without normalized and Gu" +
+            "id id")]
+        [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
+        public async global::System.Threading.Tasks.Task GetUserAndRoleClaimsWithGetUserAndRoleClaimsAsyncWithoutNormalizedAndGuidId()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "xunit:collection[DatabaseWithGuidIdCollection]"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "62";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Get user and role claims with GetUserAndRoleClaimsAsync without normalized and Gu" +
+                    "id id", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 507
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 508
+    await testRunner.GivenAsync("I have configured SQL Server UserStore without normalized and Guid id", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+                global::Reqnroll.Table table212 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "Email"});
+                table212.AddRow(new string[] {
+                            "John",
+                            "john@example.com"});
+#line 509
+    await testRunner.AndAsync("I created users for SQL Server UserStore", ((string)(null)), table212, "And ");
+#line hidden
+                global::Reqnroll.Table table213 = new global::Reqnroll.Table(new string[] {
+                            "Name"});
+                table213.AddRow(new string[] {
+                            "Admin"});
+#line 512
+    await testRunner.AndAsync("I created roles for SQL Server UserStore", ((string)(null)), table213, "And ");
+#line hidden
+                global::Reqnroll.Table table214 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "ClaimType",
+                            "ClaimValue"});
+                table214.AddRow(new string[] {
+                            "John",
+                            "department",
+                            "sales"});
+#line 515
+    await testRunner.AndAsync("I added user claims for SQL Server UserStore", ((string)(null)), table214, "And ");
+#line hidden
+                global::Reqnroll.Table table215 = new global::Reqnroll.Table(new string[] {
+                            "RoleName",
+                            "ClaimType",
+                            "ClaimValue"});
+                table215.AddRow(new string[] {
+                            "Admin",
+                            "permission",
+                            "manage-users"});
+#line 518
+    await testRunner.AndAsync("I added role claims for SQL Server UserStore", ((string)(null)), table215, "And ");
+#line hidden
+                global::Reqnroll.Table table216 = new global::Reqnroll.Table(new string[] {
+                            "UserName",
+                            "RoleName"});
+                table216.AddRow(new string[] {
+                            "John",
+                            "Admin"});
+#line 521
+    await testRunner.AndAsync("I added users to roles for SQL Server UserStore", ((string)(null)), table216, "And ");
+#line hidden
+                global::Reqnroll.Table table217 = new global::Reqnroll.Table(new string[] {
+                            "UserName"});
+                table217.AddRow(new string[] {
+                            "John"});
+#line 524
+    await testRunner.WhenAsync("I execute \"GetUserAndRoleClaimsAsync\" on SQL Server UserStore with parameters", ((string)(null)), table217, "When ");
+#line hidden
+                global::Reqnroll.Table table218 = new global::Reqnroll.Table(new string[] {
+                            "ClaimType",
+                            "ClaimValue"});
+                table218.AddRow(new string[] {
+                            "department",
+                            "sales"});
+                table218.AddRow(new string[] {
+                            "permission",
+                            "manage-users"});
+#line 527
+    await testRunner.ThenAsync("the last claims result for SQL Server UserStore should match", ((string)(null)), table218, "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

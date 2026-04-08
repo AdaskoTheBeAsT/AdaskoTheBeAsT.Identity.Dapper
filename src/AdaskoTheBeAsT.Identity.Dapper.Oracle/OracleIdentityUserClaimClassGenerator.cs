@@ -16,13 +16,12 @@ public class OracleIdentityUserClaimClassGenerator
     {
         var sqlBuilder = new AdvancedSqlBuilder();
         var sb = new StringBuilder();
-        sb.AppendLine($"DECLARE id {config.SchemaPart}AspNetUserClaims.Id%type;");
+        sb.AppendLine("BEGIN");
         sb.AppendLine($"INSERT INTO {config.SchemaPart}AspNetUserClaims(");
         sb.AppendLine("/**insert**/)");
         sb.AppendLine("VALUES(");
-        sb.AppendLine("/**values**/)");
-        sb.AppendLine("RETURNING Id INTO id;");
-        sb.AppendLine("SELECT id FROM DUAL;");
+        sb.AppendLine("/**values**/);");
+        sb.AppendLine("END;");
         return sqlBuilder
             .Insert(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"{s.ColumnName}")))
             .Values(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $":{s.PropertyName}")))
@@ -63,23 +62,11 @@ public class OracleIdentityUserClaimClassGenerator
             .Insert(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $"{s.ColumnName}")))
             .Values(string.Join("\r\n,", propertyColumnTypeTriples.Select(s => $":{s.PropertyName}")))
             .AddTemplate(
-                $@"IF EXISTS(SELECT Id
-            FROM {config.SchemaPart}AspNetUserClaims
-            WHERE UserId=:UserId
-              AND ClaimType=:ClaimTypeOld
-              AND ClaimValue=:ClaimValueOld)
-BEGIN
+                $@"BEGIN
     DELETE FROM {config.SchemaPart}AspNetUserClaims
     WHERE UserId=:UserId
       AND ClaimType=:ClaimTypeOld
-      AND ClaimValue=:ClaimValueOld
-END;
-IF NOT EXISTS(SELECT Id
-             FROM {config.SchemaPart}AspNetUserClaims
-             WHERE UserId=:UserId
-               AND ClaimType=:ClaimTypeNew
-               AND ClaimValue=:ClaimValueNew)
-BEGIN
+      AND ClaimValue=:ClaimValueOld;
     INSERT INTO {config.SchemaPart}AspNetUserClaims(
 /**insert**/)
 VALUES(

@@ -30,31 +30,23 @@ FROM AspNetUserClaims
 WHERE UserId=@Id;";
 
         public string ReplaceSql { get; } =
-            @"IF EXISTS(SELECT Id
-            FROM AspNetUserClaims
-            WHERE UserId=@UserId
-              AND ClaimType=@ClaimTypeOld
-              AND ClaimValue=@ClaimValueOld)
-BEGIN
-    DELETE FROM AspNetUserClaims
-    WHERE UserId=@UserId
-      AND ClaimType=@ClaimTypeOld
-      AND ClaimValue=@ClaimValueOld
-END;
-IF NOT EXISTS(SELECT Id
-             FROM AspNetUserClaims
-             WHERE UserId=@UserId
-               AND ClaimType=@ClaimTypeNew
-               AND ClaimValue=@ClaimValueNew)
-BEGIN
-    INSERT INTO AspNetUserClaims(
+            @"DELETE FROM AspNetUserClaims
+WHERE UserId=@UserId
+  AND ClaimType=@ClaimTypeOld
+  AND ClaimValue=@ClaimValueOld;
+INSERT INTO AspNetUserClaims(
 userid
 ,claimtype
 ,claimvalue)
-VALUES(
+SELECT
 @UserId
 ,@ClaimType
-,@ClaimValue);
-END;";
+,@ClaimValue
+WHERE NOT EXISTS(
+    SELECT 1
+    FROM AspNetUserClaims
+    WHERE UserId=@UserId
+      AND ClaimType=@ClaimTypeNew
+      AND ClaimValue=@ClaimValueNew);";
     }
 }

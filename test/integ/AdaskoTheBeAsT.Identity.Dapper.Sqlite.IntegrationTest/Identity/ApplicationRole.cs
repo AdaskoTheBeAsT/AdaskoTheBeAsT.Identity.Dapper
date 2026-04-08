@@ -1,7 +1,9 @@
+using AdaskoTheBeAsT.Identity.Dapper.Attributes;
 using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Identity;
 
+[InsertOwnId]
 public class ApplicationRole
     : IdentityRole<Guid>
 {

@@ -25,6 +25,23 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
         {
         }
 
+        public override IQueryable<ApplicationRole> Roles
+        {
+            get
+            {
+                using var connection = ConnectionProvider.Provide();
+                return connection.Query<ApplicationRole>(NormalizeSql(IdentityRoleSql.GetRolesSql)).AsQueryable();
+            }
+        }
+
+        private static string NormalizeSql(string sql)
+        {
+            return sql.StartsWith("DECLARE", StringComparison.OrdinalIgnoreCase) ||
+                   sql.StartsWith("BEGIN", StringComparison.OrdinalIgnoreCase)
+                ? sql
+                : sql.Trim().TrimEnd(';');
+        }
+
         protected override async Task CreateImplAsync(
             OracleConnection connection,
             ApplicationRole role,
@@ -46,7 +63,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             ApplicationRole role,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityRoleSql.UpdateSql;
+            var sql = NormalizeSql(IdentityRoleSql.UpdateSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("Id", role.Id, OracleMappingType.Raw, ParameterDirection.Input, 16);
             parameters.Add("Name", role.Name, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
@@ -60,7 +77,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             ApplicationRole role,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityRoleSql.DeleteSql;
+            var sql = NormalizeSql(IdentityRoleSql.DeleteSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("Id", role.Id, OracleMappingType.Raw, ParameterDirection.Input, 16);
             await connection.ExecuteAsync(sql, parameters).ConfigureAwait(continueOnCapturedContext: false);
@@ -71,7 +88,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             Guid roleId,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityRoleSql.FindByIdSql;
+            var sql = NormalizeSql(IdentityRoleSql.FindByIdSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("Id", roleId, OracleMappingType.Raw, ParameterDirection.Input, 16);
             return await connection.QueryFirstOrDefaultAsync<ApplicationRole>(sql, parameters)
@@ -83,7 +100,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             string normalizedRoleName,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityRoleSql.FindByNameSql;
+            var sql = NormalizeSql(IdentityRoleSql.FindByNameSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("NormalizedName", normalizedRoleName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             return await connection.QueryFirstOrDefaultAsync<ApplicationRole>(sql, parameters)
@@ -95,7 +112,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             Guid roleId,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityRoleClaimSql.GetByRoleIdSql;
+            var sql = NormalizeSql(IdentityRoleClaimSql.GetByRoleIdSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("Id", roleId, OracleMappingType.Raw, ParameterDirection.Input, 16);
             return (await connection.QueryAsync<Claim>(sql, parameters)
@@ -122,7 +139,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             ApplicationRoleClaim roleClaim,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityRoleClaimSql.DeleteSql;
+            var sql = NormalizeSql(IdentityRoleClaimSql.DeleteSql);
             var parameters = new OracleDynamicParameters();
             parameters.Add("RoleId", roleClaim.RoleId, OracleMappingType.Raw, ParameterDirection.Input, 16);
             parameters.Add("ClaimType", roleClaim.ClaimType, OracleMappingType.Varchar2, ParameterDirection.Input, 256);

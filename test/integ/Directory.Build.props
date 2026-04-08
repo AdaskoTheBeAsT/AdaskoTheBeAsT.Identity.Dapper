@@ -5,4 +5,9 @@
     <PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="3.3.4" />
     <PackageReference Include="Reqnroll.xUnit" Version="3.3.4" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Common\**\*.cs"
+             Link="Common\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
 </Project>
