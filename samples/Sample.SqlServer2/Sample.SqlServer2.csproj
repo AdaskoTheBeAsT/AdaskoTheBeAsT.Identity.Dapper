@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="3.0.2" PrivateAssets="all" />
-    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.SqlServer" Version="3.0.2" PrivateAssets="all" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="4.0.0" PrivateAssets="all" />
+    <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.SqlServer" Version="4.0.0" PrivateAssets="all" />
     <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
