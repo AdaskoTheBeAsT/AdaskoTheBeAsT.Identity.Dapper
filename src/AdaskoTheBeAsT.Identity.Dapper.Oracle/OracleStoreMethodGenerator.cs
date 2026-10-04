@@ -8,6 +8,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 
 internal static class OracleStoreMethodGenerator
 {
+    internal const string InputParameterDirectionArgument = ", ParameterDirection.Input, ";
+
     internal static void GenerateCreateStart(
                 StringBuilder sb, string entity, string parameter, string keyTypeName, bool insertOwnId)
     {
@@ -71,5 +73,5 @@ internal static class OracleStoreMethodGenerator
     }
 
     private static void GenerateIdParameter(StringBuilder sb, string parameter, string keyTypeName) =>
-                sb.Append("            parameters.Add(\"Id\", ").Append(parameter).Append(".Id, ").Append(OracleTypeMapper.MapIdType(keyTypeName)).Append(", ParameterDirection.Input, ").Append(OracleTypeMapper.MapIdSize(keyTypeName)).AppendLine(");");
+                sb.Append("            parameters.Add(\"Id\", ").Append(parameter).Append(".Id, ").Append(OracleTypeMapper.MapIdType(keyTypeName)).Append(InputParameterDirectionArgument).Append(OracleTypeMapper.MapIdSize(keyTypeName)).AppendLine(");");
 }

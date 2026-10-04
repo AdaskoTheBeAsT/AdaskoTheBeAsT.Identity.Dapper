@@ -185,7 +185,7 @@ public class OracleApplicationUserStoreGenerator
             """);
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"UserId\", user.Id, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).Append(");\r\n            parameters.Add(\"RoleId\", role.Id, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"UserId\", user.Id, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).Append(");\r\n            parameters.Add(\"RoleId\", role.Id, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """
@@ -214,7 +214,7 @@ public class OracleApplicationUserStoreGenerator
             """);
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"UserId\", user.Id, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"UserId\", user.Id, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """
@@ -245,7 +245,7 @@ public class OracleApplicationUserStoreGenerator
             """);
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"UserId\", user.Id, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).Append(");\r\n            parameters.Add(\"RoleId\", role.Id, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"UserId\", user.Id, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).Append(");\r\n            parameters.Add(\"RoleId\", role.Id, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """
@@ -274,7 +274,7 @@ public class OracleApplicationUserStoreGenerator
             """);
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"Id\", user.Id, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"Id\", user.Id, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """
@@ -304,7 +304,7 @@ public class OracleApplicationUserStoreGenerator
             """);
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"Id\", user.Id, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"Id\", user.Id, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """
@@ -352,7 +352,7 @@ public class OracleApplicationUserStoreGenerator
         sb.Append("        protected override async Task<ApplicationUserRole?> FindUserRoleAsync(\r\n            OracleConnection connection,\r\n            ").Append(keyTypeName).Append(" userId,\r\n            ").Append(keyTypeName).AppendLine(" roleId,\r\n            CancellationToken cancellationToken)\r\n        {\r\n            var sql = NormalizeSql(IdentityUserRoleSql.GetByUserIdRoleIdSql);\r\n            var parameters = new OracleDynamicParameters { BindByName = true };");
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"UserId\", userId, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).Append(");\r\n            parameters.Add(\"RoleId\", roleId, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"UserId\", userId, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).Append(");\r\n            parameters.Add(\"RoleId\", roleId, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """

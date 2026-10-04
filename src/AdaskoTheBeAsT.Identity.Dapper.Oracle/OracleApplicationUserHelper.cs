@@ -89,7 +89,7 @@ public static class OracleApplicationUserHelper
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
 
-        sb.Append("            parameters.Add(\"Id\", user.Id, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"Id\", user.Id, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """
@@ -113,7 +113,7 @@ public static class OracleApplicationUserHelper
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"Id\", userId, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"Id\", userId, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """
@@ -162,7 +162,7 @@ public static class OracleApplicationUserHelper
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"Id\", userId, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"Id\", userId, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """
@@ -277,7 +277,7 @@ public static class OracleApplicationUserHelper
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"UserId\", user.Id, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");\r\n            parameters.Add(\"ClaimTypeOld\", claim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);\r\n            parameters.Add(\"ClaimValueOld\", claim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);\r\n            parameters.Add(\"ClaimTypeNew\", newClaim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);\r\n            parameters.Add(\"ClaimValueNew\", newClaim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+        sb.Append("            parameters.Add(\"UserId\", user.Id, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");\r\n            parameters.Add(\"ClaimTypeOld\", claim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);\r\n            parameters.Add(\"ClaimValueOld\", claim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);\r\n            parameters.Add(\"ClaimTypeNew\", newClaim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);\r\n            parameters.Add(\"ClaimValueNew\", newClaim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
 
         sb.AppendLine(
             """
@@ -310,7 +310,7 @@ public static class OracleApplicationUserHelper
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("                parameters.Add(\"UserId\", user.Id, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");\r\n                parameters.Add(\"ClaimType\", claim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);\r\n                parameters.Add(\"ClaimValue\", claim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+        sb.Append("                parameters.Add(\"UserId\", user.Id, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");\r\n                parameters.Add(\"ClaimType\", claim.Type, OracleMappingType.Varchar2, ParameterDirection.Input, 256);\r\n                parameters.Add(\"ClaimValue\", claim.Value, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
 
         sb.AppendLine(
             """
@@ -376,7 +376,7 @@ public static class OracleApplicationUserHelper
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"LoginProvider\", loginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"ProviderKey\", providerKey, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"UserId\", user.Id, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"LoginProvider\", loginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"ProviderKey\", providerKey, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"UserId\", user.Id, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """
@@ -406,7 +406,7 @@ public static class OracleApplicationUserHelper
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"Id\", user.Id, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"Id\", user.Id, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """
@@ -433,7 +433,7 @@ public static class OracleApplicationUserHelper
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"Id\", userId, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"Id\", userId, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """
@@ -454,7 +454,7 @@ public static class OracleApplicationUserHelper
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"UserId\", userId, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");\r\n            parameters.Add(\"LoginProvider\", loginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"ProviderKey\", providerKey, OracleMappingType.Varchar2, ParameterDirection.Input, 128);");
+        sb.Append("            parameters.Add(\"UserId\", userId, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");\r\n            parameters.Add(\"LoginProvider\", loginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"ProviderKey\", providerKey, OracleMappingType.Varchar2, ParameterDirection.Input, 128);");
 
         sb.AppendLine(
             """
@@ -568,7 +568,7 @@ public static class OracleApplicationUserHelper
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"UserId\", user.Id, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");\r\n            parameters.Add(\"LoginProvider\", loginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"Name\", name, OracleMappingType.Varchar2, ParameterDirection.Input, 128);");
+        sb.Append("            parameters.Add(\"UserId\", user.Id, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");\r\n            parameters.Add(\"LoginProvider\", loginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"Name\", name, OracleMappingType.Varchar2, ParameterDirection.Input, 128);");
 
         sb.AppendLine(
             """
@@ -614,7 +614,7 @@ public static class OracleApplicationUserHelper
 
     public static void GenerateTryUpdateTokenImpl(StringBuilder sb, string keyTypeName)
     {
-        sb.Append("        protected override async Task<bool> TryUpdateTokenImplAsync(\r\n            OracleConnection connection,\r\n            ApplicationUserToken token,\r\n            string? originalValue,\r\n            CancellationToken cancellationToken)\r\n        {\r\n            if (IdentityUserTokenSql is not IIdentityUserTokenConcurrencySql sql)\r\n            {\r\n                throw new NotSupportedException(\"Regenerate the Identity stores to enable atomic token updates.\");\r\n            }\r\n\r\n            var parameters = new OracleDynamicParameters { BindByName = true };\r\n            parameters.Add(\"UserId\", token.UserId, ").Append(OracleTypeMapper.MapIdType(keyTypeName)).Append(", ParameterDirection.Input, ").Append(OracleTypeMapper.MapIdSize(keyTypeName)).AppendLine(");\r\n            parameters.Add(\"LoginProvider\", token.LoginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"Name\", token.Name, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"Value\", token.Value, OracleMappingType.Varchar2, ParameterDirection.Input);\r\n            parameters.Add(\"OriginalValue\", originalValue, OracleMappingType.Varchar2, ParameterDirection.Input);\r\n            return await connection.ExecuteAsync(new CommandDefinition(\r\n                    NormalizeSql(sql.UpdateSql), parameters, cancellationToken: cancellationToken))\r\n                .ConfigureAwait(continueOnCapturedContext: false) == 1;\r\n        }");
+        sb.Append("        protected override async Task<bool> TryUpdateTokenImplAsync(\r\n            OracleConnection connection,\r\n            ApplicationUserToken token,\r\n            string? originalValue,\r\n            CancellationToken cancellationToken)\r\n        {\r\n            if (IdentityUserTokenSql is not IIdentityUserTokenConcurrencySql sql)\r\n            {\r\n                throw new NotSupportedException(\"Regenerate the Identity stores to enable atomic token updates.\");\r\n            }\r\n\r\n            var parameters = new OracleDynamicParameters { BindByName = true };\r\n            parameters.Add(\"UserId\", token.UserId, ").Append(OracleTypeMapper.MapIdType(keyTypeName)).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(OracleTypeMapper.MapIdSize(keyTypeName)).AppendLine(");\r\n            parameters.Add(\"LoginProvider\", token.LoginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"Name\", token.Name, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"Value\", token.Value, OracleMappingType.Varchar2, ParameterDirection.Input);\r\n            parameters.Add(\"OriginalValue\", originalValue, OracleMappingType.Varchar2, ParameterDirection.Input);\r\n            return await connection.ExecuteAsync(new CommandDefinition(\r\n                    NormalizeSql(sql.UpdateSql), parameters, cancellationToken: cancellationToken))\r\n                .ConfigureAwait(continueOnCapturedContext: false) == 1;\r\n        }");
         sb.AppendLine();
     }
 
@@ -635,7 +635,7 @@ public static class OracleApplicationUserHelper
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"LoginProvider\", token.LoginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"Name\", token.Name, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"UserId\", token.UserId, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"LoginProvider\", token.LoginProvider, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"Name\", token.Name, OracleMappingType.Varchar2, ParameterDirection.Input, 128);\r\n            parameters.Add(\"UserId\", token.UserId, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """

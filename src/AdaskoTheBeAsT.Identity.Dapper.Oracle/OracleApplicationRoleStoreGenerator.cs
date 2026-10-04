@@ -130,7 +130,7 @@ public class OracleApplicationRoleStoreGenerator
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
 
-        sb.Append("            parameters.Add(\"Id\", role.Id, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"Id\", role.Id, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """
@@ -154,7 +154,7 @@ public class OracleApplicationRoleStoreGenerator
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"Id\", roleId, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"Id\", roleId, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """
@@ -203,7 +203,7 @@ public class OracleApplicationRoleStoreGenerator
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"Id\", roleId, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");");
+        sb.Append("            parameters.Add(\"Id\", roleId, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");");
 
         sb.AppendLine(
             """
@@ -264,7 +264,7 @@ public class OracleApplicationRoleStoreGenerator
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.Append("            parameters.Add(\"RoleId\", roleClaim.RoleId, ").Append(idType).Append(", ParameterDirection.Input, ").Append(idSize).AppendLine(");\r\n            parameters.Add(\"ClaimType\", roleClaim.ClaimType, OracleMappingType.Varchar2, ParameterDirection.Input, 256);\r\n            parameters.Add(\"ClaimValue\", roleClaim.ClaimValue, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+        sb.Append("            parameters.Add(\"RoleId\", roleClaim.RoleId, ").Append(idType).Append(OracleStoreMethodGenerator.InputParameterDirectionArgument).Append(idSize).AppendLine(");\r\n            parameters.Add(\"ClaimType\", roleClaim.ClaimType, OracleMappingType.Varchar2, ParameterDirection.Input, 256);\r\n            parameters.Add(\"ClaimValue\", roleClaim.ClaimValue, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
 
         sb.AppendLine(
             """
