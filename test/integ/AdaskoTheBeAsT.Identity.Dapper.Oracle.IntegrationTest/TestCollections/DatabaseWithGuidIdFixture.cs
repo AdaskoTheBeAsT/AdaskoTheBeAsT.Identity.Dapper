@@ -40,10 +40,10 @@ public sealed class DatabaseWithGuidIdFixture
 
     private async Task InitializeCoreAsync()
     {
-        await _oracleContainer.StartAsync();
+        await _oracleContainer.StartAsync(Xunit.TestContext.Current.CancellationToken);
         var path = Path.Combine("Scripts", "WithoutNormalizedAspNetIdentityGuid.sql");
 #pragma warning disable SCS0018
-        var content = await File.ReadAllTextAsync(path);
+        var content = await File.ReadAllTextAsync(path, Xunit.TestContext.Current.CancellationToken);
         content += """
 
             /

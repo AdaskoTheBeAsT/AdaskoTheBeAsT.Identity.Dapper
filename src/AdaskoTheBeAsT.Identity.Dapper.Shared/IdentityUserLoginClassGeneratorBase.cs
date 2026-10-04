@@ -90,11 +90,7 @@ public abstract class IdentityUserLoginClassGeneratorBase
                 IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityUserLoginCreateSql(schemaPart, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $$"""
-                    public string CreateSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string CreateSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -103,11 +99,7 @@ public abstract class IdentityUserLoginClassGeneratorBase
                 string schemaPart)
     {
         var content = ProcessIdentityUserLoginDeleteSql(schemaPart);
-        sb.AppendLine(
-            $$"""
-                    public string DeleteSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string DeleteSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -117,11 +109,7 @@ public abstract class IdentityUserLoginClassGeneratorBase
                 IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityUserLoginGetByUserIdSql(schemaPart, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $$"""
-                    public string GetByUserIdSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string GetByUserIdSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -131,11 +119,7 @@ public abstract class IdentityUserLoginClassGeneratorBase
                 IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityUserLoginGetByUserIdLoginProviderKeySql(schemaPart, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $$"""
-                    public string GetByUserIdLoginProviderKeySql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string GetByUserIdLoginProviderKeySql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -145,10 +129,6 @@ public abstract class IdentityUserLoginClassGeneratorBase
                 IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityUserLoginGetByLoginProviderKeySql(schemaPart, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $$"""
-                    public string GetByLoginProviderKeySql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string GetByLoginProviderKeySql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
     }
 }

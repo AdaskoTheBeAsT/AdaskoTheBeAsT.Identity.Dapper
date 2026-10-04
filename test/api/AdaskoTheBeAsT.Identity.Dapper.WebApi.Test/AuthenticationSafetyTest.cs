@@ -33,9 +33,9 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Test;
 public sealed class AuthenticationSafetyTest
 {
     [Fact]
-    public async Task OmittedRolesSurviveActualMappingAndUpdate()
+    public async Task OmittedRolesSurviveActualMappingAndUpdateAsync()
     {
-        using var container = CreateMapperContainer();
+        await using var container = CreateMapperContainer();
         var mapper = container.GetInstance<IMapper>();
         var request = mapper.Map<UpdateUserRequest>(new UpdateUserModel { UserName = "renamed" });
         request.Roles.Should().BeNull();
@@ -52,7 +52,7 @@ public sealed class AuthenticationSafetyTest
     }
 
     [Fact]
-    public async Task RefreshFollowsImmutableIdAfterRenameAndRotates()
+    public async Task RefreshFollowsImmutableIdAfterRenameAndRotatesAsync()
     {
         using var tokens = CreateTokens();
         var user = new ApplicationUser { Id = Guid.NewGuid(), UserName = "recycled", SecurityStamp = "stamp" };
@@ -60,11 +60,11 @@ public sealed class AuthenticationSafetyTest
         user.UserName = "renamed";
         var manager = CreateManager();
         manager.Setup(m => m.FindByIdAsync(user.Id.ToString("D"))).ReturnsAsync(user);
-        manager.SetupGet(m => m.SupportsUserLockout).Returns(true);
-        manager.Setup(m => m.IsLockedOutAsync(user)).ReturnsAsync(false);
+        manager.SetupGet(m => m.SupportsUserLockout).Returns(value: true);
+        manager.Setup(m => m.IsLockedOutAsync(user)).ReturnsAsync(value: false);
         manager.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string>());
         var signIn = CreateSignIn(manager.Object);
-        signIn.Setup(s => s.CanSignInAsync(user)).ReturnsAsync(true);
+        signIn.Setup(s => s.CanSignInAsync(user)).ReturnsAsync(value: true);
         var claims = new Mock<IUserRoleClaimStore<ApplicationUser>>(MockBehavior.Strict);
         claims.Setup(s => s.GetUserAndRoleClaimsAsync(user, It.IsAny<CancellationToken>())).ReturnsAsync(new List<Claim>());
         var handler = new AuthRefreshTokenRequestHandler(manager.Object, claims.Object, tokens, signIn.Object);
@@ -82,7 +82,7 @@ public sealed class AuthenticationSafetyTest
     [InlineData("stamp")]
     [InlineData("locked")]
     [InlineData("not-allowed")]
-    public async Task RefreshRejectsInvalidAccountState(string state)
+    public async Task RefreshRejectsInvalidAccountStateAsync(string state)
     {
         using var tokens = CreateTokens();
         var user = new ApplicationUser { Id = Guid.NewGuid(), SecurityStamp = "original" };
@@ -94,7 +94,7 @@ public sealed class AuthenticationSafetyTest
 
         var manager = CreateManager();
         manager.Setup(m => m.FindByIdAsync(user.Id.ToString("D"))).ReturnsAsync(string.Equals(state, "deleted", StringComparison.Ordinal) ? null : user);
-        manager.SetupGet(m => m.SupportsUserLockout).Returns(true);
+        manager.SetupGet(m => m.SupportsUserLockout).Returns(value: true);
         manager.Setup(m => m.IsLockedOutAsync(user)).ReturnsAsync(string.Equals(state, "locked", StringComparison.Ordinal));
         var signIn = CreateSignIn(manager.Object);
         signIn.Setup(s => s.CanSignInAsync(user)).ReturnsAsync(!string.Equals(state, "not-allowed", StringComparison.Ordinal));
@@ -108,12 +108,13 @@ public sealed class AuthenticationSafetyTest
     }
 
     [Fact]
-    public async Task ConcurrentRefreshConsumptionHasOnlyOneWinner()
+    public async Task ConcurrentRefreshConsumptionHasOnlyOneWinnerAsync()
     {
         using var tokens = CreateTokens();
         var issued = tokens.GenerateToken(new ApplicationUser { Id = Guid.NewGuid() }, new List<string>(), new List<Claim>());
         var outcomes = await Task.WhenAll(
-            Enumerable.Range(0, 16).Select(_ => Task.Run(() =>
+            Enumerable.Range(0, 16).Select(_ => Task.Run(
+            () =>
             {
                 try
                 {
@@ -124,18 +125,19 @@ public sealed class AuthenticationSafetyTest
                 {
                     return false;
                 }
-            })));
+            },
+            Xunit.TestContext.Current.CancellationToken)));
         outcomes.Should().ContainSingle(result => result);
     }
 
     [Fact]
-    public async Task PasswordAuthenticationUsesFrameworkLockoutChecks()
+    public async Task PasswordAuthenticationUsesFrameworkLockoutChecksAsync()
     {
         var user = new ApplicationUser { Id = Guid.NewGuid(), LockoutEnabled = true, LockoutEnd = DateTimeOffset.UtcNow.AddDays(1) };
         var manager = CreateManager();
         manager.Setup(m => m.FindByNameAsync("locked")).ReturnsAsync(user);
-        manager.SetupGet(m => m.SupportsUserLockout).Returns(true);
-        manager.Setup(m => m.IsLockedOutAsync(user)).ReturnsAsync(true);
+        manager.SetupGet(m => m.SupportsUserLockout).Returns(value: true);
+        manager.Setup(m => m.IsLockedOutAsync(user)).ReturnsAsync(value: true);
         var signIn = new SignInManager<ApplicationUser>(
             manager.Object,
             new HttpContextAccessor { HttpContext = new DefaultHttpContext() },
@@ -158,15 +160,15 @@ public sealed class AuthenticationSafetyTest
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public Task PasswordTokensRequireSuccessfulSignInAndNoPendingSecondFactor(bool twoFactor)
+    public Task PasswordTokensRequireSuccessfulSignInAndNoPendingSecondFactorAsync(bool twoFactor)
     {
         var user = new ApplicationUser { Id = Guid.NewGuid() };
         var manager = CreateManager();
         manager.Setup(m => m.FindByNameAsync(nameof(user))).ReturnsAsync(user);
-        manager.SetupGet(m => m.SupportsUserTwoFactor).Returns(true);
+        manager.SetupGet(m => m.SupportsUserTwoFactor).Returns(value: true);
         manager.Setup(m => m.GetTwoFactorEnabledAsync(user)).ReturnsAsync(twoFactor);
         var signIn = CreateSignIn(manager.Object);
-        signIn.Setup(s => s.CheckPasswordSignInAsync(user, "password", true))
+        signIn.Setup(s => s.CheckPasswordSignInAsync(user, "password", lockoutOnFailure: true))
             .ReturnsAsync(twoFactor ? SignInResult.Success : SignInResult.Failed);
         var handler = new AuthPasswordRequestHandler(
             manager.Object,
@@ -180,9 +182,9 @@ public sealed class AuthenticationSafetyTest
     [Theory]
     [InlineData("password")]
     [InlineData("refresh_token")]
-    public async Task StandardOAuthFormNamesReachTheHandler(string grant)
+    public async Task StandardOAuthFormNamesReachTheHandlerAsync(string grant)
     {
-        using var container = CreateMapperContainer();
+        await using var container = CreateMapperContainer();
         var mediator = new Mock<IMediator>(MockBehavior.Strict);
         mediator.Setup(m => m.Send(
             It.Is<IRequest<Token>>(r =>
@@ -205,9 +207,9 @@ public sealed class AuthenticationSafetyTest
     }
 
     [Fact]
-    public async Task UnsupportedGrantReturnsSerializableError()
+    public async Task UnsupportedGrantReturnsSerializableErrorAsync()
     {
-        using var container = CreateMapperContainer();
+        await using var container = CreateMapperContainer();
         using var server = CreateServer(container.GetInstance<IMapper>(), Mock.Of<IMediator>(MockBehavior.Strict));
         using var client = server.GetTestClient();
         using var form = new FormUrlEncodedContent(new Dictionary<string, string>(StringComparer.Ordinal) { ["grant_type"] = "unknown" });

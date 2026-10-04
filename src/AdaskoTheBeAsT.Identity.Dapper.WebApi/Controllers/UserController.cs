@@ -38,7 +38,7 @@ public class UserController : ControllerBase
         try
         {
             var request = _mapper.Map<CreateUserRequest>(userModel);
-            var result = await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
+            var result = await _mediator.Send(request, HttpContext.RequestAborted).ConfigureAwait(continueOnCapturedContext: false);
             return result.Succeeded ? Ok() : BadRequest(result.Errors);
         }
         catch (Exception)
@@ -58,7 +58,7 @@ public class UserController : ControllerBase
         try
         {
             var request = new GetUserByIdRequest { UserId = id };
-            var user = await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
+            var user = await _mediator.Send(request, HttpContext.RequestAborted).ConfigureAwait(continueOnCapturedContext: false);
             if (user == null)
             {
                 return NotFound();
@@ -86,7 +86,7 @@ public class UserController : ControllerBase
         {
             var request = _mapper.Map<UpdateUserRequest>(updateUserModel);
             request.UserId = id;
-            var result = await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
+            var result = await _mediator.Send(request, HttpContext.RequestAborted).ConfigureAwait(continueOnCapturedContext: false);
             if (result.Succeeded)
             {
                 return NoContent();
@@ -113,7 +113,7 @@ public class UserController : ControllerBase
         try
         {
             var request = new DeleteUserRequest { UserId = id };
-            var result = await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
+            var result = await _mediator.Send(request, HttpContext.RequestAborted).ConfigureAwait(continueOnCapturedContext: false);
             if (result.Succeeded)
             {
                 return NoContent();

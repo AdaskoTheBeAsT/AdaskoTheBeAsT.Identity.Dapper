@@ -15,7 +15,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Test;
 public sealed class RolePaginationTest
 {
     [Fact]
-    public async Task HandlerUsesAsyncDatabasePagingAndForwardsCancellation()
+    public async Task HandlerUsesAsyncDatabasePagingAndForwardsCancellationAsync()
     {
         var roles = new Mock<IPagedRoleStore<ApplicationRole>>(MockBehavior.Strict);
         var mapper = new Mock<IMapper>(MockBehavior.Strict);
@@ -32,7 +32,7 @@ public sealed class RolePaginationTest
     }
 
     [Fact]
-    public async Task ControllerPassesBoundsToTheHandler()
+    public async Task ControllerPassesBoundsToTheHandlerAsync()
     {
         var mediator = new Mock<IMediator>(MockBehavior.Strict);
         var models = Array.Empty<RoleModel>();
@@ -47,7 +47,7 @@ public sealed class RolePaginationTest
     }
 
     [Fact]
-    public Task ControllerDoesNotSwallowPagingCancellation()
+    public Task ControllerDoesNotSwallowPagingCancellationAsync()
     {
         var mediator = new Mock<IMediator>(MockBehavior.Strict);
         mediator.Setup(instance => instance.Send(It.IsAny<GetAllRolesRequest>(), It.IsAny<CancellationToken>()))

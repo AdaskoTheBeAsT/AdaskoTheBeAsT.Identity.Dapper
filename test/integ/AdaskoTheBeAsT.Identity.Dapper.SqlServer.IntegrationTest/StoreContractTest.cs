@@ -20,7 +20,7 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
     protected override async Task<bool> CompareExchangeAsync(ApplicationUserToken token, string? original)
     {
         using var store = new TestStore(_provider);
-        using var connection = _provider.Provide();
+        await using var connection = _provider.Provide();
         return await store.ExchangeAsync(connection, token, original);
     }
 
@@ -33,7 +33,7 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
     protected override async Task TokenCommandAsync(ApplicationUser user, string operation, CancellationToken cancellationToken)
     {
         using var store = new TestStore(_provider);
-        using var connection = _provider.Provide();
+        await using var connection = _provider.Provide();
         await store.CommandAsync(connection, user, operation, cancellationToken);
     }
 
@@ -57,17 +57,17 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
                 "find" => FindTokenImplAsync(connection, user, token.LoginProvider, token.Name, cancellationToken),
                 "add" => AddUserTokenImplAsync(connection, token, cancellationToken),
                 "remove" => RemoveUserTokenImplAsync(connection, token, cancellationToken),
-                _ => TryUpdateTokenImplAsync(connection, token, null, cancellationToken),
+                _ => TryUpdateTokenImplAsync(connection, token, originalValue: null, cancellationToken),
             };
         }
 
         protected override async Task<bool> TryUpdateTokenImplAsync(
                     SqlConnection connection, ApplicationUserToken token, string? originalValue, CancellationToken cancellationToken)
         {
-            if (!_waited && barrier != null)
+            if (!_waited && barrier is { } waitForConcurrentWrite)
             {
                 _waited = true;
-                await (barrier?.Invoke() ?? throw new ArgumentNullException(nameof(barrier)));
+                await waitForConcurrentWrite();
             }
 
             return await base.TryUpdateTokenImplAsync(connection, token, originalValue, cancellationToken);

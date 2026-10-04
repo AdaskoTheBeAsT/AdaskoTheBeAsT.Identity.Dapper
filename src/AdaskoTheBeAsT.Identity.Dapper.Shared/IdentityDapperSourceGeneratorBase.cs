@@ -24,7 +24,7 @@ public abstract class IdentityDapperSourceGeneratorBase
     {
         var dbSchemaProvider = context.AnalyzerConfigOptionsProvider.Select((
             provider,
-            token) => SelectOptions(provider));
+            _) => SelectOptions(provider));
 
         var classDeclarations =
             context.SyntaxProvider.CreateSyntaxProvider(
@@ -113,7 +113,7 @@ public abstract class IdentityDapperSourceGeneratorBase
             if (model.GetDeclaredSymbol(declaration, token) is INamedTypeSymbol candidate &&
                 !candidate.IsAbstract && candidate.TypeParameters.Length == 0 &&
                 FindIdentityBase(candidate) != null &&
-                !candidates.Any(t => SymbolEqualityComparer.Default.Equals(t, candidate)))
+                !candidates.Exists(t => SymbolEqualityComparer.Default.Equals(t, candidate)))
             {
                 candidates.Add(candidate);
             }
@@ -209,7 +209,7 @@ public abstract class IdentityDapperSourceGeneratorBase
 
     private static void ReportModelError(SourceProductionContext context, string id, string message, SyntaxNode node) =>
                 context.ReportDiagnostic(Diagnostic.Create(
-                    new DiagnosticDescriptor(id, message, message, "Code generation", DiagnosticSeverity.Error, true),
+                    new DiagnosticDescriptor(id, message, message, "Code generation", DiagnosticSeverity.Error, isEnabledByDefault: true),
                     node.GetLocation()));
 
     private void Execute(
@@ -274,9 +274,9 @@ public abstract class IdentityDapperSourceGeneratorBase
         var keyTypeName = string.Empty;
 
         var candidates = GetCandidates(compilation, distinctClassDeclarations, token);
-        var selected = candidates.Where(t => !candidates.Any(other => IsApplicationBase(t, other))).ToList();
+        var selected = candidates.Where(t => !candidates.Exists(other => IsApplicationBase(t, other))).ToList();
         var duplicateGroup = selected.GroupBy(t => FindIdentityBase(t)!.Name, StringComparer.Ordinal)
-            .FirstOrDefault(group => group.Count() > 1);
+            .FirstOrDefault(group => group.Skip(1).Any());
         if (duplicateGroup != null)
         {
             ReportModelError(
@@ -294,7 +294,7 @@ duplicateGroup.Last().DeclaringSyntaxReferences[0].GetSyntax(token));
             var identityClass = FindIdentityBase(type)!;
             var localKeyType = GetKeyTypeName(identityClass.TypeArguments[0]);
             if (!ValidateKeyType(context, localKeyType, keyTypeName, classDeclarationSyntax) ||
-                !CollectProperties(context, type, identityClass, options, token, identityPropertiesSymbol))
+                !CollectProperties(context, type, identityClass, options, identityPropertiesSymbol, token))
             {
                 return (string.Empty, new List<(IPropertySymbol, string)>(), new List<INamedTypeSymbol>());
             }
@@ -311,8 +311,8 @@ duplicateGroup.Last().DeclaringSyntaxReferences[0].GetSyntax(token));
             INamedTypeSymbol type,
             INamedTypeSymbol identityClass,
             IdentityDapperOptions options,
-            CancellationToken token,
-            IList<(IPropertySymbol PropertySymbol, string ColumnName)> properties)
+            IList<(IPropertySymbol PropertySymbol, string ColumnName)> properties,
+            CancellationToken token)
     {
         var declaration = type.DeclaringSyntaxReferences[0].GetSyntax(token);
         var identityProperties = identityClass.GetMembers().OfType<IPropertySymbol>()
@@ -343,7 +343,7 @@ duplicateGroup.Last().DeclaringSyntaxReferences[0].GetSyntax(token));
     private bool CollectProperty(
             SourceProductionContext context,
             ISymbol member,
-            IDictionary<string, IPropertySymbol> identityProperties,
+            Dictionary<string, IPropertySymbol> identityProperties,
             string entity,
             SyntaxNode declaration,
             IdentityDapperOptions options,

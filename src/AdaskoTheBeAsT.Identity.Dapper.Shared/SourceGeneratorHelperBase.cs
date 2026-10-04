@@ -123,7 +123,7 @@ public abstract class SourceGeneratorHelperBase
                 namespaceName,
                 schemaPart,
                 options.SkipNormalized,
-                false)
+                insertOwnId: false)
             { Provider = Provider, ColumnMappings = mappings };
             var allProperties = ProcessClass(
                 context,

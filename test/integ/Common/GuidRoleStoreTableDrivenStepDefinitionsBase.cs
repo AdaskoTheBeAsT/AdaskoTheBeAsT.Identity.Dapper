@@ -29,7 +29,7 @@ public abstract class GuidRoleStoreTableDrivenStepDefinitionsBase<
     where TDbConnection : IDbConnection
 {
     private readonly string _scenarioKey;
-    private readonly IDictionary<string, TRole> _rolesByName =
+    private readonly Dictionary<string, TRole> _rolesByName =
         new Dictionary<string, TRole>(StringComparer.OrdinalIgnoreCase);
 
     protected GuidRoleStoreTableDrivenStepDefinitionsBase(

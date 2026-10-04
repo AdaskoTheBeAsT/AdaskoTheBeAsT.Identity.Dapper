@@ -10,13 +10,16 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Oracle.Test;
 
 public sealed partial class GeneratorSafetyTest : GeneratorSafetyTestBase
 {
+    [GeneratedRegex(@":(?<bind>[A-Za-z_][A-Za-z0-9_]*)", RegexOptions.ExplicitCapture, 1000)]
+    private static partial Regex SqlBindRegex { get; }
+
     [Theory]
     [InlineData("char")]
     [InlineData("numeric")]
     [InlineData("string")]
     public void BooleanStorageModesCompile(string storage)
     {
-        var (driver, compilation) = GeneratorCompilation.Run(Model("Guid", true), CreateGenerator(), storeBooleanAs: storage);
+        var (driver, compilation) = GeneratorCompilation.Run(Model("Guid", ownId: true), CreateGenerator(), storeBooleanAs: storage);
         GeneratorCompilation.AssertCompiles(compilation);
         var store = Source(driver, "ApplicationUserOnlyStore.g.cs");
         foreach (var property in new[] { "EmailConfirmed", "PhoneNumberConfirmed", "TwoFactorEnabled", "LockoutEnabled" })
@@ -28,7 +31,7 @@ public sealed partial class GeneratorSafetyTest : GeneratorSafetyTestBase
     [Fact]
     public void TokenOverridesForwardCancellationAndBindByName()
     {
-        var (driver, compilation) = GeneratorCompilation.Run(Model("Guid", true), CreateGenerator());
+        var (driver, compilation) = GeneratorCompilation.Run(Model("Guid", ownId: true), CreateGenerator());
         GeneratorCompilation.AssertCompiles(compilation);
         foreach (var name in new[] { "ApplicationUserOnlyStore.g.cs", "ApplicationUserStore.g.cs" })
         {
@@ -78,7 +81,7 @@ public sealed partial class GeneratorSafetyTest : GeneratorSafetyTestBase
     [InlineData(true)]
     public void ClaimReplacementAndScopedLoginSupplyExactlyTheSqlBindNames(bool skipNormalized)
     {
-        var (driver, compilation) = GeneratorCompilation.Run(Model("Guid", true), CreateGenerator(), skipNormalized);
+        var (driver, compilation) = GeneratorCompilation.Run(Model("Guid", ownId: true), CreateGenerator(), skipNormalized);
         GeneratorCompilation.AssertCompiles(compilation);
         foreach (var name in new[] { "ApplicationUserOnlyStore.g.cs", "ApplicationUserStore.g.cs" })
         {
@@ -115,7 +118,7 @@ scopedLogin,
     public void KeywordCustomMappedPropertiesCompileForEveryEntity(string keyword)
     {
         var member = $$"""[Column("CustomField")] public string? @{{keyword}} { get; set; }""";
-        var model = Model("Guid", true).Replace("public string? DisplayLabel { get; set; }", member, StringComparison.Ordinal);
+        var model = Model("Guid", ownId: true).Replace("public string? DisplayLabel { get; set; }", member, StringComparison.Ordinal);
         foreach (var entity in new[] { "Role", "UserClaim", "RoleClaim", "UserLogin", "UserRole", "UserToken" })
         {
             model = model.Replace(
@@ -154,7 +157,7 @@ scopedLogin,
     [InlineData("string")]
     public void GeneratedConsumerCompilesWithCSharp11(string storage)
     {
-        var (_, compilation) = GeneratorCompilation.Run(Model("Guid", true), CreateGenerator(), storeBooleanAs: storage);
+        var (_, compilation) = GeneratorCompilation.Run(Model("Guid", ownId: true), CreateGenerator(), storeBooleanAs: storage);
         var parseOptions = new CSharpParseOptions(LanguageVersion.CSharp11);
         var trees = compilation.SyntaxTrees.Select(tree => CSharpSyntaxTree.ParseText(
             tree.GetText(TestContext.Current.CancellationToken),
@@ -170,7 +173,7 @@ scopedLogin,
     public void UnsupportedCustomTypesProduceLocatedDiagnosticInsteadOfCrashing()
     {
         var (driver, _) = GeneratorCompilation.Run(
-            Model("Guid", true).Replace(
+            Model("Guid", ownId: true).Replace(
             "public string? DisplayLabel { get; set; }", "public System.Uri? Website { get; set; }", StringComparison.Ordinal),
             CreateGenerator());
         var diagnostic = driver.GetRunResult().Diagnostics.Where(d => string.Equals(d.Id, "ATBID104", StringComparison.Ordinal)).Should().ContainSingle().Which;
@@ -185,16 +188,13 @@ scopedLogin,
         var property = CSharpSyntaxTree.ParseText(Source(driver, sqlName), cancellationToken: TestContext.Current.CancellationToken)
             .GetRoot(TestContext.Current.CancellationToken).DescendantNodes().OfType<PropertyDeclarationSyntax>().Should().ContainSingle(candidate => candidate.Identifier.ValueText == propertyName).Which;
         var sql = property.Initializer!.Value.Should().BeOfType<LiteralExpressionSyntax>().Which.Token.ValueText;
-        var binds = SqlBindRegex().Matches(sql)
-            .Select(match => match.Groups["bind"].Value).Distinct(StringComparer.Ordinal).OrderBy(name => name, StringComparer.Ordinal).ToArray();
+        var binds = SqlBindRegex.Matches(sql)
+            .Select(match => match.Groups["bind"].Value).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
         var parameters = method.DescendantNodes().OfType<InvocationExpressionSyntax>()
             .Where(invocation => string.Equals(invocation.Expression.ToString(), "parameters.Add", StringComparison.Ordinal))
             .Select(invocation => invocation.ArgumentList.Arguments[0].Expression.Should().BeOfType<LiteralExpressionSyntax>().Which.Token.ValueText)
-            .OrderBy(name => name, StringComparer.Ordinal).ToArray();
-        binds.Should().Equal(expectedNames.OrderBy(name => name, StringComparer.Ordinal));
+            .Order(StringComparer.Ordinal).ToArray();
+        binds.Should().Equal(expectedNames.Order(StringComparer.Ordinal));
         parameters.Should().Equal(binds);
     }
-
-    [GeneratedRegex(@":(?<bind>[A-Za-z_][A-Za-z0-9_]*)", RegexOptions.ExplicitCapture, 1000)]
-    private static partial Regex SqlBindRegex();
 }

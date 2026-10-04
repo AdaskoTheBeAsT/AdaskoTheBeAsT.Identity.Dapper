@@ -35,11 +35,7 @@ public abstract class IdentityUserRoleClaimClassGeneratorBase
         IdentityDapperConfiguration config)
     {
         var content = ProcessIdentityUserRoleClaimGetRoleClaimsByUserIdSql(config);
-        sb.AppendLine(
-            $$"""
-                    public string GetRoleClaimsByUserIdSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string GetRoleClaimsByUserIdSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -48,10 +44,6 @@ public abstract class IdentityUserRoleClaimClassGeneratorBase
         IdentityDapperConfiguration config)
     {
         var content = ProcessIdentityUserRoleClaimGetUserAndRoleClaimsByUserIdSql(config);
-        sb.AppendLine(
-            $$"""
-                    public string GetUserAndRoleClaimsByUserIdSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string GetUserAndRoleClaimsByUserIdSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
     }
 }

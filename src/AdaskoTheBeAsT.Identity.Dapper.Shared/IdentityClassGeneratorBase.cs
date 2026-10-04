@@ -40,22 +40,13 @@ public abstract class IdentityClassGeneratorBase
         sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper.Abstractions;");
 
     protected static void GenerateSqlClassStart(StringBuilder sb, string className, string interfaceName) =>
-                    sb.AppendLine($"    public class {className} : {interfaceName}\n    {{");
+                    sb.Append("    public class ").Append(className).Append(" : ").Append(interfaceName).AppendLine("\n    {");
 
     protected static void GenerateNamespaceStart(StringBuilder sb, string namespaceName) =>
-                    sb.AppendLine(
-                        $$"""
-            namespace {{namespaceName}}
-            {
-            """);
+                    sb.Append("namespace ").Append(namespaceName).AppendLine("\r\n{");
 
     protected static void GenerateClassStart(StringBuilder sb, string className, string interfaceName) =>
-                    sb.AppendLine(
-                        $$"""
-                public class {{className}}
-                    : {{interfaceName}}
-                {
-            """);
+                    sb.Append("    public class ").Append(className).Append("\r\n        : ").Append(interfaceName).AppendLine("\r\n    {");
 
     protected static void GenerateClassEnd(StringBuilder sb) =>
                     sb.AppendLine("    }");

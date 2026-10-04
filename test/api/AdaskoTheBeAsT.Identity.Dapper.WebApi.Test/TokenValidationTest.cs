@@ -21,7 +21,7 @@ public sealed class TokenValidationTest : IClassFixture<ApiFactory>
     [InlineData("password", "empty")]
     [InlineData("password", "whitespace")]
     [InlineData("password", "oversized")]
-    public async Task InvalidPasswordFormsReturnSanitizedBadRequest(string field, string invalidValue)
+    public async Task InvalidPasswordFormsReturnSanitizedBadRequestAsync(string field, string invalidValue)
     {
         // Use the real application's mapper, mediator, and validation pipeline.
         // Invalid input must be rejected before a handler can access the database.
@@ -62,7 +62,7 @@ public sealed class TokenValidationTest : IClassFixture<ApiFactory>
     [InlineData("")]
     [InlineData("unknown")]
     [InlineData("client_credentials")]
-    public async Task UnsupportedGrantsReturnBadRequest(string? grant)
+    public async Task UnsupportedGrantsReturnBadRequestAsync(string? grant)
     {
         using var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
         var values = new Dictionary<string, string>(StringComparer.Ordinal);

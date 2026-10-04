@@ -1,4 +1,5 @@
 using System.Data;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using AwesomeAssertions;
@@ -15,9 +16,9 @@ public sealed class IdentityQueryMaterializerTest
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task DatabaseNullOverwritesConstructorDefaultsWithoutChangingOtherMembers(bool asynchronous)
+    public async Task DatabaseNullOverwritesConstructorDefaultsWithoutChangingOtherMembersAsync(bool asynchronous)
     {
-        using var connection = OpenConnection();
+        await using var connection = OpenConnection();
         const string sql = """
             SELECT NULL AS Text, NULL AS Number, NULL AS Bytes, NULL AS PrivateText, NULL AS Required
             UNION ALL
@@ -44,9 +45,9 @@ public sealed class IdentityQueryMaterializerTest
     }
 
     [Fact]
-    public async Task FirstOrDefaultUsesTheNullPlanAndStillReturnsNullForNoRows()
+    public async Task FirstOrDefaultUsesTheNullPlanAndStillReturnsNullForNoRowsAsync()
     {
-        using var connection = OpenConnection();
+        await using var connection = OpenConnection();
         var row = await connection.QueryIdentityFirstOrDefaultAsync<DefaultRow>(
             "SELECT @text AS Text, @number AS Number;",
             new { text = (string?)null, number = (int?)null },
@@ -60,9 +61,9 @@ public sealed class IdentityQueryMaterializerTest
     }
 
     [Fact]
-    public async Task DifferentColumnOrdersAndProjectionsKeepTheirOwnNullOrdinals()
+    public async Task DifferentColumnOrdersAndProjectionsKeepTheirOwnNullOrdinalsAsync()
     {
-        using var connection = OpenConnection();
+        await using var connection = OpenConnection();
         for (var i = 0; i < 3; i++)
         {
 #pragma warning disable VSTHRD103, S6966 // Check the synchronous parser path as well as the asynchronous path.
@@ -212,15 +213,16 @@ public sealed class IdentityQueryMaterializerTest
     }
 
     [Fact]
-    public Task ConcurrentQueriesSafelySharePlansWithoutSharingReaders()
+    public Task ConcurrentQueriesSafelySharePlansWithoutSharingReadersAsync()
     {
         var start = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var tasks = Enumerable.Range(0, 12).Select(worker => Task.Run(async () =>
+        var tasks = Enumerable.Range(0, 12).Select(worker => Task.Run(
+        async () =>
         {
 #pragma warning disable VSTHRD003 // All workers await the test-owned start gate.
             await start.Task;
 #pragma warning restore VSTHRD003
-            using var connection = OpenConnection();
+            await using var connection = OpenConnection();
             for (var i = 0; i < 24; i++)
             {
                 var reverse = (worker + i) % 2 == 0;
@@ -231,14 +233,15 @@ public sealed class IdentityQueryMaterializerTest
                 var row = (i % 3) switch
                 {
                     0 => connection.QueryIdentity<ConcurrentRow>(sql).Should().ContainSingle().Which,
-                    1 => (await connection.QueryIdentityAsync<ConcurrentRow>(sql)).Should().ContainSingle().Which,
-                    _ => (await connection.QueryIdentityFirstOrDefaultAsync<ConcurrentRow>(sql))!,
+                    1 => (await connection.QueryIdentityAsync<ConcurrentRow>(sql, cancellationToken: Xunit.TestContext.Current.CancellationToken)).Should().ContainSingle().Which,
+                    _ => (await connection.QueryIdentityFirstOrDefaultAsync<ConcurrentRow>(sql, cancellationToken: Xunit.TestContext.Current.CancellationToken))!,
                 };
 #pragma warning restore VSTHRD103
                 row.Text.Should().Be(reverse ? "stored" : null);
                 row.Number.Should().Be(reverse ? (int?)null : 23);
             }
-        })).ToArray();
+        },
+        Xunit.TestContext.Current.CancellationToken)).ToArray();
         start.SetResult();
         return Task.WhenAll(tasks);
     }
@@ -286,7 +289,7 @@ public sealed class IdentityQueryMaterializerTest
         var firstParser = createParser(firstReader);
         for (var i = 1; i <= capacity; i++)
         {
-            using var table = SchemaTable("Unused" + i);
+            using var table = SchemaTable("Unused" + i.ToString(CultureInfo.InvariantCulture));
             using var reader = table.CreateDataReader();
             var parse = createParser(reader);
             reader.Read().Should().BeTrue();
@@ -317,7 +320,7 @@ public sealed class IdentityQueryMaterializerTest
         var otherParser = ParserFactory<BoundedRow>();
         for (var i = 0; i < 65; i++)
         {
-            using var otherTable = SchemaTable("Isolated" + i);
+            using var otherTable = SchemaTable("Isolated" + i.ToString(CultureInfo.InvariantCulture));
             using var otherReader = otherTable.CreateDataReader();
             otherParser(otherReader);
         }
@@ -377,7 +380,9 @@ public sealed class IdentityQueryMaterializerTest
 
         public byte[]? Bytes { get; set; } = new byte[] { 9 };
 
+#pragma warning disable RCS1170 // Dapper invokes this private setter through reflection.
         public string? PrivateText { get; private set; } = "private default";
+#pragma warning restore RCS1170
 
         public int Required { get; set; } = 42;
 

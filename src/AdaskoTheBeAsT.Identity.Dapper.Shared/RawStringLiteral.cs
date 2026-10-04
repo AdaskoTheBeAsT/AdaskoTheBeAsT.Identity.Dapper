@@ -22,7 +22,8 @@ internal static class RawStringLiteral
         for (var i = 0; i < value.Length; i++)
         {
             result.Append(value[i]);
-            if (value[i] == '\n' || (value[i] == '\r' && (i + 1 == value.Length || value[i + 1] != '\n')))
+            if (value[i] is '\n' or '\u0085' or '\u2028' or '\u2029' ||
+                (value[i] == '\r' && (i + 1 == value.Length || value[i + 1] != '\n')))
             {
                 result.Append(indentation);
             }

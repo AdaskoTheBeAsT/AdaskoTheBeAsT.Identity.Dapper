@@ -20,7 +20,7 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
     [Theory]
     [InlineData("alpha-123")]
     [InlineData("ALPHA-123")]
-    public async Task RecoveryCodeCanOnlyBeRedeemedOnce(string submitted)
+    public async Task RecoveryCodeCanOnlyBeRedeemedOnceAsync(string submitted)
     {
         using var store = new ApplicationUserOnlyStore(_provider);
         var user = await CreateUserAsync(store);
@@ -31,7 +31,7 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
     }
 
     [Fact]
-    public async Task MissingOrExhaustedRecoveryCodesRejectEmptyInput()
+    public async Task MissingOrExhaustedRecoveryCodesRejectEmptyInputAsync()
     {
         using var store = new ApplicationUserOnlyStore(_provider);
         var user = await CreateUserAsync(store);
@@ -58,7 +58,7 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
             }
 
 #pragma warning disable IDISP013 // Both barrier callbacks complete in the awaited WhenAll before the stores leave scope.
-            return ready.Task.WaitAsync(TimeSpan.FromSeconds(15));
+            return ready.Task.WaitAsync(TimeSpan.FromSeconds(15), Xunit.TestContext.Current.CancellationToken);
 #pragma warning restore IDISP013
         }
 
@@ -73,7 +73,7 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
     }
 
     [Fact]
-    public async Task StaleUserUpdateAndDeleteFailWithoutChangingCurrentData()
+    public async Task StaleUserUpdateAndDeleteFailWithoutChangingCurrentDataAsync()
     {
         using var store = new ApplicationUserOnlyStore(_provider);
         var user = await CreateUserAsync(store);
@@ -92,7 +92,7 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
     }
 
     [Fact]
-    public async Task StaleRoleUpdateAndDeleteFail()
+    public async Task StaleRoleUpdateAndDeleteFailAsync()
     {
         using var store = new ApplicationRoleStore(_provider);
         var role = new ApplicationRole { Id = Guid.NewGuid(), Name = Guid.NewGuid().ToString(), ConcurrencyStamp = Guid.NewGuid().ToString() };
@@ -109,7 +109,7 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
     }
 
     [Fact]
-    public async Task EnumerationReturnsEachUserRegardlessOfRoleCount()
+    public async Task EnumerationReturnsEachUserRegardlessOfRoleCountAsync()
     {
         using var users = new ApplicationUserStore(_provider);
         using var userOnly = new ApplicationUserOnlyStore(_provider);
@@ -136,7 +136,7 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
     }
 
     [Fact]
-    public async Task CustomMappedAndNullablePropertiesRoundTrip()
+    public async Task CustomMappedAndNullablePropertiesRoundTripAsync()
     {
         using var store = new ApplicationUserOnlyStore(_provider);
         var user = await CreateUserAsync(store);
@@ -157,11 +157,11 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
     }
 
     [Fact]
-    public async Task ExistingNullTokenCanBeReplaced()
+    public async Task ExistingNullTokenCanBeReplacedAsync()
     {
         using var store = new ApplicationUserOnlyStore(_provider);
         var user = await CreateUserAsync(store);
-        await store.SetTokenAsync(user, "test", "nullable", null, CancellationToken.None);
+        await store.SetTokenAsync(user, "test", "nullable", value: null, CancellationToken.None);
         await store.SetTokenAsync(user, "test", "nullable", "replacement", CancellationToken.None);
         (await store.GetTokenAsync(user, "test", "nullable", CancellationToken.None)).Should().Be("replacement");
     }
@@ -200,7 +200,8 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
             if (!_waited)
             {
                 _waited = true;
-                await (barrier?.Invoke() ?? throw new ArgumentNullException(nameof(barrier)));
+                var waitForConcurrentWrite = barrier ?? throw new InvalidOperationException("The test coordination callback is required.");
+                await waitForConcurrentWrite();
             }
 
             return await base.TryUpdateTokenImplAsync(connection, token, originalValue, cancellationToken);

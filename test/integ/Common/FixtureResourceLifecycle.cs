@@ -87,6 +87,7 @@ internal sealed class FixtureResourceLifecycle(Func<Task> initialize, Func<Task>
         }
     }
 
+#pragma warning disable MA0038, RCS1229 // Uses the captured constructor callback and caches synchronous failures without an async wrapper.
     private Task CleanupCoreAsync()
     {
         try
@@ -99,4 +100,5 @@ internal sealed class FixtureResourceLifecycle(Func<Task> initialize, Func<Task>
             return Task.FromException(exception);
         }
     }
+#pragma warning restore MA0038, RCS1229
 }

@@ -59,7 +59,7 @@ Null-aware query plans are cached per entity type, up to 64 distinct schemas. `S
 
 ## 5. Update example API configuration and clients
 
-- The example retains a publicly known demo signing key and can run locally without a configuration override.
+- The example retains a publicly known demo signing key and can run locally in `Development` without a key override. Startup rejects that key in every other environment, including `Production` and `Staging`.
 - For a real deployment, override the demo key with a private, cryptographically random `TokenServiceOptions:SigningKey`, at least 32 UTF-8 bytes. The environment-variable name is `TokenServiceOptions__SigningKey`. Never commit a private signing key.
 - Changing the signing key invalidates existing access tokens.
 - Authenticate user administration requests. User-specific operations require the owner or an `Administrator`; role administration requires an `Administrator`.

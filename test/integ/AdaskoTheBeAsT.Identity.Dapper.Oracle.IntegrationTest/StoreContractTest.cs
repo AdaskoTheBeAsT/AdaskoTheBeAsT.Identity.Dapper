@@ -17,7 +17,7 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
     private readonly Provider _provider = new(fixture.ConnectionString);
 
     [Fact]
-    public async Task InheritedDateAndNullableDefaultsRoundTrip()
+    public async Task InheritedDateAndNullableDefaultsRoundTripAsync()
     {
         using var store = Users();
         var date = new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Unspecified);
@@ -33,7 +33,7 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
     }
 
     [Fact]
-    public async Task AuxiliaryFactoriesPersistCustomFieldsAndReplacementKeepsClaimIdentity()
+    public async Task AuxiliaryFactoriesPersistCustomFieldsAndReplacementKeepsClaimIdentityAsync()
     {
         using var store = new ApplicationUserStore(_provider);
         using var roles = Roles();
@@ -46,7 +46,7 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
         await store.AddLoginAsync(user, new Microsoft.AspNetCore.Identity.UserLoginInfo("provider", user.Id.ToString(), "name"), CancellationToken.None);
         await store.AddToRoleAsync(user, role.Name, CancellationToken.None);
         await store.SetTokenAsync(user, "provider", "name", "value", CancellationToken.None);
-        using var connection = _provider.Provide();
+        await using var connection = _provider.Provide();
         var parameters = new { Id = user.Id };
         var before = await connection.QuerySingleAsync<ApplicationUserClaim>("SELECT Id, AuditSource FROM ASPNETUSERCLAIMS WHERE UserId=:Id", parameters);
         before.AuditSource.Should().Be("user claim");
@@ -64,14 +64,14 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task ScopedLoginLookupMatchesUserProviderAndKey(bool includeRoles)
+    public async Task ScopedLoginLookupMatchesUserProviderAndKeyAsync(bool includeRoles)
     {
         using var users = Users();
         var user = new ApplicationUser { Id = Guid.NewGuid(), UserName = Guid.NewGuid().ToString() };
         (await users.CreateAsync(user, CancellationToken.None)).Succeeded.Should().BeTrue();
         var providerKey = Guid.NewGuid().ToString();
         await users.AddLoginAsync(user, new Microsoft.AspNetCore.Identity.UserLoginInfo("scoped", providerKey, "name"), CancellationToken.None);
-        using var connection = _provider.Provide();
+        await using var connection = _provider.Provide();
         using var userOnly = new TestStore(_provider);
         using var withRoles = new LoginTestStore(_provider);
         Func<OracleConnection, Guid, string, string, Task<ApplicationUserLogin?>> lookup = includeRoles
@@ -90,7 +90,7 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
     protected override async Task<bool> CompareExchangeAsync(ApplicationUserToken token, string? original)
     {
         using var store = new TestStore(_provider);
-        using var connection = _provider.Provide();
+        await using var connection = _provider.Provide();
         return await store.ExchangeAsync(connection, token, original);
     }
 
@@ -103,7 +103,7 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
     protected override async Task TokenCommandAsync(ApplicationUser user, string operation, CancellationToken cancellationToken)
     {
         using var store = new TestStore(_provider);
-        using var connection = _provider.Provide();
+        await using var connection = _provider.Provide();
         await store.CommandAsync(connection, user, operation, cancellationToken);
     }
 
@@ -130,17 +130,17 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
                 "find" => FindTokenImplAsync(connection, user, token.LoginProvider, token.Name, cancellationToken),
                 "add" => AddUserTokenImplAsync(connection, token, cancellationToken),
                 "remove" => RemoveUserTokenImplAsync(connection, token, cancellationToken),
-                _ => TryUpdateTokenImplAsync(connection, token, null, cancellationToken),
+                _ => TryUpdateTokenImplAsync(connection, token, originalValue: null, cancellationToken),
             };
         }
 
         protected override async Task<bool> TryUpdateTokenImplAsync(
                             OracleConnection connection, ApplicationUserToken token, string? originalValue, CancellationToken cancellationToken)
         {
-            if (!_waited && barrier != null)
+            if (!_waited && barrier is { } waitForConcurrentWrite)
             {
                 _waited = true;
-                await (barrier?.Invoke() ?? throw new ArgumentNullException(nameof(barrier)));
+                await waitForConcurrentWrite();
             }
 
             return await base.TryUpdateTokenImplAsync(connection, token, originalValue, cancellationToken);

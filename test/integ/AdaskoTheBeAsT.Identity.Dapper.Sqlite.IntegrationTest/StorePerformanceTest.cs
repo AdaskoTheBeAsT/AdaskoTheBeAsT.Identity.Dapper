@@ -13,7 +13,7 @@ public sealed class StorePerformanceTest(DatabaseWithGuidIdFixture fixture) : IC
     private static readonly int[] ExpectedBatchSizes = { 32, 32, 7 };
 
     [Fact]
-    public async Task ClaimsUseBoundedBatchesRatherThanOneCommandPerClaim()
+    public async Task ClaimsUseBoundedBatchesRatherThanOneCommandPerClaimAsync()
     {
         using var store = new CountingStore(new Provider(fixture.ConnectionString));
         var user = new ApplicationUser { Id = Guid.NewGuid(), UserName = Guid.NewGuid().ToString() };

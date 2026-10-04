@@ -11,7 +11,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper;
 
+#pragma warning disable S2436 // Preserve the public Identity entity and connection type contract.
 public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TDbConnection>
+#pragma warning restore S2436
     : DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken, TDbConnection>,
         IUserRoleStore<TUser>,
         IUserRoleClaimStore<TUser>

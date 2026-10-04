@@ -46,7 +46,7 @@ public sealed class DatabaseWithGuidIdFixture
     {
         var path = Path.Combine("Scripts", "WithoutNormalizedAspNetIdentityGuid.sql");
 #pragma warning disable SCS0018
-        var content = await File.ReadAllTextAsync(path);
+        var content = await File.ReadAllTextAsync(path, Xunit.TestContext.Current.CancellationToken);
         content += """
 
             ALTER TABLE aspnetusers ADD COLUMN IsActive INTEGER NOT NULL DEFAULT 0;
@@ -55,7 +55,7 @@ public sealed class DatabaseWithGuidIdFixture
 #pragma warning restore SCS0018
 
         await using var connection = new SqliteConnection(ConnectionString);
-        await connection.OpenAsync();
+        await connection.OpenAsync(Xunit.TestContext.Current.CancellationToken);
         using var sharedConnection = new SharedConnection(connection);
         var upgradeEngineBuilder = DeployChanges.To
             .SqliteDatabase(sharedConnection)

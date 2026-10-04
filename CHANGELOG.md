@@ -26,6 +26,8 @@
 - MySQL repeated token writes with `UseAffectedRows=true`, including null and empty values.
 - Oracle named binding, claim-replacement parameters, scoped-login lookup, and escaped custom-property identifiers.
 - Invalid password-token requests returning HTTP 500 instead of HTTP 400.
+- Generated raw SQL literals now preserve all C# line breaks, including U+0085, U+2028, and U+2029.
+- Example API startup rejects the public demo signing key outside `Development`.
 
 ### Development
 

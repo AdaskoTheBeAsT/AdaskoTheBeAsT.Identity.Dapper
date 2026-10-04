@@ -6,7 +6,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.IntegrationTest.Common;
 public sealed class FixtureResourceLifecycleTest
 {
     [Fact]
-    public async Task FailedInitializationCleansUpOnceAndCannotBeRetried()
+    public async Task FailedInitializationCleansUpOnceAndCannotBeRetriedAsync()
     {
         var initializationCount = 0;
         var cleanupCount = 0;
@@ -28,7 +28,9 @@ public sealed class FixtureResourceLifecycleTest
         (await FluentActions.Awaiting(lifecycle.InitializeAsync).Should().ThrowExactlyAsync<InvalidOperationException>()).Which.Should().BeSameAs(failure);
 #pragma warning disable IDISP016, IDISP017, VSTHRD103, S6966 // Intentionally exercise repeated disposal and disposed-object guards.
         await lifecycle.DisposeAsync();
+#pragma warning disable MA0042 // Verify the synchronous bridge as well as asynchronous disposal.
         lifecycle.Dispose();
+#pragma warning restore MA0042
         await lifecycle.DisposeAsync();
         initializationCount.Should().Be(1);
         cleanupCount.Should().Be(1);
@@ -37,7 +39,7 @@ public sealed class FixtureResourceLifecycleTest
     }
 
     [Fact]
-    public async Task ConcurrentInitializationAndDisposalAreSerialized()
+    public async Task ConcurrentInitializationAndDisposalAreSerializedAsync()
     {
         var initializationCount = 0;
         var cleanupCount = 0;
@@ -73,14 +75,16 @@ public sealed class FixtureResourceLifecycleTest
         await Task.WhenAll(initializing);
         await Task.WhenAll(disposing);
 #pragma warning disable IDISP017, VSTHRD103, S6966 // Verify the synchronous bridge after concurrent asynchronous disposal.
+#pragma warning disable MA0042 // Exercise the synchronous bridge after concurrent asynchronous disposal.
         lifecycle.Dispose();
+#pragma warning restore MA0042
 #pragma warning restore IDISP017, VSTHRD103, S6966
         initializationCount.Should().Be(1);
         cleanupCount.Should().Be(1);
     }
 
     [Fact]
-    public async Task DisposalBeforeInitializationNeverStartsTheResource()
+    public async Task DisposalBeforeInitializationNeverStartsTheResourceAsync()
     {
         var initializationCount = 0;
         var cleanupCount = 0;
@@ -96,7 +100,9 @@ public sealed class FixtureResourceLifecycleTest
                 return Task.CompletedTask;
             });
 #pragma warning disable IDISP016, IDISP017, VSTHRD103, S6966 // Intentionally dispose before initialization and then verify rejection.
+#pragma warning disable MA0042 // Verify that synchronous disposal before initialization prevents resource startup.
         lifecycle.Dispose();
+#pragma warning restore MA0042
         await lifecycle.DisposeAsync();
         await FluentActions.Awaiting(lifecycle.InitializeAsync).Should().ThrowExactlyAsync<ObjectDisposedException>();
 #pragma warning restore IDISP016, IDISP017, VSTHRD103, S6966
@@ -105,7 +111,7 @@ public sealed class FixtureResourceLifecycleTest
     }
 
     [Fact]
-    public async Task CleanupFailureDoesNotReplaceInitializationFailureOrRunTwice()
+    public async Task CleanupFailureDoesNotReplaceInitializationFailureOrRunTwiceAsync()
     {
         var failure = new InvalidOperationException("initialization failure");
         var cleanupFailure = new IOException("cleanup failure");
@@ -138,7 +144,7 @@ public sealed class FixtureResourceLifecycleTest
     }
 
     [Fact]
-    public async Task DisposalDuringFailedInitializationWaitsForSingleCleanup()
+    public async Task DisposalDuringFailedInitializationWaitsForSingleCleanupAsync()
     {
         var finish = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var cleanupFinished = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -177,7 +183,9 @@ public sealed class FixtureResourceLifecycleTest
 #pragma warning restore VSTHRD003
         await disposal;
 #pragma warning disable IDISP017, VSTHRD103, S6966 // Verify synchronous disposal after the asynchronous failure path.
+#pragma warning disable MA0042 // Exercise the synchronous bridge after an asynchronous initialization failure.
         lifecycle.Dispose();
+#pragma warning restore MA0042
 #pragma warning restore IDISP017, VSTHRD103, S6966
         cleanupCount.Should().Be(1);
     }

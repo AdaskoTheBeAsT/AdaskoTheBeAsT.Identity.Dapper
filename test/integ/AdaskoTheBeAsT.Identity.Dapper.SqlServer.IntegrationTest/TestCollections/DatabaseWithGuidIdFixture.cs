@@ -52,7 +52,7 @@ public sealed class DatabaseWithGuidIdFixture
 
     public void Dispose() => _lifecycle.Dispose();
 
-    private static Task CreateDbAsync(SqlConnection connection)
+    private static Task<int> CreateDbAsync(SqlConnection connection)
     {
         var initScriptPath =
             Path.GetFullPath(Path.Combine("Scripts", DbName, "init.sql"));
@@ -63,7 +63,7 @@ public sealed class DatabaseWithGuidIdFixture
 
     private async Task InitializeCoreAsync()
     {
-        await _msSqlContainer.StartAsync();
+        await _msSqlContainer.StartAsync(Xunit.TestContext.Current.CancellationToken);
         ConnectionString = _msSqlContainer.GetConnectionString();
         await using var connection = new SqlConnection(ConnectionString);
         await CreateDbAsync(connection);

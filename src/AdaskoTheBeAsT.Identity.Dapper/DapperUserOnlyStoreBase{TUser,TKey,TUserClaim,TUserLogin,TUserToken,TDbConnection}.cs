@@ -109,7 +109,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
 
     public void Dispose()
     {
-        Dispose(true);
+        Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
 
@@ -1603,7 +1603,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     {
         if (IdentityUserClaimSql is IIdentityUserClaimBatchSql batchSql)
         {
-            await ExecuteClaimsBatchImplAsync(connection, user, claims, batchSql, true, cancellationToken)
+            await ExecuteClaimsBatchImplAsync(connection, user, claims, batchSql, create: true, cancellationToken)
                 .ConfigureAwait(false);
             return;
         }
@@ -1648,7 +1648,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     {
         if (IdentityUserClaimSql is IIdentityUserClaimBatchSql batchSql)
         {
-            await ExecuteClaimsBatchImplAsync(connection, user, claims, batchSql, false, cancellationToken)
+            await ExecuteClaimsBatchImplAsync(connection, user, claims, batchSql, create: false, cancellationToken)
                 .ConfigureAwait(false);
             return;
         }

@@ -1,4 +1,5 @@
 using System.Data;
+using System.Globalization;
 using System.Security.Claims;
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 using AwesomeAssertions;
@@ -22,7 +23,7 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     [InlineData(0, 0)]
     [InlineData(0, -1)]
     [InlineData(0, 1001)]
-    public async Task PagingRejectsInvalidBoundsBeforeOpeningConnections(int offset, int pageSize)
+    public async Task PagingRejectsInvalidBoundsBeforeOpeningConnectionsAsync(int offset, int pageSize)
     {
         var provider = new Mock<IIdentityDbConnectionProvider<TConnection>>(MockBehavior.Strict);
         using var users = new LegacyUsers(provider.Object);
@@ -33,7 +34,7 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     }
 
     [Fact]
-    public async Task PagingRejectsLegacySqlAndCancellationBeforeOpeningConnections()
+    public async Task PagingRejectsLegacySqlAndCancellationBeforeOpeningConnectionsAsync()
     {
         var provider = new Mock<IIdentityDbConnectionProvider<TConnection>>(MockBehavior.Strict);
         using var users = new LegacyUsers(provider.Object);
@@ -48,19 +49,19 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     }
 
     [Fact]
-    public async Task ClaimBatchesPreserveDuplicatesAndCrossChunkBoundaries()
+    public async Task ClaimBatchesPreserveDuplicatesAndCrossChunkBoundariesAsync()
     {
         using var store = Users();
         var user = NewUser();
         Success(await store.CreateAsync(user, CancellationToken.None));
-        var claims = Enumerable.Range(0, 70).Select(i => new Claim("batch", "value-" + i)).ToList();
+        var claims = Enumerable.Range(0, 70).Select(i => new Claim("batch", "value-" + i.ToString(CultureInfo.InvariantCulture))).ToList();
         claims.Add(new Claim("batch", "value-0"));
         await store.AddClaimsAsync(user, claims, CancellationToken.None);
         (await store.GetClaimsAsync(user, CancellationToken.None)).Should().HaveCount(71);
         await store.RemoveClaimsAsync(user, claims.Take(66), CancellationToken.None);
         var remaining = await store.GetClaimsAsync(user, CancellationToken.None);
         remaining.Should().HaveCount(4);
-        remaining.Select(claim => claim.Value).OrderBy(value => value, StringComparer.Ordinal).Should().Equal(StoreContractTestData.RemainingClaims);
+        remaining.Select(claim => claim.Value).Order(StringComparer.Ordinal).Should().Equal(StoreContractTestData.RemainingClaims);
         await store.RemoveClaimsAsync(user, remaining, CancellationToken.None);
         (await store.GetClaimsAsync(user, CancellationToken.None)).Should().BeEmpty();
         await store.AddClaimsAsync(user, Array.Empty<Claim>(), CancellationToken.None);
@@ -70,7 +71,7 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     [Theory]
     [InlineData(null)]
     [InlineData("initial")]
-    public async Task UserWritesRejectStaleAndDeletedRows(string? stamp)
+    public async Task UserWritesRejectStaleAndDeletedRowsAsync(string? stamp)
     {
         using var store = Users();
         var user = NewUser();
@@ -95,7 +96,7 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     [Theory]
     [InlineData(null)]
     [InlineData("initial")]
-    public async Task RoleWritesRejectStaleAndDeletedRows(string? stamp)
+    public async Task RoleWritesRejectStaleAndDeletedRowsAsync(string? stamp)
     {
         using var store = Roles();
         var role = new TRole { Id = Guid.NewGuid(), Name = Guid.NewGuid().ToString(), ConcurrencyStamp = stamp };
@@ -115,7 +116,7 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     }
 
     [Fact]
-    public async Task RecoveryCodesRejectEmptyInputAndCaseVariantReplay()
+    public async Task RecoveryCodesRejectEmptyInputAndCaseVariantReplayAsync()
     {
         using var store = Users();
         var user = NewUser();
@@ -149,7 +150,7 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
             }
 
 #pragma warning disable IDISP013 // Both barrier callbacks complete in the awaited WhenAll before the store leaves scope.
-            return ready.Task.WaitAsync(TimeSpan.FromSeconds(20));
+            return ready.Task.WaitAsync(TimeSpan.FromSeconds(20), Xunit.TestContext.Current.CancellationToken);
 #pragma warning restore IDISP013
         }
 
@@ -167,7 +168,7 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     [InlineData("café", "cafe")]
     [InlineData(null, "alpha")]
     [InlineData("alpha", null)]
-    public async Task TokenCompareExchangeUsesExactNullSafeValue(string? current, string? stale)
+    public async Task TokenCompareExchangeUsesExactNullSafeValueAsync(string? current, string? stale)
     {
         using var store = Users();
         var user = NewUser();
@@ -181,12 +182,12 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     }
 
     [Fact]
-    public async Task NullAndLongTokensCanBeUpdatedAndRemoved()
+    public async Task NullAndLongTokensCanBeUpdatedAndRemovedAsync()
     {
         using var store = Users();
         var user = NewUser();
         Success(await store.CreateAsync(user, CancellationToken.None));
-        await store.SetTokenAsync(user, "contract", "long", null, CancellationToken.None);
+        await store.SetTokenAsync(user, "contract", "long", value: null, CancellationToken.None);
         var value = new string('a', 256);
         await store.SetTokenAsync(user, "contract", "long", value, CancellationToken.None);
         (await store.GetTokenAsync(user, "contract", "long", CancellationToken.None)).Should().Be(value);
@@ -199,7 +200,7 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     [InlineData("add")]
     [InlineData("remove")]
     [InlineData("update")]
-    public async Task TokenCommandsPropagateCancellation(string operation)
+    public async Task TokenCommandsPropagateCancellationAsync(string operation)
     {
         // Exercise the protected commands directly, not just public entry-point checks.
         using var cancellation = new CancellationTokenSource();
@@ -208,7 +209,7 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     }
 
     [Fact]
-    public async Task CreateSurfacesInFlightCancellationInsteadOfFailedResult()
+    public async Task CreateSurfacesInFlightCancellationInsteadOfFailedResultAsync()
     {
         using var cancellation = new CancellationTokenSource();
         var provider = new Mock<IIdentityDbConnectionProvider<TConnection>>(MockBehavior.Strict);
@@ -229,7 +230,7 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task LegacySqlIsRejectedBeforeOpeningConnection(bool delete)
+    public async Task LegacySqlIsRejectedBeforeOpeningConnectionAsync(bool delete)
     {
         var provider = new Mock<IIdentityDbConnectionProvider<TConnection>>(MockBehavior.Strict);
         using var userStore = new LegacyUsers(provider.Object);

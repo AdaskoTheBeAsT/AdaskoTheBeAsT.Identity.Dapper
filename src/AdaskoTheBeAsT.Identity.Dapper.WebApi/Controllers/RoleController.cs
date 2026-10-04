@@ -35,7 +35,7 @@ public class RoleController : ControllerBase
         try
         {
             var request = _mapper.Map<CreateRoleRequest>(roleModel);
-            var result = await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
+            var result = await _mediator.Send(request, HttpContext.RequestAborted).ConfigureAwait(continueOnCapturedContext: false);
             if (result.Succeeded)
             {
                 return Ok();

@@ -1,4 +1,5 @@
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using AwesomeAssertions;
@@ -25,13 +26,26 @@ public sealed class StartupTest
     }
 
     [Fact]
-    public async Task DemoSigningKeyStartsApplicationWithoutAnOverride()
+    public async Task DemoSigningKeyStartsApplicationWithoutAnOverrideAsync()
     {
-        using var factory = new StartupFactory();
+        await using var factory = new StartupFactory(environment: "Development");
         using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
         using var form = new FormUrlEncodedContent(new Dictionary<string, string>(StringComparer.Ordinal) { ["grant_type"] = "unknown" });
         using var response = await client.PostAsync("/api/token", form, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Theory]
+    [InlineData("Production")]
+    [InlineData("Staging")]
+    [InlineData("Testing")]
+    [InlineData("Preview")]
+    public void DemoSigningKeyFailsStartupOutsideDevelopment(string environment)
+    {
+        using var factory = new StartupFactory(environment: environment);
+        var exception = FluentActions.Invoking(() => factory.CreateClient()).Should().ThrowExactly<InvalidOperationException>().Which;
+        exception.Message.Should().Contain("TokenServiceOptions:SigningKey");
+        exception.Message.Should().Contain("demo signing key");
     }
 
     [Fact]
@@ -61,9 +75,24 @@ public sealed class StartupTest
     }
 
     [Fact]
-    public async Task PrivateRandomSigningKeyStartsApplication()
+    public async Task PrivateRandomSigningKeyStartsApplicationAsync()
     {
-        using var factory = new ApiFactory();
+        await using var factory = new ApiFactory();
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
+        using var form = new FormUrlEncodedContent(new Dictionary<string, string>(StringComparer.Ordinal) { ["grant_type"] = "unknown" });
+        using var response = await client.PostAsync("/api/token", form, TestContext.Current.CancellationToken);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Theory]
+    [InlineData("Production")]
+    [InlineData("Staging")]
+    [InlineData("Testing")]
+    [InlineData("Preview")]
+    public async Task PrivateRandomSigningKeyStartsApplicationOutsideDevelopmentAsync(string environment)
+    {
+        var signingKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
+        await using var factory = new StartupFactory(signingKey, environment);
         using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
         using var form = new FormUrlEncodedContent(new Dictionary<string, string>(StringComparer.Ordinal) { ["grant_type"] = "unknown" });
         using var response = await client.PostAsync("/api/token", form, TestContext.Current.CancellationToken);
@@ -73,8 +102,13 @@ public sealed class StartupTest
     private sealed class StartupFactory : WebApplicationFactory<Program>
     {
         private readonly string? _signingKey;
+        private readonly string _environment;
 
-        public StartupFactory(string? signingKey = null) => _signingKey = signingKey;
+        public StartupFactory(string? signingKey = null, string environment = "Testing")
+        {
+            _signingKey = signingKey;
+            _environment = environment;
+        }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -83,7 +117,7 @@ public sealed class StartupTest
                 builder.UseSetting("TokenServiceOptions:SigningKey", _signingKey);
             }
 
-            builder.UseEnvironment("Testing");
+            builder.UseEnvironment(_environment);
         }
     }
 }

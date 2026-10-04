@@ -45,11 +45,7 @@ public abstract class IdentityRoleClaimClassGeneratorBase
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityRoleClaimCreateSql(config, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $$"""
-                    public string CreateSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string CreateSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -58,11 +54,7 @@ public abstract class IdentityRoleClaimClassGeneratorBase
         IdentityDapperConfiguration config)
     {
         var content = ProcessIdentityRoleClaimDeleteSql(config);
-        sb.AppendLine(
-            $$"""
-                    public string DeleteSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string DeleteSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -71,10 +63,6 @@ public abstract class IdentityRoleClaimClassGeneratorBase
         IdentityDapperConfiguration config)
     {
         var content = ProcessIdentityRoleClaimGetByRoleIdSql(config);
-        sb.AppendLine(
-            $$"""
-                    public string GetByRoleIdSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string GetByRoleIdSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
     }
 }

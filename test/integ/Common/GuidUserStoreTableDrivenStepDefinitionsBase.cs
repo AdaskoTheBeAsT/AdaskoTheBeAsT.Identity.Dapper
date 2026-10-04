@@ -29,10 +29,10 @@ public abstract class GuidUserStoreTableDrivenStepDefinitionsBase<
     where TDbConnection : IDbConnection
 {
     private readonly string _scenarioKey;
-    private readonly IDictionary<string, TRole> _rolesByName =
+    private readonly Dictionary<string, TRole> _rolesByName =
         new Dictionary<string, TRole>(StringComparer.OrdinalIgnoreCase);
 
-    private readonly IDictionary<string, TUser> _usersByName =
+    private readonly Dictionary<string, TUser> _usersByName =
         new Dictionary<string, TUser>(StringComparer.OrdinalIgnoreCase);
 
     protected GuidUserStoreTableDrivenStepDefinitionsBase(
@@ -389,7 +389,7 @@ public abstract class GuidUserStoreTableDrivenStepDefinitionsBase<
     private static DataTableRow RequireSingleRow(Table table) =>
         table.Rows.Count == 1 ? table.Rows[0] : throw new InvalidOperationException("Exactly one row is expected.");
 
-    private static IEnumerable<string> SplitValues(string value) =>
+    private static string[] SplitValues(string value) =>
         value.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
     private static string BuildScenarioKey(string scenarioTitle)
@@ -814,7 +814,7 @@ public abstract class GuidUserStoreTableDrivenStepDefinitionsBase<
 
     private string MakeScenarioUniqueEmail(string value)
     {
-        var separatorIndex = value.IndexOf('@');
+        var separatorIndex = value.IndexOf('@', StringComparison.Ordinal);
         if (separatorIndex < 0)
         {
             return MakeScenarioUniqueValue(value)!;

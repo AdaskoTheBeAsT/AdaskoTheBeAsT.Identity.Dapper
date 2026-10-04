@@ -30,10 +30,10 @@ public abstract class SqlServerUserStoreTableDrivenStepDefinitionsBase
     : SqlServerStoreIntegrationTestBase
 {
     private readonly string _scenarioKey;
-    private readonly IDictionary<string, ApplicationRole> _rolesByName =
+    private readonly Dictionary<string, ApplicationRole> _rolesByName =
         new Dictionary<string, ApplicationRole>(StringComparer.OrdinalIgnoreCase);
 
-    private readonly IDictionary<string, ApplicationUser> _usersByName =
+    private readonly Dictionary<string, ApplicationUser> _usersByName =
         new Dictionary<string, ApplicationUser>(StringComparer.OrdinalIgnoreCase);
 
     protected SqlServerUserStoreTableDrivenStepDefinitionsBase(
@@ -382,7 +382,7 @@ public abstract class SqlServerUserStoreTableDrivenStepDefinitionsBase
     private static DataTableRow RequireSingleRow(Table table) =>
         table.Rows.Count == 1 ? table.Rows[0] : throw new InvalidOperationException("Exactly one row is expected.");
 
-    private static IEnumerable<string> SplitValues(string value) =>
+    private static string[] SplitValues(string value) =>
         value.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
     private static string BuildScenarioKey(string scenarioTitle)
@@ -791,7 +791,7 @@ public abstract class SqlServerUserStoreTableDrivenStepDefinitionsBase
 
     private string MakeScenarioUniqueEmail(string value)
     {
-        var separatorIndex = value.IndexOf('@');
+        var separatorIndex = value.IndexOf('@', StringComparison.Ordinal);
         if (separatorIndex < 0)
         {
             return MakeScenarioUniqueValue(value)!;

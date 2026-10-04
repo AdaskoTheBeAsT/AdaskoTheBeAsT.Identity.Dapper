@@ -163,7 +163,7 @@ public sealed class RefreshTokenStoreTest
     }
 
     [Fact]
-    public async Task ConcurrentConsumeHasExactlyOneWinnerAndReleasesSlot()
+    public async Task ConcurrentConsumeHasExactlyOneWinnerAndReleasesSlotAsync()
     {
         using var tokens = CreateTokens(1);
         var original = Generate(tokens);
@@ -190,7 +190,7 @@ public sealed class RefreshTokenStoreTest
     }
 
     [Fact]
-    public async Task ConcurrentIssuanceMaintainsStrictBoundAndAllRetainedTokensAreConsumable()
+    public async Task ConcurrentIssuanceMaintainsStrictBoundAndAllRetainedTokensAreConsumableAsync()
     {
         const int capacity = 4;
         using var tokens = CreateTokens(capacity);
@@ -261,7 +261,7 @@ new List<Claim> { new("large-claim", new string('x', 32768)) });
         metadata.Subject.Should().Be(user.Id.ToString("D"));
         metadata.SecurityStamp.Should().Be(user.SecurityStamp);
         metadata.AudienceId.Should().Be("IdentityWebApi");
-        typeof(RefreshToken).GetProperties().Select(property => property.Name).OrderBy(name => name, StringComparer.Ordinal).Should().Equal(RefreshTokenProperties);
+        typeof(RefreshToken).GetProperties().Select(property => property.Name).Order(StringComparer.Ordinal).Should().Equal(RefreshTokenProperties);
         typeof(TokenService).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Should().NotContain(field => field.FieldType == typeof(Token) || field.FieldType == typeof(Claim));
 
         tokens.ConsumeRefreshToken(issued.RefreshToken!).Should().BeSameAs(metadata);

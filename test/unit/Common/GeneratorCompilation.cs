@@ -23,18 +23,18 @@ internal static class GeneratorCompilation
             .Select(path => MetadataReference.CreateFromFile(path));
         var compilation = CSharpCompilation.Create(
             "GeneratedConsumer",
-            new[] { CSharpSyntaxTree.ParseText(source) },
+            new[] { CSharpSyntaxTree.ParseText(source, cancellationToken: Xunit.TestContext.Current.CancellationToken) },
             references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
         if (!referencesGeneratedTypes)
         {
-            compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Should().BeEmpty();
+            compilation.GetDiagnostics(Xunit.TestContext.Current.CancellationToken).Where(d => d.Severity == DiagnosticSeverity.Error).Should().BeEmpty();
         }
 
         GeneratorDriver driver = CSharpGeneratorDriver.Create(
             new[] { generator.AsSourceGenerator() },
             optionsProvider: new OptionsProvider(skipNormalized, storeBooleanAs, schema));
-        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var output, out _);
+        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var output, out _, Xunit.TestContext.Current.CancellationToken);
         var run = driver.GetRunResult();
         run.Results.Should().AllSatisfy(result => result.Exception.Should().BeNull());
         run.Diagnostics.Should().NotContain(d => d.Id == "CS8785");
@@ -50,7 +50,7 @@ internal static class GeneratorCompilation
     }
 
     public static void AssertCompiles(Compilation compilation) =>
-                compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Should().BeEmpty();
+                compilation.GetDiagnostics(Xunit.TestContext.Current.CancellationToken).Where(d => d.Severity == DiagnosticSeverity.Error).Should().BeEmpty();
 
     private sealed class OptionsProvider(bool skipNormalized, string storeBooleanAs, string schema) : AnalyzerConfigOptionsProvider
     {

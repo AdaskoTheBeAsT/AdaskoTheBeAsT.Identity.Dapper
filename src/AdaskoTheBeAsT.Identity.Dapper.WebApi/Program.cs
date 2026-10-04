@@ -1,4 +1,5 @@
 using System;
+using System.Security.Cryptography;
 using System.Text;
 using AdaskoTheBeAsT.AutoMapper.SimpleInjector;
 using AdaskoTheBeAsT.FluentValidation.MediatR;
@@ -41,6 +42,18 @@ if (string.IsNullOrWhiteSpace(tokenServiceOptions.SigningKey) ||
     throw new InvalidOperationException("TokenServiceOptions:SigningKey must contain at least 32 UTF-8 bytes.");
 }
 
+// Recognize the public demo key by its fingerprint without duplicating its value.
+var signingKeyBytes = Encoding.UTF8.GetBytes(tokenServiceOptions.SigningKey);
+if (!builder.Environment.IsDevelopment() &&
+    string.Equals(
+        Convert.ToHexString(SHA256.HashData(signingKeyBytes)),
+        "CC421157721F40E6C9B336A0D5877525433DB0CE0C77EDDE050F4CD4A1B84E82",
+        StringComparison.Ordinal))
+{
+    throw new InvalidOperationException(
+        "The public demo signing key is only allowed in Development. Configure a private TokenServiceOptions:SigningKey.");
+}
+
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -50,7 +63,7 @@ builder.Services.AddAuthentication(options =>
     .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenServiceOptions.SigningKey)),
+        IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes),
         ValidateIssuer = true,
         ValidIssuer = "IdentityWebApi",
         ValidateAudience = true,

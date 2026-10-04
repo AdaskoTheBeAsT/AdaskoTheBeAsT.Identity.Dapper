@@ -51,11 +51,7 @@ public abstract class IdentityUserTokenClassGeneratorBase
         IList<PropertyColumnTypeTriple> properties)
     {
         var content = Sql(config, properties).UpdateToken(TokenTableName);
-        sb.AppendLine(
-            $$"""
-                    public string UpdateSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string UpdateSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -65,11 +61,7 @@ public abstract class IdentityUserTokenClassGeneratorBase
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityUserTokenCreateSql(config, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $$"""
-                    public string CreateSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string CreateSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -78,11 +70,7 @@ public abstract class IdentityUserTokenClassGeneratorBase
         IdentityDapperConfiguration config)
     {
         var content = ProcessIdentityUserTokenDeleteSql(config);
-        sb.AppendLine(
-            $$"""
-                    public string DeleteSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string DeleteSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -92,10 +80,6 @@ public abstract class IdentityUserTokenClassGeneratorBase
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityUserTokenGetByUserIdSql(config, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $$"""
-                    public string GetByUserIdSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string GetByUserIdSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
     }
 }

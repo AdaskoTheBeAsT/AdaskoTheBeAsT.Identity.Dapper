@@ -33,7 +33,7 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
     [InlineData("DELETE", "/api/user/11111111-1111-1111-1111-111111111111")]
     [InlineData("GET", "/api/role")]
     [InlineData("POST", "/api/role")]
-    public async Task AnonymousAdministrationIsRejected(string method, string path)
+    public async Task AnonymousAdministrationIsRejectedAsync(string method, string path)
     {
         using var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
         using var request = new HttpRequestMessage(new HttpMethod(method), path) { Content = JsonContent.Create(new { }) };
@@ -42,7 +42,7 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task AnonymousRegistrationCannotChooseRoles()
+    public async Task AnonymousRegistrationCannotChooseRolesAsync()
     {
         using var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
         using var response = await client.PostAsJsonAsync("/api/user", new UserModel { Roles = AdministratorRoles }, cancellationToken: TestContext.Current.CancellationToken);
@@ -53,7 +53,7 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
     [InlineData("GET")]
     [InlineData("PUT")]
     [InlineData("DELETE")]
-    public async Task ValidBearerCannotManageAnotherAccount(string method)
+    public async Task ValidBearerCannotManageAnotherAccountAsync(string method)
     {
         using var client = AuthenticatedClient(Guid.NewGuid());
         using var request = new HttpRequestMessage(new HttpMethod(method), $"/api/user/{Guid.NewGuid()}")
@@ -65,7 +65,7 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task OwnerCannotChangeOwnRoles()
+    public async Task OwnerCannotChangeOwnRolesAsync()
     {
         var id = Guid.NewGuid();
         using var client = AuthenticatedClient(id);
@@ -74,7 +74,7 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task OwnerReadReachesHandler()
+    public async Task OwnerReadReachesHandlerAsync()
     {
         var id = Guid.NewGuid();
         var mediator = new Mock<IMediator>(MockBehavior.Strict);
@@ -95,7 +95,7 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task RegistrationHandlerRejectsPrivilegedRolesBeforePersistence()
+    public async Task RegistrationHandlerRejectsPrivilegedRolesBeforePersistenceAsync()
     {
         var handler = new CreateUserRequestHandler(null!);
         var result = await handler.Handle(new CreateUserRequest { Roles = AdministratorRoles }, CancellationToken.None);

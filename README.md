@@ -229,7 +229,7 @@ Version 5.0.0 is a breaking release. See the [migration guide](https://github.co
 
 ### Example API limitations
 
-The Web API includes a fixed, publicly known demo signing key, so no environment variable is required to run the example. Do not use that key for a real deployment: anyone with the source can forge tokens. When adapting or deploying the example, override `TokenServiceOptions:SigningKey` using a secret manager, user secrets, or the `TokenServiceOptions__SigningKey` environment variable. Use a private, cryptographically random value, not a password, and never commit it. The application rejects missing, whitespace-only, or shorter-than-32-byte UTF-8 values.
+The Web API includes a fixed, publicly known demo signing key, so no key override is required to run the example in `Development`. The application rejects that key in every other environment, including `Production` and `Staging`: anyone with the source can forge tokens using it. Outside `Development`, override `TokenServiceOptions:SigningKey` using a secret manager, user secrets, or the `TokenServiceOptions__SigningKey` environment variable. Use a private, cryptographically random value, not a password, and never commit it. The application also rejects missing, whitespace-only, or shorter-than-32-byte UTF-8 values.
 
 To optionally override the demo key with a temporary development key in PowerShell:
 

@@ -511,7 +511,7 @@ public class OracleSourceGenerationHelper
             string.Equals(options.StoreBooleanAs, "numeric", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(options.StoreBooleanAs, "string", StringComparison.OrdinalIgnoreCase))
         {
-            var content2 =
+            const string? content2 =
                 """
                         SqlMapper.RemoveTypeMap(typeof(bool));
                         SqlMapper.RemoveTypeMap(typeof(bool?));
@@ -519,7 +519,7 @@ public class OracleSourceGenerationHelper
             sb.AppendLine(content2);
         }
 
-        var content3 =
+        const string? content3 =
             """
                     SqlMapper.AddTypeHandler(new GuidRaw16TypeHandler());
                     SqlMapper.AddTypeHandler(new NullableGuidRaw16TypeHandler());
@@ -530,7 +530,7 @@ public class OracleSourceGenerationHelper
 
         if (string.Equals(options.StoreBooleanAs, "char", StringComparison.OrdinalIgnoreCase))
         {
-            var content4 =
+            const string? content4 =
                 """
                         global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(bool), new BooleanCharTypeHandler(StringComparison.OrdinalIgnoreCase));
                         global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(
@@ -541,7 +541,7 @@ public class OracleSourceGenerationHelper
         }
         else if (string.Equals(options.StoreBooleanAs, "numeric", StringComparison.OrdinalIgnoreCase))
         {
-            var content5 =
+            const string? content5 =
                 """
                         global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(bool), new BooleanNumericTypeHandler());
                         global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(bool?), new NullableBooleanNumericTypeHandler());
@@ -550,7 +550,7 @@ public class OracleSourceGenerationHelper
         }
         else if (string.Equals(options.StoreBooleanAs, "string", StringComparison.OrdinalIgnoreCase))
         {
-            var content6 =
+            const string? content6 =
                 """
                         global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(
                             typeof(bool),
@@ -562,7 +562,7 @@ public class OracleSourceGenerationHelper
             sb.AppendLine(content6);
         }
 
-        var content7 =
+        const string? content7 =
             """
                 }
             }

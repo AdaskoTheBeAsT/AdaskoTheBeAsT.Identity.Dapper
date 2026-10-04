@@ -11,21 +11,11 @@ internal static class OracleStoreMethodGenerator
     internal static void GenerateCreateStart(
                 StringBuilder sb, string entity, string parameter, string keyTypeName, bool insertOwnId)
     {
-        sb.AppendLine(
-            $$"""
-                    protected override async Task CreateImplAsync(
-                        OracleConnection connection,
-                        Application{{entity}} {{parameter}},
-                        CancellationToken cancellationToken)
-                    {
-                        var sql = Identity{{entity}}Sql.CreateSql;
-                        var parameters = new OracleDynamicParameters { BindByName = true };
-            """);
+        sb.Append("        protected override async Task CreateImplAsync(\n            OracleConnection connection,\n            Application").Append(entity).Append(' ').Append(parameter).Append(",\n            CancellationToken cancellationToken)\n        {\n            var sql = Identity").Append(entity).AppendLine("Sql.CreateSql;\n            var parameters = new OracleDynamicParameters { BindByName = true };");
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.AppendLine(
-            $$"""            parameters.Add("OutputId", dbType: {{idType}}, direction: ParameterDirection.ReturnValue, size: {{idSize}});""");
+        sb.Append("            parameters.Add(\"OutputId\", dbType: ").Append(idType).Append(", direction: ParameterDirection.ReturnValue, size: ").Append(idSize).AppendLine(");");
         if (insertOwnId)
         {
             GenerateIdParameter(sb, parameter, keyTypeName);
@@ -34,18 +24,7 @@ internal static class OracleStoreMethodGenerator
 
     internal static void GenerateUpdateStart(StringBuilder sb, string entity, string parameter, string keyTypeName)
     {
-        sb.AppendLine(
-            $$"""
-                    protected override async Task UpdateImplAsync(
-                        OracleConnection connection,
-                        Application{{entity}} {{parameter}},
-                        CancellationToken cancellationToken)
-                    {
-                        var sql = NormalizeSql(Identity{{entity}}Sql.UpdateSql);
-                        var parameters = new OracleDynamicParameters { BindByName = true };
-                        var stamp = Guid.NewGuid().ToString();
-                        parameters.Add("OriginalConcurrencyStamp", {{parameter}}.ConcurrencyStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-            """);
+        sb.Append("        protected override async Task UpdateImplAsync(\n            OracleConnection connection,\n            Application").Append(entity).Append(' ').Append(parameter).Append(",\n            CancellationToken cancellationToken)\n        {\n            var sql = NormalizeSql(Identity").Append(entity).Append("Sql.UpdateSql);\n            var parameters = new OracleDynamicParameters { BindByName = true };\n            var stamp = Guid.NewGuid().ToString();\n            parameters.Add(\"OriginalConcurrencyStamp\", ").Append(parameter).AppendLine(".ConcurrencyStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
         GenerateIdParameter(sb, parameter, keyTypeName);
     }
 
@@ -64,8 +43,7 @@ internal static class OracleStoreMethodGenerator
 
         foreach (var item in properties.Where(e => !excludedProperties.Contains(e.PropertyName)))
         {
-            sb.AppendLine(
-                $$"""            parameters.Add("{{item.PropertyName}}", {{OracleApplicationUserHelper.PropertyAccess(parameter, item.PropertyName)}}, {{OracleTypeMapper.MapParameterEndByTypeName(item.PropertyType, options.StoreBooleanAs)}}""");
+            sb.Append("            parameters.Add(\"").Append(item.PropertyName).Append("\", ").Append(OracleApplicationUserHelper.PropertyAccess(parameter, item.PropertyName)).Append(", ").AppendLine(OracleTypeMapper.MapParameterEndByTypeName(item.PropertyType, options.StoreBooleanAs));
         }
     }
 
@@ -76,22 +54,16 @@ internal static class OracleStoreMethodGenerator
 
         if (string.Equals(keyTypeName, "string", StringComparison.OrdinalIgnoreCase))
         {
-            sb.AppendLine(
-                $$"""            {{parameter}}.Id = parameters.Get<string>("OutputId").TrimEnd();""");
+            sb.Append("            ").Append(parameter).AppendLine(".Id = parameters.Get<string>(\"OutputId\").TrimEnd();");
         }
         else if (string.Equals(keyTypeName, "int", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(keyTypeName, "long", StringComparison.OrdinalIgnoreCase))
         {
-            sb.AppendLine(
-                $$"""            {{parameter}}.Id = parameters.Get<{{keyTypeName}}>("OutputId");""");
+            sb.Append("            ").Append(parameter).Append(".Id = parameters.Get<").Append(keyTypeName).AppendLine(">(\"OutputId\");");
         }
         else if (string.Equals(keyTypeName, "Guid", StringComparison.OrdinalIgnoreCase))
         {
-            sb.AppendLine(
-                $$"""
-                            var idBytes = parameters.Get<byte[]>("OutputId");
-                            {{parameter}}.Id = new Guid(idBytes);
-                """);
+            sb.Append("            var idBytes = parameters.Get<byte[]>(\"OutputId\");\n            ").Append(parameter).AppendLine(".Id = new Guid(idBytes);");
         }
 
         sb.AppendLine("        }");
@@ -99,6 +71,5 @@ internal static class OracleStoreMethodGenerator
     }
 
     private static void GenerateIdParameter(StringBuilder sb, string parameter, string keyTypeName) =>
-                sb.AppendLine(
-                    $$"""            parameters.Add("Id", {{parameter}}.Id, {{OracleTypeMapper.MapIdType(keyTypeName)}}, ParameterDirection.Input, {{OracleTypeMapper.MapIdSize(keyTypeName)}});""");
+                sb.Append("            parameters.Add(\"Id\", ").Append(parameter).Append(".Id, ").Append(OracleTypeMapper.MapIdType(keyTypeName)).Append(", ParameterDirection.Input, ").Append(OracleTypeMapper.MapIdSize(keyTypeName)).AppendLine(");");
 }

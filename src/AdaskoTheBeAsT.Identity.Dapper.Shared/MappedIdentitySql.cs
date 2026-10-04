@@ -53,8 +53,8 @@ internal sealed class MappedIdentitySql
         var hasId = _entity is UserEntity or RoleEntity;
         var properties = _properties.Where(p => !Skip(p.PropertyName) &&
             (!hasId || _config.InsertOwnId || !string.Equals(p.PropertyName, "Id", StringComparison.Ordinal))).Select(p => p.PropertyName).ToList();
-        var columns = properties.Select(p => C(p)).ToList();
-        var values = properties.Select(P).ToList();
+        var columns = properties.ConvertAll(p => C(p));
+        var values = properties.ConvertAll(P);
         var prefix = string.Empty;
         var generatedGuid = hasId && !_config.InsertOwnId && _config.KeyTypeName is "Guid" or "string";
 
@@ -150,7 +150,7 @@ internal sealed class MappedIdentitySql
         """;
 
     public string GetUsersForClaim() => $$"""
-        SELECT {{Projection("u", true)}}
+        SELECT {{Projection("u", includeId: true)}}
         FROM {{Table()}} u INNER JOIN
              {{Table(UserClaimEntity)}} c ON {{C("Id", alias: "u")}}={{C(UserId, UserClaimEntity, "c")}}
         WHERE {{Equal(C(ClaimType, UserClaimEntity, "c"), ClaimType)}}
@@ -158,7 +158,7 @@ internal sealed class MappedIdentitySql
         """;
 
     public string GetUsersInRole() => $$"""
-        SELECT {{Projection("u", true)}}
+        SELECT {{Projection("u", includeId: true)}}
         FROM {{Table()}} u INNER JOIN
              {{Table(UserRoleEntity)}} ur ON {{C("Id", alias: "u")}}={{C(UserId, UserRoleEntity, "ur")}} INNER JOIN
              {{Table(RoleEntity)}} r ON {{C(RoleId, UserRoleEntity, "ur")}}={{C("Id", RoleEntity, "r")}}

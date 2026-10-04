@@ -19,6 +19,9 @@ public abstract partial class ConfigurationMatrixTestBase
 
     protected abstract string ConnectionType { get; }
 
+    [GeneratedRegex(@"\bAspNet(Users|Roles|UserClaims|RoleClaims|UserLogins|UserRoles|UserTokens)\b", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture, 1000)]
+    private static partial Regex IdentityTableRegex { get; }
+
     public static IEnumerable<TheoryDataRow<string, bool, bool>> Configurations()
     {
         foreach (var key in new[] { "string", "int", "long", "Guid" })
@@ -35,7 +38,7 @@ public abstract partial class ConfigurationMatrixTestBase
 
     [Theory]
     [MemberData(nameof(Configurations))]
-    public async Task GeneratedStoresExecuteForSupportedConfiguration(string key, bool skipNormalized, bool ownId)
+    public async Task GeneratedStoresExecuteForSupportedConfigurationAsync(string key, bool skipNormalized, bool ownId)
     {
         var prefix = "m" + Guid.NewGuid().ToString("N")[..8];
         var (_, compilation) = GeneratorCompilation.Run(Model(key, ownId), Generator, skipNormalized, referencesGeneratedTypes: true);
@@ -44,10 +47,11 @@ public abstract partial class ConfigurationMatrixTestBase
         // Give each case private tables inside its disposable fixture database.
         // Only table identifiers change; the SQL syntax and mappings remain generated.
         compilation = compilation.RemoveAllSyntaxTrees().AddSyntaxTrees(
-            compilation.SyntaxTrees.Select(tree => CSharpSyntaxTree.ParseText(IdentityTableRegex().Replace(
-                tree.ToString(), match => prefix + match.Value))))
+            compilation.SyntaxTrees.Select(tree => CSharpSyntaxTree.ParseText(
+                IdentityTableRegex.Replace(tree.ToString(), match => prefix + match.Value),
+                cancellationToken: Xunit.TestContext.Current.CancellationToken)))
             .WithAssemblyName("Matrix" + prefix);
-        using var assemblyBytes = new MemoryStream();
+        await using var assemblyBytes = new MemoryStream();
         var emitted = compilation.Emit(assemblyBytes, cancellationToken: TestContext.Current.CancellationToken);
         emitted.Success.Should().BeTrue("{0}", string.Join(Environment.NewLine, emitted.Diagnostics));
         assemblyBytes.Position = 0;
@@ -77,7 +81,7 @@ public abstract partial class ConfigurationMatrixTestBase
         {
             try
             {
-                foreach (var table in Enumerable.Reverse(created))
+                foreach (var table in created.AsEnumerable().Reverse())
                 {
                     await connection.ExecuteAsync($"DROP TABLE {table}");
                 }
@@ -90,9 +94,6 @@ public abstract partial class ConfigurationMatrixTestBase
     }
 
     protected abstract DbConnection Connection();
-
-    [GeneratedRegex(@"\bAspNet(Users|Roles|UserClaims|RoleClaims|UserLogins|UserRoles|UserTokens)\b", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture, 1000)]
-    private static partial Regex IdentityTableRegex();
 
 #pragma warning disable S3776
     private IEnumerable<(string Name, string Columns)> Tables(string key, bool skipNormalized, bool ownId)
@@ -123,7 +124,7 @@ public abstract partial class ConfigurationMatrixTestBase
         string Id(string column, bool auxiliary = false) =>
             PrimaryKey(column, auxiliary ? number : keyType, key, ownId, auxiliary);
         string Fields(params (string Name, string Type)[] columns) =>
-            string.Join(",", columns.Select(column => $"{QuoteColumnName(column.Name)} {column.Type}"));
+            string.Join(',', columns.Select(column => $"{QuoteColumnName(column.Name)} {column.Type}"));
         var user = Id("Entity key") + "," + Fields(
             ("UserName", text),
             ("Email", text),
@@ -147,8 +148,8 @@ public abstract partial class ConfigurationMatrixTestBase
 
         yield return ("AspNetUsers", user);
         yield return ("AspNetRoles", role);
-        yield return ("AspNetUserClaims", Id(nameof(Id), true) + "," + Fields(("UserId", keyType), ("ClaimType", text), ("ClaimValue", text), ("Optional number {0}", number)));
-        yield return ("AspNetRoleClaims", Id(nameof(Id), true) + "," + Fields(("RoleId", keyType), ("ClaimType", text), ("ClaimValue", text)));
+        yield return ("AspNetUserClaims", Id(nameof(Id), auxiliary: true) + "," + Fields(("UserId", keyType), ("ClaimType", text), ("ClaimValue", text), ("Optional number {0}", number)));
+        yield return ("AspNetRoleClaims", Id(nameof(Id), auxiliary: true) + "," + Fields(("RoleId", keyType), ("ClaimType", text), ("ClaimValue", text)));
         yield return ("AspNetUserLogins", Fields(("UserId", keyType), ("LoginProvider", text), ("ProviderKey", text), ("ProviderDisplayName", text)));
         yield return ("AspNetUserRoles", Fields(("UserId", keyType), ("RoleId", keyType)));
         yield return ("AspNetUserTokens", Fields(("UserId", keyType), ("LoginProvider", text), ("Name", text), ("Value", text)));

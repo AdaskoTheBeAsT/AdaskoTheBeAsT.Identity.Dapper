@@ -65,7 +65,7 @@ public abstract class GeneratorSafetyTestBase
     public void MismatchedKeysProduceLocatedDiagnostic()
     {
         var (driver, _) = GeneratorCompilation.Run(
-            Model("Guid", false).Replace("IdentityRole<Guid>", "IdentityRole<int>", StringComparison.Ordinal),
+            Model("Guid", ownId: false).Replace("IdentityRole<Guid>", "IdentityRole<int>", StringComparison.Ordinal),
             CreateGenerator());
         var diagnostic = driver.GetRunResult().Diagnostics.Where(d => string.Equals(d.Id, "ATBID102", StringComparison.Ordinal)).Should().ContainSingle().Which;
         diagnostic.Location.IsInSource.Should().BeTrue();
@@ -74,7 +74,7 @@ public abstract class GeneratorSafetyTestBase
     [Fact]
     public void UnsupportedKeysProduceLocatedDiagnostic()
     {
-        var (driver, _) = GeneratorCompilation.Run(Model("short", false), CreateGenerator());
+        var (driver, _) = GeneratorCompilation.Run(Model("short", ownId: false), CreateGenerator());
         var diagnostic = driver.GetRunResult().Diagnostics.Where(d => string.Equals(d.Id, "ATBID101", StringComparison.Ordinal)).Should().ContainSingle().Which;
         diagnostic.Location.IsInSource.Should().BeTrue();
     }
@@ -93,7 +93,7 @@ public abstract class GeneratorSafetyTestBase
             }
             public class ApplicationUser : UserBase
             """;
-        var model = Model("Guid", false).Replace(
+        var model = Model("Guid", ownId: false).Replace(
             "public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser<Guid>",
             userTypes,
             StringComparison.Ordinal);
@@ -115,7 +115,7 @@ public abstract class GeneratorSafetyTestBase
             [InsertOwnId] public abstract class UserBase : IdentityUser<Guid> { }
             public class ApplicationUser : UserBase
             """;
-        var model = Model("Guid", false).Replace(
+        var model = Model("Guid", ownId: false).Replace(
             "public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser<Guid>",
             userTypes,
             StringComparison.Ordinal);
@@ -132,7 +132,7 @@ public abstract class GeneratorSafetyTestBase
     public void UnrelatedDuplicateEntitiesReportLocatedDiagnostic()
     {
         var (driver, _) = GeneratorCompilation.Run(
-            Model("Guid", false) +
+            Model("Guid", ownId: false) +
             """
 
             public class OtherUser : Microsoft.AspNetCore.Identity.IdentityUser<System.Guid> { }
@@ -145,7 +145,7 @@ public abstract class GeneratorSafetyTestBase
     [Fact]
     public void AuxiliaryCustomPropertiesCompileAndClaimReplacementPreservesThem()
     {
-        var model = Model("Guid", true);
+        var model = Model("Guid", ownId: true);
         foreach (var entity in new[] { "UserClaim", "RoleClaim", "UserLogin", "UserRole", "UserToken" })
         {
             model = model.Replace(
@@ -187,7 +187,7 @@ public abstract class GeneratorSafetyTestBase
                     [Column("RoleLookup")] public override string? NormalizedName { get; set; }
                 }
                 """;
-        var model = Model("Guid", true)
+        var model = Model("Guid", ownId: true)
             .Replace(
                 "public string? DisplayLabel { get; set; }",
                 userProperties,
@@ -241,7 +241,7 @@ public abstract class GeneratorSafetyTestBase
                 }
                 public class ApplicationUser : UserBase
                 """;
-        var model = Model("Guid", false)
+        var model = Model("Guid", ownId: false)
             .Replace(
                 "public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser<Guid>",
                 userTypes,
@@ -320,7 +320,7 @@ public abstract class GeneratorSafetyTestBase
             }
             public class ApplicationUser : UserBase
             """;
-        var model = Model("Guid", false).Replace(
+        var model = Model("Guid", ownId: false).Replace(
             "public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser<Guid>",
             userTypes,
             StringComparison.Ordinal);
@@ -359,7 +359,7 @@ public abstract class GeneratorSafetyTestBase
 
     private static string WithIdentityMember(string entity, string member)
     {
-        var model = Model("Guid", false);
+        var model = Model("Guid", ownId: false);
         return string.Equals(
             entity,
             "User",

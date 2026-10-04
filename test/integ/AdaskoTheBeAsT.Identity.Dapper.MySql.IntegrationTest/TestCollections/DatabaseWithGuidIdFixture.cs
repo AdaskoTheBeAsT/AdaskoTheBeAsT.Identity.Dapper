@@ -42,10 +42,10 @@ public sealed class DatabaseWithGuidIdFixture
 
     private async Task InitializeCoreAsync()
     {
-        await _mySqlContainer.StartAsync();
+        await _mySqlContainer.StartAsync(Xunit.TestContext.Current.CancellationToken);
         var path = Path.Combine("Scripts", "WithoutNormalizedAspNetIdentityGuid.sql");
 #pragma warning disable SCS0018
-        var content = await File.ReadAllTextAsync(path);
+        var content = await File.ReadAllTextAsync(path, Xunit.TestContext.Current.CancellationToken);
 #pragma warning restore SCS0018
         ConnectionString = _mySqlContainer.GetConnectionString();
         var upgradeEngineBuilder = DeployChanges.To

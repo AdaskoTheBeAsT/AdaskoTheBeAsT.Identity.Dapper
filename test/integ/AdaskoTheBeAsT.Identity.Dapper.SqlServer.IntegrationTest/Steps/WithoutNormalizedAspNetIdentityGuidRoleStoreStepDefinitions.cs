@@ -12,7 +12,7 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
     : SqlServerStoreIntegrationTestBase
 {
     private readonly string _scenarioKey;
-    private readonly IDictionary<string, Identity.ApplicationRole> _rolesByName =
+    private readonly Dictionary<string, Identity.ApplicationRole> _rolesByName =
         new Dictionary<string, Identity.ApplicationRole>(StringComparer.OrdinalIgnoreCase);
 
     private string? _verifiedMethodName;

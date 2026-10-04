@@ -24,22 +24,9 @@ public abstract class IdentityUserClaimClassGeneratorBase
         GenerateGetByUserIdSql(sb, config);
         GenerateReplaceSql(sb, config, propertyColumnTypeTriples);
         var sql = Sql(config, propertyColumnTypeTriples);
-        var names = string.Join(", ", propertyColumnTypeTriples.Select(p => Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(p.PropertyName, true)));
+        var names = string.Join(", ", propertyColumnTypeTriples.Select(p => Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(p.PropertyName, quote: true)));
         sb.AppendLine();
-        sb.AppendLine(
-            $$"""
-                    public string CreateBatchItemSql { get; } =
-                        {{RawStringLiteral.Format(sql.CreateClaimBatchItem())}};
-
-                    public string DeleteBatchItemSql { get; } =
-                        {{RawStringLiteral.Format(sql.DeleteClaimBatchItem())}};
-
-                    public System.Collections.Generic.IReadOnlyList<string> CreateBatchParameterNames { get; } = new[] { {{names}} };
-
-                    public string BatchPrefix { get; } = {{Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(Provider == DatabaseProvider.Oracle ? "BEGIN\n" : string.Empty, true)}};
-
-                    public string BatchSuffix { get; } = {{Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(Provider == DatabaseProvider.Oracle ? "\nEND;" : string.Empty, true)}};
-            """);
+        sb.Append("        public string CreateBatchItemSql { get; } =\r\n            ").Append(RawStringLiteral.Format(sql.CreateClaimBatchItem())).Append(";\r\n\r\n        public string DeleteBatchItemSql { get; } =\r\n            ").Append(RawStringLiteral.Format(sql.DeleteClaimBatchItem())).Append(";\r\n\r\n        public System.Collections.Generic.IReadOnlyList<string> CreateBatchParameterNames { get; } = new[] { ").Append(names).Append(" };\r\n\r\n        public string BatchPrefix { get; } = ").Append(Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(Provider == DatabaseProvider.Oracle ? "BEGIN\n" : string.Empty, quote: true)).Append(";\r\n\r\n        public string BatchSuffix { get; } = ").Append(Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(Provider == DatabaseProvider.Oracle ? "\nEND;" : string.Empty, quote: true)).Append(';').AppendLine();
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
@@ -68,11 +55,7 @@ public abstract class IdentityUserClaimClassGeneratorBase
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityUserClaimCreateSql(config, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $$"""
-                    public string CreateSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string CreateSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -81,11 +64,7 @@ public abstract class IdentityUserClaimClassGeneratorBase
         IdentityDapperConfiguration config)
     {
         var content = ProcessIdentityUserClaimDeleteSql(config);
-        sb.AppendLine(
-            $$"""
-                    public string DeleteSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string DeleteSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -94,11 +73,7 @@ public abstract class IdentityUserClaimClassGeneratorBase
         IdentityDapperConfiguration config)
     {
         var content = ProcessIdentityUserClaimGetByUserIdSql(config);
-        sb.AppendLine(
-            $$"""
-                    public string GetByUserIdSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string GetByUserIdSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -108,10 +83,6 @@ public abstract class IdentityUserClaimClassGeneratorBase
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityUserClaimReplaceSql(config, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $$"""
-                    public string ReplaceSql { get; } =
-                        {{RawStringLiteral.Format(content)}};
-            """);
+        sb.Append("        public string ReplaceSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
     }
 }

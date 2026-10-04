@@ -15,6 +15,13 @@ public sealed class RawStringLiteralTest
     [InlineData("  SELECT 1;\n\n    SELECT 2;  \n")]
     [InlineData("\rSELECT 1;\r")]
     [InlineData("\tSELECT 1;\r\n\t\r\n")]
+    [InlineData("SELECT [Token\u0085Name];")]
+    [InlineData("SELECT [Token\u2028Name];")]
+    [InlineData("SELECT [Token\u2029Name];")]
+    [InlineData("\u0085SELECT 1;\u0085")]
+    [InlineData("\u2028SELECT 1;\u2028")]
+    [InlineData("\u2029SELECT 1;\u2029")]
+    [InlineData("  SELECT 1;\r\n\u0085\tSELECT 2;\u2028\u2029    SELECT 3;\n")]
     [InlineData("SELECT '{{value}}', 'C:\\data\\identity';")]
     [InlineData("""""SELECT '"""', '""""';""""")]
     public void GeneratedLiteralPreservesExactSql(string sql)

@@ -2,6 +2,7 @@ using System.Data;
 using System.Security.Claims;
 using AdaskoTheBeAsT.Identity.Dapper;
 using AwesomeAssertions;
+using AwesomeAssertions.Specialized;
 using Microsoft.AspNetCore.Identity;
 using Reqnroll;
 
@@ -197,13 +198,13 @@ public abstract class GuidStoreIntegrationTestBase<
         await store.SetPasswordHashAsync(user, updatedPasswordHash, CancellationToken.None);
         await store.SetEmailAsync(user, updatedEmail, CancellationToken.None);
         await store.SetNormalizedEmailAsync(user, $"normalized-{Guid.NewGuid():N}@example.com", CancellationToken.None);
-        await store.SetEmailConfirmedAsync(user, true, CancellationToken.None);
+        await store.SetEmailConfirmedAsync(user, confirmed: true, CancellationToken.None);
         await store.SetLockoutEndDateAsync(user, updatedLockoutEnd, CancellationToken.None);
-        await store.SetLockoutEnabledAsync(user, true, CancellationToken.None);
+        await store.SetLockoutEnabledAsync(user, enabled: true, CancellationToken.None);
         await store.SetPhoneNumberAsync(user, updatedPhoneNumber, CancellationToken.None);
-        await store.SetPhoneNumberConfirmedAsync(user, true, CancellationToken.None);
+        await store.SetPhoneNumberConfirmedAsync(user, confirmed: true, CancellationToken.None);
         await store.SetSecurityStampAsync(user, updatedSecurityStamp, CancellationToken.None);
-        await store.SetTwoFactorEnabledAsync(user, true, CancellationToken.None);
+        await store.SetTwoFactorEnabledAsync(user, enabled: true, CancellationToken.None);
 
         (await store.GetPasswordHashAsync(user, CancellationToken.None)).Should().Be(updatedPasswordHash);
         (await store.HasPasswordAsync(user, CancellationToken.None)).Should().BeTrue();
@@ -356,7 +357,7 @@ public abstract class GuidStoreIntegrationTestBase<
         await store.SetAuthenticatorKeyAsync(user, "auth-key", CancellationToken.None);
         (await store.GetAuthenticatorKeyAsync(user, CancellationToken.None)).Should().Be("auth-key");
 
-        await store.ReplaceCodesAsync(user, new[] { "code-1", "code-2", "code-3" }, CancellationToken.None);
+        await store.ReplaceCodesAsync(user, StoreContractTestData.RecoveryCodes, CancellationToken.None);
         (await store.CountCodesAsync(user, CancellationToken.None)).Should().Be(3);
 
         (await store.RedeemCodeAsync(user, "code-1", CancellationToken.None)).Should().BeTrue();
@@ -457,7 +458,7 @@ public abstract class GuidStoreIntegrationTestBase<
         (await userStore.GetRoleClaimsAsync(user, CancellationToken.None)).Should().BeEmpty();
     }
 
-    private static Task VerifyUserStoreDisposeAsync(
+    private static Task<ExceptionAssertions<ObjectDisposedException>> VerifyUserStoreDisposeAsync(
                 Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> storeFactory)
     {
         var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
@@ -593,7 +594,7 @@ public abstract class GuidStoreIntegrationTestBase<
         store.Users.Should().ContainSingle(x => x.Id == user.Id);
     }
 
-    private Task VerifyRoleStoreDisposeAsync()
+    private Task<ExceptionAssertions<ObjectDisposedException>> VerifyRoleStoreDisposeAsync()
     {
         var store = CreateRoleStore();
 #pragma warning disable IDISP016 // Assert that a disposed store rejects calls.
