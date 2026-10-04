@@ -1,8 +1,8 @@
 using AdaskoTheBeAsT.Identity.Dapper.IntegrationTest.Common;
 using AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest;
 using AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity;
-using Reqnroll;
 using Oracle.ManagedDataAccess.Client;
+using Reqnroll;
 using OracleUserOnlyStoreBase =
     AdaskoTheBeAsT.Identity.Dapper.DapperUserOnlyStoreBase<
         AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity.ApplicationUser,
@@ -48,50 +48,46 @@ public sealed class WithoutNormalizedAspNetIdentityGuidUserOnlyStoreStepDefiniti
     {
     }
 
-    protected override OracleUserOnlyStoreBase CreateUserStoreInstance() => CreateUserOnlyStore();
-
-    protected override OracleUserStoreBase CreateRoleCapableUserStoreInstance() => CreateUserStore();
-
     [Given("I have configured Oracle UserOnlyStore without normalized and Guid id")]
-    public Task GivenIHaveConfiguredUserOnlyStoreWithoutNormalizedAndGuidId() => ResetUserStoreScenarioAsync();
+    public Task GivenIHaveConfiguredUserOnlyStoreWithoutNormalizedAndGuidIdAsync() => ResetUserStoreScenarioAsync();
 
     [Given("I created users for Oracle UserOnlyStore")]
-    public Task GivenICreatedUsersForUserOnlyStore(Table table) => CreateUsersFromTableAsync(table);
+    public Task GivenICreatedUsersForUserOnlyStoreAsync(Table table) => CreateUsersFromTableAsync(table);
 
     [Given("I created roles for Oracle UserOnlyStore")]
-    public Task GivenICreatedRolesForUserOnlyStore(Table table) => CreateRolesFromTableAsync(table);
+    public Task GivenICreatedRolesForUserOnlyStoreAsync(Table table) => CreateRolesFromTableAsync(table);
 
     [Given("I added user claims for Oracle UserOnlyStore")]
-    public Task GivenIAddedUserClaimsForUserOnlyStore(Table table) => AddUserClaimsFromTableAsync(table);
+    public Task GivenIAddedUserClaimsForUserOnlyStoreAsync(Table table) => AddUserClaimsFromTableAsync(table);
 
     [Given("I added user logins for Oracle UserOnlyStore")]
-    public Task GivenIAddedUserLoginsForUserOnlyStore(Table table) => AddUserLoginsFromTableAsync(table);
+    public Task GivenIAddedUserLoginsForUserOnlyStoreAsync(Table table) => AddUserLoginsFromTableAsync(table);
 
     [Given("I added user tokens for Oracle UserOnlyStore")]
-    public Task GivenIAddedUserTokensForUserOnlyStore(Table table) => AddUserTokensFromTableAsync(table);
+    public Task GivenIAddedUserTokensForUserOnlyStoreAsync(Table table) => AddUserTokensFromTableAsync(table);
 
     [Given("I set authenticator keys for Oracle UserOnlyStore")]
-    public Task GivenISetAuthenticatorKeysForUserOnlyStore(Table table) => SetAuthenticatorKeysFromTableAsync(table);
+    public Task GivenISetAuthenticatorKeysForUserOnlyStoreAsync(Table table) => SetAuthenticatorKeysFromTableAsync(table);
 
     [Given("I replaced recovery codes for Oracle UserOnlyStore")]
-    public Task GivenIReplacedRecoveryCodesForUserOnlyStore(Table table) => ReplaceRecoveryCodesFromTableAsync(table);
+    public Task GivenIReplacedRecoveryCodesForUserOnlyStoreAsync(Table table) => ReplaceRecoveryCodesFromTableAsync(table);
 
     [Given("I added users to roles for Oracle UserOnlyStore")]
-    public Task GivenIAddedUsersToRolesForUserOnlyStore(Table table) => AddUsersToRolesFromTableAsync(table);
+    public Task GivenIAddedUsersToRolesForUserOnlyStoreAsync(Table table) => AddUsersToRolesFromTableAsync(table);
 
     [When("I verify {string} on Oracle UserOnlyStore without normalized and Guid id")]
-    public async Task WhenIVerifyMethodOnUserOnlyStoreWithoutNormalizedAndGuidId(string methodName)
+    public async Task WhenIVerifyMethodOnUserOnlyStoreWithoutNormalizedAndGuidIdAsync(string methodName)
     {
         await VerifyUserOnlyStoreMethodAsync(methodName);
         LastVerifiedMethodName = methodName;
     }
 
     [When("I execute {string} on Oracle UserOnlyStore")]
-    public Task WhenIExecuteMethodOnUserOnlyStore(string methodName) =>
+    public Task WhenIExecuteMethodOnUserOnlyStoreAsync(string methodName) =>
         ExecuteUserStoreDatabaseMethodAsync(methodName, table: null);
 
     [When("I execute {string} on Oracle UserOnlyStore with parameters")]
-    public Task WhenIExecuteMethodOnUserOnlyStoreWithParameters(string methodName, Table table) =>
+    public Task WhenIExecuteMethodOnUserOnlyStoreWithParametersAsync(string methodName, Table table) =>
         ExecuteUserStoreDatabaseMethodAsync(methodName, table);
 
     [Then("the last identity result for Oracle UserOnlyStore should be successful")]
@@ -139,4 +135,8 @@ public sealed class WithoutNormalizedAspNetIdentityGuidUserOnlyStoreStepDefiniti
     {
         AssertLastVerifiedMethod(methodName);
     }
+
+    protected override OracleUserOnlyStoreBase CreateUserStoreInstance() => CreateUserOnlyStore();
+
+    protected override OracleUserStoreBase CreateRoleCapableUserStoreInstance() => CreateUserStore();
 }

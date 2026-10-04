@@ -26,6 +26,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Builders\AdvancedSqlBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Builders\DbType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Builders\SqlExpressionVisitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DatabaseProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Exceptions\KeyTypeNotSameException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IdentityClassGeneratorBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IdentityDapperConfiguration.cs" />

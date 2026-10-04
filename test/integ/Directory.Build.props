@@ -7,6 +7,7 @@
     <PackageReference Include="Reqnroll" Version="3.3.4" />
     <PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="3.3.4" />
     <PackageReference Include="Reqnroll.xUnit.v3" Version="3.3.4" />
+    <PackageReference Remove="Microsoft.CodeAnalysis.CSharp" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" PrivateAssets="all" />
   </ItemGroup>
 

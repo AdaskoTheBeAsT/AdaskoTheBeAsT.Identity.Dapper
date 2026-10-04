@@ -11,7 +11,10 @@ public sealed class ConfigurationMatrixTest(DatabaseWithGuidIdFixture fixture)
     : ConfigurationMatrixTestBase, IClassFixture<DatabaseWithGuidIdFixture>
 {
     protected override IIncrementalGenerator Generator => new Atb.Oracle.SrcGen();
-    protected override DbConnection Connection() => new OracleConnection(fixture.ConnectionString);
-    protected override string Provider => "Oracle";
+
+    protected override string Provider => nameof(Oracle);
+
     protected override string ConnectionType => "Oracle.ManagedDataAccess.Client.OracleConnection";
+
+    protected override DbConnection Connection() => new OracleConnection(fixture.ConnectionString);
 }

@@ -11,8 +11,8 @@ using AdaskoTheBeAsT.Identity.Dapper.WebApi.Persistence;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Services;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Validators;
 using AdaskoTheBeAsT.MediatR.SimpleInjector.AspNetCore;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
@@ -50,7 +50,7 @@ builder.Services.AddAuthentication(options =>
     .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenServiceOptions.SigningKey!)),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenServiceOptions.SigningKey)),
         ValidateIssuer = true,
         ValidIssuer = "IdentityWebApi",
         ValidateAudience = true,
@@ -128,7 +128,3 @@ container.Verify();
 container.GetInstance<AutoMapper.IConfigurationProvider>().AssertConfigurationIsValid();
 
 await app.RunAsync().ConfigureAwait(continueOnCapturedContext: false);
-
-public partial class Program
-{
-}

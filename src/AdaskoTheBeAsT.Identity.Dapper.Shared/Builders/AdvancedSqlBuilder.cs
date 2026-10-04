@@ -65,7 +65,7 @@ public class AdvancedSqlBuilder
             string.Empty,
             isInclusive: false) as AdvancedSqlBuilder)!;
 
-    private string GetSkipClause(int skip, DbType dbType)
+    private static string GetSkipClause(int skip, DbType dbType)
     {
         return dbType switch
         {
@@ -78,7 +78,7 @@ public class AdvancedSqlBuilder
         };
     }
 
-    private string GetTakeClause(int take, DbType dbType)
+    private static string GetTakeClause(int take, DbType dbType)
     {
         return dbType switch
         {

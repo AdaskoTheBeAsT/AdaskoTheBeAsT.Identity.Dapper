@@ -60,7 +60,7 @@ public class OracleApplicationUserOnlyStoreGenerator
         return sb.ToString();
     }
 
-    private void GenerateConstructor(StringBuilder sb)
+    private static void GenerateConstructor(StringBuilder sb)
     {
         sb.AppendLine(
             """
@@ -79,7 +79,7 @@ public class OracleApplicationUserOnlyStoreGenerator
         sb.AppendLine();
     }
 
-    private void GenerateUsersProperty(StringBuilder sb)
+    private static void GenerateUsersProperty(StringBuilder sb)
     {
         sb.AppendLine(
             """

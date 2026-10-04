@@ -36,9 +36,9 @@ public abstract class IdentityUserClaimClassGeneratorBase
 
                     public System.Collections.Generic.IReadOnlyList<string> CreateBatchParameterNames { get; } = new[] { {{names}} };
 
-                    public string BatchPrefix { get; } = {{Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(Provider == DatabaseProvider.Oracle ? "BEGIN\n" : "", true)}};
+                    public string BatchPrefix { get; } = {{Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(Provider == DatabaseProvider.Oracle ? "BEGIN\n" : string.Empty, true)}};
 
-                    public string BatchSuffix { get; } = {{Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(Provider == DatabaseProvider.Oracle ? "\nEND;" : "", true)}};
+                    public string BatchSuffix { get; } = {{Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(Provider == DatabaseProvider.Oracle ? "\nEND;" : string.Empty, true)}};
             """);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);

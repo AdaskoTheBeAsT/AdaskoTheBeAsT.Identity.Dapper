@@ -26,12 +26,14 @@ public sealed class FixtureResourceLifecycleTest
         (await FluentActions.Awaiting(lifecycle.InitializeAsync).Should().ThrowExactlyAsync<InvalidOperationException>()).Which.Should().BeSameAs(failure);
         cleanupCount.Should().Be(1);
         (await FluentActions.Awaiting(lifecycle.InitializeAsync).Should().ThrowExactlyAsync<InvalidOperationException>()).Which.Should().BeSameAs(failure);
+#pragma warning disable IDISP016, IDISP017, VSTHRD103, S6966 // Intentionally exercise repeated disposal and disposed-object guards.
         await lifecycle.DisposeAsync();
         lifecycle.Dispose();
         await lifecycle.DisposeAsync();
         initializationCount.Should().Be(1);
         cleanupCount.Should().Be(1);
         await FluentActions.Awaiting(lifecycle.InitializeAsync).Should().ThrowExactlyAsync<ObjectDisposedException>();
+#pragma warning restore IDISP016, IDISP017, VSTHRD103, S6966
     }
 
     [Fact]
@@ -46,7 +48,9 @@ public sealed class FixtureResourceLifecycleTest
             {
                 Interlocked.Increment(ref initializationCount);
                 started.SetResult();
+#pragma warning disable VSTHRD003 // The test controls this already-started task and has no UI context.
                 await finish.Task;
+#pragma warning restore VSTHRD003
             },
             () =>
             {
@@ -54,15 +58,23 @@ public sealed class FixtureResourceLifecycleTest
                 return Task.CompletedTask;
             });
 
+#pragma warning disable IDISP013 // All initialization callbacks are awaited by WhenAll before the lifecycle leaves scope.
         var initializing = Enumerable.Range(0, 8).Select(_ => lifecycle.InitializeAsync()).ToArray();
+#pragma warning restore IDISP013
+#pragma warning disable VSTHRD003 // Coordinate an already-started fixture task without a UI context.
         await started.Task;
+#pragma warning restore VSTHRD003
+#pragma warning disable IDISP013 // All disposal callbacks are awaited by WhenAll before the lifecycle leaves scope.
         var disposing = Enumerable.Range(0, 8).Select(_ => lifecycle.DisposeAsync().AsTask()).ToArray();
+#pragma warning restore IDISP013
         disposing.Should().AllSatisfy(task => task.IsCompleted.Should().BeFalse());
         cleanupCount.Should().Be(0);
         finish.SetResult();
         await Task.WhenAll(initializing);
         await Task.WhenAll(disposing);
+#pragma warning disable IDISP017, VSTHRD103, S6966 // Verify the synchronous bridge after concurrent asynchronous disposal.
         lifecycle.Dispose();
+#pragma warning restore IDISP017, VSTHRD103, S6966
         initializationCount.Should().Be(1);
         cleanupCount.Should().Be(1);
     }
@@ -83,9 +95,11 @@ public sealed class FixtureResourceLifecycleTest
                 cleanupCount++;
                 return Task.CompletedTask;
             });
+#pragma warning disable IDISP016, IDISP017, VSTHRD103, S6966 // Intentionally dispose before initialization and then verify rejection.
         lifecycle.Dispose();
         await lifecycle.DisposeAsync();
         await FluentActions.Awaiting(lifecycle.InitializeAsync).Should().ThrowExactlyAsync<ObjectDisposedException>();
+#pragma warning restore IDISP016, IDISP017, VSTHRD103, S6966
         initializationCount.Should().Be(0);
         cleanupCount.Should().Be(1);
     }
@@ -105,18 +119,21 @@ public sealed class FixtureResourceLifecycleTest
                 throw cleanupFailure;
             });
 #pragma warning restore CA2000 // Dispose objects before losing scope
+#pragma warning disable IDISP016 // Each callback obtains a fresh ValueTask while exercising cached disposal failures.
+        Func<Task> disposeAsync = () => lifecycle.DisposeAsync().AsTask();
+#pragma warning restore IDISP016
         try
         {
             var actual = (await FluentActions.Awaiting(lifecycle.InitializeAsync).Should().ThrowExactlyAsync<InvalidOperationException>()).Which;
             actual.Should().BeSameAs(failure);
             actual.Data[FixtureResourceLifecycle.CleanupFailureKey].Should().BeSameAs(cleanupFailure);
-            (await FluentActions.Awaiting(() => lifecycle.DisposeAsync().AsTask()).Should().ThrowExactlyAsync<IOException>()).Which.Should().BeSameAs(cleanupFailure);
+            (await FluentActions.Awaiting(disposeAsync).Should().ThrowExactlyAsync<IOException>()).Which.Should().BeSameAs(cleanupFailure);
             FluentActions.Invoking(lifecycle.Dispose).Should().ThrowExactly<IOException>().Which.Should().BeSameAs(cleanupFailure);
             cleanupCount.Should().Be(1);
         }
         finally
         {
-            await FluentActions.Awaiting(() => lifecycle.DisposeAsync().AsTask()).Should().ThrowExactlyAsync<IOException>();
+            await FluentActions.Awaiting(disposeAsync).Should().ThrowExactlyAsync<IOException>();
         }
     }
 
@@ -131,25 +148,37 @@ public sealed class FixtureResourceLifecycleTest
         await using var lifecycle = new FixtureResourceLifecycle(
             async () =>
             {
+#pragma warning disable VSTHRD003 // Wait for the test-owned gate rather than starting UI-affine work.
                 await finish.Task;
+#pragma warning restore VSTHRD003
                 throw failure;
             },
             async () =>
             {
                 cleanupCount++;
                 cleanupStarted.SetResult();
+#pragma warning disable VSTHRD003 // Wait for the test-owned cleanup gate without a UI context.
                 await cleanupFinished.Task;
+#pragma warning restore VSTHRD003
             });
         var initialization = lifecycle.InitializeAsync();
+#pragma warning disable IDISP016 // Start disposal while initialization is still running to test cleanup serialization.
         var disposal = lifecycle.DisposeAsync().AsTask();
+#pragma warning restore IDISP016
         finish.SetResult();
+#pragma warning disable VSTHRD003 // Observe the already-started cleanup attempt.
         await cleanupStarted.Task;
+#pragma warning restore VSTHRD003
         initialization.IsCompleted.Should().BeFalse();
         disposal.IsCompleted.Should().BeFalse();
         cleanupFinished.SetResult();
+#pragma warning disable VSTHRD003 // Observe the initialization task started earlier by this test.
         (await FluentActions.Awaiting(() => initialization).Should().ThrowExactlyAsync<InvalidOperationException>()).Which.Should().BeSameAs(failure);
+#pragma warning restore VSTHRD003
         await disposal;
+#pragma warning disable IDISP017, VSTHRD103, S6966 // Verify synchronous disposal after the asynchronous failure path.
         lifecycle.Dispose();
+#pragma warning restore IDISP017, VSTHRD103, S6966
         cleanupCount.Should().Be(1);
     }
 }

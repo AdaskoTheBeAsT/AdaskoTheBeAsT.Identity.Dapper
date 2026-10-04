@@ -17,8 +17,8 @@ public abstract class IdentityUserLoginClassGeneratorBase
     private readonly AsyncLocal<IdentityDapperConfiguration?> _generationConfig = new();
 
     public string Generate(
-        IdentityDapperConfiguration config,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+                IdentityDapperConfiguration config,
+                IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var previous = _generationConfig.Value;
         config = config.ForGeneration("IdentityUserLogin", Provider, propertyColumnTypeTriples);
@@ -44,12 +44,21 @@ public abstract class IdentityUserLoginClassGeneratorBase
         }
     }
 
+    public override IList<PropertyColumnTypeTriple> GetAllProperties(
+                IEnumerable<PropertyColumnTypeTriple> customs,
+                bool insertOwnId) =>
+                GetStandardWithCombinedProperties(typeof(IdentityUserLogin<>), insertOwnId, customs);
+
     internal MappedIdentitySql LoginSql(string schemaPart, IList<PropertyColumnTypeTriple>? properties = null)
     {
         var current = _generationConfig.Value;
         var config = new IdentityDapperConfiguration(
-            "IdentityUserLogin", current?.KeyTypeName ?? "string", current?.NamespaceName ?? string.Empty,
-            schemaPart, current?.SkipNormalized ?? false, current?.InsertOwnId ?? false)
+            "IdentityUserLogin",
+            current?.KeyTypeName ?? "string",
+            current?.NamespaceName ?? string.Empty,
+            schemaPart,
+            current?.SkipNormalized ?? false,
+            current?.InsertOwnId ?? false)
         {
             ColumnMappings = current?.ColumnMappings ??
                 new Dictionary<string, IDictionary<string, string>>(StringComparer.Ordinal),
@@ -57,33 +66,28 @@ public abstract class IdentityUserLoginClassGeneratorBase
         return Sql(config, properties);
     }
 
-    public override IList<PropertyColumnTypeTriple> GetAllProperties(
-        IEnumerable<PropertyColumnTypeTriple> customs,
-        bool insertOwnId) =>
-        GetStandardWithCombinedProperties(typeof(IdentityUserLogin<>), insertOwnId, customs);
-
     protected abstract string ProcessIdentityUserLoginCreateSql(
-        string schemaPart,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
+                string schemaPart,
+                IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserLoginDeleteSql(string schemaPart);
 
     protected abstract string ProcessIdentityUserLoginGetByUserIdSql(
-        string schemaPart,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
+                string schemaPart,
+                IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserLoginGetByUserIdLoginProviderKeySql(
-        string schemaPart,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
+                string schemaPart,
+                IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     protected abstract string ProcessIdentityUserLoginGetByLoginProviderKeySql(
-        string schemaPart,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
+                string schemaPart,
+                IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
     private void GenerateCreateSql(
-        StringBuilder sb,
-        string schemaPart,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+                StringBuilder sb,
+                string schemaPart,
+                IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityUserLoginCreateSql(schemaPart, propertyColumnTypeTriples);
         sb.AppendLine(
@@ -95,8 +99,8 @@ public abstract class IdentityUserLoginClassGeneratorBase
     }
 
     private void GenerateDeleteSql(
-        StringBuilder sb,
-        string schemaPart)
+                StringBuilder sb,
+                string schemaPart)
     {
         var content = ProcessIdentityUserLoginDeleteSql(schemaPart);
         sb.AppendLine(
@@ -108,9 +112,9 @@ public abstract class IdentityUserLoginClassGeneratorBase
     }
 
     private void GenerateGetByUserIdSql(
-        StringBuilder sb,
-        string schemaPart,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+                StringBuilder sb,
+                string schemaPart,
+                IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityUserLoginGetByUserIdSql(schemaPart, propertyColumnTypeTriples);
         sb.AppendLine(
@@ -122,9 +126,9 @@ public abstract class IdentityUserLoginClassGeneratorBase
     }
 
     private void GenerateGetByUserIdLoginProviderKeySql(
-        StringBuilder sb,
-        string schemaPart,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+                StringBuilder sb,
+                string schemaPart,
+                IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityUserLoginGetByUserIdLoginProviderKeySql(schemaPart, propertyColumnTypeTriples);
         sb.AppendLine(
@@ -136,9 +140,9 @@ public abstract class IdentityUserLoginClassGeneratorBase
     }
 
     private void GenerateGetByLoginProviderKeySql(
-        StringBuilder sb,
-        string schemaPart,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+                StringBuilder sb,
+                string schemaPart,
+                IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityUserLoginGetByLoginProviderKeySql(schemaPart, propertyColumnTypeTriples);
         sb.AppendLine(

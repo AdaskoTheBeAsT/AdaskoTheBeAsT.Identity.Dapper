@@ -26,13 +26,13 @@ public sealed class TokenValidationTest : IClassFixture<ApiFactory>
         // Use the real application's mapper, mediator, and validation pipeline.
         // Invalid input must be rejected before a handler can access the database.
         using var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
-        var values = new Dictionary<string, string>
+        var values = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["grant_type"] = "password",
             ["username"] = "private-username-marker",
             ["password"] = "private-password-marker",
         };
-        if (invalidValue == "missing")
+        if (string.Equals(invalidValue, "missing", StringComparison.Ordinal))
         {
             values.Remove(field);
         }
@@ -51,8 +51,9 @@ public sealed class TokenValidationTest : IClassFixture<ApiFactory>
         using var response = await client.PostAsync("/api/token", form, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         using var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
-        var error = body.RootElement.EnumerateObject().Should().ContainSingle().Which;
-        error.Name.Should().Be("error");
+        using var properties = body.RootElement.EnumerateObject();
+        var error = properties.Should().ContainSingle().Which;
+        error.Name.Should().Be(nameof(error));
         error.Value.GetString().Should().Be("invalid_request");
     }
 
@@ -64,7 +65,7 @@ public sealed class TokenValidationTest : IClassFixture<ApiFactory>
     public async Task UnsupportedGrantsReturnBadRequest(string? grant)
     {
         using var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
-        var values = new Dictionary<string, string>();
+        var values = new Dictionary<string, string>(StringComparer.Ordinal);
         if (grant != null)
         {
             values["grant_type"] = grant;

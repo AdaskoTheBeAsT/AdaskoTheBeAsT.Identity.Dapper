@@ -31,6 +31,7 @@ public abstract class GuidUserStoreTableDrivenStepDefinitionsBase<
     private readonly string _scenarioKey;
     private readonly IDictionary<string, TRole> _rolesByName =
         new Dictionary<string, TRole>(StringComparer.OrdinalIgnoreCase);
+
     private readonly IDictionary<string, TUser> _usersByName =
         new Dictionary<string, TUser>(StringComparer.OrdinalIgnoreCase);
 
@@ -201,6 +202,7 @@ public abstract class GuidUserStoreTableDrivenStepDefinitionsBase<
         }
     }
 
+#pragma warning disable MA0051 // Method is too long
     protected async Task ExecuteUserStoreDatabaseMethodAsync(string methodName, Table? table)
     {
         switch (methodName)
@@ -311,13 +313,14 @@ public abstract class GuidUserStoreTableDrivenStepDefinitionsBase<
 
         LastVerifiedMethodName = methodName;
     }
+#pragma warning restore MA0051
 
     protected void AssertLastVerifiedMethod(string methodName) => LastVerifiedMethodName.Should().Be(methodName);
 
     protected void AssertLastIdentityResultSuccessful()
     {
         LastIdentityResult.Should().NotBeNull();
-        LastIdentityResult!.Succeeded.Should().BeTrue();
+        LastIdentityResult.Succeeded.Should().BeTrue();
         LastIdentityResult.Errors.Should().BeEmpty();
     }
 
@@ -325,7 +328,7 @@ public abstract class GuidUserStoreTableDrivenStepDefinitionsBase<
     {
         LastUser.Should().NotBeNull();
         var row = RequireSingleRow(table);
-        AssertUserMatches(LastUser!, table, row);
+        AssertUserMatches(LastUser, table, row);
     }
 
     protected void AssertLastUserIsNull() => LastUser.Should().BeNull();
@@ -379,6 +382,22 @@ public abstract class GuidUserStoreTableDrivenStepDefinitionsBase<
     {
         LastInteger.Should().NotBeNull();
         LastInteger.Should().Be(expected);
+    }
+
+    private static Table RequireTable(Table? table) => table ?? throw new InvalidOperationException("A data table is required.");
+
+    private static DataTableRow RequireSingleRow(Table table) =>
+        table.Rows.Count == 1 ? table.Rows[0] : throw new InvalidOperationException("Exactly one row is expected.");
+
+    private static IEnumerable<string> SplitValues(string value) =>
+        value.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    private static string BuildScenarioKey(string scenarioTitle)
+    {
+        var sanitized = new string(scenarioTitle.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+        var prefix = string.IsNullOrWhiteSpace(sanitized) ? "scenario" : sanitized[..Math.Min(12, sanitized.Length)];
+        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(scenarioTitle)))[..8].ToLowerInvariant();
+        return $"{prefix}{hash}";
     }
 
     private async Task ExecuteCreateUserAsync(Table table)
@@ -682,11 +701,6 @@ public abstract class GuidUserStoreTableDrivenStepDefinitionsBase<
         LastClaims = await store.GetUserAndRoleClaimsAsync(GetUser(table, RequireSingleRow(table)), CancellationToken.None);
     }
 
-    private static Table RequireTable(Table? table) => table ?? throw new InvalidOperationException("A data table is required.");
-
-    private static DataTableRow RequireSingleRow(Table table) =>
-        table.Rows.Count == 1 ? table.Rows[0] : throw new InvalidOperationException("Exactly one row is expected.");
-
     private TUser GetUser(Table table, DataTableRow row)
     {
         var userName = MakeRequiredScenarioUniqueValue(GetRequiredValue(table, row, "UserName"));
@@ -732,9 +746,6 @@ public abstract class GuidUserStoreTableDrivenStepDefinitionsBase<
             GetRequiredValue(table, row, "LoginProvider"),
             MakeRequiredScenarioUniqueValue(GetRequiredValue(table, row, "ProviderKey")),
             GetOptionalValue(table, row, "ProviderDisplayName"));
-
-    private static IEnumerable<string> SplitValues(string value) =>
-        value.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
     private TUser ResolveUserFromCollection(IEnumerable<TUser> users, Table table, DataTableRow row)
     {
@@ -788,20 +799,12 @@ public abstract class GuidUserStoreTableDrivenStepDefinitionsBase<
                     actual.LockoutEnabled.Should().Be(bool.Parse(row[header]));
                     break;
                 case "AccessFailedCount":
-                    actual.AccessFailedCount.Should().Be(int.Parse(row[header]));
+                    actual.AccessFailedCount.Should().Be(int.Parse(row[header], System.Globalization.CultureInfo.InvariantCulture));
                     break;
                 default:
                     break;
             }
         }
-    }
-
-    private static string BuildScenarioKey(string scenarioTitle)
-    {
-        var sanitized = new string(scenarioTitle.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
-        var prefix = string.IsNullOrWhiteSpace(sanitized) ? "scenario" : sanitized[..Math.Min(12, sanitized.Length)];
-        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(scenarioTitle)))[..8].ToLowerInvariant();
-        return $"{prefix}{hash}";
     }
 
     private string? MakeScenarioUniqueValue(string? value) =>

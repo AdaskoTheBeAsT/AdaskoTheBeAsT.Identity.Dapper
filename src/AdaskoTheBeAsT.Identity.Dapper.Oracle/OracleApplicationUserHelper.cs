@@ -30,218 +30,29 @@ public static class OracleApplicationUserHelper
     };
 
     public static void GenerateCreateImpl(
-        IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
-        IdentityDapperOptions options,
-        StringBuilder sb,
-        string keyTypeName,
-        bool insertOwnId)
+                IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+                IdentityDapperOptions options,
+                StringBuilder sb,
+                string keyTypeName,
+                bool insertOwnId)
     {
-        sb.AppendLine(
-            $$"""
-                    protected override async Task CreateImplAsync(
-                        OracleConnection connection,
-                        ApplicationUser user,
-                        CancellationToken cancellationToken)
-                    {
-                        var sql = IdentityUserSql.CreateSql;
-                        var parameters = new OracleDynamicParameters { BindByName = true };
-            """);
-
-        var idType = OracleTypeMapper.MapIdType(keyTypeName);
-        var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.AppendLine(
-            $$"""            parameters.Add("OutputId", dbType: {{idType}}, direction: ParameterDirection.ReturnValue, size: {{idSize}});""");
-
-        if (insertOwnId)
-        {
-            sb.AppendLine(
-                $$"""            parameters.Add("Id", user.Id, {{idType}}, ParameterDirection.Input, {{idSize}});""");
-        }
-
-        sb.AppendLine(
-            $$"""            parameters.Add("UserName", user.UserName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
-
-        if (!options.SkipNormalized)
-        {
-            sb.AppendLine(
-                $$"""            parameters.Add("NormalizedUserName", user.NormalizedUserName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
-        }
-
-        sb.AppendLine(
-            $$"""            parameters.Add("Email", user.Email, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
-
-        if (!options.SkipNormalized)
-        {
-            sb.AppendLine(
-                $$"""            parameters.Add("NormalizedEmail", user.NormalizedEmail, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
-        }
-
-        if (string.Equals(options.StoreBooleanAs, "char", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "number", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "numeric", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "string", StringComparison.OrdinalIgnoreCase))
-        {
-            sb.AppendLine($$"""            parameters.Add("EmailConfirmed", user.EmailConfirmed, {{OracleTypeMapper.MapParameterEndByStoreBooleanAs(options.StoreBooleanAs)}}""");
-        }
-
-        sb.AppendLine(
-            $$"""
-                        parameters.Add("PasswordHash", user.PasswordHash, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-                        parameters.Add("SecurityStamp", user.SecurityStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-                        parameters.Add("ConcurrencyStamp", user.ConcurrencyStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-                        parameters.Add("PhoneNumber", user.PhoneNumber, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-            """);
-
-        if (string.Equals(options.StoreBooleanAs, "char", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "number", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "numeric", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "string", StringComparison.OrdinalIgnoreCase))
-        {
-            sb.AppendLine($$"""            parameters.Add("PhoneNumberConfirmed", user.PhoneNumberConfirmed, {{OracleTypeMapper.MapParameterEndByStoreBooleanAs(options.StoreBooleanAs)}}""");
-            sb.AppendLine($$"""            parameters.Add("TwoFactorEnabled", user.TwoFactorEnabled, {{OracleTypeMapper.MapParameterEndByStoreBooleanAs(options.StoreBooleanAs)}}""");
-        }
-
-        sb.AppendLine(
-            $$"""            parameters.Add("LockoutEnd", user.LockoutEnd, OracleMappingType.TimeStamp, ParameterDirection.Input);""");
-
-        if (string.Equals(options.StoreBooleanAs, "char", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "number", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "numeric", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "string", StringComparison.OrdinalIgnoreCase))
-        {
-            sb.AppendLine($$"""            parameters.Add("LockoutEnabled", user.LockoutEnabled, {{OracleTypeMapper.MapParameterEndByStoreBooleanAs(options.StoreBooleanAs)}}""");
-        }
-
-        sb.AppendLine(
-            $$"""            parameters.Add("AccessFailedCount", user.AccessFailedCount, OracleMappingType.Int32, ParameterDirection.Input);""");
-
-        if (typePropertiesDict.TryGetValue(nameof(IdentityUser<int>), out var properties))
-        {
-            foreach (var item in properties.Where(e => !ExcludedProperties.Contains(e.PropertyName)))
-            {
-                sb.AppendLine(
-                    $$"""            parameters.Add("{{item.PropertyName}}", {{PropertyAccess("user", item.PropertyName)}}, {{OracleTypeMapper.MapParameterEndByTypeName(item.PropertyType, options.StoreBooleanAs)}}""");
-            }
-        }
-
-        sb.AppendLine(
-            "            await connection.ExecuteAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken)).ConfigureAwait(continueOnCapturedContext: false);");
-
-        if (string.Equals(keyTypeName, "string", StringComparison.OrdinalIgnoreCase))
-        {
-            sb.AppendLine(
-                """            user.Id = parameters.Get<string>("OutputId").TrimEnd();""");
-        }
-        else if (string.Equals(keyTypeName, "int", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(keyTypeName, "long", StringComparison.OrdinalIgnoreCase))
-        {
-            sb.AppendLine(
-                $$"""            user.Id = parameters.Get<{{keyTypeName}}>("OutputId");""");
-        }
-        else if (string.Equals(keyTypeName, "Guid", StringComparison.OrdinalIgnoreCase))
-        {
-            sb.AppendLine(
-                $$"""
-                            var idBytes = parameters.Get<byte[]>("OutputId");
-                            user.Id = new Guid(idBytes);
-                """);
-        }
-
-        sb.AppendLine("        }");
-
-        sb.AppendLine();
+        OracleStoreMethodGenerator.GenerateCreateStart(sb, "User", "user", keyTypeName, insertOwnId);
+        GenerateUserParameters(sb, options, "user.ConcurrencyStamp");
+        OracleStoreMethodGenerator.GenerateCustomParameters(
+            sb, typePropertiesDict, nameof(IdentityUser<int>), ExcludedProperties, "user", options);
+        OracleStoreMethodGenerator.GenerateOutputId(sb, "user", keyTypeName);
     }
 
     public static void GenerateUpdateImpl(
-        IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
-        IdentityDapperOptions options,
-        StringBuilder sb,
-        string keyTypeName)
+                IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
+                IdentityDapperOptions options,
+                StringBuilder sb,
+                string keyTypeName)
     {
-        sb.AppendLine(
-            $$"""
-                    protected override async Task UpdateImplAsync(
-                        OracleConnection connection,
-                        ApplicationUser user,
-                        CancellationToken cancellationToken)
-                    {
-                        var sql = NormalizeSql(IdentityUserSql.UpdateSql);
-                        var parameters = new OracleDynamicParameters { BindByName = true };
-                        var stamp = Guid.NewGuid().ToString();
-                        parameters.Add("OriginalConcurrencyStamp", user.ConcurrencyStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-            """);
-
-        var idType = OracleTypeMapper.MapIdType(keyTypeName);
-        var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        
-        sb.AppendLine(
-            $$"""            parameters.Add("Id", user.Id, {{idType}}, ParameterDirection.Input, {{idSize}});""");
-
-        sb.AppendLine(
-            $$"""            parameters.Add("UserName", user.UserName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
-
-        if (!options.SkipNormalized)
-        {
-            sb.AppendLine(
-                $$"""            parameters.Add("NormalizedUserName", user.NormalizedUserName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
-        }
-
-        sb.AppendLine(
-            $$"""            parameters.Add("Email", user.Email, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
-
-        if (!options.SkipNormalized)
-        {
-            sb.AppendLine(
-                $$"""            parameters.Add("NormalizedEmail", user.NormalizedEmail, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
-        }
-
-        if (string.Equals(options.StoreBooleanAs, "char", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "number", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "numeric", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "string", StringComparison.OrdinalIgnoreCase))
-        {
-            sb.AppendLine($$"""            parameters.Add("EmailConfirmed", user.EmailConfirmed, {{OracleTypeMapper.MapParameterEndByStoreBooleanAs(options.StoreBooleanAs)}}""");
-        }
-
-        sb.AppendLine(
-            $$"""
-                        parameters.Add("PasswordHash", user.PasswordHash, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-                        parameters.Add("SecurityStamp", user.SecurityStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-                        parameters.Add("ConcurrencyStamp", stamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-                        parameters.Add("PhoneNumber", user.PhoneNumber, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-            """);
-
-        if (string.Equals(options.StoreBooleanAs, "char", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "number", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "numeric", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "string", StringComparison.OrdinalIgnoreCase))
-        {
-            sb.AppendLine($$"""            parameters.Add("PhoneNumberConfirmed", user.PhoneNumberConfirmed, {{OracleTypeMapper.MapParameterEndByStoreBooleanAs(options.StoreBooleanAs)}}""");
-            sb.AppendLine($$"""            parameters.Add("TwoFactorEnabled", user.TwoFactorEnabled, {{OracleTypeMapper.MapParameterEndByStoreBooleanAs(options.StoreBooleanAs)}}""");
-        }
-
-        sb.AppendLine(
-            $$"""            parameters.Add("LockoutEnd", user.LockoutEnd, OracleMappingType.TimeStamp, ParameterDirection.Input);""");
-
-        if (string.Equals(options.StoreBooleanAs, "char", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "number", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "numeric", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "string", StringComparison.OrdinalIgnoreCase))
-        {
-            sb.AppendLine($$"""            parameters.Add("LockoutEnabled", user.LockoutEnabled, {{OracleTypeMapper.MapParameterEndByStoreBooleanAs(options.StoreBooleanAs)}}""");
-        }
-
-        sb.AppendLine(
-            $$"""            parameters.Add("AccessFailedCount", user.AccessFailedCount, OracleMappingType.Int32, ParameterDirection.Input);""");
-
-        if (typePropertiesDict.TryGetValue(nameof(IdentityUser<int>), out var properties))
-        {
-            foreach (var item in properties.Where(e => !ExcludedProperties.Contains(e.PropertyName)))
-            {
-                sb.AppendLine(
-                    $$"""            parameters.Add("{{item.PropertyName}}", {{PropertyAccess("user", item.PropertyName)}}, {{OracleTypeMapper.MapParameterEndByTypeName(item.PropertyType, options.StoreBooleanAs)}}""");
-            }
-        }
+        OracleStoreMethodGenerator.GenerateUpdateStart(sb, "User", "user", keyTypeName);
+        GenerateUserParameters(sb, options, "stamp");
+        OracleStoreMethodGenerator.GenerateCustomParameters(
+            sb, typePropertiesDict, nameof(IdentityUser<int>), ExcludedProperties, "user", options);
 
         sb.AppendLine(
             $$"""
@@ -260,8 +71,8 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateDeleteImpl(
-        StringBuilder sb,
-        string keyTypeName)
+                StringBuilder sb,
+                string keyTypeName)
     {
         sb.AppendLine(
             $$"""
@@ -296,8 +107,8 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateFindByIdImpl(
-        StringBuilder sb,
-        string keyTypeName)
+                StringBuilder sb,
+                string keyTypeName)
     {
         sb.AppendLine(
             $$"""
@@ -327,7 +138,7 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateFindByNameImpl(
-        StringBuilder sb)
+                StringBuilder sb)
     {
         sb.AppendLine(
             $$"""
@@ -355,8 +166,8 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateGetClaimsImpl(
-        StringBuilder sb,
-        string keyTypeName)
+                StringBuilder sb,
+                string keyTypeName)
     {
         sb.AppendLine(
             $$"""
@@ -387,7 +198,7 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateClaimBatchParameters(
-        StringBuilder sb, string keyTypeName, IList<PropertyColumnTypeTriple> properties, IdentityDapperOptions options)
+                StringBuilder sb, string keyTypeName, IList<PropertyColumnTypeTriple> properties, IdentityDapperOptions options)
     {
         sb.AppendLine(
             """
@@ -406,8 +217,10 @@ public static class OracleApplicationUserHelper
             """);
         foreach (var property in properties)
         {
-            var end = property.PropertyName == "UserId"
-                ? $"{OracleTypeMapper.MapIdType(keyTypeName)}, ParameterDirection.Input, {OracleTypeMapper.MapIdSize(keyTypeName)});"
+            var end = string.Equals(
+                property.PropertyName,
+                "UserId",
+                StringComparison.Ordinal) ? $"{OracleTypeMapper.MapIdType(keyTypeName)}, ParameterDirection.Input, {OracleTypeMapper.MapIdSize(keyTypeName)});"
                 : OracleTypeMapper.MapParameterEndByTypeName(property.PropertyType, options.StoreBooleanAs);
             sb.AppendLine(
                 $$"""
@@ -431,10 +244,10 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateAddClaimsImpl(
-        StringBuilder sb,
-        string keyTypeName,
-        IList<PropertyColumnTypeTriple> properties,
-        IdentityDapperOptions options)
+                StringBuilder sb,
+                string keyTypeName,
+                IList<PropertyColumnTypeTriple> properties,
+                IdentityDapperOptions options)
     {
         sb.AppendLine(
             $$"""
@@ -472,8 +285,8 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateReplaceClaimImpl(
-        StringBuilder sb,
-        string keyTypeName)
+                StringBuilder sb,
+                string keyTypeName)
     {
         sb.AppendLine(
             $$"""
@@ -511,8 +324,8 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateRemoveClaimsImpl(
-        StringBuilder sb,
-        string keyTypeName)
+                StringBuilder sb,
+                string keyTypeName)
     {
         sb.AppendLine(
             $$"""
@@ -551,10 +364,10 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateAddLoginImpl(
-        StringBuilder sb,
-        string keyTypeName,
-        IList<PropertyColumnTypeTriple> properties,
-        IdentityDapperOptions options)
+                StringBuilder sb,
+                string keyTypeName,
+                IList<PropertyColumnTypeTriple> properties,
+                IdentityDapperOptions options)
     {
         sb.AppendLine(
             $$"""
@@ -583,8 +396,8 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateRemoveLoginImpl(
-        StringBuilder sb,
-        string keyTypeName)
+                StringBuilder sb,
+                string keyTypeName)
     {
         sb.AppendLine(
             $$"""
@@ -620,8 +433,8 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateGetLoginsImpl(
-        StringBuilder sb,
-        string keyTypeName)
+                StringBuilder sb,
+                string keyTypeName)
     {
         sb.AppendLine(
             $$"""
@@ -657,8 +470,8 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateFindUserImpl(
-        StringBuilder sb,
-        string keyTypeName)
+                StringBuilder sb,
+                string keyTypeName)
     {
         sb.AppendLine(
             $$"""
@@ -688,8 +501,8 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateFindUserLoginImpl(
-        StringBuilder sb,
-        string keyTypeName)
+                StringBuilder sb,
+                string keyTypeName)
     {
         sb.AppendLine(
             $$"""
@@ -725,7 +538,7 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateFindUserLoginImpl2(
-        StringBuilder sb)
+                StringBuilder sb)
     {
         sb.AppendLine(
             $$"""
@@ -753,7 +566,7 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateFindByEmailImpl(
-        StringBuilder sb)
+                StringBuilder sb)
     {
         sb.AppendLine(
             $$"""
@@ -779,7 +592,7 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateGetUsersForClaimImpl(
-        StringBuilder sb)
+                StringBuilder sb)
     {
         sb.AppendLine(
             $$"""
@@ -807,8 +620,8 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateFindTokenImpl(
-        StringBuilder sb,
-        string keyTypeName)
+                StringBuilder sb,
+                string keyTypeName)
     {
         sb.AppendLine(
             $$"""
@@ -845,10 +658,10 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateAddUserTokenImpl(
-        StringBuilder sb,
-        string keyTypeName,
-        IList<PropertyColumnTypeTriple> properties,
-        IdentityDapperOptions options)
+                StringBuilder sb,
+                string keyTypeName,
+                IList<PropertyColumnTypeTriple> properties,
+                IdentityDapperOptions options)
     {
         sb.AppendLine(
             $$"""
@@ -904,8 +717,8 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateRemoveUserTokenImpl(
-        StringBuilder sb,
-        string keyTypeName)
+                StringBuilder sb,
+                string keyTypeName)
     {
         sb.AppendLine(
             $$"""
@@ -939,11 +752,11 @@ public static class OracleApplicationUserHelper
     }
 
     public static void GenerateEntityParameters(
-        StringBuilder sb,
-        IList<PropertyColumnTypeTriple> properties,
-        string entity,
-        string keyTypeName,
-        IdentityDapperOptions options)
+                StringBuilder sb,
+                IList<PropertyColumnTypeTriple> properties,
+                string entity,
+                string keyTypeName,
+                IdentityDapperOptions options)
     {
         foreach (var property in properties)
         {
@@ -955,8 +768,62 @@ public static class OracleApplicationUserHelper
     }
 
     internal static string PropertyAccess(string entity, string propertyName) =>
-        SyntaxFacts.GetKeywordKind(propertyName) != SyntaxKind.None ||
-        SyntaxFacts.GetContextualKeywordKind(propertyName) != SyntaxKind.None
-            ? $"{entity}.@{propertyName}"
-            : $"{entity}.{propertyName}";
+                SyntaxFacts.GetKeywordKind(propertyName) != SyntaxKind.None ||
+                SyntaxFacts.GetContextualKeywordKind(propertyName) != SyntaxKind.None
+                    ? $"{entity}.@{propertyName}"
+                    : $"{entity}.{propertyName}";
+
+    private static void GenerateUserParameters(StringBuilder sb, IdentityDapperOptions options, string concurrencyStamp)
+    {
+        sb.AppendLine(
+            $$"""            parameters.Add("UserName", user.UserName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
+
+        if (!options.SkipNormalized)
+        {
+            sb.AppendLine(
+                $$"""            parameters.Add("NormalizedUserName", user.NormalizedUserName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
+        }
+
+        sb.AppendLine(
+            $$"""            parameters.Add("Email", user.Email, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
+
+        if (!options.SkipNormalized)
+        {
+            sb.AppendLine(
+                $$"""            parameters.Add("NormalizedEmail", user.NormalizedEmail, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
+        }
+
+        GenerateBooleanParameter(sb, options, nameof(IdentityUser<int>.EmailConfirmed));
+
+        sb.AppendLine(
+            $$"""
+                        parameters.Add("PasswordHash", user.PasswordHash, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+                        parameters.Add("SecurityStamp", user.SecurityStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+                        parameters.Add("ConcurrencyStamp", {{concurrencyStamp}}, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+                        parameters.Add("PhoneNumber", user.PhoneNumber, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+            """);
+
+        GenerateBooleanParameter(sb, options, nameof(IdentityUser<int>.PhoneNumberConfirmed));
+        GenerateBooleanParameter(sb, options, nameof(IdentityUser<int>.TwoFactorEnabled));
+
+        sb.AppendLine(
+            $$"""            parameters.Add("LockoutEnd", user.LockoutEnd, OracleMappingType.TimeStamp, ParameterDirection.Input);""");
+
+        GenerateBooleanParameter(sb, options, nameof(IdentityUser<int>.LockoutEnabled));
+
+        sb.AppendLine(
+            $$"""            parameters.Add("AccessFailedCount", user.AccessFailedCount, OracleMappingType.Int32, ParameterDirection.Input);""");
+    }
+
+    private static void GenerateBooleanParameter(StringBuilder sb, IdentityDapperOptions options, string property)
+    {
+        if (string.Equals(options.StoreBooleanAs, "char", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(options.StoreBooleanAs, "number", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(options.StoreBooleanAs, "numeric", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(options.StoreBooleanAs, "string", StringComparison.OrdinalIgnoreCase))
+        {
+            sb.AppendLine(
+                $$"""            parameters.Add("{{property}}", user.{{property}}, {{OracleTypeMapper.MapParameterEndByStoreBooleanAs(options.StoreBooleanAs)}}""");
+        }
+    }
 }

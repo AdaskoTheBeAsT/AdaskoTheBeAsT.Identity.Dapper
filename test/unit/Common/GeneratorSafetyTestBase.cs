@@ -8,18 +8,18 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Testing;
 
 public abstract class GeneratorSafetyTestBase
 {
-    protected abstract IIncrementalGenerator CreateGenerator();
-
-    public static IEnumerable<object[]> Configurations()
+    public static IEnumerable<TheoryDataRow<string, bool, bool>> Configurations()
     {
-#pragma warning disable S3973 
         foreach (var key in new[] { "string", "int", "long", "Guid", "System.Guid", "KeyAlias" })
-        foreach (var normalized in new[] { false, true })
-        foreach (var ownId in new[] { false, true })
         {
-            yield return new object[] { key, normalized, ownId };
+            foreach (var normalized in new[] { false, true })
+            {
+                foreach (var ownId in new[] { false, true })
+                {
+                    yield return new TheoryDataRow<string, bool, bool>(key, normalized, ownId);
+                }
+            }
         }
-#pragma warning restore S3973
     }
 
     [Theory]
@@ -29,7 +29,7 @@ public abstract class GeneratorSafetyTestBase
         var (driver, compilation) = GeneratorCompilation.Run(Model(key, ownId), CreateGenerator(), skipNormalized);
         GeneratorCompilation.AssertCompiles(compilation);
         var sources = driver.GetRunResult().Results.SelectMany(r => r.GeneratedSources)
-            .ToDictionary(s => s.HintName, s => s.SourceText.ToString());
+            .ToDictionary(s => s.HintName, s => s.SourceText.ToString(), StringComparer.Ordinal);
         var sql = sources["IdentityUserSql.g.cs"];
         sql.Should().ContainEquivalentOf("IsActive", options => options.Using(StringComparer.OrdinalIgnoreCase));
         sql.Should().ContainEquivalentOf("DisplayLabel", options => options.Using(StringComparer.OrdinalIgnoreCase));
@@ -67,7 +67,7 @@ public abstract class GeneratorSafetyTestBase
         var (driver, _) = GeneratorCompilation.Run(
             Model("Guid", false).Replace("IdentityRole<Guid>", "IdentityRole<int>", StringComparison.Ordinal),
             CreateGenerator());
-        var diagnostic = driver.GetRunResult().Diagnostics.Where(d => d.Id == "ATBID102").Should().ContainSingle().Which;
+        var diagnostic = driver.GetRunResult().Diagnostics.Where(d => string.Equals(d.Id, "ATBID102", StringComparison.Ordinal)).Should().ContainSingle().Which;
         diagnostic.Location.IsInSource.Should().BeTrue();
     }
 
@@ -75,7 +75,7 @@ public abstract class GeneratorSafetyTestBase
     public void UnsupportedKeysProduceLocatedDiagnostic()
     {
         var (driver, _) = GeneratorCompilation.Run(Model("short", false), CreateGenerator());
-        var diagnostic = driver.GetRunResult().Diagnostics.Where(d => d.Id == "ATBID101").Should().ContainSingle().Which;
+        var diagnostic = driver.GetRunResult().Diagnostics.Where(d => string.Equals(d.Id, "ATBID101", StringComparison.Ordinal)).Should().ContainSingle().Which;
         diagnostic.Location.IsInSource.Should().BeTrue();
     }
 
@@ -84,9 +84,7 @@ public abstract class GeneratorSafetyTestBase
     [InlineData("")]
     public void InheritedMappingsGenerateOneCompleteStore(string modifier)
     {
-        var model = Model("Guid", false).Replace(
-            "public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser<Guid>",
-            $$"""
+        var userTypes = $$"""
             public {{modifier}}class UserBase : IdentityUser<Guid>
             {
                 [Column("Version")] public override string? ConcurrencyStamp { get; set; }
@@ -94,7 +92,11 @@ public abstract class GeneratorSafetyTestBase
                 public DateTime CreatedAt { get; set; }
             }
             public class ApplicationUser : UserBase
-            """, StringComparison.Ordinal);
+            """;
+        var model = Model("Guid", false).Replace(
+            "public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser<Guid>",
+            userTypes,
+            StringComparison.Ordinal);
         var (driver, compilation) = GeneratorCompilation.Run(model, CreateGenerator());
         GeneratorCompilation.AssertCompiles(compilation);
         var sql = Source(driver, "IdentityUserSql.g.cs");
@@ -109,12 +111,14 @@ public abstract class GeneratorSafetyTestBase
     [Fact]
     public void InsertOwnIdIsInheritedFromApplicationBase()
     {
-        var model = Model("Guid", false).Replace(
-            "public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser<Guid>",
-            """
+        const string userTypes = """
             [InsertOwnId] public abstract class UserBase : IdentityUser<Guid> { }
             public class ApplicationUser : UserBase
-            """, StringComparison.Ordinal);
+            """;
+        var model = Model("Guid", false).Replace(
+            "public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser<Guid>",
+            userTypes,
+            StringComparison.Ordinal);
         var (driver, compilation) = GeneratorCompilation.Run(model, CreateGenerator());
         GeneratorCompilation.AssertCompiles(compilation);
         var sql = Source(driver, "IdentityUserSql.g.cs");
@@ -127,12 +131,14 @@ public abstract class GeneratorSafetyTestBase
     [Fact]
     public void UnrelatedDuplicateEntitiesReportLocatedDiagnostic()
     {
-        var (driver, _) = GeneratorCompilation.Run(Model("Guid", false) +
+        var (driver, _) = GeneratorCompilation.Run(
+            Model("Guid", false) +
             """
 
             public class OtherUser : Microsoft.AspNetCore.Identity.IdentityUser<System.Guid> { }
-            """, CreateGenerator());
-        var diagnostic = driver.GetRunResult().Diagnostics.Where(d => d.Id == "ATBID103").Should().ContainSingle().Which;
+            """,
+            CreateGenerator());
+        var diagnostic = driver.GetRunResult().Diagnostics.Where(d => string.Equals(d.Id, "ATBID103", StringComparison.Ordinal)).Should().ContainSingle().Which;
         diagnostic.Location.IsInSource.Should().BeTrue();
     }
 
@@ -142,16 +148,17 @@ public abstract class GeneratorSafetyTestBase
         var model = Model("Guid", true);
         foreach (var entity in new[] { "UserClaim", "RoleClaim", "UserLogin", "UserRole", "UserToken" })
         {
-            model = model.Replace($"Application{entity} : Identity{entity}<Guid> {{ }}",
-                $$"""Application{{entity}} : Identity{{entity}}<Guid> { public string AuditSource { get; set; } = "source"; }""", StringComparison.Ordinal);
+            model = model.Replace(
+                $"Application{entity} : Identity{entity}<Guid> {{ }}",
+                $$"""Application{{entity}} : Identity{{entity}}<Guid> { public string AuditSource { get; set; } = "source"; }""",
+                StringComparison.Ordinal);
         }
 
         var (driver, compilation) = GeneratorCompilation.Run(model, CreateGenerator());
         GeneratorCompilation.AssertCompiles(compilation);
         var claimSql = Source(driver, "IdentityUserClaimSql.g.cs");
         claimSql.Should().ContainEquivalentOf("AuditSource", options => options.Using(StringComparer.OrdinalIgnoreCase));
-        var replace = claimSql[claimSql.IndexOf("public string ReplaceSql", StringComparison.Ordinal)..
-            claimSql.IndexOf("public string CreateBatchItemSql", StringComparison.Ordinal)];
+        var replace = claimSql[claimSql.IndexOf("public string ReplaceSql", StringComparison.Ordinal)..claimSql.IndexOf("public string CreateBatchItemSql", StringComparison.Ordinal)];
         replace.Should().Contain("UPDATE");
         replace.Should().NotContainEquivalentOf("AuditSource", options => options.Using(StringComparer.OrdinalIgnoreCase));
         replace.Should().NotContain("DELETE");
@@ -167,20 +174,28 @@ public abstract class GeneratorSafetyTestBase
     [Fact]
     public void MappedLookupAndJoinColumnsUseEntityMetadata()
     {
-        var model = Model("Guid", true)
-            .Replace("public string? DisplayLabel { get; set; }", """
+        const string userProperties = """
                 public string? DisplayLabel { get; set; }
                 [Column("UserKey")] public override Guid Id { get; set; }
                 [Column("LoginKey")] public override string? NormalizedUserName { get; set; }
                 [Column("MailKey")] public override string? NormalizedEmail { get; set; }
-                """, StringComparison.Ordinal)
-            .Replace("ApplicationRole : IdentityRole<Guid> { }", """
+                """;
+        const string roleType = """
                 ApplicationRole : IdentityRole<Guid>
                 {
                     [Column("RoleKey")] public override Guid Id { get; set; }
                     [Column("RoleLookup")] public override string? NormalizedName { get; set; }
                 }
-                """, StringComparison.Ordinal);
+                """;
+        var model = Model("Guid", true)
+            .Replace(
+                "public string? DisplayLabel { get; set; }",
+                userProperties,
+                StringComparison.Ordinal)
+            .Replace(
+                "ApplicationRole : IdentityRole<Guid> { }",
+                roleType,
+                StringComparison.Ordinal);
         var (driver, compilation) = GeneratorCompilation.Run(model, CreateGenerator());
         GeneratorCompilation.AssertCompiles(compilation);
         var sql = Source(driver, "IdentityUserSql.g.cs");
@@ -211,33 +226,6 @@ public abstract class GeneratorSafetyTestBase
         }
     }
 
-    protected static string Source(GeneratorDriver driver, string name) =>
-        driver.GetRunResult().Results.SelectMany(r => r.GeneratedSources).Single(s => s.HintName == name).SourceText.ToString();
-
-    protected static string Model(string key, bool ownId) => $$"""
-        using System;
-        using KeyAlias = System.Guid;
-        using Microsoft.AspNetCore.Identity;
-        using System.ComponentModel.DataAnnotations.Schema;
-        using AdaskoTheBeAsT.Identity.Dapper.Attributes;
-        namespace Consumer;
-        {{(ownId ? "[InsertOwnId]" : "")}}
-        public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser<{{key}}>
-        {
-            [Column("IsActive")] public bool Active { get; set; }
-            public string? DisplayLabel { get; set; }
-            [NotMapped] public string? IgnoredProperty { get; set; }
-            public string ReadOnlyProperty => "not persisted";
-        }
-        {{(ownId ? "[InsertOwnId]" : "")}}
-        public class ApplicationRole : IdentityRole<{{key}}> { }
-        public class ApplicationUserClaim : IdentityUserClaim<{{key}}> { }
-        public class ApplicationRoleClaim : IdentityRoleClaim<{{key}}> { }
-        public class ApplicationUserRole : IdentityUserRole<{{key}}> { }
-        public class ApplicationUserLogin : IdentityUserLogin<{{key}}> { }
-        public class ApplicationUserToken : IdentityUserToken<{{key}}> { }
-        """;
-
     [Theory]
     [InlineData("public new string? Label => \"computed\";")]
     [InlineData("public new string? Label { get; private set; }")]
@@ -246,14 +234,18 @@ public abstract class GeneratorSafetyTestBase
     [InlineData("public new string? Label;")]
     public void ExcludedDerivedMembersDoNotResurrectBaseMappings(string member)
     {
-        var model = Model("Guid", false)
-            .Replace("public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser<Guid>", """
+        const string userTypes = """
                 public abstract class UserBase : IdentityUser<Guid>
                 {
                     [Column("StoredLabel")] public string? Label { get; set; }
                 }
                 public class ApplicationUser : UserBase
-                """, StringComparison.Ordinal)
+                """;
+        var model = Model("Guid", false)
+            .Replace(
+                "public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser<Guid>",
+                userTypes,
+                StringComparison.Ordinal)
             .Replace("public string? DisplayLabel { get; set; }", member, StringComparison.Ordinal);
         var (driver, compilation) = GeneratorCompilation.Run(model, CreateGenerator());
         GeneratorCompilation.AssertCompiles(compilation);
@@ -321,25 +313,61 @@ public abstract class GeneratorSafetyTestBase
     [Fact]
     public void InheritedNotMappedRequiredPropertyProducesNoSources()
     {
-        var model = Model("Guid", false).Replace(
-            "public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser<Guid>", """
+        const string userTypes = """
             public abstract class UserBase : IdentityUser<Guid>
             {
                 [NotMapped] public override string? ConcurrencyStamp { get; set; }
             }
             public class ApplicationUser : UserBase
-            """, StringComparison.Ordinal);
+            """;
+        var model = Model("Guid", false).Replace(
+            "public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser<Guid>",
+            userTypes,
+            StringComparison.Ordinal);
         var (driver, _) = GeneratorCompilation.Run(model, CreateGenerator());
         AssertModelErrorWithoutOutput(driver, "ATBID105");
     }
 
+    protected static string Source(GeneratorDriver driver, string name) =>
+                driver.GetRunResult().Results.SelectMany(r => r.GeneratedSources).Single(s => string.Equals(s.HintName, name, StringComparison.Ordinal)).SourceText.ToString();
+
+    protected static string Model(string key, bool ownId) => $$"""
+        using System;
+        using KeyAlias = System.Guid;
+        using Microsoft.AspNetCore.Identity;
+        using System.ComponentModel.DataAnnotations.Schema;
+        using AdaskoTheBeAsT.Identity.Dapper.Attributes;
+        namespace Consumer;
+        {{(ownId ? "[InsertOwnId]" : string.Empty)}}
+        public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser<{{key}}>
+        {
+            [Column("IsActive")] public bool Active { get; set; }
+            public string? DisplayLabel { get; set; }
+            [NotMapped] public string? IgnoredProperty { get; set; }
+            public string ReadOnlyProperty => "not persisted";
+        }
+        {{(ownId ? "[InsertOwnId]" : string.Empty)}}
+        public class ApplicationRole : IdentityRole<{{key}}> { }
+        public class ApplicationUserClaim : IdentityUserClaim<{{key}}> { }
+        public class ApplicationRoleClaim : IdentityRoleClaim<{{key}}> { }
+        public class ApplicationUserRole : IdentityUserRole<{{key}}> { }
+        public class ApplicationUserLogin : IdentityUserLogin<{{key}}> { }
+        public class ApplicationUserToken : IdentityUserToken<{{key}}> { }
+        """;
+
+    protected abstract IIncrementalGenerator CreateGenerator();
+
     private static string WithIdentityMember(string entity, string member)
     {
         var model = Model("Guid", false);
-        return entity == "User"
-            ? model.Replace("public string? DisplayLabel { get; set; }", member, StringComparison.Ordinal)
-            : model.Replace($"Application{entity} : Identity{entity}<Guid> {{ }}",
-                $$"""Application{{entity}} : Identity{{entity}}<Guid> { {{member}} }""", StringComparison.Ordinal);
+        return string.Equals(
+            entity,
+            "User",
+            StringComparison.Ordinal) ? model.Replace("public string? DisplayLabel { get; set; }", member, StringComparison.Ordinal)
+            : model.Replace(
+                $"Application{entity} : Identity{entity}<Guid> {{ }}",
+                $$"""Application{{entity}} : Identity{{entity}}<Guid> { {{member}} }""",
+                StringComparison.Ordinal);
     }
 
     private static void AssertModelErrorWithoutOutput(GeneratorDriver driver, string id)

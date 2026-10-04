@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
@@ -13,7 +14,16 @@ namespace AdaskoTheBeAsT.Identity.Dapper;
 /// <summary>Materializes database nulls without changing process-wide Dapper settings.</summary>
 public static class IdentityQuery
 {
-    private static readonly MethodInfo IsDBNullMethod = typeof(IDataRecord).GetMethod(nameof(IDataRecord.IsDBNull))!;
+    private static readonly MethodInfo IsDBNullMethod =
+        typeof(IDataRecord)
+            .GetMethod(
+                nameof(IDataRecord.IsDBNull),
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
+                binder: null,
+                types: [typeof(int)],
+                modifiers: null)!;
+
+    private static readonly ConditionalWeakTable<Type, object> ParserCaches = new();
 
     public static IEnumerable<T> QueryIdentity<T>(this IDbConnection connection, string sql)
         where T : class
@@ -21,7 +31,11 @@ public static class IdentityQuery
         using var reader = connection.ExecuteReader(sql);
         var parse = CreateParser<T>(reader);
         var rows = new List<T>();
-        while (reader.Read()) rows.Add(parse(reader));
+        while (reader.Read())
+        {
+            rows.Add(parse(reader));
+        }
+
         return rows;
     }
 
@@ -33,7 +47,11 @@ public static class IdentityQuery
             new CommandDefinition(sql, parameters, cancellationToken: cancellationToken)).ConfigureAwait(false);
         var parse = CreateParser<T>(reader);
         var rows = new List<T>();
-        while (await ReadAsync(reader, cancellationToken).ConfigureAwait(false)) rows.Add(parse(reader));
+        while (await ReadAsync(reader, cancellationToken).ConfigureAwait(false))
+        {
+            rows.Add(parse(reader));
+        }
+
         return rows;
     }
 
@@ -55,7 +73,7 @@ public static class IdentityQuery
 
     private static Func<IDataReader, T> CreateParser<T>(IDataReader reader)
         where T : class
-        => ParserCache<T>.GetParser(reader);
+        => ((ParserCache<T>)ParserCaches.GetValue(typeof(T), static _ => new ParserCache<T>())).GetParser(reader);
 
     private static Func<IDataReader, T> BuildParser<T>(IDataReader reader, SqlMapper.ITypeMap map)
         where T : class
@@ -91,26 +109,27 @@ public static class IdentityQuery
         return record =>
         {
             var result = parse(record);
+
             // Dapper normally skips DBNull assignments, leaving constructor defaults intact.
             assignNulls(result, record);
             return result;
         };
     }
 
-    private static class ParserCache<T>
+    private sealed class ParserCache<T>
         where T : class
     {
         // FIFO bounds all schema metadata and delegates retained by this cache for each entity type.
         private const int Capacity = 64;
-        private static readonly object Sync = new();
-        private static readonly CacheEntry?[] Entries = new CacheEntry?[Capacity];
-        private static SqlMapper.ITypeMap? _map;
-        private static int _count;
-        private static int _next;
+        private readonly object _sync = new();
+        private readonly CacheEntry?[] _entries = new CacheEntry?[Capacity];
+        private SqlMapper.ITypeMap? _map;
+        private int _count;
+        private int _next;
 
-        public static Func<IDataReader, T> GetParser(IDataReader reader)
+        public Func<IDataReader, T> GetParser(IDataReader reader)
         {
-            lock (Sync)
+            lock (_sync)
             {
                 while (true)
                 {
@@ -118,7 +137,7 @@ public static class IdentityQuery
                     if (!ReferenceEquals(map, _map))
                     {
                         // SetTypeMap purges Dapper's own parsers; discard our corresponding plans too.
-                        Array.Clear(Entries, 0, Entries.Length);
+                        Array.Clear(_entries, 0, _entries.Length);
                         _count = 0;
                         _next = 0;
                         _map = map;
@@ -127,7 +146,7 @@ public static class IdentityQuery
                     var hash = GetSchemaHash(reader);
                     for (var i = 0; i < _count; i++)
                     {
-                        var entry = Entries[i]!;
+                        var entry = _entries[i]!;
                         if (entry.Hash == hash && entry.Matches(reader))
                         {
                             return entry.Parse;
@@ -141,7 +160,7 @@ public static class IdentityQuery
                         continue;
                     }
 
-                    Entries[_next] = new CacheEntry(reader, hash, parse);
+                    _entries[_next] = new CacheEntry(reader, hash, parse);
                     _next = (_next + 1) % Capacity;
                     if (_count < Capacity)
                     {
@@ -160,8 +179,8 @@ public static class IdentityQuery
                 var hash = reader.FieldCount;
                 for (var i = 0; i < reader.FieldCount; i++)
                 {
-                    hash = (hash * 31) + reader.GetName(i).GetHashCode();
-                    hash = (hash * 31) + reader.GetFieldType(i).GetHashCode();
+                    hash = (hash * 31) + StringComparer.Ordinal.GetHashCode(reader.GetName(i));
+                    hash = (hash * 31) + StringComparer.Ordinal.GetHashCode(reader.GetFieldType(i));
                 }
 
                 return hash;

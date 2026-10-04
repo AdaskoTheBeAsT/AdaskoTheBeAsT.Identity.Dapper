@@ -8,10 +8,6 @@ public class OracleIdentityUserTokenClassGenerator
 {
     protected override DatabaseProvider Provider => DatabaseProvider.Oracle;
 
-    protected override string ParameterPrefix => base.ParameterPrefix;
-
-    protected override string QuoteColumn(string column) => base.QuoteColumn(column);
-
     protected override string ProcessIdentityUserTokenCreateSql(
         IdentityDapperConfiguration config,
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>

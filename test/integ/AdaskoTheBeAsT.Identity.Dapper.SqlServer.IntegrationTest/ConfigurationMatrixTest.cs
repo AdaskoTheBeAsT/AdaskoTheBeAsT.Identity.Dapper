@@ -11,7 +11,10 @@ public sealed class ConfigurationMatrixTest(DatabaseWithGuidIdFixture fixture)
     : ConfigurationMatrixTestBase, IClassFixture<DatabaseWithGuidIdFixture>
 {
     protected override IIncrementalGenerator Generator => new Atb.SqlG.SrcGen();
-    protected override DbConnection Connection() => new SqlConnection(fixture.ConnectionString);
-    protected override string Provider => "SqlServer";
+
+    protected override string Provider => nameof(SqlServer);
+
     protected override string ConnectionType => "Microsoft.Data.SqlClient.SqlConnection";
+
+    protected override DbConnection Connection() => new SqlConnection(fixture.ConnectionString);
 }

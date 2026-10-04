@@ -6,13 +6,11 @@ namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
 public class MySqlIdentityRoleClassGenerator
     : IdentityRoleClassGeneratorBase
 {
-    protected override DatabaseProvider Provider => DatabaseProvider.MySql;
-
-    protected override string QuoteColumn(string column) => base.QuoteColumn(column);
-
     public MySqlIdentityRoleClassGenerator()
     {
     }
+
+    protected override DatabaseProvider Provider => DatabaseProvider.MySql;
 
     protected override string ProcessIdentityRoleCreateSql(
         IdentityDapperConfiguration config,

@@ -8,14 +8,18 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Testing;
 internal static class GeneratorCompilation
 {
     public static (GeneratorDriver Driver, Compilation Compilation) Run(
-        string source, IIncrementalGenerator generator, bool skipNormalized = false, string storeBooleanAs = "char", string schema = "",
-        bool referencesGeneratedTypes = false)
+            string source,
+            IIncrementalGenerator generator,
+            bool skipNormalized = false,
+            string storeBooleanAs = "char",
+            string schema = "",
+            bool referencesGeneratedTypes = false)
     {
         var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
             .Split(Path.PathSeparator)
-            .Where(path => path != generator.GetType().Assembly.Location &&
-                path != typeof(GeneratorCompilation).Assembly.Location)
-            .Distinct()
+            .Where(path => !string.Equals(path, generator.GetType().Assembly.Location, StringComparison.Ordinal) &&
+!string.Equals(path, typeof(GeneratorCompilation).Assembly.Location, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
             .Select(path => MetadataReference.CreateFromFile(path));
         var compilation = CSharpCompilation.Create(
             "GeneratedConsumer",
@@ -26,6 +30,7 @@ internal static class GeneratorCompilation
         {
             compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Should().BeEmpty();
         }
+
         GeneratorDriver driver = CSharpGeneratorDriver.Create(
             new[] { generator.AsSourceGenerator() },
             optionsProvider: new OptionsProvider(skipNormalized, storeBooleanAs, schema));
@@ -45,12 +50,14 @@ internal static class GeneratorCompilation
     }
 
     public static void AssertCompiles(Compilation compilation) =>
-        compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Should().BeEmpty();
+                compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Should().BeEmpty();
 
     private sealed class OptionsProvider(bool skipNormalized, string storeBooleanAs, string schema) : AnalyzerConfigOptionsProvider
     {
         public override AnalyzerConfigOptions GlobalOptions { get; } = new Options(skipNormalized, storeBooleanAs, schema);
+
         public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => GlobalOptions;
+
         public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => GlobalOptions;
     }
 

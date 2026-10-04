@@ -31,53 +31,49 @@ public sealed class WithoutNormalizedAspNetIdentityGuidUserStoreStepDefinitions
     {
     }
 
-    protected override SqlServerUserOnlyStoreBase CreateUserStoreInstance() => CreateUserStore();
-
-    protected override SqlServerUserStoreBase CreateRoleCapableUserStoreInstance() => CreateUserStore();
-
     [Given("I have configured SQL Server UserStore without normalized and Guid id")]
-    public Task GivenIHaveConfiguredSqlServerUserStoreWithoutNormalizedAndGuidId() => ResetUserStoreScenarioAsync();
+    public Task GivenIHaveConfiguredSqlServerUserStoreWithoutNormalizedAndGuidIdAsync() => ResetUserStoreScenarioAsync();
 
     [Given("I created users for SQL Server UserStore")]
-    public Task GivenICreatedUsersForSqlServerUserStore(Table table) => CreateUsersFromTableAsync(table);
+    public Task GivenICreatedUsersForSqlServerUserStoreAsync(Table table) => CreateUsersFromTableAsync(table);
 
     [Given("I created roles for SQL Server UserStore")]
-    public Task GivenICreatedRolesForSqlServerUserStore(Table table) => CreateRolesFromTableAsync(table);
+    public Task GivenICreatedRolesForSqlServerUserStoreAsync(Table table) => CreateRolesFromTableAsync(table);
 
     [Given("I added user claims for SQL Server UserStore")]
-    public Task GivenIAddedUserClaimsForSqlServerUserStore(Table table) => AddUserClaimsFromTableAsync(table);
+    public Task GivenIAddedUserClaimsForSqlServerUserStoreAsync(Table table) => AddUserClaimsFromTableAsync(table);
 
     [Given("I added role claims for SQL Server UserStore")]
-    public Task GivenIAddedRoleClaimsForSqlServerUserStore(Table table) => AddRoleClaimsFromTableAsync(table);
+    public Task GivenIAddedRoleClaimsForSqlServerUserStoreAsync(Table table) => AddRoleClaimsFromTableAsync(table);
 
     [Given("I added user logins for SQL Server UserStore")]
-    public Task GivenIAddedUserLoginsForSqlServerUserStore(Table table) => AddUserLoginsFromTableAsync(table);
+    public Task GivenIAddedUserLoginsForSqlServerUserStoreAsync(Table table) => AddUserLoginsFromTableAsync(table);
 
     [Given("I added user tokens for SQL Server UserStore")]
-    public Task GivenIAddedUserTokensForSqlServerUserStore(Table table) => AddUserTokensFromTableAsync(table);
+    public Task GivenIAddedUserTokensForSqlServerUserStoreAsync(Table table) => AddUserTokensFromTableAsync(table);
 
     [Given("I set authenticator keys for SQL Server UserStore")]
-    public Task GivenISetAuthenticatorKeysForSqlServerUserStore(Table table) => SetAuthenticatorKeysFromTableAsync(table);
+    public Task GivenISetAuthenticatorKeysForSqlServerUserStoreAsync(Table table) => SetAuthenticatorKeysFromTableAsync(table);
 
     [Given("I replaced recovery codes for SQL Server UserStore")]
-    public Task GivenIReplacedRecoveryCodesForSqlServerUserStore(Table table) => ReplaceRecoveryCodesFromTableAsync(table);
+    public Task GivenIReplacedRecoveryCodesForSqlServerUserStoreAsync(Table table) => ReplaceRecoveryCodesFromTableAsync(table);
 
     [Given("I added users to roles for SQL Server UserStore")]
-    public Task GivenIAddedUsersToRolesForSqlServerUserStore(Table table) => AddUsersToRolesFromTableAsync(table);
+    public Task GivenIAddedUsersToRolesForSqlServerUserStoreAsync(Table table) => AddUsersToRolesFromTableAsync(table);
 
     [When("I verify {string} on SQL Server UserStore without normalized and Guid id")]
-    public async Task WhenIVerifyMethodOnSqlServerUserStoreWithoutNormalizedAndGuidId(string methodName)
+    public async Task WhenIVerifyMethodOnSqlServerUserStoreWithoutNormalizedAndGuidIdAsync(string methodName)
     {
         await VerifyUserStoreMethodAsync(methodName);
         LastVerifiedMethodName = methodName;
     }
 
     [When("I execute {string} on SQL Server UserStore")]
-    public Task WhenIExecuteMethodOnSqlServerUserStore(string methodName) =>
+    public Task WhenIExecuteMethodOnSqlServerUserStoreAsync(string methodName) =>
         ExecuteUserStoreDatabaseMethodAsync(methodName, table: null);
 
     [When("I execute {string} on SQL Server UserStore with parameters")]
-    public Task WhenIExecuteMethodOnSqlServerUserStoreWithParameters(string methodName, Table table) =>
+    public Task WhenIExecuteMethodOnSqlServerUserStoreWithParametersAsync(string methodName, Table table) =>
         ExecuteUserStoreDatabaseMethodAsync(methodName, table);
 
     [Then("the last identity result for SQL Server UserStore should be successful")]
@@ -129,4 +125,8 @@ public sealed class WithoutNormalizedAspNetIdentityGuidUserStoreStepDefinitions
     {
         AssertLastVerifiedMethod(methodName);
     }
+
+    protected override SqlServerUserOnlyStoreBase CreateUserStoreInstance() => CreateUserStore();
+
+    protected override SqlServerUserStoreBase CreateRoleCapableUserStoreInstance() => CreateUserStore();
 }

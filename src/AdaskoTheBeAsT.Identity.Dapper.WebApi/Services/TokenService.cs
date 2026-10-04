@@ -16,26 +16,40 @@ public sealed class TokenService
     : ITokenService, IDisposable
 {
     private const string Audience = "IdentityWebApi";
+
     private const string Bearer = "Bearer";
+
     private const string ClientIdClaim = "client_id";
+
     private const int TokenValidSeconds = 3600;
+
     private readonly string _signingKey;
+
     private readonly int _refreshTokenCapacity;
+
     private readonly TimeProvider _timeProvider;
+
     private readonly Dictionary<string, LinkedListNode<RefreshTokenEntry>> _refreshTokens = new(StringComparer.Ordinal);
+
     private readonly LinkedList<RefreshTokenEntry> _issuanceOrder = new();
+
     private readonly SortedSet<LinkedListNode<RefreshTokenEntry>> _expirationOrder =
-        new(Comparer<LinkedListNode<RefreshTokenEntry>>.Create(CompareExpiration));
-    private readonly object _refreshTokenLock = new();
+                new(Comparer<LinkedListNode<RefreshTokenEntry>>.Create(CompareExpiration));
+
+    private readonly System.Threading.Lock _refreshTokenLock = new();
+
     private bool _disposed;
 
     public TokenService(
-        TokenServiceOptions options,
-        TimeProvider timeProvider)
+                TokenServiceOptions options,
+                TimeProvider timeProvider)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(timeProvider);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.RefreshTokenCapacity);
+        if (options.RefreshTokenCapacity <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(options), "Refresh token capacity must be positive.");
+        }
 
         // Snapshot configuration so later mutations cannot invalidate the store's bound.
         _signingKey = options.SigningKey ?? string.Empty;
@@ -59,6 +73,7 @@ public sealed class TokenService
         }
     }
 
+#pragma warning disable MA0051 // Method is too long
     public Token GenerateToken(
         ApplicationUser user,
         IList<string> roles,
@@ -146,6 +161,8 @@ public sealed class TokenService
         };
     }
 
+#pragma warning restore MA0051
+
     public RefreshToken ConsumeRefreshToken(string refreshTokenId)
     {
         lock (_refreshTokenLock)
@@ -175,13 +192,11 @@ public sealed class TokenService
             _issuanceOrder.Clear();
             _expirationOrder.Clear();
         }
-
-        GC.SuppressFinalize(this);
     }
 
     private static int CompareExpiration(
-        LinkedListNode<RefreshTokenEntry> left,
-        LinkedListNode<RefreshTokenEntry> right)
+                LinkedListNode<RefreshTokenEntry> left,
+                LinkedListNode<RefreshTokenEntry> right)
     {
         var comparison = left.Value.Token.ExpiresUtc.CompareTo(right.Value.Token.ExpiresUtc);
         return comparison != 0 ? comparison : StringComparer.Ordinal.Compare(left.Value.Id, right.Value.Id);

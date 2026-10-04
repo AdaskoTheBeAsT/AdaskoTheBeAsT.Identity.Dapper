@@ -8,8 +8,6 @@ public class PostgreSqlIdentityUserTokenClassGenerator
 {
     protected override DatabaseProvider Provider => DatabaseProvider.PostgreSql;
 
-    protected override string QuoteColumn(string column) => base.QuoteColumn(column);
-
     protected override string ProcessIdentityUserTokenCreateSql(
         IdentityDapperConfiguration config,
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>

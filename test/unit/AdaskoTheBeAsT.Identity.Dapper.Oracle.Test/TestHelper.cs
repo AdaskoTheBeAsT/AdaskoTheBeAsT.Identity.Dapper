@@ -11,5 +11,4 @@ public static class TestHelper
         GeneratorCompilation.AssertCompiles(compilation);
         return Verifier.Verify(driver).UseDirectory("Snapshots");
     }
-
 }

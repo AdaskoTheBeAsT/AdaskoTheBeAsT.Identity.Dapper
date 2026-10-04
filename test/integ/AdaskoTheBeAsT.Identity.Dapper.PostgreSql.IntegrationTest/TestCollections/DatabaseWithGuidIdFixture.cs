@@ -1,6 +1,6 @@
 using AdaskoTheBeAsT.Identity.Dapper.IntegrationTest.Common;
-using AdaskoTheBeAsT.Identity.Dapper.PostgreSql.IntegrationTest.Util;
 using AdaskoTheBeAsT.Identity.Dapper.PostgreSql;
+using AdaskoTheBeAsT.Identity.Dapper.PostgreSql.IntegrationTest.Util;
 using DbUp;
 using Testcontainers.PostgreSql;
 using Xunit;
@@ -22,19 +22,23 @@ public sealed class DatabaseWithGuidIdFixture
             .WithPassword("TestPass123!")
             .Build();
 
-    public static DatabaseWithGuidIdFixture Shared { get; } = new();
-
     public DatabaseWithGuidIdFixture()
     {
         _lifecycle = new FixtureResourceLifecycle(InitializeCoreAsync, CleanupAsync);
         PostgreSqlDapperConfig.ConfigureTypeHandlers();
     }
 
+    public static DatabaseWithGuidIdFixture Shared { get; } = new();
+
     public string ConnectionString { get; set; } = string.Empty;
 
     public TestOutputHelperAdapter TestOutputHelperAdapter { get; } = new();
 
     public ValueTask InitializeAsync() => new(_lifecycle.InitializeAsync());
+
+    public ValueTask DisposeAsync() => _lifecycle.DisposeAsync();
+
+    public void Dispose() => _lifecycle.Dispose();
 
     private async Task InitializeCoreAsync()
     {
@@ -62,10 +66,6 @@ public sealed class DatabaseWithGuidIdFixture
             throw new InvalidOperationException("PostgreSQL test schema initialization failed.", result.Error);
         }
     }
-
-    public ValueTask DisposeAsync() => _lifecycle.DisposeAsync();
-
-    public void Dispose() => _lifecycle.Dispose();
 
     private Task CleanupAsync() => _postgreSqlContainer.DisposeAsync().AsTask();
 }

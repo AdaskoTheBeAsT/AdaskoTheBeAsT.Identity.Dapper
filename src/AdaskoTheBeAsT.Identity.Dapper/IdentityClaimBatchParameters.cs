@@ -24,7 +24,9 @@ internal sealed class IdentityClaimBatchParameters<TClaim> : SqlMapper.IDynamicP
             // Reuse Dapper's typed binders, including nullable properties and registered handlers.
             // Batch SQL exposes unsuffixed names in a comment for Dapper's typed property filter.
             using var source = command.Connection!.CreateCommand();
+#pragma warning disable SCS0002
             source.CommandText = command.CommandText;
+#pragma warning restore SCS0002
             var parameters = new DynamicParameters(_claims[i]);
             ((SqlMapper.IDynamicParameters)parameters).AddParameters(source, identity);
             var suffix = "_" + i.ToString(CultureInfo.InvariantCulture);

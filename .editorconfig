@@ -24,6 +24,14 @@ indent_size = 2
 indent_size = 4
 insert_final_newline = true
 
+# Source-generator output
+[*.g.cs]
+generated_code = true
+
+# Reqnroll-generated tests
+[*.feature.cs]
+generated_code = true
+
 ###############################
 # .NET Coding Conventions     #
 ###############################

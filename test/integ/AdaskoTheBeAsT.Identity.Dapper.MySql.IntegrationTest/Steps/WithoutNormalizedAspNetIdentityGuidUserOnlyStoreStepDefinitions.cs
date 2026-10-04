@@ -1,8 +1,8 @@
 using AdaskoTheBeAsT.Identity.Dapper.IntegrationTest.Common;
 using AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest;
 using AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest.Identity;
-using Reqnroll;
 using MySql.Data.MySqlClient;
+using Reqnroll;
 using MySqlUserOnlyStoreBase =
     AdaskoTheBeAsT.Identity.Dapper.DapperUserOnlyStoreBase<
         AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest.Identity.ApplicationUser,
@@ -48,50 +48,46 @@ public sealed class WithoutNormalizedAspNetIdentityGuidUserOnlyStoreStepDefiniti
     {
     }
 
-    protected override MySqlUserOnlyStoreBase CreateUserStoreInstance() => CreateUserOnlyStore();
-
-    protected override MySqlUserStoreBase CreateRoleCapableUserStoreInstance() => CreateUserStore();
-
     [Given("I have configured MySQL UserOnlyStore without normalized and Guid id")]
-    public Task GivenIHaveConfiguredUserOnlyStoreWithoutNormalizedAndGuidId() => ResetUserStoreScenarioAsync();
+    public Task GivenIHaveConfiguredUserOnlyStoreWithoutNormalizedAndGuidIdAsync() => ResetUserStoreScenarioAsync();
 
     [Given("I created users for MySQL UserOnlyStore")]
-    public Task GivenICreatedUsersForUserOnlyStore(Table table) => CreateUsersFromTableAsync(table);
+    public Task GivenICreatedUsersForUserOnlyStoreAsync(Table table) => CreateUsersFromTableAsync(table);
 
     [Given("I created roles for MySQL UserOnlyStore")]
-    public Task GivenICreatedRolesForUserOnlyStore(Table table) => CreateRolesFromTableAsync(table);
+    public Task GivenICreatedRolesForUserOnlyStoreAsync(Table table) => CreateRolesFromTableAsync(table);
 
     [Given("I added user claims for MySQL UserOnlyStore")]
-    public Task GivenIAddedUserClaimsForUserOnlyStore(Table table) => AddUserClaimsFromTableAsync(table);
+    public Task GivenIAddedUserClaimsForUserOnlyStoreAsync(Table table) => AddUserClaimsFromTableAsync(table);
 
     [Given("I added user logins for MySQL UserOnlyStore")]
-    public Task GivenIAddedUserLoginsForUserOnlyStore(Table table) => AddUserLoginsFromTableAsync(table);
+    public Task GivenIAddedUserLoginsForUserOnlyStoreAsync(Table table) => AddUserLoginsFromTableAsync(table);
 
     [Given("I added user tokens for MySQL UserOnlyStore")]
-    public Task GivenIAddedUserTokensForUserOnlyStore(Table table) => AddUserTokensFromTableAsync(table);
+    public Task GivenIAddedUserTokensForUserOnlyStoreAsync(Table table) => AddUserTokensFromTableAsync(table);
 
     [Given("I set authenticator keys for MySQL UserOnlyStore")]
-    public Task GivenISetAuthenticatorKeysForUserOnlyStore(Table table) => SetAuthenticatorKeysFromTableAsync(table);
+    public Task GivenISetAuthenticatorKeysForUserOnlyStoreAsync(Table table) => SetAuthenticatorKeysFromTableAsync(table);
 
     [Given("I replaced recovery codes for MySQL UserOnlyStore")]
-    public Task GivenIReplacedRecoveryCodesForUserOnlyStore(Table table) => ReplaceRecoveryCodesFromTableAsync(table);
+    public Task GivenIReplacedRecoveryCodesForUserOnlyStoreAsync(Table table) => ReplaceRecoveryCodesFromTableAsync(table);
 
     [Given("I added users to roles for MySQL UserOnlyStore")]
-    public Task GivenIAddedUsersToRolesForUserOnlyStore(Table table) => AddUsersToRolesFromTableAsync(table);
+    public Task GivenIAddedUsersToRolesForUserOnlyStoreAsync(Table table) => AddUsersToRolesFromTableAsync(table);
 
     [When("I verify {string} on MySQL UserOnlyStore without normalized and Guid id")]
-    public async Task WhenIVerifyMethodOnUserOnlyStoreWithoutNormalizedAndGuidId(string methodName)
+    public async Task WhenIVerifyMethodOnUserOnlyStoreWithoutNormalizedAndGuidIdAsync(string methodName)
     {
         await VerifyUserOnlyStoreMethodAsync(methodName);
         LastVerifiedMethodName = methodName;
     }
 
     [When("I execute {string} on MySQL UserOnlyStore")]
-    public Task WhenIExecuteMethodOnUserOnlyStore(string methodName) =>
+    public Task WhenIExecuteMethodOnUserOnlyStoreAsync(string methodName) =>
         ExecuteUserStoreDatabaseMethodAsync(methodName, table: null);
 
     [When("I execute {string} on MySQL UserOnlyStore with parameters")]
-    public Task WhenIExecuteMethodOnUserOnlyStoreWithParameters(string methodName, Table table) =>
+    public Task WhenIExecuteMethodOnUserOnlyStoreWithParametersAsync(string methodName, Table table) =>
         ExecuteUserStoreDatabaseMethodAsync(methodName, table);
 
     [Then("the last identity result for MySQL UserOnlyStore should be successful")]
@@ -139,4 +135,8 @@ public sealed class WithoutNormalizedAspNetIdentityGuidUserOnlyStoreStepDefiniti
     {
         AssertLastVerifiedMethod(methodName);
     }
+
+    protected override MySqlUserOnlyStoreBase CreateUserStoreInstance() => CreateUserOnlyStore();
+
+    protected override MySqlUserStoreBase CreateRoleCapableUserStoreInstance() => CreateUserStore();
 }

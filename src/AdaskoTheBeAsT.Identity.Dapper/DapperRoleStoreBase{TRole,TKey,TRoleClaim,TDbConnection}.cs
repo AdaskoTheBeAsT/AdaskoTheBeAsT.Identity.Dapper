@@ -12,7 +12,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper;
 
+#pragma warning disable S2436
 public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
+#pragma warning restore S2436
     : IRoleClaimStore<TRole>,
         IQueryableRoleStore<TRole>,
         IPagedRoleStore<TRole>
@@ -57,6 +59,12 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
         }
     }
 
+    protected IIdentityDbConnectionProvider<TDbConnection> ConnectionProvider { get; }
+
+    protected IIdentityRoleSql IdentityRoleSql { get; }
+
+    protected IIdentityRoleClaimSql IdentityRoleClaimSql { get; }
+
     public virtual async Task<IList<TRole>> GetRolesPageAsync(
         int offset,
         int pageSize,
@@ -76,16 +84,10 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
             new
             {
                 Offset = offset,
-                PageSize = pageSize
+                PageSize = pageSize,
             },
             cancellationToken).ConfigureAwait(false)).AsList();
     }
-
-    protected IIdentityDbConnectionProvider<TDbConnection> ConnectionProvider { get; }
-
-    protected IIdentityRoleSql IdentityRoleSql { get; }
-
-    protected IIdentityRoleClaimSql IdentityRoleClaimSql { get; }
 
     /// <summary>
     /// Creates a new role in a store as an asynchronous operation.
@@ -216,15 +218,6 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
         return Task.FromResult(ConvertIdToString(role.Id) ?? string.Empty);
     }
 
-    private void EnsureConcurrencySql()
-    {
-        if (IdentityRoleSql is not IIdentityRoleConcurrencySql)
-        {
-            throw new NotSupportedException(
-                "Regenerate the Identity stores before updating or deleting roles: concurrency-capable SQL is required.");
-        }
-    }
-
     /// <summary>
     /// Gets the name of a role from the store as an asynchronous operation.
     /// </summary>
@@ -303,7 +296,7 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        return await FindByIdImplAsync(connection, ConvertIdFromString(roleId), cancellationToken);
+        return await FindByIdImplAsync(connection, ConvertIdFromString(roleId), cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -519,25 +512,23 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
         }
     }
 
-    protected virtual async Task<TRole?> FindByIdImplAsync(
+    protected virtual Task<TRole?> FindByIdImplAsync(
         TDbConnection connection,
         TKey? roleId,
         CancellationToken cancellationToken) =>
-        await connection.QueryIdentityFirstOrDefaultAsync<TRole>(
+        connection.QueryIdentityFirstOrDefaultAsync<TRole>(
                 IdentityRoleSql.FindByIdSql,
                 new { Id = roleId },
-                cancellationToken)
-            .ConfigureAwait(continueOnCapturedContext: false);
+                cancellationToken);
 
-    protected virtual async Task<TRole?> FindByNameImplAsync(
+    protected virtual Task<TRole?> FindByNameImplAsync(
         TDbConnection connection,
         string normalizedRoleName,
         CancellationToken cancellationToken) =>
-        await connection.QueryIdentityFirstOrDefaultAsync<TRole>(
+        connection.QueryIdentityFirstOrDefaultAsync<TRole>(
                 IdentityRoleSql.FindByNameSql,
                 new { NormalizedName = normalizedRoleName },
-                cancellationToken)
-            .ConfigureAwait(continueOnCapturedContext: false);
+                cancellationToken);
 
     protected virtual async Task<IList<Claim>> GetClaimsImplAsync(
         TDbConnection connection,
@@ -551,25 +542,32 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
             .ConfigureAwait(continueOnCapturedContext: false))
         .AsList();
 
-    protected virtual async Task AddClaimImplAsync(
+    protected virtual Task AddClaimImplAsync(
         TDbConnection connection,
         TRoleClaim roleClaim,
         CancellationToken cancellationToken) =>
-        await connection.ExecuteAsync(
+        connection.ExecuteAsync(
                 new CommandDefinition(
                     IdentityRoleClaimSql.CreateSql,
                     roleClaim,
-                    cancellationToken: cancellationToken))
-            .ConfigureAwait(continueOnCapturedContext: false);
+                    cancellationToken: cancellationToken));
 
-    protected virtual async Task RemoveClaimImplAsync(
+    protected virtual Task RemoveClaimImplAsync(
         TDbConnection connection,
         TRoleClaim roleClaim,
         CancellationToken cancellationToken) =>
-        await connection.ExecuteAsync(
+        connection.ExecuteAsync(
                 new CommandDefinition(
                     IdentityRoleClaimSql.DeleteSql,
                     roleClaim,
-                    cancellationToken: cancellationToken))
-            .ConfigureAwait(continueOnCapturedContext: false);
+                    cancellationToken: cancellationToken));
+
+    private void EnsureConcurrencySql()
+    {
+        if (IdentityRoleSql is not IIdentityRoleConcurrencySql)
+        {
+            throw new NotSupportedException(
+                "Regenerate the Identity stores before updating or deleting roles: concurrency-capable SQL is required.");
+        }
+    }
 }

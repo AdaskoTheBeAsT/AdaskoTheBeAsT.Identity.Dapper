@@ -41,6 +41,7 @@ public class SqliteIdentityHelper
             },
             StringComparer.OrdinalIgnoreCase);
 
+#pragma warning disable MA0051 // Method is too long
     public string GetInsertTemplate(
         string tableName,
         string keyTypeName,
@@ -122,4 +123,5 @@ public class SqliteIdentityHelper
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));
         }
     }
+#pragma warning restore MA0051
 }

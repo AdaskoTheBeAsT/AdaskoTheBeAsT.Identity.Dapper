@@ -41,6 +41,7 @@ public class OracleIdentityHelper
             },
             StringComparer.OrdinalIgnoreCase);
 
+#pragma warning disable MA0051 // Method is too long
     public string GetInsertTemplate(
         string tableName,
         string keyTypeName,
@@ -135,4 +136,5 @@ public class OracleIdentityHelper
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));
         }
     }
+#pragma warning restore MA0051
 }

@@ -29,7 +29,7 @@ public class MySqlApplicationUserOnlyStoreGenerator
         return sb.ToString();
     }
 
-    private void GenerateConstructor(StringBuilder sb)
+    private static void GenerateConstructor(StringBuilder sb)
     {
         sb.AppendLine(
             """

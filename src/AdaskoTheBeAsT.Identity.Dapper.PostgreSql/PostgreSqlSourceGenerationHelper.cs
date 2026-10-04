@@ -8,37 +8,37 @@ namespace AdaskoTheBeAsT.Identity.Dapper.PostgreSql;
 public class PostgreSqlSourceGenerationHelper
     : SourceGeneratorHelperBase
 {
-    protected override DatabaseProvider Provider => DatabaseProvider.PostgreSql;
-
     public PostgreSqlSourceGenerationHelper()
-        : base(
-            new PostgreSqlIdentityRoleClassGenerator(),
-            new PostgreSqlIdentityRoleClaimClassGenerator(),
-            new PostgreSqlIdentityUserClassGenerator(),
-            new PostgreSqlIdentityUserClaimClassGenerator(),
-            new PostgreSqlIdentityUserLoginClassGenerator(),
-            new PostgreSqlIdentityUserRoleClassGenerator(),
-            new PostgreSqlIdentityUserTokenClassGenerator(),
-            new PostgreSqlIdentityUserRoleClaimClassGenerator(),
-            new PostgreSqlApplicationUserOnlyStoreGenerator(),
-            new PostgreSqlApplicationUserStoreGenerator(),
-            new PostgreSqlApplicationRoleStoreGenerator())
+            : base(
+                new PostgreSqlIdentityRoleClassGenerator(),
+                new PostgreSqlIdentityRoleClaimClassGenerator(),
+                new PostgreSqlIdentityUserClassGenerator(),
+                new PostgreSqlIdentityUserClaimClassGenerator(),
+                new PostgreSqlIdentityUserLoginClassGenerator(),
+                new PostgreSqlIdentityUserRoleClassGenerator(),
+                new PostgreSqlIdentityUserTokenClassGenerator(),
+                new PostgreSqlIdentityUserRoleClaimClassGenerator(),
+                new PostgreSqlApplicationUserOnlyStoreGenerator(),
+                new PostgreSqlApplicationUserStoreGenerator(),
+                new PostgreSqlApplicationRoleStoreGenerator())
     {
     }
 
+    protected override DatabaseProvider Provider => DatabaseProvider.PostgreSql;
+
     protected override string GenerateSchemaPart(string dbSchema) =>
-        string.IsNullOrEmpty(dbSchema) ? string.Empty : $"{dbSchema}.";
+            string.IsNullOrEmpty(dbSchema) ? string.Empty : $"{dbSchema}.";
 
     protected override void GenerateAdditionalFiles(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+            SourceProductionContext context,
+            IdentityDapperOptions options)
     {
         GenerateDateTimeOffsetTypeHandler(context);
         GenerateNullableDateTimeOffsetTypeHandler(context);
         GenerateDapperConfig(context);
     }
 
-    private void GenerateDateTimeOffsetTypeHandler(SourceProductionContext context)
+    private static void GenerateDateTimeOffsetTypeHandler(SourceProductionContext context)
     {
         const string content =
             """
@@ -92,7 +92,7 @@ public class PostgreSqlSourceGenerationHelper
         context.AddSource("PostgreSqlDateTimeOffsetTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableDateTimeOffsetTypeHandler(SourceProductionContext context)
+    private static void GenerateNullableDateTimeOffsetTypeHandler(SourceProductionContext context)
     {
         const string content =
             """
@@ -146,7 +146,7 @@ public class PostgreSqlSourceGenerationHelper
         context.AddSource("PostgreSqlNullableDateTimeOffsetTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateDapperConfig(SourceProductionContext context)
+    private static void GenerateDapperConfig(SourceProductionContext context)
     {
         const string content =
             """

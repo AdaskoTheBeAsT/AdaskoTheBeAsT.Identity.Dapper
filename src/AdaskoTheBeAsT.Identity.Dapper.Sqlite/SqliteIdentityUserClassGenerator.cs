@@ -6,52 +6,52 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite;
 public class SqliteIdentityUserClassGenerator
     : IdentityUserClassGeneratorBase
 {
-    protected override DatabaseProvider Provider => DatabaseProvider.Sqlite;
-
     public SqliteIdentityUserClassGenerator()
     {
     }
 
+    protected override DatabaseProvider Provider => DatabaseProvider.Sqlite;
+
     protected override string ProcessIdentityUserCreateSql(
-        IdentityDapperConfiguration config,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
-        Sql(config, propertyColumnTypeTriples).Create();
+            IdentityDapperConfiguration config,
+            IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
+            Sql(config, propertyColumnTypeTriples).Create();
 
     protected override string ProcessIdentityUserUpdateSql(
-        IdentityDapperConfiguration config,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
-        Sql(config, propertyColumnTypeTriples).UpdateEntity();
+            IdentityDapperConfiguration config,
+            IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
+            Sql(config, propertyColumnTypeTriples).UpdateEntity();
 
     protected override string ProcessIdentityUserDeleteSql(IdentityDapperConfiguration config) =>
-        Sql(config).DeleteEntity();
+            Sql(config).DeleteEntity();
 
     protected override string ProcessIdentityUserFindByIdSql(
-        IdentityDapperConfiguration config,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
-        Sql(config, propertyColumnTypeTriples).FindById();
+            IdentityDapperConfiguration config,
+            IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
+            Sql(config, propertyColumnTypeTriples).FindById();
 
     protected override string ProcessIdentityUserFindByNameSql(
-        IdentityDapperConfiguration config,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
-        Sql(config, propertyColumnTypeTriples).FindByName();
+            IdentityDapperConfiguration config,
+            IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
+            Sql(config, propertyColumnTypeTriples).FindByName();
 
     protected override string ProcessIdentityUserFindByEmailSql(
-        IdentityDapperConfiguration config,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
-        Sql(config, propertyColumnTypeTriples).FindByEmail();
+            IdentityDapperConfiguration config,
+            IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
+            Sql(config, propertyColumnTypeTriples).FindByEmail();
 
     protected override string ProcessIdentityUserGetUsersForClaimSql(
-        IdentityDapperConfiguration config,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
-        Sql(config, propertyColumnTypeTriples).GetUsersForClaim();
+            IdentityDapperConfiguration config,
+            IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
+            Sql(config, propertyColumnTypeTriples).GetUsersForClaim();
 
     protected override string ProcessIdentityUserGetUsersInRoleSql(
-        IdentityDapperConfiguration config,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
-        Sql(config, propertyColumnTypeTriples).GetUsersInRole();
+            IdentityDapperConfiguration config,
+            IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
+            Sql(config, propertyColumnTypeTriples).GetUsersInRole();
 
     protected override string ProcessIdentityUserGetUsersSql(
-        IdentityDapperConfiguration config,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
-        Sql(config, propertyColumnTypeTriples).GetAll();
+            IdentityDapperConfiguration config,
+            IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>
+            Sql(config, propertyColumnTypeTriples).GetAll();
 }

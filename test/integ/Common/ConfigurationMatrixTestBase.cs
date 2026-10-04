@@ -1,6 +1,7 @@
 using System.Data.Common;
 using System.Runtime.Loader;
 using System.Text.RegularExpressions;
+using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 using AdaskoTheBeAsT.Identity.Dapper.Testing;
 using AwesomeAssertions;
 using Dapper;
@@ -10,19 +11,26 @@ using Xunit;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.IntegrationTest.Common;
 
-public abstract class ConfigurationMatrixTestBase
+public abstract partial class ConfigurationMatrixTestBase
 {
     protected abstract IIncrementalGenerator Generator { get; }
-    protected abstract DbConnection Connection();
+
     protected abstract string Provider { get; }
+
     protected abstract string ConnectionType { get; }
 
-    public static IEnumerable<object[]> Configurations()
+    public static IEnumerable<TheoryDataRow<string, bool, bool>> Configurations()
     {
         foreach (var key in new[] { "string", "int", "long", "Guid" })
-        foreach (var skipNormalized in new[] { false, true })
-        foreach (var ownId in new[] { false, true })
-            yield return new object[] { key, skipNormalized, ownId };
+        {
+            foreach (var skipNormalized in new[] { false, true })
+            {
+                foreach (var ownId in new[] { false, true })
+                {
+                    yield return new TheoryDataRow<string, bool, bool>(key, skipNormalized, ownId);
+                }
+            }
+        }
     }
 
     [Theory]
@@ -32,12 +40,12 @@ public abstract class ConfigurationMatrixTestBase
         var prefix = "m" + Guid.NewGuid().ToString("N")[..8];
         var (_, compilation) = GeneratorCompilation.Run(Model(key, ownId), Generator, skipNormalized, referencesGeneratedTypes: true);
         GeneratorCompilation.AssertCompiles(compilation);
+
         // Give each case private tables inside its disposable fixture database.
         // Only table identifiers change; the SQL syntax and mappings remain generated.
         compilation = compilation.RemoveAllSyntaxTrees().AddSyntaxTrees(
-            compilation.SyntaxTrees.Select(tree => CSharpSyntaxTree.ParseText(Regex.Replace(
-                tree.ToString(), @"\bAspNet(Users|Roles|UserClaims|RoleClaims|UserLogins|UserRoles|UserTokens)\b",
-                match => prefix + match.Value, RegexOptions.IgnoreCase))))
+            compilation.SyntaxTrees.Select(tree => CSharpSyntaxTree.ParseText(IdentityTableRegex().Replace(
+                tree.ToString(), match => prefix + match.Value))))
             .WithAssemblyName("Matrix" + prefix);
         using var assemblyBytes = new MemoryStream();
         var emitted = compilation.Emit(assemblyBytes, cancellationToken: TestContext.Current.CancellationToken);
@@ -52,7 +60,9 @@ public abstract class ConfigurationMatrixTestBase
         {
             foreach (var table in Tables(key, skipNormalized, ownId))
             {
-                var name = Provider == "MySql" ? prefix + table.Name.ToLowerInvariant() : prefix + table.Name;
+                var name = string.Equals(Provider, nameof(DatabaseProvider.MySql), StringComparison.Ordinal)
+                    ? prefix + table.Name.ToLowerInvariant()
+                    : prefix + table.Name;
                 await connection.ExecuteAsync(new CommandDefinition(
                     $"CREATE TABLE {name} ({table.Columns})", cancellationToken: TestContext.Current.CancellationToken));
                 created.Add(name);
@@ -68,7 +78,9 @@ public abstract class ConfigurationMatrixTestBase
             try
             {
                 foreach (var table in Enumerable.Reverse(created))
+                {
                     await connection.ExecuteAsync($"DROP TABLE {table}");
+                }
             }
             finally
             {
@@ -77,48 +89,54 @@ public abstract class ConfigurationMatrixTestBase
         }
     }
 
+    protected abstract DbConnection Connection();
+
+    [GeneratedRegex(@"\bAspNet(Users|Roles|UserClaims|RoleClaims|UserLogins|UserRoles|UserTokens)\b", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture, 1000)]
+    private static partial Regex IdentityTableRegex();
+
+#pragma warning disable S3776
     private IEnumerable<(string Name, string Columns)> Tables(string key, bool skipNormalized, bool ownId)
+#pragma warning restore S3776
     {
-        string Q(string name) => Provider switch
+        var text = Provider switch
         {
-            "Oracle" => "\"" + name.ToUpperInvariant() + "\"",
-            "PostgreSql" => "\"" + name.ToLowerInvariant() + "\"",
-            "MySql" => "`" + name + "`",
-            _ => "[" + name + "]",
+            nameof(DatabaseProvider.Oracle) => "VARCHAR2(256)",
+            nameof(DatabaseProvider.SqlServer) => "nvarchar(256)",
+            _ => "varchar(256)",
         };
-        var text = Provider == "Oracle" ? "VARCHAR2(256)" : Provider == "SqlServer" ? "nvarchar(256)" : "varchar(256)";
-        var number = Provider == "Oracle" ? "NUMBER(10)" : "INTEGER";
-        var boolean = Provider switch { "Oracle" => "CHAR(1)", "PostgreSql" => "BOOLEAN", "SqlServer" or "MySql" => "BIT", _ => "INTEGER" };
-        var date = Provider switch { "Oracle" => "TIMESTAMP", "PostgreSql" => "timestamp with time zone", "SqlServer" => "datetimeoffset", _ => "datetime" };
-        var keyType = key switch
+        var number = string.Equals(Provider, nameof(DatabaseProvider.Oracle), StringComparison.Ordinal) ? "NUMBER(10)" : "INTEGER";
+        var boolean = Provider switch
         {
-            "int" => number,
-            "long" => Provider == "Oracle" ? "NUMBER(19)" : Provider == "Sqlite" ? "INTEGER" : "BIGINT",
-            "Guid" => Provider switch { "Oracle" => "RAW(16)", "PostgreSql" => "uuid", "SqlServer" => "uniqueidentifier", _ => "char(36)" },
-            _ => Provider == "Oracle" ? "VARCHAR2(36)" : Provider == "SqlServer" ? "nvarchar(36)" : "varchar(36)",
+            nameof(DatabaseProvider.Oracle) => "CHAR(1)",
+            nameof(DatabaseProvider.PostgreSql) => "BOOLEAN",
+            nameof(DatabaseProvider.SqlServer) or nameof(DatabaseProvider.MySql) => "BIT",
+            _ => "INTEGER",
         };
-        string Id(string column, bool auxiliary = false)
+        var date = Provider switch
         {
-            var type = auxiliary ? number : keyType;
-            var generated = auxiliary || (!ownId && key is "int" or "long");
-            if (generated)
-                type += Provider switch
-                {
-                    "Oracle" or "PostgreSql" => " GENERATED BY DEFAULT AS IDENTITY",
-                    "SqlServer" => " IDENTITY(1,1)",
-                    "MySql" => " AUTO_INCREMENT",
-                    _ => "",
-                };
-            else if (!ownId && Provider == "SqlServer")
-                type += key == "Guid" ? " DEFAULT NEWSEQUENTIALID()" : " DEFAULT CONVERT(nvarchar(36),NEWID())";
-            return $"{Q(column)} {type} PRIMARY KEY";
-        }
+            nameof(DatabaseProvider.Oracle) => "TIMESTAMP",
+            nameof(DatabaseProvider.PostgreSql) => "timestamp with time zone",
+            nameof(DatabaseProvider.SqlServer) => "datetimeoffset",
+            _ => "datetime",
+        };
+        var keyType = GetKeyType(key, number);
+        string Id(string column, bool auxiliary = false) =>
+            PrimaryKey(column, auxiliary ? number : keyType, key, ownId, auxiliary);
         string Fields(params (string Name, string Type)[] columns) =>
-            string.Join(",", columns.Select(column => $"{Q(column.Name)} {column.Type}"));
+            string.Join(",", columns.Select(column => $"{QuoteColumnName(column.Name)} {column.Type}"));
         var user = Id("Entity key") + "," + Fields(
-            ("UserName", text), ("Email", text), ("EmailConfirmed", boolean), ("PasswordHash", text),
-            ("SecurityStamp", text), ("Version", text), ("PhoneNumber", text), ("PhoneNumberConfirmed", boolean),
-            ("TwoFactorEnabled", boolean), ("LockoutEnd", date), ("LockoutEnabled", boolean), ("AccessFailedCount", number),
+            ("UserName", text),
+            ("Email", text),
+            ("EmailConfirmed", boolean),
+            ("PasswordHash", text),
+            ("SecurityStamp", text),
+            ("Version", text),
+            ("PhoneNumber", text),
+            ("PhoneNumberConfirmed", boolean),
+            ("TwoFactorEnabled", boolean),
+            ("LockoutEnd", date),
+            ("LockoutEnabled", boolean),
+            ("AccessFailedCount", number),
             ("Display label", text));
         var role = Id("Entity key") + "," + Fields(("Name", text), ("Version", text));
         if (!skipNormalized)
@@ -126,15 +144,70 @@ public abstract class ConfigurationMatrixTestBase
             user += "," + Fields(("User lookup", text), ("Email lookup", text));
             role += "," + Fields(("Role lookup", text));
         }
+
         yield return ("AspNetUsers", user);
         yield return ("AspNetRoles", role);
-        yield return ("AspNetUserClaims", Id("Id", true) + "," + Fields(("UserId", keyType), ("ClaimType", text), ("ClaimValue", text), ("Optional number {0}", number)));
-        yield return ("AspNetRoleClaims", Id("Id", true) + "," + Fields(("RoleId", keyType), ("ClaimType", text), ("ClaimValue", text)));
+        yield return ("AspNetUserClaims", Id(nameof(Id), true) + "," + Fields(("UserId", keyType), ("ClaimType", text), ("ClaimValue", text), ("Optional number {0}", number)));
+        yield return ("AspNetRoleClaims", Id(nameof(Id), true) + "," + Fields(("RoleId", keyType), ("ClaimType", text), ("ClaimValue", text)));
         yield return ("AspNetUserLogins", Fields(("UserId", keyType), ("LoginProvider", text), ("ProviderKey", text), ("ProviderDisplayName", text)));
         yield return ("AspNetUserRoles", Fields(("UserId", keyType), ("RoleId", keyType)));
         yield return ("AspNetUserTokens", Fields(("UserId", keyType), ("LoginProvider", text), ("Name", text), ("Value", text)));
     }
 
+    private string QuoteColumnName(string name) => Provider switch
+    {
+        nameof(DatabaseProvider.Oracle) => "\"" + name.ToUpperInvariant() + "\"",
+        nameof(DatabaseProvider.PostgreSql) => "\"" + name.ToLowerInvariant() + "\"",
+        nameof(DatabaseProvider.MySql) => "`" + name + "`",
+        _ => "[" + name + "]",
+    };
+
+    private string GetKeyType(string key, string number) => key switch
+    {
+        "int" => number,
+        "long" => Provider switch
+        {
+            nameof(DatabaseProvider.Oracle) => "NUMBER(19)",
+            nameof(DatabaseProvider.Sqlite) => "INTEGER",
+            _ => "BIGINT",
+        },
+        "Guid" => Provider switch
+        {
+            nameof(DatabaseProvider.Oracle) => "RAW(16)",
+            nameof(DatabaseProvider.PostgreSql) => "uuid",
+            nameof(DatabaseProvider.SqlServer) => "uniqueidentifier",
+            _ => "char(36)",
+        },
+        _ => Provider switch
+        {
+            nameof(DatabaseProvider.Oracle) => "VARCHAR2(36)",
+            nameof(DatabaseProvider.SqlServer) => "nvarchar(36)",
+            _ => "varchar(36)",
+        },
+    };
+
+    private string PrimaryKey(string column, string type, string key, bool ownId, bool auxiliary)
+    {
+        var generated = auxiliary || (!ownId && key is "int" or "long");
+        if (generated)
+        {
+            type += Provider switch
+            {
+                nameof(DatabaseProvider.Oracle) or nameof(DatabaseProvider.PostgreSql) => " GENERATED BY DEFAULT AS IDENTITY",
+                nameof(DatabaseProvider.SqlServer) => " IDENTITY(1,1)",
+                nameof(DatabaseProvider.MySql) => " AUTO_INCREMENT",
+                _ => string.Empty,
+            };
+        }
+        else if (!ownId && string.Equals(Provider, nameof(DatabaseProvider.SqlServer), StringComparison.Ordinal))
+        {
+            type += string.Equals(key, "Guid", StringComparison.Ordinal) ? " DEFAULT NEWSEQUENTIALID()" : " DEFAULT CONVERT(nvarchar(36),NEWID())";
+        }
+
+        return $"{QuoteColumnName(column)} {type} PRIMARY KEY";
+    }
+
+#pragma warning disable MA0051 // Method is too long
     private string Model(string key, bool ownId)
     {
         var seed = key switch { "string" => "\"provided-id\"", "Guid" => "Guid.NewGuid()", "long" => "5000000001L", _ => "1234567" };
@@ -151,7 +224,7 @@ public abstract class ConfigurationMatrixTestBase
             using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
             using AwesomeAssertions;
             namespace MatrixConsumer;
-            {{(ownId ? "[InsertOwnId]" : "")}}
+            {{(ownId ? "[InsertOwnId]" : string.Empty)}}
             public class ApplicationUser : IdentityUser<{{key}}>
             {
                 [Column("Entity key")] public override {{key}} Id { get; set; }
@@ -160,7 +233,7 @@ public abstract class ConfigurationMatrixTestBase
                 [Column("Email lookup")] public override string? NormalizedEmail { get; set; }
                 [Column("Display label")] public string? DisplayLabel { get; set; }
             }
-            {{(ownId ? "[InsertOwnId]" : "")}}
+            {{(ownId ? "[InsertOwnId]" : string.Empty)}}
             public class ApplicationRole : IdentityRole<{{key}}>
             {
                 [Column("Entity key")] public override {{key}} Id { get; set; }
@@ -243,4 +316,5 @@ public abstract class ConfigurationMatrixTestBase
             }
             """;
     }
+#pragma warning restore MA0051
 }

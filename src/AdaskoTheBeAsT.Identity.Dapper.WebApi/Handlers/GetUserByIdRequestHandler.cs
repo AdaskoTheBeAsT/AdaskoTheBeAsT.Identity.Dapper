@@ -27,7 +27,7 @@ public class GetUserByIdRequestHandler
             return null;
         }
 
-        var user = await _userManager.FindByIdAsync(request.UserId!.Value.ToString("D")).ConfigureAwait(continueOnCapturedContext: false);
+        var user = await _userManager.FindByIdAsync(request.UserId.Value.ToString("D")).ConfigureAwait(continueOnCapturedContext: false);
         if (user == null)
         {
             return null;

@@ -8,10 +8,6 @@ public class MySqlIdentityUserTokenClassGenerator
 {
     protected override DatabaseProvider Provider => DatabaseProvider.MySql;
 
-    protected override string QuoteColumn(string column) => base.QuoteColumn(column);
-
-    protected override string TokenTableName => base.TokenTableName;
-
     protected override string ProcessIdentityUserTokenCreateSql(
         IdentityDapperConfiguration config,
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples) =>

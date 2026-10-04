@@ -43,6 +43,7 @@ public class AuthPasswordRequestHandler
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password ?? string.Empty, lockoutOnFailure: true)
             .ConfigureAwait(continueOnCapturedContext: false);
+
         // This example has no second-factor exchange endpoint; never bypass one.
         if (!result.Succeeded ||
             (_userManager.SupportsUserTwoFactor && await _userManager.GetTwoFactorEnabledAsync(user).ConfigureAwait(continueOnCapturedContext: false)))

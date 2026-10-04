@@ -38,7 +38,7 @@ public static class OracleTypeMapper
             "string" => "OracleMappingType.Char",
             "String" => "OracleMappingType.Char",
             "System.String" => "OracleMappingType.Char",
-            _ => throw new ArgumentException($"Unknown key type {keyTypeName}"),
+            _ => throw new ArgumentException($"Unknown key type {keyTypeName}", nameof(keyTypeName)),
         };
     }
 
@@ -63,7 +63,7 @@ public static class OracleTypeMapper
             "string" => "36",
             "String" => "36",
             "System.String" => "36",
-            _ => throw new ArgumentException($"Unknown key type {keyTypeName}"),
+            _ => throw new ArgumentException($"Unknown key type {keyTypeName}", nameof(keyTypeName)),
         };
     }
 
@@ -73,13 +73,13 @@ public static class OracleTypeMapper
         {
             return "OracleMappingType.Char, ParameterDirection.Input, 1);";
         }
-        
+
         if (string.Equals(storeBooleanAs, "number", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(storeBooleanAs, "numeric", StringComparison.OrdinalIgnoreCase))
         {
             return "OracleMappingType.Int16, ParameterDirection.Input);";
         }
-        
+
         if (string.Equals(storeBooleanAs, "string", StringComparison.OrdinalIgnoreCase))
         {
             return "OracleMappingType.Varchar2, ParameterDirection.Input, 10);";

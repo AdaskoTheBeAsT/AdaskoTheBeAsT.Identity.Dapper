@@ -5,7 +5,7 @@ internal sealed class FixtureResourceLifecycle(Func<Task> initialize, Func<Task>
     : IAsyncDisposable, IDisposable
 {
     internal const string CleanupFailureKey = "FixtureCleanupException";
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
     private Task? _initializationTask;
     private Task? _cleanupTask;
     private Task? _disposalTask;
@@ -40,7 +40,7 @@ internal sealed class FixtureResourceLifecycle(Func<Task> initialize, Func<Task>
     {
         try
         {
-            await initialize().ConfigureAwait(false);
+            await (initialize?.Invoke() ?? throw new ArgumentNullException(nameof(initialize))).ConfigureAwait(false);
         }
         catch (Exception initializationFailure)
         {
@@ -64,11 +64,15 @@ internal sealed class FixtureResourceLifecycle(Func<Task> initialize, Func<Task>
         {
             try
             {
+#pragma warning disable VSTHRD003 // Observe the cached initialization task; this fixture has no UI context.
                 await initialization.ConfigureAwait(false);
+#pragma warning restore VSTHRD003
             }
             catch (Exception)
             {
                 // Initialization reports its own failure; disposal must still observe cleanup.
+                await CleanupOnceAsync().ConfigureAwait(false);
+                return;
             }
         }
 
@@ -83,5 +87,16 @@ internal sealed class FixtureResourceLifecycle(Func<Task> initialize, Func<Task>
         }
     }
 
-    private async Task CleanupCoreAsync() => await cleanup().ConfigureAwait(false);
+    private Task CleanupCoreAsync()
+    {
+        try
+        {
+            return cleanup?.Invoke() ?? throw new ArgumentNullException(nameof(cleanup));
+        }
+        catch (Exception exception)
+        {
+            // Cache synchronous callback failures just like asynchronous cleanup failures.
+            return Task.FromException(exception);
+        }
+    }
 }

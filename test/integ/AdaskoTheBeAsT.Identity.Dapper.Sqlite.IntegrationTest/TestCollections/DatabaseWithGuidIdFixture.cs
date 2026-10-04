@@ -14,8 +14,6 @@ public sealed class DatabaseWithGuidIdFixture
     private readonly FixtureResourceLifecycle _lifecycle;
     private readonly string _databasePath;
 
-    public static DatabaseWithGuidIdFixture Shared { get; } = new();
-
     public DatabaseWithGuidIdFixture()
     {
         _lifecycle = new FixtureResourceLifecycle(InitializeCoreAsync, CleanupAsync);
@@ -32,11 +30,17 @@ public sealed class DatabaseWithGuidIdFixture
         }.ConnectionString;
     }
 
+    public static DatabaseWithGuidIdFixture Shared { get; } = new();
+
     public string ConnectionString { get; }
 
     public TestOutputHelperAdapter TestOutputHelperAdapter { get; } = new();
 
     public ValueTask InitializeAsync() => new(_lifecycle.InitializeAsync());
+
+    public ValueTask DisposeAsync() => _lifecycle.DisposeAsync();
+
+    public void Dispose() => _lifecycle.Dispose();
 
     private async Task InitializeCoreAsync()
     {
@@ -72,13 +76,11 @@ public sealed class DatabaseWithGuidIdFixture
         }
     }
 
-    public ValueTask DisposeAsync() => _lifecycle.DisposeAsync();
-
-    public void Dispose() => _lifecycle.Dispose();
-
     private Task CleanupAsync()
     {
+#pragma warning disable SCS0018, SEC0116 // Delete only this fixture's GUID-named temporary database, never a caller-supplied path.
         File.Delete(_databasePath);
+#pragma warning restore SCS0018, SEC0116
         return Task.CompletedTask;
     }
 }

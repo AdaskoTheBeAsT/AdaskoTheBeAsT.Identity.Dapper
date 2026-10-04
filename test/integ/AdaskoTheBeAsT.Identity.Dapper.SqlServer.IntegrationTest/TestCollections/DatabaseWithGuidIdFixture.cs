@@ -27,27 +27,39 @@ public sealed class DatabaseWithGuidIdFixture
                         "/opt/mssql-tools18/bin/sqlcmd",
                         "-C",
                         "-Q",
-                        "SELECT 1;"
-                    )
-            )
-            //.WithImage("mcr.microsoft.com/mssql/server:2022-latest")
-            //.WithEnvironment("ACCEPT_EULA", "Y")
-            //.WithEnvironment("MSSQL_SA_PASSWORD", "TestPass123!")
-            //.WithEnvironment("MSSQL_PID", "Developer")
-            //.WithExposedPort(55123)
+                        "SELECT 1;"))
+
+            // .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+            // .WithEnvironment("ACCEPT_EULA", "Y")
+            // .WithEnvironment("MSSQL_SA_PASSWORD", "TestPass123!")
+            // .WithEnvironment("MSSQL_PID", "Developer")
+            // .WithExposedPort(55123)
             .WithPassword("TestPass123!")
             .Build();
-
-    public static DatabaseWithGuidIdFixture Shared { get; } = new();
 
     public DatabaseWithGuidIdFixture()
     {
         _lifecycle = new FixtureResourceLifecycle(InitializeCoreAsync, CleanupAsync);
     }
 
+    public static DatabaseWithGuidIdFixture Shared { get; } = new();
+
     public string ConnectionString { get; set; } = string.Empty;
 
     public ValueTask InitializeAsync() => new(_lifecycle.InitializeAsync());
+
+    public ValueTask DisposeAsync() => _lifecycle.DisposeAsync();
+
+    public void Dispose() => _lifecycle.Dispose();
+
+    private static Task CreateDbAsync(SqlConnection connection)
+    {
+        var initScriptPath =
+            Path.GetFullPath(Path.Combine("Scripts", DbName, "init.sql"));
+        var server = new Server(new ServerConnection(connection));
+        var content = InitScriptProcessor.PreprocessInitScript(initScriptPath, DbName);
+        return server.ConnectionContext.ExecuteNonQueryAsync(content, TestContext.Current.CancellationToken);
+    }
 
     private async Task InitializeCoreAsync()
     {
@@ -62,19 +74,5 @@ public sealed class DatabaseWithGuidIdFixture
         ConnectionString = sqlConnectionStringBuilder.ConnectionString;
     }
 
-    public ValueTask DisposeAsync() => _lifecycle.DisposeAsync();
-
-    public void Dispose() => _lifecycle.Dispose();
-
     private Task CleanupAsync() => _msSqlContainer.DisposeAsync().AsTask();
-
-    private Task CreateDbAsync(SqlConnection connection)
-    {
-        var initScriptPath =
-            Path.GetFullPath(Path.Combine("Scripts", DbName, "init.sql"));
-        var server = new Server(new ServerConnection(connection));
-        var content = InitScriptProcessor.PreprocessInitScript(initScriptPath, DbName);
-        server.ConnectionContext.ExecuteNonQuery(content);
-        return Task.CompletedTask;
-    }
 }

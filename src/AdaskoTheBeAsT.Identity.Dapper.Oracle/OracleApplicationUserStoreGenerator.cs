@@ -69,7 +69,7 @@ public class OracleApplicationUserStoreGenerator
         return sb.ToString();
     }
 
-    private void GenerateConstructor(StringBuilder sb)
+    private static void GenerateConstructor(StringBuilder sb)
     {
         sb.AppendLine(
             """
@@ -91,7 +91,7 @@ public class OracleApplicationUserStoreGenerator
         sb.AppendLine();
     }
 
-    private void GenerateUsersProperty(StringBuilder sb)
+    private static void GenerateUsersProperty(StringBuilder sb)
     {
         sb.AppendLine(
             """
@@ -108,7 +108,7 @@ public class OracleApplicationUserStoreGenerator
         sb.AppendLine();
     }
 
-    private void GenerateGetUsersInRoleImpl(
+    private static void GenerateGetUsersInRoleImpl(
         StringBuilder sb)
     {
         sb.AppendLine(
@@ -137,7 +137,7 @@ public class OracleApplicationUserStoreGenerator
         sb.AppendLine();
     }
 
-    private void GenerateAddToRoleImpl(
+    private static void GenerateAddToRoleImpl(
         StringBuilder sb,
         string keyTypeName,
         IList<PropertyColumnTypeTriple> properties,
@@ -168,7 +168,7 @@ public class OracleApplicationUserStoreGenerator
         sb.AppendLine();
     }
 
-    private void GenerateRemoveFromRoleImpl(
+    private static void GenerateRemoveFromRoleImpl(
         StringBuilder sb,
         string keyTypeName)
     {
@@ -202,7 +202,7 @@ public class OracleApplicationUserStoreGenerator
         sb.AppendLine();
     }
 
-    private void GenerateGetRolesImpl(
+    private static void GenerateGetRolesImpl(
         StringBuilder sb,
         string keyTypeName)
     {
@@ -233,7 +233,7 @@ public class OracleApplicationUserStoreGenerator
         sb.AppendLine();
     }
 
-    private void GenerateIsInRoleImpl(
+    private static void GenerateIsInRoleImpl(
         StringBuilder sb,
         string keyTypeName)
     {
@@ -267,7 +267,7 @@ public class OracleApplicationUserStoreGenerator
         sb.AppendLine();
     }
 
-    private void GenerateGetRoleClaimsImpl(
+    private static void GenerateGetRoleClaimsImpl(
         StringBuilder sb,
         string keyTypeName)
     {
@@ -298,7 +298,7 @@ public class OracleApplicationUserStoreGenerator
         sb.AppendLine();
     }
 
-    private void GenerateGetUserAndRoleClaimsImpl(
+    private static void GenerateGetUserAndRoleClaimsImpl(
         StringBuilder sb,
         string keyTypeName)
     {
@@ -329,7 +329,7 @@ public class OracleApplicationUserStoreGenerator
         sb.AppendLine();
     }
 
-    private void GenerateFindRoleImpl(
+    private static void GenerateFindRoleImpl(
         StringBuilder sb)
     {
         sb.AppendLine(
@@ -356,7 +356,7 @@ public class OracleApplicationUserStoreGenerator
         sb.AppendLine();
     }
 
-    private void GenerateFindUserRole(
+    private static void GenerateFindUserRole(
         StringBuilder sb,
         string keyTypeName)
     {

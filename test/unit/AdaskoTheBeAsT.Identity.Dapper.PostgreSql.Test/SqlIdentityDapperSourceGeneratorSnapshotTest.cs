@@ -2,6 +2,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.PostgreSql.Test;
 
 public class SqlIdentityDapperSourceGeneratorSnapshotTest
 {
+#pragma warning disable MA0051 // Method is too long
     [Fact]
     public Task GeneratesSqlCorrectlyAsync()
     {
@@ -67,4 +68,5 @@ public class SqlIdentityDapperSourceGeneratorSnapshotTest
         // Pass the source code to our helper and snapshot test the output
         return TestHelper.VerifyAsync(source);
     }
+#pragma warning restore MA0051
 }

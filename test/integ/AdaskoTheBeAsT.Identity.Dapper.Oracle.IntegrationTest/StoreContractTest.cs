@@ -16,14 +16,11 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
 {
     private readonly Provider _provider = new(fixture.ConnectionString);
 
-    protected override ApplicationUserOnlyStore Users() => new(_provider);
-    protected override ApplicationRoleStore Roles() => new(_provider);
-
     [Fact]
     public async Task InheritedDateAndNullableDefaultsRoundTrip()
     {
         using var store = Users();
-        var date = new DateTime(2026, 1, 2, 3, 4, 5);
+        var date = new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Unspecified);
         var user = new ApplicationUser { Id = Guid.NewGuid(), UserName = Guid.NewGuid().ToString(), CreatedAt = date, DisplayLabel = null };
         var created = await store.CreateAsync(user, CancellationToken.None);
         created.Succeeded.Should().BeTrue("{0}", string.Join("; ", created.Errors.Select(e => e.Description)));
@@ -45,9 +42,9 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
         (await store.CreateAsync(user, CancellationToken.None)).Succeeded.Should().BeTrue();
         (await roles.CreateAsync(role, CancellationToken.None)).Succeeded.Should().BeTrue();
         await store.AddClaimsAsync(user, new[] { new Claim("old", "value") }, CancellationToken.None);
-        await roles.AddClaimAsync(role, new Claim("role", "value"), CancellationToken.None);
+        await roles.AddClaimAsync(role, new Claim(nameof(role), "value"), CancellationToken.None);
         await store.AddLoginAsync(user, new Microsoft.AspNetCore.Identity.UserLoginInfo("provider", user.Id.ToString(), "name"), CancellationToken.None);
-        await store.AddToRoleAsync(user, role.Name!, CancellationToken.None);
+        await store.AddToRoleAsync(user, role.Name, CancellationToken.None);
         await store.SetTokenAsync(user, "provider", "name", "value", CancellationToken.None);
         using var connection = _provider.Provide();
         var parameters = new { Id = user.Id };
@@ -77,33 +74,37 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
         using var connection = _provider.Provide();
         using var userOnly = new TestStore(_provider);
         using var withRoles = new LoginTestStore(_provider);
-        Task<ApplicationUserLogin?> Lookup(Guid userId, string provider, string key) => includeRoles
-            ? withRoles.FindLogin(connection, userId, provider, key)
-            : userOnly.FindLogin(connection, userId, provider, key);
-        (await Lookup(user.Id, "scoped", providerKey))!.UserId.Should().Be(user.Id);
-        (await Lookup(Guid.NewGuid(), "scoped", providerKey)).Should().BeNull();
-        (await Lookup(user.Id, "other", providerKey)).Should().BeNull();
-        (await Lookup(user.Id, "scoped", "other")).Should().BeNull();
+        Func<OracleConnection, Guid, string, string, Task<ApplicationUserLogin?>> lookup = includeRoles
+            ? withRoles.FindLoginAsync
+            : userOnly.FindLoginAsync;
+        (await lookup(connection, user.Id, "scoped", providerKey))!.UserId.Should().Be(user.Id);
+        (await lookup(connection, Guid.NewGuid(), "scoped", providerKey)).Should().BeNull();
+        (await lookup(connection, user.Id, "other", providerKey)).Should().BeNull();
+        (await lookup(connection, user.Id, "scoped", "other")).Should().BeNull();
     }
 
-    protected override async Task<bool> CompareExchange(ApplicationUserToken token, string? original)
+    protected override ApplicationUserOnlyStore Users() => new(_provider);
+
+    protected override ApplicationRoleStore Roles() => new(_provider);
+
+    protected override async Task<bool> CompareExchangeAsync(ApplicationUserToken token, string? original)
     {
         using var store = new TestStore(_provider);
         using var connection = _provider.Provide();
-        return await store.Exchange(connection, token, original);
+        return await store.ExchangeAsync(connection, token, original);
     }
 
-    protected override async Task<bool> Redeem(ApplicationUser user, string code, Func<Task> barrier)
+    protected override async Task<bool> RedeemAsync(ApplicationUser user, string code, Func<Task> barrier)
     {
         using var store = new TestStore(_provider, barrier);
         return await store.RedeemCodeAsync(user, code, CancellationToken.None);
     }
 
-    protected override async Task TokenCommand(ApplicationUser user, string operation, CancellationToken cancellationToken)
+    protected override async Task TokenCommandAsync(ApplicationUser user, string operation, CancellationToken cancellationToken)
     {
         using var store = new TestStore(_provider);
         using var connection = _provider.Provide();
-        await store.Command(connection, user, operation, cancellationToken);
+        await store.CommandAsync(connection, user, operation, cancellationToken);
     }
 
     private sealed class Provider(string connectionString) : IIdentityDbConnectionProvider<OracleConnection>
@@ -114,13 +115,14 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
     private sealed class TestStore(Provider provider, Func<Task>? barrier = null) : ApplicationUserOnlyStore(provider)
     {
         private bool _waited;
-        public Task<ApplicationUserLogin?> FindLogin(OracleConnection connection, Guid userId, string provider, string key) =>
-            base.FindUserLoginImplAsync(connection, userId, provider, key, CancellationToken.None);
 
-        public Task<bool> Exchange(OracleConnection connection, ApplicationUserToken token, string? original) =>
-            base.TryUpdateTokenImplAsync(connection, token, original, CancellationToken.None);
+        public Task<ApplicationUserLogin?> FindLoginAsync(OracleConnection connection, Guid userId, string provider, string key) =>
+                            FindUserLoginImplAsync(connection, userId, provider, key, CancellationToken.None);
 
-        public Task Command(OracleConnection connection, ApplicationUser user, string operation, CancellationToken cancellationToken)
+        public Task<bool> ExchangeAsync(OracleConnection connection, ApplicationUserToken token, string? original) =>
+                            base.TryUpdateTokenImplAsync(connection, token, original, CancellationToken.None);
+
+        public Task CommandAsync(OracleConnection connection, ApplicationUser user, string operation, CancellationToken cancellationToken)
         {
             var token = new ApplicationUserToken { UserId = user.Id, LoginProvider = "contract", Name = "cancel" };
             return operation switch
@@ -133,12 +135,12 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
         }
 
         protected override async Task<bool> TryUpdateTokenImplAsync(
-            OracleConnection connection, ApplicationUserToken token, string? originalValue, CancellationToken cancellationToken)
+                            OracleConnection connection, ApplicationUserToken token, string? originalValue, CancellationToken cancellationToken)
         {
             if (!_waited && barrier != null)
             {
                 _waited = true;
-                await barrier();
+                await (barrier?.Invoke() ?? throw new ArgumentNullException(nameof(barrier)));
             }
 
             return await base.TryUpdateTokenImplAsync(connection, token, originalValue, cancellationToken);
@@ -147,7 +149,7 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
 
     private sealed class LoginTestStore(Provider provider) : ApplicationUserStore(provider)
     {
-        public Task<ApplicationUserLogin?> FindLogin(OracleConnection connection, Guid userId, string loginProvider, string key) =>
-            base.FindUserLoginImplAsync(connection, userId, loginProvider, key, CancellationToken.None);
+        public Task<ApplicationUserLogin?> FindLoginAsync(OracleConnection connection, Guid userId, string loginProvider, string key) =>
+                            FindUserLoginImplAsync(connection, userId, loginProvider, key, CancellationToken.None);
     }
 }

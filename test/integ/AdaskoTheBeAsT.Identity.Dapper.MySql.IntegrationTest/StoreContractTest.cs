@@ -15,8 +15,6 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
         ApplicationUserToken, ApplicationRoleClaim, MySqlConnection>, IClassFixture<DatabaseWithGuidIdFixture>
 {
     private readonly Provider _provider = new(fixture.ConnectionString);
-    protected override ApplicationUserOnlyStore Users() => new(_provider);
-    protected override ApplicationRoleStore Roles() => new(_provider);
 
     [Theory]
     [InlineData(false, null)]
@@ -58,32 +56,38 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
         var user = new ApplicationUser { Id = Guid.NewGuid(), UserName = Guid.NewGuid().ToString() };
         (await users.CreateAsync(user, CancellationToken.None)).Succeeded.Should().BeTrue();
         await users.SetTokenAsync(user, "concurrent", "token", "original", CancellationToken.None);
+#pragma warning disable IDISP013 // The callback completes inside the awaited competing write before either store leaves scope.
         using var competing = new TestStore(provider, () =>
             users.SetTokenAsync(user, "concurrent", "token", "intervening", CancellationToken.None));
+#pragma warning restore IDISP013
 
         await FluentActions.Awaiting(() =>
             competing.SetTokenAsync(user, "concurrent", "token", "attempted", CancellationToken.None)).Should().ThrowExactlyAsync<DBConcurrencyException>();
         (await users.GetTokenAsync(user, "concurrent", "token", CancellationToken.None)).Should().Be("intervening");
     }
 
-    protected override async Task<bool> CompareExchange(ApplicationUserToken token, string? original)
+    protected override ApplicationUserOnlyStore Users() => new(_provider);
+
+    protected override ApplicationRoleStore Roles() => new(_provider);
+
+    protected override async Task<bool> CompareExchangeAsync(ApplicationUserToken token, string? original)
     {
         using var store = new TestStore(_provider);
         using var connection = _provider.Provide();
-        return await store.Exchange(connection, token, original);
+        return await store.ExchangeAsync(connection, token, original);
     }
 
-    protected override async Task<bool> Redeem(ApplicationUser user, string code, Func<Task> barrier)
+    protected override async Task<bool> RedeemAsync(ApplicationUser user, string code, Func<Task> barrier)
     {
         using var store = new TestStore(_provider, barrier);
         return await store.RedeemCodeAsync(user, code, CancellationToken.None);
     }
 
-    protected override async Task TokenCommand(ApplicationUser user, string operation, CancellationToken cancellationToken)
+    protected override async Task TokenCommandAsync(ApplicationUser user, string operation, CancellationToken cancellationToken)
     {
         using var store = new TestStore(_provider);
         using var connection = _provider.Provide();
-        await store.Command(connection, user, operation, cancellationToken);
+        await store.CommandAsync(connection, user, operation, cancellationToken);
     }
 
     private sealed class Provider(string connectionString) : IIdentityDbConnectionProvider<MySqlConnection>
@@ -94,10 +98,11 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
     private sealed class TestStore(Provider provider, Func<Task>? barrier = null) : ApplicationUserOnlyStore(provider)
     {
         private bool _waited;
-        public Task<bool> Exchange(MySqlConnection connection, ApplicationUserToken token, string? original) =>
-            base.TryUpdateTokenImplAsync(connection, token, original, CancellationToken.None);
 
-        public Task Command(MySqlConnection connection, ApplicationUser user, string operation, CancellationToken cancellationToken)
+        public Task<bool> ExchangeAsync(MySqlConnection connection, ApplicationUserToken token, string? original) =>
+                    base.TryUpdateTokenImplAsync(connection, token, original, CancellationToken.None);
+
+        public Task CommandAsync(MySqlConnection connection, ApplicationUser user, string operation, CancellationToken cancellationToken)
         {
             var token = new ApplicationUserToken { UserId = user.Id, LoginProvider = "contract", Name = "cancel" };
             return operation switch
@@ -110,12 +115,12 @@ public sealed class StoreContractTest(DatabaseWithGuidIdFixture fixture)
         }
 
         protected override async Task<bool> TryUpdateTokenImplAsync(
-            MySqlConnection connection, ApplicationUserToken token, string? originalValue, CancellationToken cancellationToken)
+                    MySqlConnection connection, ApplicationUserToken token, string? originalValue, CancellationToken cancellationToken)
         {
             if (!_waited && barrier != null)
             {
                 _waited = true;
-                await barrier();
+                await (barrier?.Invoke() ?? throw new ArgumentNullException(nameof(barrier)));
             }
 
             return await base.TryUpdateTokenImplAsync(connection, token, originalValue, cancellationToken);

@@ -1,5 +1,5 @@
-using AdaskoTheBeAsT.Identity.Dapper.Attributes;
 using System.ComponentModel.DataAnnotations.Schema;
+using AdaskoTheBeAsT.Identity.Dapper.Attributes;
 using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Identity;

@@ -10,10 +10,12 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest;
 
 public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
 {
+    private static readonly string[] SingleRecoveryCode = { "alpha-123" };
+    private static readonly string[] ConcurrentRecoveryCodes = { "first", "second" };
     private readonly ConnectionProvider _provider;
 
     public StoreSafetyTest(DatabaseWithGuidIdFixture fixture) =>
-        _provider = new ConnectionProvider(fixture.ConnectionString);
+            _provider = new ConnectionProvider(fixture.ConnectionString);
 
     [Theory]
     [InlineData("alpha-123")]
@@ -21,8 +23,8 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
     public async Task RecoveryCodeCanOnlyBeRedeemedOnce(string submitted)
     {
         using var store = new ApplicationUserOnlyStore(_provider);
-        var user = await CreateUser(store);
-        await store.ReplaceCodesAsync(user, new[] { "alpha-123" }, CancellationToken.None);
+        var user = await CreateUserAsync(store);
+        await store.ReplaceCodesAsync(user, SingleRecoveryCode, CancellationToken.None);
         (await store.RedeemCodeAsync(user, submitted, CancellationToken.None)).Should().BeTrue();
         (await store.RedeemCodeAsync(user, submitted, CancellationToken.None)).Should().BeFalse();
         (await store.CountCodesAsync(user, CancellationToken.None)).Should().Be(0);
@@ -32,39 +34,41 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
     public async Task MissingOrExhaustedRecoveryCodesRejectEmptyInput()
     {
         using var store = new ApplicationUserOnlyStore(_provider);
-        var user = await CreateUser(store);
-        (await store.RedeemCodeAsync(user, "", CancellationToken.None)).Should().BeFalse();
+        var user = await CreateUserAsync(store);
+        (await store.RedeemCodeAsync(user, string.Empty, CancellationToken.None)).Should().BeFalse();
         await store.ReplaceCodesAsync(user, Array.Empty<string>(), CancellationToken.None);
-        (await store.RedeemCodeAsync(user, "", CancellationToken.None)).Should().BeFalse();
+        (await store.RedeemCodeAsync(user, string.Empty, CancellationToken.None)).Should().BeFalse();
     }
 
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task ConcurrentRecoveryDoesNotReuseOrRestoreCodes(bool differentCodes)
+    public async Task ConcurrentRecoveryDoesNotReuseOrRestoreCodesAsync(bool differentCodes)
     {
         using var store = new ApplicationUserOnlyStore(_provider);
-        var user = await CreateUser(store);
-        await store.ReplaceCodesAsync(user, new[] { "first", "second" }, CancellationToken.None);
+        var user = await CreateUserAsync(store);
+        await store.ReplaceCodesAsync(user, ConcurrentRecoveryCodes, CancellationToken.None);
         var ready = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var arrived = 0;
-        Task Barrier()
+        Task BarrierAsync()
         {
             if (Interlocked.Increment(ref arrived) == 2)
             {
                 ready.SetResult();
             }
 
+#pragma warning disable IDISP013 // Both barrier callbacks complete in the awaited WhenAll before the stores leave scope.
             return ready.Task.WaitAsync(TimeSpan.FromSeconds(15));
+#pragma warning restore IDISP013
         }
 
-        using var first = new CoordinatedStore(_provider, Barrier);
-        using var second = new CoordinatedStore(_provider, Barrier);
+        using var first = new CoordinatedStore(_provider, BarrierAsync);
+        using var second = new CoordinatedStore(_provider, BarrierAsync);
         var outcomes = await Task.WhenAll(
-            first.RedeemCodeAsync(user, "first", CancellationToken.None),
-            second.RedeemCodeAsync(user, differentCodes ? "second" : "first", CancellationToken.None));
+            first.RedeemCodeAsync(user, nameof(first), CancellationToken.None),
+            second.RedeemCodeAsync(user, differentCodes ? nameof(second) : nameof(first), CancellationToken.None));
         outcomes.Count(success => success).Should().Be(differentCodes ? 2 : 1);
-        (await store.RedeemCodeAsync(user, "first", CancellationToken.None)).Should().BeFalse();
+        (await store.RedeemCodeAsync(user, nameof(first), CancellationToken.None)).Should().BeFalse();
         (await store.CountCodesAsync(user, CancellationToken.None)).Should().Be(differentCodes ? 0 : 1);
     }
 
@@ -72,13 +76,13 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
     public async Task StaleUserUpdateAndDeleteFailWithoutChangingCurrentData()
     {
         using var store = new ApplicationUserOnlyStore(_provider);
-        var user = await CreateUser(store);
+        var user = await CreateUserAsync(store);
         var stale = (await store.FindByIdAsync(user.Id.ToString(), CancellationToken.None))!;
         var stamp = user.ConcurrencyStamp;
         user.PhoneNumber = "newer";
         (await store.UpdateAsync(user, CancellationToken.None)).Succeeded.Should().BeTrue();
         user.ConcurrencyStamp.Should().NotBe(stamp);
-        stale.PhoneNumber = "stale";
+        stale.PhoneNumber = nameof(stale);
         AssertConcurrencyFailure(await store.UpdateAsync(stale, CancellationToken.None));
         AssertConcurrencyFailure(await store.DeleteAsync(stale, CancellationToken.None));
         (await store.FindByIdAsync(user.Id.ToString(), CancellationToken.None))!.PhoneNumber.Should().Be("newer");
@@ -110,17 +114,17 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
         using var users = new ApplicationUserStore(_provider);
         using var userOnly = new ApplicationUserOnlyStore(_provider);
         using var roles = new ApplicationRoleStore(_provider);
-        var none = await CreateUser(userOnly);
-        var one = await CreateUser(userOnly);
-        var two = await CreateUser(userOnly);
+        var none = await CreateUserAsync(userOnly);
+        var one = await CreateUserAsync(userOnly);
+        var two = await CreateUserAsync(userOnly);
         for (var i = 0; i < 2; i++)
         {
             var role = new ApplicationRole { Id = Guid.NewGuid(), Name = Guid.NewGuid().ToString(), ConcurrencyStamp = Guid.NewGuid().ToString() };
             (await roles.CreateAsync(role, CancellationToken.None)).Succeeded.Should().BeTrue();
-            await users.AddToRoleAsync(two, role.Name!, CancellationToken.None);
+            await users.AddToRoleAsync(two, role.Name, CancellationToken.None);
             if (i == 0)
             {
-                await users.AddToRoleAsync(one, role.Name!, CancellationToken.None);
+                await users.AddToRoleAsync(one, role.Name, CancellationToken.None);
             }
         }
 
@@ -135,7 +139,7 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
     public async Task CustomMappedAndNullablePropertiesRoundTrip()
     {
         using var store = new ApplicationUserOnlyStore(_provider);
-        var user = await CreateUser(store);
+        var user = await CreateUserAsync(store);
         user.Active = true;
         user.DisplayLabel = "custom value";
         user.IgnoredProperty = "not persisted";
@@ -156,7 +160,7 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
     public async Task ExistingNullTokenCanBeReplaced()
     {
         using var store = new ApplicationUserOnlyStore(_provider);
-        var user = await CreateUser(store);
+        var user = await CreateUserAsync(store);
         await store.SetTokenAsync(user, "test", "nullable", null, CancellationToken.None);
         await store.SetTokenAsync(user, "test", "nullable", "replacement", CancellationToken.None);
         (await store.GetTokenAsync(user, "test", "nullable", CancellationToken.None)).Should().Be("replacement");
@@ -168,7 +172,7 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
         result.Errors.Should().Contain(e => e.Code == "ConcurrencyFailure");
     }
 
-    private static async Task<ApplicationUser> CreateUser(ApplicationUserOnlyStore store)
+    private static async Task<ApplicationUser> CreateUserAsync(ApplicationUserOnlyStore store)
     {
         var user = new ApplicationUser
         {
@@ -191,12 +195,12 @@ public sealed class StoreSafetyTest : IClassFixture<DatabaseWithGuidIdFixture>
         private bool _waited;
 
         protected override async Task<bool> TryUpdateTokenImplAsync(
-            SqliteConnection connection, ApplicationUserToken token, string? originalValue, CancellationToken cancellationToken)
+                    SqliteConnection connection, ApplicationUserToken token, string? originalValue, CancellationToken cancellationToken)
         {
             if (!_waited)
             {
                 _waited = true;
-                await barrier();
+                await (barrier?.Invoke() ?? throw new ArgumentNullException(nameof(barrier)));
             }
 
             return await base.TryUpdateTokenImplAsync(connection, token, originalValue, cancellationToken);

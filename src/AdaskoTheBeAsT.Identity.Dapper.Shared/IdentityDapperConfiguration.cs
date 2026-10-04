@@ -1,16 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
-
-public enum DatabaseProvider
-{
-    SqlServer,
-    PostgreSql,
-    MySql,
-    Oracle,
-    Sqlite,
-}
 
 public class IdentityDapperConfiguration
 {
@@ -68,13 +60,11 @@ public class IdentityDapperConfiguration
             mappings[entity] = columns;
         }
 
-        foreach (var property in properties)
+        // Explicit triples win; standard default triples must not erase configured mappings.
+        foreach (var property in properties.Where(property =>
+            !string.Equals(property.ColumnName, property.PropertyName, StringComparison.Ordinal) || !columns.ContainsKey(property.PropertyName)))
         {
-            // Explicit triples win; standard default triples must not erase configured mappings.
-            if (property.ColumnName != property.PropertyName || !columns.ContainsKey(property.PropertyName))
-            {
-                columns[property.PropertyName] = property.ColumnName;
-            }
+            columns[property.PropertyName] = property.ColumnName;
         }
 
         return new IdentityDapperConfiguration(

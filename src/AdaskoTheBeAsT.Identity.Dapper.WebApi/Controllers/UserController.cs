@@ -73,7 +73,9 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id}")]
+#pragma warning disable SEC0019 // Authentication uses explicit bearer headers, not automatically submitted cookie credentials.
     public async Task<IActionResult> UpdateUserAsync(Guid id, [FromBody] UpdateUserModel updateUserModel)
+#pragma warning restore SEC0019
     {
         if (!CanManageUser(id) || (updateUserModel.Roles != null && !User.IsInRole("Administrator")))
         {
@@ -99,7 +101,9 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+#pragma warning disable SEC0019 // Authentication uses explicit bearer headers, not automatically submitted cookie credentials.
     public async Task<IActionResult> DeleteUserAsync(Guid id)
+#pragma warning restore SEC0019
     {
         if (!CanManageUser(id))
         {

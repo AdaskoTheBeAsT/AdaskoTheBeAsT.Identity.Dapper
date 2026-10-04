@@ -14,7 +14,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper;
 
+#pragma warning disable S2436
 public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserToken, TDbConnection>
+#pragma warning restore S2436
     : IUserLoginStore<TUser>,
         IUserClaimStore<TUser>,
         IUserPasswordStore<TUser>,
@@ -71,6 +73,16 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
     }
 
+    protected IIdentityDbConnectionProvider<TDbConnection> ConnectionProvider { get; }
+
+    protected IIdentityUserSql IdentityUserSql { get; }
+
+    protected IIdentityUserClaimSql IdentityUserClaimSql { get; }
+
+    protected IIdentityUserLoginSql IdentityUserLoginSql { get; }
+
+    protected IIdentityUserTokenSql IdentityUserTokenSql { get; }
+
     public virtual async Task<IList<TUser>> GetUsersPageAsync(
         int offset,
         int pageSize,
@@ -90,20 +102,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
             new
             {
                 Offset = offset,
-                PageSize = pageSize
+                PageSize = pageSize,
             },
             cancellationToken).ConfigureAwait(false)).AsList();
     }
-
-    protected IIdentityDbConnectionProvider<TDbConnection> ConnectionProvider { get; }
-
-    protected IIdentityUserSql IdentityUserSql { get; }
-
-    protected IIdentityUserClaimSql IdentityUserClaimSql { get; }
-
-    protected IIdentityUserLoginSql IdentityUserLoginSql { get; }
-
-    protected IIdentityUserTokenSql IdentityUserTokenSql { get; }
 
     public void Dispose()
     {
@@ -1301,7 +1303,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     {
         var text = (await GetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false)) ?? string.Empty;
-        return text.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Length;
+        return text.Split(IdentityStoreParameters.RecoveryCodeSeparators, StringSplitOptions.RemoveEmptyEntries).Length;
     }
 
     protected virtual async Task<bool> RedeemCodeImplAsync(
@@ -1325,7 +1327,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
                     RecoveryCodeTokenName,
                     cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
-            var source = (token?.Value ?? string.Empty).Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            var source = (token?.Value ?? string.Empty).Split(IdentityStoreParameters.RecoveryCodeSeparators, StringSplitOptions.RemoveEmptyEntries);
             if (token == null || !source.Contains(code2, StringComparer.OrdinalIgnoreCase))
             {
                 return false;
@@ -1363,7 +1365,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
                         token.LoginProvider,
                         token.Name,
                         token.Value,
-                        OriginalValue = originalValue
+                        OriginalValue = originalValue,
                     },
                     cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false) == 1;
@@ -1503,15 +1505,6 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
     }
 
-    private void EnsureConcurrencySql()
-    {
-        if (IdentityUserSql is not IIdentityUserConcurrencySql)
-        {
-            throw new NotSupportedException(
-                "Regenerate the Identity stores before updating or deleting users: concurrency-capable SQL is required.");
-        }
-    }
-
     protected virtual void Dispose(bool disposing)
     {
         if (disposing)
@@ -1572,25 +1565,23 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
     }
 
-    protected virtual async Task<TUser?> FindByIdImplAsync(
+    protected virtual Task<TUser?> FindByIdImplAsync(
         TDbConnection connection,
         TKey? userId,
         CancellationToken cancellationToken) =>
-        await connection.QueryIdentityFirstOrDefaultAsync<TUser>(
+        connection.QueryIdentityFirstOrDefaultAsync<TUser>(
                 IdentityUserSql.FindByIdSql,
                 new { Id = userId },
-                cancellationToken)
-            .ConfigureAwait(continueOnCapturedContext: false);
+                cancellationToken);
 
-    protected virtual async Task<TUser?> FindByNameImplAsync(
+    protected virtual Task<TUser?> FindByNameImplAsync(
         TDbConnection connection,
         string normalizedUserName,
         CancellationToken cancellationToken) =>
-        await connection.QueryIdentityFirstOrDefaultAsync<TUser>(
+        connection.QueryIdentityFirstOrDefaultAsync<TUser>(
                 IdentityUserSql.FindByNameSql,
                 new { NormalizedUserName = normalizedUserName },
-                cancellationToken)
-            .ConfigureAwait(continueOnCapturedContext: false);
+                cancellationToken);
 
     protected virtual async Task<IList<Claim>> GetClaimsImplAsync(
         TDbConnection connection,
@@ -1628,13 +1619,13 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
     }
 
-    protected virtual async Task ReplaceClaimImplAsync(
+    protected virtual Task ReplaceClaimImplAsync(
         TDbConnection connection,
         TUser user,
         Claim claim,
         Claim newClaim,
         CancellationToken cancellationToken) =>
-        await connection.ExecuteAsync(
+        connection.ExecuteAsync(
                 new CommandDefinition(
                     IdentityUserClaimSql.ReplaceSql,
                     new
@@ -1647,8 +1638,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
                         ClaimTypeNew = newClaim.Type,
                         ClaimValueNew = newClaim.Value,
                     },
-                    cancellationToken: cancellationToken))
-            .ConfigureAwait(continueOnCapturedContext: false);
+                    cancellationToken: cancellationToken));
 
     protected virtual async Task RemoveClaimsImplAsync(
         TDbConnection connection,
@@ -1679,69 +1669,24 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         IReadOnlyList<string> parameterNames) =>
         new IdentityClaimBatchParameters<TUserClaim>(claims, parameterNames);
 
-    private async Task ExecuteClaimsBatchImplAsync(
-        TDbConnection connection,
-        TUser user,
-        IEnumerable<Claim> claims,
-        IIdentityUserClaimBatchSql sql,
-        bool create,
-        CancellationToken cancellationToken)
-    {
-        var names = create ? sql.CreateBatchParameterNames : new[] { "UserId", "ClaimType", "ClaimValue" };
-        if (names.Count == 0) throw new InvalidOperationException("Claim batch SQL requires bind parameters.");
-        // Stay below SQLite's conservative 999-parameter limit and bound retained entities.
-        var batchSize = Math.Max(1, Math.Min(32, 900 / names.Count));
-        using var source = claims.GetEnumerator();
-        while (true)
-        {
-            var batch = new List<TUserClaim>(batchSize);
-            while (batch.Count < batchSize)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (!source.MoveNext()) break;
-                batch.Add(CreateUserClaim(user, source.Current));
-            }
-
-            if (batch.Count == 0) break;
-            // Dapper filters properties before resolving their types. Expose the original names
-            // only in a comment so excluded custom properties never reach the typed binder.
-            var command = new StringBuilder("-- Dapper typed parameters:");
-            foreach (var name in names) command.Append(" @").Append(name);
-            command.Append('\n').Append(sql.BatchPrefix);
-            var template = create ? sql.CreateBatchItemSql : sql.DeleteBatchItemSql;
-            for (var i = 0; i < batch.Count; i++)
-            {
-                command.AppendFormat(CultureInfo.InvariantCulture, template, i).Append('\n');
-            }
-
-            command.Append(sql.BatchSuffix);
-            await connection.ExecuteAsync(
-                new CommandDefinition(
-                    command.ToString(),
-                    CreateClaimBatchParameters(batch, names),
-                    cancellationToken: cancellationToken)).ConfigureAwait(false);
-        }
-    }
-
-    protected virtual async Task AddLoginImplAsync(
+    protected virtual Task AddLoginImplAsync(
         TDbConnection connection,
         TUser user,
         UserLoginInfo login,
         CancellationToken cancellationToken) =>
-        await connection.ExecuteAsync(
+        connection.ExecuteAsync(
                 new CommandDefinition(
                     IdentityUserLoginSql.CreateSql,
                     CreateUserLogin(user, login),
-                    cancellationToken: cancellationToken))
-            .ConfigureAwait(continueOnCapturedContext: false);
+                    cancellationToken: cancellationToken));
 
-    protected virtual async Task RemoveLoginImplAsync(
+    protected virtual Task RemoveLoginImplAsync(
         TDbConnection connection,
         TUser user,
         string loginProvider,
         string providerKey,
         CancellationToken cancellationToken) =>
-        await connection.ExecuteAsync(
+        connection.ExecuteAsync(
                 new CommandDefinition(
                     IdentityUserLoginSql.DeleteSql,
                     new
@@ -1750,8 +1695,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
                         ProviderKey = providerKey,
                         UserId = user.Id,
                     },
-                    cancellationToken: cancellationToken))
-            .ConfigureAwait(continueOnCapturedContext: false);
+                    cancellationToken: cancellationToken));
 
     protected virtual async Task<IList<UserLoginInfo>> GetLoginsImplAsync(
         TDbConnection connection,
@@ -1780,16 +1724,15 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="userId">The user's id.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The user if it exists.</returns>
-    protected virtual async Task<TUser?> FindUserImplAsync(
+    protected virtual Task<TUser?> FindUserImplAsync(
         TDbConnection connection,
         TKey userId,
         CancellationToken cancellationToken)
     {
-        return await connection.QueryIdentityFirstOrDefaultAsync<TUser>(
+        return connection.QueryIdentityFirstOrDefaultAsync<TUser>(
                 IdentityUserSql.FindByIdSql,
                 new { Id = userId },
-                cancellationToken)
-            .ConfigureAwait(continueOnCapturedContext: false);
+                cancellationToken);
     }
 
     /// <summary>
@@ -1801,14 +1744,14 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="providerKey">The key provided by the <paramref name="loginProvider" /> to identify a user.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The user login if it exists.</returns>
-    protected virtual async Task<TUserLogin?> FindUserLoginImplAsync(
+    protected virtual Task<TUserLogin?> FindUserLoginImplAsync(
         TDbConnection connection,
         TKey userId,
         string loginProvider,
         string providerKey,
         CancellationToken cancellationToken)
     {
-        return await connection.QueryFirstOrDefaultAsync<TUserLogin>(
+        return connection.QueryFirstOrDefaultAsync<TUserLogin>(
                 new CommandDefinition(
                     IdentityUserLoginSql.GetByUserIdLoginProviderKeySql,
                     new
@@ -1817,8 +1760,7 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
                         LoginProvider = loginProvider,
                         ProviderKey = providerKey,
                     },
-                    cancellationToken: cancellationToken))
-            .ConfigureAwait(continueOnCapturedContext: false);
+                    cancellationToken: cancellationToken));
     }
 
     /// <summary>
@@ -1829,13 +1771,13 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="providerKey">The key provided by the <paramref name="loginProvider" /> to identify a user.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The user login if it exists.</returns>
-    protected virtual async Task<TUserLogin?> FindUserLoginImplAsync(
+    protected virtual Task<TUserLogin?> FindUserLoginImplAsync(
         TDbConnection connection,
         string loginProvider,
         string providerKey,
         CancellationToken cancellationToken)
     {
-        return await connection.QueryFirstOrDefaultAsync<TUserLogin>(
+        return connection.QueryFirstOrDefaultAsync<TUserLogin>(
                 new CommandDefinition(
                     IdentityUserLoginSql.GetByLoginProviderKeySql,
                     new
@@ -1843,19 +1785,17 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
                         LoginProvider = loginProvider,
                         ProviderKey = providerKey,
                     },
-                    cancellationToken: cancellationToken))
-            .ConfigureAwait(continueOnCapturedContext: false);
+                    cancellationToken: cancellationToken));
     }
 
-    protected virtual async Task<TUser?> FindByEmailImplAsync(
+    protected virtual Task<TUser?> FindByEmailImplAsync(
         TDbConnection connection,
         string normalizedEmail,
         CancellationToken cancellationToken) =>
-        await connection.QueryIdentityFirstOrDefaultAsync<TUser>(
+        connection.QueryIdentityFirstOrDefaultAsync<TUser>(
                 IdentityUserSql.FindByEmailSql,
                 new { NormalizedEmail = normalizedEmail },
-                cancellationToken)
-            .ConfigureAwait(continueOnCapturedContext: false);
+                cancellationToken);
 
     protected virtual async Task<IList<TUser>> GetUsersForClaimImplAsync(
         TDbConnection connection,
@@ -1872,8 +1812,6 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
             .ConfigureAwait(continueOnCapturedContext: false))
         .AsList();
 
-
-
     /// <summary>
     /// Find a user token if it exists.
     /// </summary>
@@ -1883,19 +1821,17 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="name">The name of the token.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The user token if it exists.</returns>
-    protected virtual async Task<TUserToken?> FindTokenImplAsync(
+    protected virtual Task<TUserToken?> FindTokenImplAsync(
         TDbConnection connection,
         TUser user,
         string loginProvider,
         string name,
         CancellationToken cancellationToken) =>
-        await connection.QueryFirstOrDefaultAsync<TUserToken?>(
+        connection.QueryFirstOrDefaultAsync<TUserToken?>(
                 new CommandDefinition(
                     IdentityUserTokenSql.GetByUserIdSql,
                     CreateUserToken(user, loginProvider, name, value: null),
-                    cancellationToken: cancellationToken))
-            .ConfigureAwait(continueOnCapturedContext: false);
-
+                    cancellationToken: cancellationToken));
 
     /// <summary>
     /// Add a new user token.
@@ -1904,17 +1840,15 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="token">The token to be added.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    protected virtual async Task AddUserTokenImplAsync(
+    protected virtual Task AddUserTokenImplAsync(
         TDbConnection connection,
         TUserToken token,
         CancellationToken cancellationToken) =>
-        await connection.ExecuteAsync(
+        connection.ExecuteAsync(
                 new CommandDefinition(
                     IdentityUserTokenSql.CreateSql,
                     token,
-                    cancellationToken: cancellationToken))
-            .ConfigureAwait(continueOnCapturedContext: false);
-
+                    cancellationToken: cancellationToken));
 
     /// <summary>
     /// Remove a new user token.
@@ -1923,14 +1857,89 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="token">The token to be removed.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    protected virtual async Task RemoveUserTokenImplAsync(
+    protected virtual Task RemoveUserTokenImplAsync(
         TDbConnection connection,
         TUserToken token,
         CancellationToken cancellationToken) =>
-        await connection.ExecuteAsync(
+        connection.ExecuteAsync(
                 new CommandDefinition(
                     IdentityUserTokenSql.DeleteSql,
                     token,
-                    cancellationToken: cancellationToken))
-            .ConfigureAwait(continueOnCapturedContext: false);
+                    cancellationToken: cancellationToken));
+
+    private async Task ExecuteClaimsBatchImplAsync(
+        TDbConnection connection,
+        TUser user,
+        IEnumerable<Claim> claims,
+        IIdentityUserClaimBatchSql sql,
+        bool create,
+        CancellationToken cancellationToken)
+    {
+        var names = create ? sql.CreateBatchParameterNames : IdentityStoreParameters.DeleteClaimNames;
+        if (names.Count == 0)
+        {
+            throw new InvalidOperationException("Claim batch SQL requires bind parameters.");
+        }
+
+        // Stay below SQLite's conservative 999-parameter limit and bound retained entities.
+        var batchSize = Math.Max(1, Math.Min(32, 900 / names.Count));
+        using var source = claims.GetEnumerator();
+        while (true)
+        {
+            var batch = ReadClaimsBatch(user, source, batchSize, cancellationToken);
+            if (batch.Count == 0)
+            {
+                break;
+            }
+
+            // Dapper filters properties before resolving their types. Expose the original names
+            // only in a comment so excluded custom properties never reach the typed binder.
+            var command = new StringBuilder("-- Dapper typed parameters:");
+            foreach (var name in names)
+            {
+                command.Append(" @").Append(name);
+            }
+
+            command.Append('\n').Append(sql.BatchPrefix);
+            var template = create ? sql.CreateBatchItemSql : sql.DeleteBatchItemSql;
+            for (var i = 0; i < batch.Count; i++)
+            {
+                command.AppendFormat(CultureInfo.InvariantCulture, template, i).Append('\n');
+            }
+
+            command.Append(sql.BatchSuffix);
+            await connection.ExecuteAsync(
+                new CommandDefinition(
+                    command.ToString(),
+                    CreateClaimBatchParameters(batch, names),
+                    cancellationToken: cancellationToken)).ConfigureAwait(false);
+        }
+    }
+
+    private List<TUserClaim> ReadClaimsBatch(
+        TUser user, IEnumerator<Claim> source, int batchSize, CancellationToken cancellationToken)
+    {
+        var batch = new List<TUserClaim>(batchSize);
+        while (batch.Count < batchSize)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!source.MoveNext())
+            {
+                break;
+            }
+
+            batch.Add(CreateUserClaim(user, source.Current));
+        }
+
+        return batch;
+    }
+
+    private void EnsureConcurrencySql()
+    {
+        if (IdentityUserSql is not IIdentityUserConcurrencySql)
+        {
+            throw new NotSupportedException(
+                "Regenerate the Identity stores before updating or deleting users: concurrency-capable SQL is required.");
+        }
+    }
 }

@@ -6,7 +6,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 public class OracleIdentityStoreGeneratorBase
     : IdentityStoreGeneratorBase
 {
-    protected void GenerateNormalizeSqlMethod(StringBuilder sb)
+    protected static void GenerateNormalizeSqlMethod(StringBuilder sb)
     {
         sb.AppendLine(
             """

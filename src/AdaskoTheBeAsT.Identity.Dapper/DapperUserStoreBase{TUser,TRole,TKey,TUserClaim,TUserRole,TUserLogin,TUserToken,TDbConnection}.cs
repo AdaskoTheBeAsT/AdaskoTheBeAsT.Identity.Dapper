@@ -232,29 +232,27 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
             .ConfigureAwait(continueOnCapturedContext: false))
         .AsList();
 
-    protected virtual async Task AddToRoleImplAsync(
+    protected virtual Task AddToRoleImplAsync(
         TDbConnection connection,
         TUser user,
         TRole role,
         CancellationToken cancellationToken) =>
-        await connection.ExecuteAsync(
+        connection.ExecuteAsync(
                 new CommandDefinition(
                     IdentityUserRoleSql.CreateSql,
                     CreateUserRole(user, role),
-                    cancellationToken: cancellationToken))
-            .ConfigureAwait(continueOnCapturedContext: false);
+                    cancellationToken: cancellationToken));
 
-    protected virtual async Task RemoveFromRoleImplAsync(
+    protected virtual Task RemoveFromRoleImplAsync(
         TDbConnection connection,
         TUser user,
         TRole role,
         CancellationToken cancellationToken) =>
-        await connection.ExecuteAsync(
+        connection.ExecuteAsync(
                 new CommandDefinition(
                     IdentityUserRoleSql.DeleteSql,
                     CreateUserRole(user, role),
-                    cancellationToken: cancellationToken))
-            .ConfigureAwait(continueOnCapturedContext: false);
+                    cancellationToken: cancellationToken));
 
     protected virtual async Task<IList<string>> GetRolesImplAsync(
         TDbConnection connection,
@@ -311,15 +309,14 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     /// <param name="roleName">The normalized role name.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The role if it exists.</returns>
-    protected virtual async Task<TRole?> FindRoleImplAsync(
+    protected virtual Task<TRole?> FindRoleImplAsync(
         TDbConnection connection,
         string roleName,
         CancellationToken cancellationToken) =>
-        await connection.QueryIdentityFirstOrDefaultAsync<TRole>(
+        connection.QueryIdentityFirstOrDefaultAsync<TRole>(
                 IdentityRoleSql.FindByNameSql,
                 new { NormalizedName = roleName },
-                cancellationToken)
-            .ConfigureAwait(continueOnCapturedContext: false);
+                cancellationToken);
 
     /// <summary>
     /// Return a user role for the userId and roleId if it exists.
@@ -329,12 +326,12 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     /// <param name="roleId">The role's id.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The user role if it exists.</returns>
-    protected virtual async Task<TUserRole?> FindUserRoleAsync(
+    protected virtual Task<TUserRole?> FindUserRoleAsync(
         TDbConnection connection,
         TKey userId,
         TKey roleId,
         CancellationToken cancellationToken) =>
-        await connection.QueryFirstOrDefaultAsync<TUserRole?>(
+        connection.QueryFirstOrDefaultAsync<TUserRole?>(
                 new CommandDefinition(
                     IdentityUserRoleSql.GetByUserIdRoleIdSql,
                     new
@@ -342,6 +339,5 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
                         UserId = userId,
                         RoleId = roleId,
                     },
-                    cancellationToken: cancellationToken))
-            .ConfigureAwait(continueOnCapturedContext: false);
+                    cancellationToken: cancellationToken));
 }

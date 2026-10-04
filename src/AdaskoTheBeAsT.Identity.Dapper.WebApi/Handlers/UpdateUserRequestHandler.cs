@@ -35,6 +35,7 @@ public class UpdateUserRequestHandler : IRequestHandler<UpdateUserRequest, Ident
         {
             user.UserName = request.UserName;
         }
+
         var result = await _userManager.UpdateAsync(user).ConfigureAwait(continueOnCapturedContext: false);
         if (!result.Succeeded)
         {

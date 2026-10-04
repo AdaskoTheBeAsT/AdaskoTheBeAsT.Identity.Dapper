@@ -47,12 +47,12 @@ public sealed class RolePaginationTest
     }
 
     [Fact]
-    public async Task ControllerDoesNotSwallowPagingCancellation()
+    public Task ControllerDoesNotSwallowPagingCancellation()
     {
         var mediator = new Mock<IMediator>(MockBehavior.Strict);
         mediator.Setup(instance => instance.Send(It.IsAny<GetAllRolesRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new OperationCanceledException());
         var controller = new RoleController(Mock.Of<IMapper>(MockBehavior.Strict), mediator.Object);
-        await FluentActions.Awaiting(() => controller.GetAllRolesAsync(cancellationToken: TestContext.Current.CancellationToken)).Should().ThrowAsync<OperationCanceledException>();
+        return FluentActions.Awaiting(() => controller.GetAllRolesAsync(cancellationToken: TestContext.Current.CancellationToken)).Should().ThrowAsync<OperationCanceledException>();
     }
 }

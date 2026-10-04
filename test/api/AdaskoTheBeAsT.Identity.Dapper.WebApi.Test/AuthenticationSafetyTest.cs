@@ -87,15 +87,22 @@ public sealed class AuthenticationSafetyTest
         using var tokens = CreateTokens();
         var user = new ApplicationUser { Id = Guid.NewGuid(), SecurityStamp = "original" };
         var issued = tokens.GenerateToken(user, new List<string>(), new List<Claim>());
-        if (state == "stamp") user.SecurityStamp = "changed";
+        if (string.Equals(state, "stamp", StringComparison.Ordinal))
+        {
+            user.SecurityStamp = "changed";
+        }
+
         var manager = CreateManager();
-        manager.Setup(m => m.FindByIdAsync(user.Id.ToString("D"))).ReturnsAsync(state == "deleted" ? null : user);
+        manager.Setup(m => m.FindByIdAsync(user.Id.ToString("D"))).ReturnsAsync(string.Equals(state, "deleted", StringComparison.Ordinal) ? null : user);
         manager.SetupGet(m => m.SupportsUserLockout).Returns(true);
-        manager.Setup(m => m.IsLockedOutAsync(user)).ReturnsAsync(state == "locked");
+        manager.Setup(m => m.IsLockedOutAsync(user)).ReturnsAsync(string.Equals(state, "locked", StringComparison.Ordinal));
         var signIn = CreateSignIn(manager.Object);
-        signIn.Setup(s => s.CanSignInAsync(user)).ReturnsAsync(state != "not-allowed");
-        var handler = new AuthRefreshTokenRequestHandler(manager.Object,
-            Mock.Of<IUserRoleClaimStore<ApplicationUser>>(MockBehavior.Strict), tokens, signIn.Object);
+        signIn.Setup(s => s.CanSignInAsync(user)).ReturnsAsync(!string.Equals(state, "not-allowed", StringComparison.Ordinal));
+        var handler = new AuthRefreshTokenRequestHandler(
+            manager.Object,
+            Mock.Of<IUserRoleClaimStore<ApplicationUser>>(MockBehavior.Strict),
+            tokens,
+            signIn.Object);
         await FluentActions.Awaiting(() =>
             handler.Handle(new AuthRefreshTokenRequest { RefreshToken = issued.RefreshToken }, TestContext.Current.CancellationToken)).Should().ThrowExactlyAsync<InvalidRefreshTokenException>();
     }
@@ -105,11 +112,19 @@ public sealed class AuthenticationSafetyTest
     {
         using var tokens = CreateTokens();
         var issued = tokens.GenerateToken(new ApplicationUser { Id = Guid.NewGuid() }, new List<string>(), new List<Claim>());
-        var outcomes = await Task.WhenAll(Enumerable.Range(0, 16).Select(_ => Task.Run(() =>
-        {
-            try { tokens.ConsumeRefreshToken(issued.RefreshToken!); return true; }
-            catch (InvalidRefreshTokenException) { return false; }
-        })));
+        var outcomes = await Task.WhenAll(
+            Enumerable.Range(0, 16).Select(_ => Task.Run(() =>
+            {
+                try
+                {
+                    tokens.ConsumeRefreshToken(issued.RefreshToken!);
+                    return true;
+                }
+                catch (InvalidRefreshTokenException)
+                {
+                    return false;
+                }
+            })));
         outcomes.Should().ContainSingle(result => result);
     }
 
@@ -121,14 +136,19 @@ public sealed class AuthenticationSafetyTest
         manager.Setup(m => m.FindByNameAsync("locked")).ReturnsAsync(user);
         manager.SetupGet(m => m.SupportsUserLockout).Returns(true);
         manager.Setup(m => m.IsLockedOutAsync(user)).ReturnsAsync(true);
-        var signIn = new SignInManager<ApplicationUser>(manager.Object,
+        var signIn = new SignInManager<ApplicationUser>(
+            manager.Object,
             new HttpContextAccessor { HttpContext = new DefaultHttpContext() },
-            Mock.Of<IUserClaimsPrincipalFactory<ApplicationUser>>(MockBehavior.Strict), Options.Create(new IdentityOptions()),
-            NullLogger<SignInManager<ApplicationUser>>.Instance, Mock.Of<IAuthenticationSchemeProvider>(MockBehavior.Strict),
+            Mock.Of<IUserClaimsPrincipalFactory<ApplicationUser>>(MockBehavior.Strict),
+            Options.Create(new IdentityOptions()),
+            NullLogger<SignInManager<ApplicationUser>>.Instance,
+            Mock.Of<IAuthenticationSchemeProvider>(MockBehavior.Strict),
             new DefaultUserConfirmation<ApplicationUser>());
-        var handler = new AuthPasswordRequestHandler(manager.Object,
+        var handler = new AuthPasswordRequestHandler(
+            manager.Object,
             Mock.Of<IUserRoleClaimStore<ApplicationUser>>(MockBehavior.Strict),
-            Mock.Of<ITokenService>(MockBehavior.Strict), signIn);
+            Mock.Of<ITokenService>(MockBehavior.Strict),
+            signIn);
         await FluentActions.Awaiting(() =>
             handler.Handle(new AuthPasswordRequest { Username = "locked", Password = "not-evaluated" }, TestContext.Current.CancellationToken)).Should().ThrowExactlyAsync<InvalidPasswordException>();
         manager.Verify(m => m.IsLockedOutAsync(user), Times.Once);
@@ -138,21 +158,23 @@ public sealed class AuthenticationSafetyTest
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task PasswordTokensRequireSuccessfulSignInAndNoPendingSecondFactor(bool twoFactor)
+    public Task PasswordTokensRequireSuccessfulSignInAndNoPendingSecondFactor(bool twoFactor)
     {
         var user = new ApplicationUser { Id = Guid.NewGuid() };
         var manager = CreateManager();
-        manager.Setup(m => m.FindByNameAsync("user")).ReturnsAsync(user);
+        manager.Setup(m => m.FindByNameAsync(nameof(user))).ReturnsAsync(user);
         manager.SetupGet(m => m.SupportsUserTwoFactor).Returns(true);
         manager.Setup(m => m.GetTwoFactorEnabledAsync(user)).ReturnsAsync(twoFactor);
         var signIn = CreateSignIn(manager.Object);
         signIn.Setup(s => s.CheckPasswordSignInAsync(user, "password", true))
             .ReturnsAsync(twoFactor ? SignInResult.Success : SignInResult.Failed);
-        var handler = new AuthPasswordRequestHandler(manager.Object,
+        var handler = new AuthPasswordRequestHandler(
+            manager.Object,
             Mock.Of<IUserRoleClaimStore<ApplicationUser>>(MockBehavior.Strict),
-            Mock.Of<ITokenService>(MockBehavior.Strict), signIn.Object);
-        await FluentActions.Awaiting(() =>
-            handler.Handle(new AuthPasswordRequest { Username = "user", Password = "password" }, TestContext.Current.CancellationToken)).Should().ThrowExactlyAsync<InvalidPasswordException>();
+            Mock.Of<ITokenService>(MockBehavior.Strict),
+            signIn.Object);
+        return FluentActions.Awaiting(() =>
+            handler.Handle(new AuthPasswordRequest { Username = nameof(user), Password = "password" }, TestContext.Current.CancellationToken)).Should().ThrowExactlyAsync<InvalidPasswordException>();
     }
 
     [Theory]
@@ -162,16 +184,19 @@ public sealed class AuthenticationSafetyTest
     {
         using var container = CreateMapperContainer();
         var mediator = new Mock<IMediator>(MockBehavior.Strict);
-        mediator.Setup(m => m.Send(It.Is<IRequest<Token>>(r =>
+        mediator.Setup(m => m.Send(
+            It.Is<IRequest<Token>>(r =>
                 grant == "password" ? r is AuthPasswordRequest : r is AuthRefreshTokenRequest &&
                     ((AuthRefreshTokenRequest)r).RefreshToken == "synthetic-refresh"),
-                It.IsAny<CancellationToken>()))
+            It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Token { AccessToken = "synthetic-response" });
         using var server = CreateServer(container.GetInstance<IMapper>(), mediator.Object);
         using var client = server.GetTestClient();
-        using var form = new FormUrlEncodedContent(new Dictionary<string, string>
+        using var form = new FormUrlEncodedContent(new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            ["grant_type"] = grant, ["username"] = "user", ["password"] = "password",
+            ["grant_type"] = grant,
+            ["username"] = "user",
+            ["password"] = "password",
             ["refresh_token"] = "synthetic-refresh",
         });
         using var response = await client.PostAsync("/api/token", form, cancellationToken: TestContext.Current.CancellationToken);
@@ -185,7 +210,7 @@ public sealed class AuthenticationSafetyTest
         using var container = CreateMapperContainer();
         using var server = CreateServer(container.GetInstance<IMapper>(), Mock.Of<IMediator>(MockBehavior.Strict));
         using var client = server.GetTestClient();
-        using var form = new FormUrlEncodedContent(new Dictionary<string, string> { ["grant_type"] = "unknown" });
+        using var form = new FormUrlEncodedContent(new Dictionary<string, string>(StringComparer.Ordinal) { ["grant_type"] = "unknown" });
         using var response = await client.PostAsync("/api/token", form, cancellationToken: TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         (await response.Content.ReadAsStringAsync(cancellationToken: TestContext.Current.CancellationToken)).Should().Contain("unsupported_grant_type");
@@ -201,39 +226,52 @@ public sealed class AuthenticationSafetyTest
 
     private static Mock<UserManager<ApplicationUser>> CreateManager()
     {
-        var manager = new Mock<UserManager<ApplicationUser>>(MockBehavior.Strict,
-            Mock.Of<IUserStore<ApplicationUser>>(MockBehavior.Strict), Options.Create(new IdentityOptions()),
-            new PasswordHasher<ApplicationUser>(), Array.Empty<IUserValidator<ApplicationUser>>(),
-            Array.Empty<IPasswordValidator<ApplicationUser>>(), new UpperInvariantLookupNormalizer(),
-            new IdentityErrorDescriber(), Mock.Of<IServiceProvider>(MockBehavior.Loose), NullLogger<UserManager<ApplicationUser>>.Instance);
+        var services = new Mock<IServiceProvider>(MockBehavior.Strict);
+        services.Setup(provider => provider.GetService(typeof(System.Diagnostics.Metrics.IMeterFactory))).Returns((object?)null);
+        services.Setup(provider => provider.GetService(typeof(IPasskeyHandler<ApplicationUser>))).Returns((object?)null);
+        var manager = new Mock<UserManager<ApplicationUser>>(
+            MockBehavior.Strict,
+            Mock.Of<IUserStore<ApplicationUser>>(MockBehavior.Strict),
+            Options.Create(new IdentityOptions()),
+            new PasswordHasher<ApplicationUser>(),
+            Array.Empty<IUserValidator<ApplicationUser>>(),
+            Array.Empty<IPasswordValidator<ApplicationUser>>(),
+            new UpperInvariantLookupNormalizer(),
+            new IdentityErrorDescriber(),
+            services.Object,
+            NullLogger<UserManager<ApplicationUser>>.Instance);
         manager.SetupAllProperties();
         return manager;
     }
 
     private static Mock<SignInManager<ApplicationUser>> CreateSignIn(UserManager<ApplicationUser> manager)
     {
-        var signIn = new Mock<SignInManager<ApplicationUser>>(MockBehavior.Strict,
-            manager, new HttpContextAccessor { HttpContext = new DefaultHttpContext() },
-            Mock.Of<IUserClaimsPrincipalFactory<ApplicationUser>>(MockBehavior.Strict), Options.Create(new IdentityOptions()),
-            NullLogger<SignInManager<ApplicationUser>>.Instance, Mock.Of<IAuthenticationSchemeProvider>(MockBehavior.Strict),
+        var signIn = new Mock<SignInManager<ApplicationUser>>(
+            MockBehavior.Strict,
+            manager,
+            new HttpContextAccessor { HttpContext = new DefaultHttpContext() },
+            Mock.Of<IUserClaimsPrincipalFactory<ApplicationUser>>(MockBehavior.Strict),
+            Options.Create(new IdentityOptions()),
+            NullLogger<SignInManager<ApplicationUser>>.Instance,
+            Mock.Of<IAuthenticationSchemeProvider>(MockBehavior.Strict),
             new DefaultUserConfirmation<ApplicationUser>());
         signIn.SetupAllProperties();
         return signIn;
     }
 
     private static TokenService CreateTokens() =>
-        new(new TokenServiceOptions { SigningKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48)) }, TimeProvider.System);
+                new(new TokenServiceOptions { SigningKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48)) }, TimeProvider.System);
 
     private static IHost CreateServer(IMapper mapper, IMediator mediator) => new HostBuilder().ConfigureWebHost(web => web.UseTestServer()
-        .ConfigureServices(services =>
-        {
-            services.AddControllers().AddApplicationPart(typeof(TokenController).Assembly);
-            services.AddSingleton(mapper);
-            services.AddSingleton(mediator);
-        })
-        .Configure(app =>
-        {
-            app.UseRouting();
-            app.UseEndpoints(endpoints => endpoints.MapControllers());
-        })).Start();
+                .ConfigureServices(services =>
+                {
+                    services.AddControllers().AddApplicationPart(typeof(TokenController).Assembly);
+                    services.AddSingleton(mapper);
+                    services.AddSingleton(mediator);
+                })
+                .Configure(app =>
+                {
+                    app.UseRouting();
+                    app.UseEndpoints(endpoints => endpoints.MapControllers());
+                })).Start();
 }

@@ -11,7 +11,10 @@ public sealed class ConfigurationMatrixTest(DatabaseWithGuidIdFixture fixture)
     : ConfigurationMatrixTestBase, IClassFixture<DatabaseWithGuidIdFixture>
 {
     protected override IIncrementalGenerator Generator => new Atb.PSql.SrcGen();
-    protected override DbConnection Connection() => new NpgsqlConnection(fixture.ConnectionString);
-    protected override string Provider => "PostgreSql";
+
+    protected override string Provider => nameof(PostgreSql);
+
     protected override string ConnectionType => "Npgsql.NpgsqlConnection";
+
+    protected override DbConnection Connection() => new NpgsqlConnection(fixture.ConnectionString);
 }

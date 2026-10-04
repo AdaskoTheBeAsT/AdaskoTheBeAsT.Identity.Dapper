@@ -9,30 +9,30 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 public class OracleSourceGenerationHelper
     : SourceGeneratorHelperBase
 {
-    protected override DatabaseProvider Provider => DatabaseProvider.Oracle;
-
     public OracleSourceGenerationHelper()
-        : base(
-            new OracleIdentityRoleClassGenerator(),
-            new OracleIdentityRoleClaimClassGenerator(),
-            new OracleIdentityUserClassGenerator(),
-            new OracleIdentityUserClaimClassGenerator(),
-            new OracleIdentityUserLoginClassGenerator(),
-            new OracleIdentityUserRoleClassGenerator(),
-            new OracleIdentityUserTokenClassGenerator(),
-            new OracleIdentityUserRoleClaimClassGenerator(),
-            new OracleApplicationUserOnlyStoreGenerator(),
-            new OracleApplicationUserStoreGenerator(),
-            new OracleApplicationRoleStoreGenerator())
+                : base(
+                    new OracleIdentityRoleClassGenerator(),
+                    new OracleIdentityRoleClaimClassGenerator(),
+                    new OracleIdentityUserClassGenerator(),
+                    new OracleIdentityUserClaimClassGenerator(),
+                    new OracleIdentityUserLoginClassGenerator(),
+                    new OracleIdentityUserRoleClassGenerator(),
+                    new OracleIdentityUserTokenClassGenerator(),
+                    new OracleIdentityUserRoleClaimClassGenerator(),
+                    new OracleApplicationUserOnlyStoreGenerator(),
+                    new OracleApplicationUserStoreGenerator(),
+                    new OracleApplicationRoleStoreGenerator())
     {
     }
 
+    protected override DatabaseProvider Provider => DatabaseProvider.Oracle;
+
     protected override string GenerateSchemaPart(string dbSchema) =>
-        string.IsNullOrEmpty(dbSchema) ? string.Empty : $"{dbSchema}.";
+                string.IsNullOrEmpty(dbSchema) ? string.Empty : $"{dbSchema}.";
 
     protected override void GenerateAdditionalFiles(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+                SourceProductionContext context,
+                IdentityDapperOptions options)
     {
         GenerateGuidRaw16TypeHandler(context);
         GenerateNullableGuidRaw16TypeHandler(context);
@@ -55,8 +55,8 @@ public class OracleSourceGenerationHelper
         GenerateOracleDapperConfig(context, options);
     }
 
-    private void GenerateGuidRaw16TypeHandler(
-        SourceProductionContext context)
+    private static void GenerateGuidRaw16TypeHandler(
+                SourceProductionContext context)
     {
         const string content =
             """
@@ -94,8 +94,8 @@ public class OracleSourceGenerationHelper
         context.AddSource("GuidRaw16TypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateBooleanCharTypeHandler(
-        SourceProductionContext context)
+    private static void GenerateBooleanCharTypeHandler(
+                SourceProductionContext context)
     {
         const string content =
             """
@@ -146,8 +146,8 @@ public class OracleSourceGenerationHelper
         context.AddSource("BooleanCharTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableBooleanCharTypeHandler(
-        SourceProductionContext context)
+    private static void GenerateNullableBooleanCharTypeHandler(
+                SourceProductionContext context)
     {
         const string content =
             """
@@ -208,8 +208,8 @@ public class OracleSourceGenerationHelper
         context.AddSource("NullableBooleanCharTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableBooleanNumericTypeHandler(
-        SourceProductionContext context)
+    private static void GenerateNullableBooleanNumericTypeHandler(
+                SourceProductionContext context)
     {
         const string content =
             """
@@ -254,7 +254,8 @@ public class OracleSourceGenerationHelper
         context.AddSource("NullableBooleanNumericTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableBooleanStringTypeHandler(
+#pragma warning disable MA0051 // Method is too long
+    private static void GenerateNullableBooleanStringTypeHandler(
         SourceProductionContext context)
     {
         const string content =
@@ -323,7 +324,9 @@ public class OracleSourceGenerationHelper
         context.AddSource("NullableBooleanStringTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableGuidRaw16TypeHandler(
+#pragma warning restore MA0051
+
+    private static void GenerateNullableGuidRaw16TypeHandler(
         SourceProductionContext context)
     {
         const string content =
@@ -369,8 +372,8 @@ public class OracleSourceGenerationHelper
         context.AddSource("NullableGuidRaw16TypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateDateTimeOffsetTypeHandler(
-        SourceProductionContext context)
+    private static void GenerateDateTimeOffsetTypeHandler(
+                SourceProductionContext context)
     {
         const string content =
             """
@@ -423,8 +426,8 @@ public class OracleSourceGenerationHelper
         context.AddSource("DateTimeOffsetTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableDateTimeOffsetTypeHandler(
-        SourceProductionContext context)
+    private static void GenerateNullableDateTimeOffsetTypeHandler(
+                SourceProductionContext context)
     {
         const string content =
             """
@@ -477,7 +480,8 @@ public class OracleSourceGenerationHelper
         context.AddSource("NullableDateTimeOffsetTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateOracleDapperConfig(
+#pragma warning disable MA0051 // Method is too long
+    private static void GenerateOracleDapperConfig(
         SourceProductionContext context,
         IdentityDapperOptions options)
     {
@@ -567,4 +571,5 @@ public class OracleSourceGenerationHelper
 
         context.AddSource("OracleDapperConfig.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     }
+#pragma warning restore MA0051
 }

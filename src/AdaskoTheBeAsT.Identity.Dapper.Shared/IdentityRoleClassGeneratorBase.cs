@@ -20,7 +20,7 @@ public abstract class IdentityRoleClassGeneratorBase
         GenerateSqlClassStart(sb, "IdentityRoleSql", "IIdentityRoleConcurrencySql, IIdentityRolePagingSql");
         GenerateCreateSql(sb, config, propertyColumnTypeTriples);
         GenerateUpdateSql(sb, config, propertyColumnTypeTriples);
-        GenerateDeleteSql(sb, config, propertyColumnTypeTriples);
+        GenerateDeleteSql(sb, config);
         GenerateFindByIdSql(sb, config, propertyColumnTypeTriples);
         GenerateFindByNameSql(sb, config, propertyColumnTypeTriples);
         GenerateGetRolesSql(sb, config, propertyColumnTypeTriples);
@@ -95,8 +95,7 @@ public abstract class IdentityRoleClassGeneratorBase
 
     private void GenerateDeleteSql(
         StringBuilder sb,
-        IdentityDapperConfiguration config,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+        IdentityDapperConfiguration config)
     {
         var content = AddConcurrencyPredicate(
             ProcessIdentityRoleDeleteSql(config), config, "ConcurrencyStamp");

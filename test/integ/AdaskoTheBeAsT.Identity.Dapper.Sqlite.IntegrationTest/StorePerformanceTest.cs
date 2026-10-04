@@ -10,6 +10,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest;
 
 public sealed class StorePerformanceTest(DatabaseWithGuidIdFixture fixture) : IClassFixture<DatabaseWithGuidIdFixture>
 {
+    private static readonly int[] ExpectedBatchSizes = { 32, 32, 7 };
+
     [Fact]
     public async Task ClaimsUseBoundedBatchesRatherThanOneCommandPerClaim()
     {
@@ -19,11 +21,11 @@ public sealed class StorePerformanceTest(DatabaseWithGuidIdFixture fixture) : IC
         var claims = Enumerable.Range(0, 71).Select(index => new Claim("batch", index.ToString(System.Globalization.CultureInfo.InvariantCulture))).ToArray();
 
         await store.AddClaimsAsync(user, claims, TestContext.Current.CancellationToken);
-        store.BatchSizes.Should().Equal(new[] { 32, 32, 7 });
-        (await store.GetClaimsAsync(user, TestContext.Current.CancellationToken)).Count.Should().Be(71);
+        store.BatchSizes.Should().Equal(ExpectedBatchSizes);
+        (await store.GetClaimsAsync(user, TestContext.Current.CancellationToken)).Should().HaveCount(71);
         store.BatchSizes.Clear();
         await store.RemoveClaimsAsync(user, claims, TestContext.Current.CancellationToken);
-        store.BatchSizes.Should().Equal(new[] { 32, 32, 7 });
+        store.BatchSizes.Should().Equal(ExpectedBatchSizes);
         (await store.GetClaimsAsync(user, TestContext.Current.CancellationToken)).Should().BeEmpty();
         store.BatchSizes.Clear();
         await store.AddClaimsAsync(user, Array.Empty<Claim>(), TestContext.Current.CancellationToken);

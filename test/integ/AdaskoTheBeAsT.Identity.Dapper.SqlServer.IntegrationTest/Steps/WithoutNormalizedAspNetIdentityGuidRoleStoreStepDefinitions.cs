@@ -29,7 +29,7 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
     }
 
     [Given("I have configured SQL Server RoleStore without normalized and Guid id")]
-    public Task GivenIHaveConfiguredSqlServerRoleStoreWithoutNormalizedAndGuidId()
+    public Task GivenIHaveConfiguredSqlServerRoleStoreWithoutNormalizedAndGuidIdAsync()
     {
         _rolesByName.Clear();
         _verifiedMethodName = null;
@@ -41,7 +41,7 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
     }
 
     [Given("I created roles for SQL Server RoleStore")]
-    public async Task GivenICreatedRolesForSqlServerRoleStore(Table table)
+    public async Task GivenICreatedRolesForSqlServerRoleStoreAsync(Table table)
     {
         using var store = CreateRoleStore();
         foreach (var row in table.Rows)
@@ -50,12 +50,12 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
             role.Name = MakeScenarioUniqueValue(role.Name);
             var result = await store.CreateAsync(role, CancellationToken.None);
             result.Succeeded.Should().BeTrue();
-            _rolesByName[role.Name!] = role;
+            _rolesByName[role.Name] = role;
         }
     }
 
     [Given("I added role claims for SQL Server RoleStore")]
-    public async Task GivenIAddedRoleClaimsForSqlServerRoleStore(Table table)
+    public async Task GivenIAddedRoleClaimsForSqlServerRoleStoreAsync(Table table)
     {
         using var store = CreateRoleStore();
         foreach (var row in table.Rows)
@@ -69,14 +69,14 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
     }
 
     [When("I verify {string} on SQL Server RoleStore without normalized and Guid id")]
-    public async Task WhenIVerifyMethodOnSqlServerRoleStoreWithoutNormalizedAndGuidId(string methodName)
+    public async Task WhenIVerifyMethodOnSqlServerRoleStoreWithoutNormalizedAndGuidIdAsync(string methodName)
     {
         await VerifyRoleStoreMethodAsync(methodName);
         _verifiedMethodName = methodName;
     }
 
     [When("I execute {string} on SQL Server RoleStore")]
-    public async Task WhenIExecuteMethodOnSqlServerRoleStore(string methodName)
+    public async Task WhenIExecuteMethodOnSqlServerRoleStoreAsync(string methodName)
     {
         using var store = CreateRoleStore();
         switch (methodName)
@@ -89,8 +89,9 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
         }
     }
 
+#pragma warning disable MA0051 // Method is too long
     [When("I execute {string} on SQL Server RoleStore with parameters")]
-    public async Task WhenIExecuteMethodOnSqlServerRoleStoreWithParameters(string methodName, Table table)
+    public async Task WhenIExecuteMethodOnSqlServerRoleStoreWithParametersAsync(string methodName, Table table)
     {
         using var store = CreateRoleStore();
         var row = table.Rows.Count == 1 ? table.Rows[0] : null;
@@ -101,10 +102,11 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
                 var role = CreateRole(table, row ?? throw new InvalidOperationException("Exactly one row is required."));
                 role.Name = MakeScenarioUniqueValue(role.Name);
                 _lastIdentityResult = await store.CreateAsync(role, CancellationToken.None);
-                _rolesByName[role.Name!] = role;
+                _rolesByName[role.Name] = role;
                 _lastRole = await store.FindByIdAsync(role.Id.ToString(), CancellationToken.None);
                 break;
             }
+
             case "UpdateAsync":
             {
                 var existingRole = GetRole(table, row ?? throw new InvalidOperationException("Exactly one row is required."));
@@ -118,6 +120,7 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
                 {
                     existingRole.ConcurrencyStamp.Should().NotBe(originalStamp);
                 }
+
                 if (!string.Equals(previousName, existingRole.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     _rolesByName.Remove(previousName);
@@ -127,6 +130,7 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
                 _lastRole = await store.FindByIdAsync(existingRole.Id.ToString(), CancellationToken.None);
                 break;
             }
+
             case "DeleteAsync":
             {
                 var role = GetRole(table, row ?? throw new InvalidOperationException("Exactly one row is required."));
@@ -135,12 +139,14 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
                 _lastRole = await store.FindByIdAsync(role.Id.ToString(), CancellationToken.None);
                 break;
             }
+
             case "FindByIdAsync":
             {
                 var role = GetRole(table, row ?? throw new InvalidOperationException("Exactly one row is required."));
                 _lastRole = await store.FindByIdAsync(role.Id.ToString(), CancellationToken.None);
                 break;
             }
+
             case "FindByNameAsync":
             {
                 _lastRole = await store.FindByNameAsync(
@@ -148,12 +154,14 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
                     CancellationToken.None);
                 break;
             }
+
             case "GetClaimsAsync":
             {
                 var role = GetRole(table, row ?? throw new InvalidOperationException("Exactly one row is required."));
                 _lastClaims = await store.GetClaimsAsync(role, CancellationToken.None);
                 break;
             }
+
             case "AddClaimAsync":
             {
                 var role = GetRole(table, row ?? throw new InvalidOperationException("Exactly one row is required."));
@@ -164,6 +172,7 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
                 _lastClaims = await store.GetClaimsAsync(role, CancellationToken.None);
                 break;
             }
+
             case "RemoveClaimAsync":
             {
                 var role = GetRole(table, row ?? throw new InvalidOperationException("Exactly one row is required."));
@@ -174,16 +183,19 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
                 _lastClaims = await store.GetClaimsAsync(role, CancellationToken.None);
                 break;
             }
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(methodName), methodName, message: null);
         }
     }
 
+#pragma warning restore MA0051
+
     [Then("the last identity result for SQL Server RoleStore should be successful")]
     public void ThenTheLastIdentityResultForSqlServerRoleStoreShouldBeSuccessful()
     {
         _lastIdentityResult.Should().NotBeNull();
-        _lastIdentityResult!.Succeeded.Should().BeTrue();
+        _lastIdentityResult.Succeeded.Should().BeTrue();
         _lastIdentityResult.Errors.Should().BeEmpty();
     }
 
@@ -197,10 +209,10 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
             switch (header)
             {
                 case "Id":
-                    _lastRole!.Id.ToString().Should().Be(row[header]);
+                    _lastRole.Id.ToString().Should().Be(row[header]);
                     break;
                 case "Name":
-                    _lastRole!.Name.Should().Be(MakeScenarioUniqueValue(row[header]));
+                    _lastRole.Name.Should().Be(MakeScenarioUniqueValue(row[header]));
                     break;
                 default:
                     break;
@@ -236,20 +248,20 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
         _verifiedMethodName.Should().Be(methodName);
     }
 
-    private Identity.ApplicationRole GetRole(Table table, DataTableRow row)
-    {
-        var roleName = MakeScenarioUniqueValue(GetRequiredValue(table, row, "RoleName"));
-        return _rolesByName.TryGetValue(roleName, out var role)
-            ? role
-            : throw new KeyNotFoundException($"Role '{roleName}' was not created in the scenario setup.");
-    }
-
     private static string BuildScenarioKey(string scenarioTitle)
     {
         var sanitized = new string(scenarioTitle.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
         var prefix = string.IsNullOrWhiteSpace(sanitized) ? "scenario" : sanitized[..Math.Min(12, sanitized.Length)];
         var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(scenarioTitle)))[..8].ToLowerInvariant();
         return $"{prefix}{hash}";
+    }
+
+    private Identity.ApplicationRole GetRole(Table table, DataTableRow row)
+    {
+        var roleName = MakeScenarioUniqueValue(GetRequiredValue(table, row, "RoleName"));
+        return _rolesByName.TryGetValue(roleName, out var role)
+            ? role
+            : throw new KeyNotFoundException($"Role '{roleName}' was not created in the scenario setup.");
     }
 
     private string MakeScenarioUniqueValue(string? value) =>

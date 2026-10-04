@@ -28,7 +28,9 @@ public class RoleController : ControllerBase
     }
 
     [HttpPost]
+#pragma warning disable SEC0019 // Authentication uses explicit bearer headers, not automatically submitted cookie credentials.
     public async Task<IActionResult> CreateRoleAsync([FromBody] RoleModel roleModel)
+#pragma warning restore SEC0019
     {
         try
         {

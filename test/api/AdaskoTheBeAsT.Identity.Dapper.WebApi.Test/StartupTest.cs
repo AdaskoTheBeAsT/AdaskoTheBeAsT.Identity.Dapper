@@ -14,11 +14,14 @@ public sealed class StartupTest
     public void PackagedSettingsContainAValidDemoSigningKey()
     {
         var path = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+#pragma warning disable SCS0018, SEC0116 // Read a fixed packaged filename under the test application's directory, never request input.
         using var settings = JsonDocument.Parse(File.ReadAllText(path));
+#pragma warning restore SCS0018, SEC0116
         var signingKey = settings.RootElement.GetProperty("TokenServiceOptions").GetProperty("SigningKey").GetString();
-        // Never include configuration values in an assertion or its output.
-        string.IsNullOrWhiteSpace(signingKey).Should().BeFalse();
-        (Encoding.UTF8.GetByteCount(signingKey!) >= 32).Should().BeTrue();
+
+        // A failure here can expose only null or whitespace, never valid signing-key bytes.
+        signingKey.Should().NotBeNullOrWhiteSpace();
+        (Encoding.UTF8.GetByteCount(signingKey) >= 32).Should().BeTrue();
     }
 
     [Fact]
@@ -26,7 +29,7 @@ public sealed class StartupTest
     {
         using var factory = new StartupFactory();
         using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
-        using var form = new FormUrlEncodedContent(new Dictionary<string, string> { ["grant_type"] = "unknown" });
+        using var form = new FormUrlEncodedContent(new Dictionary<string, string>(StringComparer.Ordinal) { ["grant_type"] = "unknown" });
         using var response = await client.PostAsync("/api/token", form, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -62,7 +65,7 @@ public sealed class StartupTest
     {
         using var factory = new ApiFactory();
         using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
-        using var form = new FormUrlEncodedContent(new Dictionary<string, string> { ["grant_type"] = "unknown" });
+        using var form = new FormUrlEncodedContent(new Dictionary<string, string>(StringComparer.Ordinal) { ["grant_type"] = "unknown" });
         using var response = await client.PostAsync("/api/token", form, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }

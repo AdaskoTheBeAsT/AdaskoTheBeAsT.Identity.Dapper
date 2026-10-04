@@ -24,7 +24,7 @@ public class AntiforgeryController : ControllerBase
     {
         var tokens = _antiforgery.GetAndStoreTokens(HttpContext);
 
-#pragma warning disable SCS0008, SCS0009
+#pragma warning disable SCS0008, SCS0009, S3330
         Response.Cookies.Append(
             "CSRF-TOKEN",
             tokens.RequestToken ?? string.Empty,
@@ -34,7 +34,7 @@ public class AntiforgeryController : ControllerBase
                 SameSite = SameSiteMode.None,
                 Secure = true,
             });
-#pragma warning restore SCS0008, SCS0009
+#pragma warning restore SCS0008, SCS0009, S3330
 
         return Ok(new CsrfToken { Token = tokens.RequestToken });
     }

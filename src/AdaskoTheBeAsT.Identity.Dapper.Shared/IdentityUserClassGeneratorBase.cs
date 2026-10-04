@@ -20,7 +20,7 @@ public abstract class IdentityUserClassGeneratorBase
         GenerateSqlClassStart(sb, "IdentityUserSql", "IIdentityUserConcurrencySql, IIdentityUserPagingSql");
         GenerateCreateSql(sb, config, propertyColumnTypeTriples);
         GenerateUpdateSql(sb, config, propertyColumnTypeTriples);
-        GenerateDeleteSql(sb, config, propertyColumnTypeTriples);
+        GenerateDeleteSql(sb, config);
         GenerateFindByIdSql(sb, config, propertyColumnTypeTriples);
         GenerateFindByNameSql(sb, config, propertyColumnTypeTriples);
         GenerateFindByEmailSql(sb, config, propertyColumnTypeTriples);
@@ -110,8 +110,7 @@ public abstract class IdentityUserClassGeneratorBase
 
     private void GenerateDeleteSql(
         StringBuilder sb,
-        IdentityDapperConfiguration config,
-        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
+        IdentityDapperConfiguration config)
     {
         var content = AddConcurrencyPredicate(
             ProcessIdentityUserDeleteSql(config), config, "ConcurrencyStamp");

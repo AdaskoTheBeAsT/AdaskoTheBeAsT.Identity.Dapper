@@ -26,67 +26,22 @@ public abstract class GuidStoreIntegrationTestBase<
     where TDbConnection : IDbConnection
 {
     private readonly Func<DapperRoleStoreBase<TRole, Guid, TRoleClaim, TDbConnection>> _roleStoreFactory;
+
     private readonly Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>>
-        _userOnlyStoreFactory;
+                _userOnlyStoreFactory;
+
     private readonly Func<DapperUserStoreBase<TUser, TRole, Guid, TUserClaim, TUserRole, TUserLogin, TUserToken, TDbConnection>>
-        _userStoreFactory;
+                _userStoreFactory;
 
     protected GuidStoreIntegrationTestBase(
-        Func<DapperRoleStoreBase<TRole, Guid, TRoleClaim, TDbConnection>> roleStoreFactory,
-        Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> userOnlyStoreFactory,
-        Func<DapperUserStoreBase<TUser, TRole, Guid, TUserClaim, TUserRole, TUserLogin, TUserToken, TDbConnection>> userStoreFactory)
+                Func<DapperRoleStoreBase<TRole, Guid, TRoleClaim, TDbConnection>> roleStoreFactory,
+                Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> userOnlyStoreFactory,
+                Func<DapperUserStoreBase<TUser, TRole, Guid, TUserClaim, TUserRole, TUserLogin, TUserToken, TDbConnection>> userStoreFactory)
     {
         _roleStoreFactory = roleStoreFactory ?? throw new ArgumentNullException(nameof(roleStoreFactory));
         _userOnlyStoreFactory = userOnlyStoreFactory ?? throw new ArgumentNullException(nameof(userOnlyStoreFactory));
         _userStoreFactory = userStoreFactory ?? throw new ArgumentNullException(nameof(userStoreFactory));
     }
-
-    protected DapperRoleStoreBase<TRole, Guid, TRoleClaim, TDbConnection> CreateRoleStore() => _roleStoreFactory();
-
-    protected DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>
-        CreateUserOnlyStore() => _userOnlyStoreFactory();
-
-    protected DapperUserStoreBase<TUser, TRole, Guid, TUserClaim, TUserRole, TUserLogin, TUserToken, TDbConnection>
-        CreateUserStore() => _userStoreFactory();
-
-    protected Task VerifyRoleStoreMethodAsync(string methodName) =>
-        methodName switch
-        {
-            "Roles" => VerifyRoleStoreRolesAsync(),
-            "Dispose" => VerifyRoleStoreDisposeAsync(),
-            "CreateAsync" or
-            "UpdateAsync" or
-            "DeleteAsync" or
-            "GetRoleIdAsync" or
-            "GetRoleNameAsync" or
-            "SetRoleNameAsync" or
-            "ConvertIdFromString" or
-            "ConvertIdToString" or
-            "FindByIdAsync" or
-            "FindByNameAsync" or
-            "GetNormalizedRoleNameAsync" or
-            "SetNormalizedRoleNameAsync" or
-            "GetClaimsAsync" or
-            "AddClaimAsync" or
-            "RemoveClaimAsync" => VerifyRoleStoreMethodsAsync(CreateRoleStore),
-            _ => throw new ArgumentOutOfRangeException(nameof(methodName), methodName, message: null),
-        };
-
-    protected Task VerifyUserOnlyStoreMethodAsync(string methodName) =>
-        VerifyCommonUserStoreMethodAsync(methodName, CreateUserOnlyStore);
-
-    protected Task VerifyUserStoreMethodAsync(string methodName) =>
-        methodName switch
-        {
-            "GetUsersInRoleAsync" or
-            "AddToRoleAsync" or
-            "RemoveFromRoleAsync" or
-            "GetRolesAsync" or
-            "IsInRoleAsync" or
-            "GetRoleClaimsAsync" or
-            "GetUserAndRoleClaimsAsync" => VerifyUserRoleMethodsAsync(CreateUserStore),
-            _ => VerifyCommonUserStoreMethodAsync(methodName, CreateUserStore),
-        };
 
     protected static TRole CreateRole(Table table, DataTableRow row)
     {
@@ -117,8 +72,8 @@ public abstract class GuidStoreIntegrationTestBase<
     }
 
     protected static string GetRequiredValue(Table table, DataTableRow row, string columnName) =>
-        GetOptionalValue(table, row, columnName) ??
-        throw new InvalidOperationException($"Column '{columnName}' is required.");
+                GetOptionalValue(table, row, columnName) ??
+                throw new InvalidOperationException($"Column '{columnName}' is required.");
 
     protected static string? GetOptionalValue(Table table, DataTableRow row, string columnName)
     {
@@ -142,128 +97,19 @@ public abstract class GuidStoreIntegrationTestBase<
     protected static int? GetIntValue(Table table, DataTableRow row, string columnName)
     {
         var value = GetOptionalValue(table, row, columnName);
-        return value == null ? null : int.Parse(value);
+        return value == null ? null : int.Parse(value, System.Globalization.CultureInfo.InvariantCulture);
     }
 
     protected static DateTimeOffset? GetDateTimeOffsetValue(Table table, DataTableRow row, string columnName)
     {
         var value = GetOptionalValue(table, row, columnName);
-        return value == null ? null : DateTimeOffset.Parse(value);
+        return value == null ? null : DateTimeOffset.Parse(value, System.Globalization.CultureInfo.InvariantCulture);
     }
 
-    private Task VerifyCommonUserStoreMethodAsync(
-        string methodName,
-        Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> storeFactory) =>
-        methodName switch
-        {
-            "Users" => VerifyUsersPropertyAsync(storeFactory),
-            "Dispose" => VerifyUserStoreDisposeAsync(storeFactory),
-            "GetClaimsAsync" or
-            "AddClaimsAsync" or
-            "ReplaceClaimAsync" or
-            "RemoveClaimsAsync" or
-            "GetUsersForClaimAsync" => VerifyUserClaimMethodsAsync(storeFactory),
-            "AddLoginAsync" or
-            "RemoveLoginAsync" or
-            "GetLoginsAsync" or
-            "FindByLoginAsync" => VerifyUserLoginMethodsAsync(storeFactory),
-            "SetTokenAsync" or
-            "RemoveTokenAsync" or
-            "GetTokenAsync" or
-            "SetAuthenticatorKeyAsync" or
-            "GetAuthenticatorKeyAsync" or
-            "CountCodesAsync" or
-            "ReplaceCodesAsync" or
-            "RedeemCodeAsync" => VerifyUserTokenAndRecoveryMethodsAsync(storeFactory),
-            "GetUserIdAsync" or
-            "GetUserNameAsync" or
-            "SetUserNameAsync" or
-            "GetNormalizedUserNameAsync" or
-            "SetNormalizedUserNameAsync" or
-            "CreateAsync" or
-            "UpdateAsync" or
-            "DeleteAsync" or
-            "FindByIdAsync" or
-            "ConvertIdFromString" or
-            "ConvertIdToString" or
-            "FindByNameAsync" or
-            "SetPasswordHashAsync" or
-            "GetPasswordHashAsync" or
-            "HasPasswordAsync" or
-            "GetEmailConfirmedAsync" or
-            "SetEmailConfirmedAsync" or
-            "SetEmailAsync" or
-            "GetEmailAsync" or
-            "GetNormalizedEmailAsync" or
-            "SetNormalizedEmailAsync" or
-            "FindByEmailAsync" or
-            "GetLockoutEndDateAsync" or
-            "SetLockoutEndDateAsync" or
-            "IncrementAccessFailedCountAsync" or
-            "ResetAccessFailedCountAsync" or
-            "GetAccessFailedCountAsync" or
-            "GetLockoutEnabledAsync" or
-            "SetLockoutEnabledAsync" or
-            "SetPhoneNumberAsync" or
-            "GetPhoneNumberAsync" or
-            "GetPhoneNumberConfirmedAsync" or
-            "SetPhoneNumberConfirmedAsync" or
-            "SetSecurityStampAsync" or
-            "GetSecurityStampAsync" or
-            "SetTwoFactorEnabledAsync" or
-            "GetTwoFactorEnabledAsync" => VerifyCommonUserStoreMethodsAsync(storeFactory),
-            _ => throw new ArgumentOutOfRangeException(nameof(methodName), methodName, message: null),
-        };
-
-    private async Task VerifyRoleStoreRolesAsync()
+    protected static async Task VerifyRoleStoreMethodsAsync(
+                Func<DapperRoleStoreBase<TRole, Guid, TRoleClaim, TDbConnection>> storeFactory)
     {
-        using var store = CreateRoleStore();
-        var role = CreateRole();
-
-        AssertSucceeded(await store.CreateAsync(role, CancellationToken.None));
-
-        store.Roles.Should().ContainSingle(x => x.Id == role.Id);
-    }
-
-    private async Task VerifyUsersPropertyAsync(
-        Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> storeFactory)
-    {
-        using var roleStore = CreateRoleStore();
-        using var userStore = CreateUserStore();
-        var user = CreateUser();
-        var role = CreateRole();
-
-        AssertSucceeded(await userStore.CreateAsync(user, CancellationToken.None));
-        AssertSucceeded(await roleStore.CreateAsync(role, CancellationToken.None));
-        await userStore.AddToRoleAsync(user, role.Name!, CancellationToken.None);
-
-        using var store = storeFactory();
-        store.Users.Should().ContainSingle(x => x.Id == user.Id);
-    }
-
-    private async Task VerifyRoleStoreDisposeAsync()
-    {
-        var store = CreateRoleStore();
-        store.Dispose();
-
-        Func<Task> action = () => store.GetRoleIdAsync(CreateRole(), CancellationToken.None);
-        await action.Should().ThrowAsync<ObjectDisposedException>();
-    }
-
-    private async Task VerifyUserStoreDisposeAsync(
-        Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> storeFactory)
-    {
-        var store = storeFactory();
-        store.Dispose();
-
-        Func<Task> action = () => store.GetUserIdAsync(CreateUser(), CancellationToken.None);
-        await action.Should().ThrowAsync<ObjectDisposedException>();
-    }
-
-    protected async Task VerifyRoleStoreMethodsAsync(
-        Func<DapperRoleStoreBase<TRole, Guid, TRoleClaim, TDbConnection>> storeFactory)
-    {
-        using var store = storeFactory();
+        using var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
         var role = CreateRole();
 
         AssertSucceeded(await store.CreateAsync(role, CancellationToken.None));
@@ -287,12 +133,12 @@ public abstract class GuidStoreIntegrationTestBase<
 
         var roleById = await store.FindByIdAsync(roleId, CancellationToken.None);
         roleById.Should().NotBeNull();
-        roleById!.Id.Should().Be(role.Id);
+        roleById.Id.Should().Be(role.Id);
         roleById.Name.Should().Be(updatedRoleName);
 
         var roleByName = await store.FindByNameAsync(updatedRoleName, CancellationToken.None);
         roleByName.Should().NotBeNull();
-        roleByName!.Id.Should().Be(role.Id);
+        roleByName.Id.Should().Be(role.Id);
 
         var manageUsersClaim = new Claim("permission", "manage-users");
         var auditClaim = new Claim("permission", "audit-users");
@@ -322,10 +168,11 @@ public abstract class GuidStoreIntegrationTestBase<
         (await store.FindByIdAsync(roleId, CancellationToken.None)).Should().BeNull();
     }
 
-    protected async Task VerifyCommonUserStoreMethodsAsync(
+#pragma warning disable MA0051 // Method is too long
+    protected static async Task VerifyCommonUserStoreMethodsAsync(
         Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> storeFactory)
     {
-        using var store = storeFactory();
+        using var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
         var user = CreateUser();
 
         AssertSucceeded(await store.CreateAsync(user, CancellationToken.None));
@@ -374,15 +221,15 @@ public abstract class GuidStoreIntegrationTestBase<
 
         var userById = await store.FindByIdAsync(userId, CancellationToken.None);
         userById.Should().NotBeNull();
-        userById!.Id.Should().Be(user.Id);
+        userById.Id.Should().Be(user.Id);
 
         var userByName = await store.FindByNameAsync(updatedUserName, CancellationToken.None);
         userByName.Should().NotBeNull();
-        userByName!.Id.Should().Be(user.Id);
+        userByName.Id.Should().Be(user.Id);
 
         var userByEmail = await store.FindByEmailAsync(updatedEmail, CancellationToken.None);
         userByEmail.Should().NotBeNull();
-        userByEmail!.Id.Should().Be(user.Id);
+        userByEmail.Id.Should().Be(user.Id);
 
         (await store.GetUserNameAsync(userById, CancellationToken.None)).Should().Be(updatedUserName);
         (await store.GetNormalizedUserNameAsync(userById, CancellationToken.None)).Should().Be(updatedUserName);
@@ -404,7 +251,7 @@ public abstract class GuidStoreIntegrationTestBase<
 
         var userAfterIncrement = await store.FindByIdAsync(userId, CancellationToken.None);
         userAfterIncrement.Should().NotBeNull();
-        userAfterIncrement!.AccessFailedCount.Should().Be(1);
+        userAfterIncrement.AccessFailedCount.Should().Be(1);
 
         await store.ResetAccessFailedCountAsync(userAfterIncrement, CancellationToken.None);
         (await store.GetAccessFailedCountAsync(userAfterIncrement, CancellationToken.None)).Should().Be(0);
@@ -413,16 +260,18 @@ public abstract class GuidStoreIntegrationTestBase<
 
         var userAfterReset = await store.FindByIdAsync(userId, CancellationToken.None);
         userAfterReset.Should().NotBeNull();
-        userAfterReset!.AccessFailedCount.Should().Be(0);
+        userAfterReset.AccessFailedCount.Should().Be(0);
 
         AssertSucceeded(await store.DeleteAsync(userAfterReset, CancellationToken.None));
         (await store.FindByIdAsync(userId, CancellationToken.None)).Should().BeNull();
     }
 
-    protected async Task VerifyUserClaimMethodsAsync(
+#pragma warning restore MA0051
+
+    protected static async Task VerifyUserClaimMethodsAsync(
         Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> storeFactory)
     {
-        using var store = storeFactory();
+        using var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
         var user = CreateUser();
 
         AssertSucceeded(await store.CreateAsync(user, CancellationToken.None));
@@ -460,10 +309,10 @@ public abstract class GuidStoreIntegrationTestBase<
         (await store.GetClaimsAsync(user, CancellationToken.None)).Should().BeEmpty();
     }
 
-    protected async Task VerifyUserLoginMethodsAsync(
-        Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> storeFactory)
+    protected static async Task VerifyUserLoginMethodsAsync(
+                Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> storeFactory)
     {
-        using var store = storeFactory();
+        using var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
         var user = CreateUser();
 
         AssertSucceeded(await store.CreateAsync(user, CancellationToken.None));
@@ -483,17 +332,17 @@ public abstract class GuidStoreIntegrationTestBase<
 
         var userByLogin = await store.FindByLoginAsync(login.LoginProvider, login.ProviderKey, CancellationToken.None);
         userByLogin.Should().NotBeNull();
-        userByLogin!.Id.Should().Be(user.Id);
+        userByLogin.Id.Should().Be(user.Id);
 
         await store.RemoveLoginAsync(user, login.LoginProvider, login.ProviderKey, CancellationToken.None);
         (await store.GetLoginsAsync(user, CancellationToken.None)).Should().BeEmpty();
         (await store.FindByLoginAsync(login.LoginProvider, login.ProviderKey, CancellationToken.None)).Should().BeNull();
     }
 
-    protected async Task VerifyUserTokenAndRecoveryMethodsAsync(
-        Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> storeFactory)
+    protected static async Task VerifyUserTokenAndRecoveryMethodsAsync(
+                Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> storeFactory)
     {
-        using var store = storeFactory();
+        using var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
         var user = CreateUser();
 
         AssertSucceeded(await store.CreateAsync(user, CancellationToken.None));
@@ -515,10 +364,57 @@ public abstract class GuidStoreIntegrationTestBase<
         (await store.RedeemCodeAsync(user, "missing-code", CancellationToken.None)).Should().BeFalse();
     }
 
+    protected DapperRoleStoreBase<TRole, Guid, TRoleClaim, TDbConnection> CreateRoleStore() => _roleStoreFactory();
+
+    protected DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>
+                CreateUserOnlyStore() => _userOnlyStoreFactory();
+
+    protected DapperUserStoreBase<TUser, TRole, Guid, TUserClaim, TUserRole, TUserLogin, TUserToken, TDbConnection>
+                CreateUserStore() => _userStoreFactory();
+
+    protected Task VerifyRoleStoreMethodAsync(string methodName) =>
+                methodName switch
+                {
+                    "Roles" => VerifyRoleStoreRolesAsync(),
+                    "Dispose" => VerifyRoleStoreDisposeAsync(),
+                    "CreateAsync" or
+                    "UpdateAsync" or
+                    "DeleteAsync" or
+                    "GetRoleIdAsync" or
+                    "GetRoleNameAsync" or
+                    "SetRoleNameAsync" or
+                    "ConvertIdFromString" or
+                    "ConvertIdToString" or
+                    "FindByIdAsync" or
+                    "FindByNameAsync" or
+                    "GetNormalizedRoleNameAsync" or
+                    "SetNormalizedRoleNameAsync" or
+                    "GetClaimsAsync" or
+                    "AddClaimAsync" or
+                    "RemoveClaimAsync" => VerifyRoleStoreMethodsAsync(CreateRoleStore),
+                    _ => throw new ArgumentOutOfRangeException(nameof(methodName), methodName, message: null),
+                };
+
+    protected Task VerifyUserOnlyStoreMethodAsync(string methodName) =>
+                VerifyCommonUserStoreMethodAsync(methodName, CreateUserOnlyStore);
+
+    protected Task VerifyUserStoreMethodAsync(string methodName) =>
+                methodName switch
+                {
+                    "GetUsersInRoleAsync" or
+                    "AddToRoleAsync" or
+                    "RemoveFromRoleAsync" or
+                    "GetRolesAsync" or
+                    "IsInRoleAsync" or
+                    "GetRoleClaimsAsync" or
+                    "GetUserAndRoleClaimsAsync" => VerifyUserRoleMethodsAsync(CreateUserStore),
+                    _ => VerifyCommonUserStoreMethodAsync(methodName, CreateUserStore),
+                };
+
     protected async Task VerifyUserRoleMethodsAsync(
-        Func<DapperUserStoreBase<TUser, TRole, Guid, TUserClaim, TUserRole, TUserLogin, TUserToken, TDbConnection>> storeFactory)
+                Func<DapperUserStoreBase<TUser, TRole, Guid, TUserClaim, TUserRole, TUserLogin, TUserToken, TDbConnection>> storeFactory)
     {
-        using var userStore = storeFactory();
+        using var userStore = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
         using var roleStore = CreateRoleStore();
 
         var user = CreateUser();
@@ -535,7 +431,7 @@ public abstract class GuidStoreIntegrationTestBase<
         await userStore.AddToRoleAsync(user, role.Name!, CancellationToken.None);
 
         (await userStore.IsInRoleAsync(user, role.Name!, CancellationToken.None)).Should().BeTrue();
-        (await userStore.GetRolesAsync(user, CancellationToken.None)).Should().BeEquivalentTo(new[] { role.Name! });
+        (await userStore.GetRolesAsync(user, CancellationToken.None)).Should().BeEquivalentTo(role.Name!);
 
         var usersInRole = await userStore.GetUsersInRoleAsync(role.Name!, CancellationToken.None);
         usersInRole.Should().ContainSingle(x => x.Id == user.Id);
@@ -561,37 +457,150 @@ public abstract class GuidStoreIntegrationTestBase<
         (await userStore.GetRoleClaimsAsync(user, CancellationToken.None)).Should().BeEmpty();
     }
 
+    private static Task VerifyUserStoreDisposeAsync(
+                Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> storeFactory)
+    {
+        var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
+#pragma warning disable IDISP016 // Assert that a disposed store rejects calls.
+        store.Dispose();
+
+        Func<Task<string>> action = () => store.GetUserIdAsync(CreateUser(), CancellationToken.None);
+#pragma warning restore IDISP016
+        return action.Should().ThrowAsync<ObjectDisposedException>();
+    }
+
     private static IEnumerable<(string Type, string Value)> ProjectClaims(IEnumerable<Claim> claims) =>
-        claims.Select(x => (x.Type, x.Value));
+                claims.Select(x => (x.Type, x.Value));
 
     private static TRole CreateRole() =>
-        new()
-        {
-            Id = Guid.NewGuid(),
-            Name = $"role-{Guid.NewGuid():N}",
-            ConcurrencyStamp = Guid.NewGuid().ToString("N"),
-        };
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = $"role-{Guid.NewGuid():N}",
+                    ConcurrencyStamp = Guid.NewGuid().ToString("N"),
+                };
 
     private static TUser CreateUser() =>
-        new()
-        {
-            Id = Guid.NewGuid(),
-            UserName = $"user-{Guid.NewGuid():N}",
-            Email = $"user-{Guid.NewGuid():N}@example.com",
-            EmailConfirmed = false,
-            PasswordHash = "initial-password-hash",
-            SecurityStamp = "initial-security-stamp",
-            ConcurrencyStamp = Guid.NewGuid().ToString("N"),
-            PhoneNumber = "+15550000000",
-            PhoneNumberConfirmed = false,
-            TwoFactorEnabled = false,
-            LockoutEnabled = false,
-            AccessFailedCount = 0,
-        };
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    UserName = $"user-{Guid.NewGuid():N}",
+                    Email = $"user-{Guid.NewGuid():N}@example.com",
+                    EmailConfirmed = false,
+                    PasswordHash = "initial-password-hash",
+                    SecurityStamp = "initial-security-stamp",
+                    ConcurrencyStamp = Guid.NewGuid().ToString("N"),
+                    PhoneNumber = "+15550000000",
+                    PhoneNumberConfirmed = false,
+                    TwoFactorEnabled = false,
+                    LockoutEnabled = false,
+                    AccessFailedCount = 0,
+                };
 
     private static void AssertSucceeded(IdentityResult result)
     {
         result.Errors.Should().BeEmpty();
         result.Succeeded.Should().BeTrue();
+    }
+
+    private Task VerifyCommonUserStoreMethodAsync(
+                string methodName,
+                Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> storeFactory) =>
+                methodName switch
+                {
+                    "Users" => VerifyUsersPropertyAsync(storeFactory),
+                    "Dispose" => VerifyUserStoreDisposeAsync(storeFactory),
+                    "GetClaimsAsync" or
+                    "AddClaimsAsync" or
+                    "ReplaceClaimAsync" or
+                    "RemoveClaimsAsync" or
+                    "GetUsersForClaimAsync" => VerifyUserClaimMethodsAsync(storeFactory),
+                    "AddLoginAsync" or
+                    "RemoveLoginAsync" or
+                    "GetLoginsAsync" or
+                    "FindByLoginAsync" => VerifyUserLoginMethodsAsync(storeFactory),
+                    "SetTokenAsync" or
+                    "RemoveTokenAsync" or
+                    "GetTokenAsync" or
+                    "SetAuthenticatorKeyAsync" or
+                    "GetAuthenticatorKeyAsync" or
+                    "CountCodesAsync" or
+                    "ReplaceCodesAsync" or
+                    "RedeemCodeAsync" => VerifyUserTokenAndRecoveryMethodsAsync(storeFactory),
+                    "GetUserIdAsync" or
+                    "GetUserNameAsync" or
+                    "SetUserNameAsync" or
+                    "GetNormalizedUserNameAsync" or
+                    "SetNormalizedUserNameAsync" or
+                    "CreateAsync" or
+                    "UpdateAsync" or
+                    "DeleteAsync" or
+                    "FindByIdAsync" or
+                    "ConvertIdFromString" or
+                    "ConvertIdToString" or
+                    "FindByNameAsync" or
+                    "SetPasswordHashAsync" or
+                    "GetPasswordHashAsync" or
+                    "HasPasswordAsync" or
+                    "GetEmailConfirmedAsync" or
+                    "SetEmailConfirmedAsync" or
+                    "SetEmailAsync" or
+                    "GetEmailAsync" or
+                    "GetNormalizedEmailAsync" or
+                    "SetNormalizedEmailAsync" or
+                    "FindByEmailAsync" or
+                    "GetLockoutEndDateAsync" or
+                    "SetLockoutEndDateAsync" or
+                    "IncrementAccessFailedCountAsync" or
+                    "ResetAccessFailedCountAsync" or
+                    "GetAccessFailedCountAsync" or
+                    "GetLockoutEnabledAsync" or
+                    "SetLockoutEnabledAsync" or
+                    "SetPhoneNumberAsync" or
+                    "GetPhoneNumberAsync" or
+                    "GetPhoneNumberConfirmedAsync" or
+                    "SetPhoneNumberConfirmedAsync" or
+                    "SetSecurityStampAsync" or
+                    "GetSecurityStampAsync" or
+                    "SetTwoFactorEnabledAsync" or
+                    "GetTwoFactorEnabledAsync" => VerifyCommonUserStoreMethodsAsync(storeFactory),
+                    _ => throw new ArgumentOutOfRangeException(nameof(methodName), methodName, message: null),
+                };
+
+    private async Task VerifyRoleStoreRolesAsync()
+    {
+        using var store = CreateRoleStore();
+        var role = CreateRole();
+
+        AssertSucceeded(await store.CreateAsync(role, CancellationToken.None));
+
+        store.Roles.Should().ContainSingle(x => x.Id == role.Id);
+    }
+
+    private async Task VerifyUsersPropertyAsync(
+                Func<DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TDbConnection>> storeFactory)
+    {
+        using var roleStore = CreateRoleStore();
+        using var userStore = CreateUserStore();
+        var user = CreateUser();
+        var role = CreateRole();
+
+        AssertSucceeded(await userStore.CreateAsync(user, CancellationToken.None));
+        AssertSucceeded(await roleStore.CreateAsync(role, CancellationToken.None));
+        await userStore.AddToRoleAsync(user, role.Name!, CancellationToken.None);
+
+        using var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
+        store.Users.Should().ContainSingle(x => x.Id == user.Id);
+    }
+
+    private Task VerifyRoleStoreDisposeAsync()
+    {
+        var store = CreateRoleStore();
+#pragma warning disable IDISP016 // Assert that a disposed store rejects calls.
+        store.Dispose();
+
+        Func<Task<string>> action = () => store.GetRoleIdAsync(CreateRole(), CancellationToken.None);
+#pragma warning restore IDISP016
+        return action.Should().ThrowAsync<ObjectDisposedException>();
     }
 }

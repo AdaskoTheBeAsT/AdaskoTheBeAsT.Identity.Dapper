@@ -8,6 +8,11 @@
     <OutputType>exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Generator tests and Reqnroll binding discovery load Roslyn at runtime. -->
+    <PackageReference Update="Microsoft.CodeAnalysis.Common" ExcludeAssets="" />
+    <PackageReference Update="Microsoft.CodeAnalysis.CSharp" ExcludeAssets="" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.18.1" />
     <PackageReference Include="AutoFixture.AutoMoq" Version="4.18.1" />
     <PackageReference Include="AutoFixture.SeedExtensions" Version="4.18.1" />

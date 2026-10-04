@@ -1,5 +1,6 @@
 using System.Data;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using AwesomeAssertions;
 using Dapper;
 using Microsoft.Data.Sqlite;
@@ -22,11 +23,13 @@ public sealed class IdentityQueryMaterializerTest
             UNION ALL
             SELECT 'stored', 23, X'0102', 'private stored', 9;
             """;
+#pragma warning disable VSTHRD103, S6966 // Exercise both synchronous and asynchronous materialization.
         var rows = (asynchronous
             ? await connection.QueryIdentityAsync<DefaultRow>(sql, cancellationToken: TestContext.Current.CancellationToken)
             : connection.QueryIdentity<DefaultRow>(sql)).ToArray();
+#pragma warning restore VSTHRD103, S6966
 
-        rows.Length.Should().Be(2);
+        rows.Should().HaveCount(2);
         rows[0].Text.Should().BeNull();
         rows[0].Number.Should().BeNull();
         rows[0].Bytes.Should().BeNull();
@@ -35,7 +38,7 @@ public sealed class IdentityQueryMaterializerTest
         rows[0].Unselected.Should().Be("unselected");
         rows[1].Text.Should().Be("stored");
         rows[1].Number.Should().Be(23);
-        rows[1].Bytes.Should().Equal(new byte[] { 1, 2 });
+        rows[1].Bytes.Should().Equal(1, 2);
         rows[1].PrivateText.Should().Be("private stored");
         rows[1].Required.Should().Be(9);
     }
@@ -46,7 +49,8 @@ public sealed class IdentityQueryMaterializerTest
         using var connection = OpenConnection();
         var row = await connection.QueryIdentityFirstOrDefaultAsync<DefaultRow>(
             "SELECT @text AS Text, @number AS Number;",
-            new { text = (string?)null, number = (int?)null }, TestContext.Current.CancellationToken);
+            new { text = (string?)null, number = (int?)null },
+            TestContext.Current.CancellationToken);
         row.Should().NotBeNull();
         row.Text.Should().BeNull();
         row.Number.Should().BeNull();
@@ -61,19 +65,23 @@ public sealed class IdentityQueryMaterializerTest
         using var connection = OpenConnection();
         for (var i = 0; i < 3; i++)
         {
+#pragma warning disable VSTHRD103, S6966 // Check the synchronous parser path as well as the asynchronous path.
             var first = connection.QueryIdentity<DefaultRow>(
                 "SELECT NULL AS Text, 23 AS Number;").Should().ContainSingle().Which;
+#pragma warning restore VSTHRD103, S6966
             first.Text.Should().BeNull();
             first.Number.Should().Be(23);
 
             var reordered = (await connection.QueryIdentityAsync<DefaultRow>(
                 "SELECT NULL AS Number, 'reordered' AS Text;", cancellationToken: TestContext.Current.CancellationToken)).Should().ContainSingle().Which;
             reordered.Number.Should().BeNull();
-            reordered.Text.Should().Be("reordered");
+            reordered.Text.Should().Be(nameof(reordered));
 
+#pragma warning disable VSTHRD103, S6966 // Verify projection handling on the synchronous path.
             var projected = connection.QueryIdentity<DefaultRow>(
                 "SELECT 'projected' AS Text;").Should().ContainSingle().Which;
-            projected.Text.Should().Be("projected");
+#pragma warning restore VSTHRD103, S6966
+            projected.Text.Should().Be(nameof(projected));
             projected.Number.Should().Be(17);
         }
     }
@@ -83,10 +91,14 @@ public sealed class IdentityQueryMaterializerTest
     {
         var createParser = ParserFactory<SchemaRow>();
         using var intTable = new DataTable();
+#pragma warning disable IDISP004 // The table owns and disposes its added column.
         intTable.Columns.Add(nameof(SchemaRow.Number), typeof(int));
+#pragma warning restore IDISP004
         intTable.Rows.Add(12);
         using var longTable = new DataTable();
+#pragma warning disable IDISP004 // The table owns and disposes its added column.
         longTable.Columns.Add(nameof(SchemaRow.Number), typeof(long));
+#pragma warning restore IDISP004
         longTable.Rows.Add(34L);
         using var intReader = intTable.CreateDataReader();
         using var longReader = longTable.CreateDataReader();
@@ -179,8 +191,11 @@ public sealed class IdentityQueryMaterializerTest
         try
         {
             SqlMapper.SetTypeMap(typeof(HiddenRow), new CustomPropertyTypeMap(
-                typeof(HiddenRow), (_, column) => column == "Value"
-                    ? typeof(HiddenBaseRow).GetProperty(nameof(HiddenBaseRow.Value))!
+                typeof(HiddenRow), (_, column) => string.Equals(
+                    column,
+                    "Value",
+                    StringComparison.Ordinal) ? typeof(HiddenBaseRow).GetProperty(
+                    nameof(HiddenBaseRow.Value), BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)!
                     : null!));
             var mappedBase = connection.QueryIdentity<HiddenRow>("SELECT NULL AS Value;").Should().ContainSingle().Which;
             mappedBase.Value.Should().Be("derived default");
@@ -197,12 +212,14 @@ public sealed class IdentityQueryMaterializerTest
     }
 
     [Fact]
-    public async Task ConcurrentQueriesSafelySharePlansWithoutSharingReaders()
+    public Task ConcurrentQueriesSafelySharePlansWithoutSharingReaders()
     {
         var start = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var tasks = Enumerable.Range(0, 12).Select(worker => Task.Run(async () =>
         {
+#pragma warning disable VSTHRD003 // All workers await the test-owned start gate.
             await start.Task;
+#pragma warning restore VSTHRD003
             using var connection = OpenConnection();
             for (var i = 0; i < 24; i++)
             {
@@ -210,18 +227,20 @@ public sealed class IdentityQueryMaterializerTest
                 var sql = reverse
                     ? "SELECT NULL AS Number, 'stored' AS Text;"
                     : "SELECT NULL AS Text, 23 AS Number;";
+#pragma warning disable VSTHRD103 // Mix synchronous and asynchronous calls to verify shared-plan concurrency.
                 var row = (i % 3) switch
                 {
                     0 => connection.QueryIdentity<ConcurrentRow>(sql).Should().ContainSingle().Which,
                     1 => (await connection.QueryIdentityAsync<ConcurrentRow>(sql)).Should().ContainSingle().Which,
                     _ => (await connection.QueryIdentityFirstOrDefaultAsync<ConcurrentRow>(sql))!,
                 };
+#pragma warning restore VSTHRD103
                 row.Text.Should().Be(reverse ? "stored" : null);
                 row.Number.Should().Be(reverse ? (int?)null : 23);
             }
         })).ToArray();
         start.SetResult();
-        await Task.WhenAll(tasks);
+        return Task.WhenAll(tasks);
     }
 
     [Fact]
@@ -229,7 +248,9 @@ public sealed class IdentityQueryMaterializerTest
     {
         var createParser = ParserFactory<AllocationRow>();
         using var table = new DataTable();
+#pragma warning disable IDISP004 // The table owns and disposes its added column.
         table.Columns.Add(nameof(AllocationRow.Text), typeof(string));
+#pragma warning restore IDISP004
         using var reader = table.CreateDataReader();
         var expected = createParser(reader);
         for (var i = 0; i < 128; i++)
@@ -272,12 +293,36 @@ public sealed class IdentityQueryMaterializerTest
             parse(reader).Text.Should().BeNull();
         }
 
-        var entries = (Array)cache.GetField("Entries", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null)!;
+        var caches = (ConditionalWeakTable<Type, object>)typeof(IdentityQuery)
+            .GetField("ParserCaches", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null)!;
+        caches.TryGetValue(typeof(BoundedRow), out var instance).Should().BeTrue();
+        var entries = (Array)cache.GetField("_entries", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(instance)!;
         entries.Length.Should().Be(capacity);
         entries.Cast<object?>().Count(entry => entry != null).Should().Be(capacity);
         createParser(firstReader).Should().NotBeSameAs(firstParser);
         firstReader.Read().Should().BeTrue();
         firstParser(firstReader).Text.Should().BeNull();
+    }
+
+    [Fact]
+    public void EvictingOneEntityCacheDoesNotEvictAnotherEntityParser()
+    {
+        var createParser = ParserFactory<AllocationRow>();
+        using var table = new DataTable();
+#pragma warning disable IDISP004 // The table owns and disposes its added column.
+        table.Columns.Add(nameof(AllocationRow.Text), typeof(string));
+#pragma warning restore IDISP004
+        using var reader = table.CreateDataReader();
+        var expected = createParser(reader);
+        var otherParser = ParserFactory<BoundedRow>();
+        for (var i = 0; i < 65; i++)
+        {
+            using var otherTable = SchemaTable("Isolated" + i);
+            using var otherReader = otherTable.CreateDataReader();
+            otherParser(otherReader);
+        }
+
+        createParser(reader).Should().BeSameAs(expected);
     }
 
     private static SqliteConnection OpenConnection()
@@ -296,22 +341,24 @@ public sealed class IdentityQueryMaterializerTest
     }
 
     private static CustomPropertyTypeMap MapAliasTo(string property) =>
-        new(typeof(RemappedRow), (type, column) => column == "Alias" ? type.GetProperty(property)! : null!);
+                new(typeof(RemappedRow), (type, column) => string.Equals(column, "Alias", StringComparison.Ordinal) ? type.GetProperty(property)! : null!);
 
     private static Func<IDataReader, Func<IDataReader, T>> ParserFactory<T>()
-        where T : class =>
-        (Func<IDataReader, Func<IDataReader, T>>)typeof(IdentityQuery)
-            .GetMethod("CreateParser", BindingFlags.NonPublic | BindingFlags.Static)!
-            .MakeGenericMethod(typeof(T))
-            .CreateDelegate(typeof(Func<IDataReader, Func<IDataReader, T>>));
+                where T : class =>
+                typeof(IdentityQuery)
+                    .GetMethod("CreateParser", BindingFlags.NonPublic | BindingFlags.Static)!
+                    .MakeGenericMethod(typeof(T))
+                    .CreateDelegate<Func<IDataReader, Func<IDataReader, T>>>();
 
     private static DataTable SchemaTable(string unusedColumn)
     {
         var table = new DataTable();
         try
         {
+#pragma warning disable IDISP004 // The returned table owns and disposes both columns.
             table.Columns.Add(nameof(BoundedRow.Text), typeof(string));
             table.Columns.Add(unusedColumn, typeof(int));
+#pragma warning restore IDISP004
             table.Rows.Add(DBNull.Value, 1);
             return table;
         }
@@ -325,10 +372,15 @@ public sealed class IdentityQueryMaterializerTest
     private sealed class DefaultRow
     {
         public string? Text { get; set; } = "text default";
+
         public int? Number { get; set; } = 17;
+
         public byte[]? Bytes { get; set; } = new byte[] { 9 };
+
         public string? PrivateText { get; private set; } = "private default";
+
         public int Required { get; set; } = 42;
+
         public string? Unselected { get; set; } = "unselected";
     }
 
@@ -340,12 +392,14 @@ public sealed class IdentityQueryMaterializerTest
     private sealed class RemappedRow
     {
         public string? First { get; set; } = "first default";
+
         public string? Second { get; set; } = "second default";
     }
 
     private sealed class CaseRow
     {
         public string? Upper { get; set; } = "upper default";
+
         public string? Lower { get; set; } = "lower default";
     }
 
@@ -367,6 +421,7 @@ public sealed class IdentityQueryMaterializerTest
     private sealed class OverrideRow : OverrideBaseRow
     {
         private string? _value = "override default";
+
         public int SetterCalls { get; private set; }
 
         public override string? Value
@@ -383,6 +438,7 @@ public sealed class IdentityQueryMaterializerTest
     private sealed class ConcurrentRow
     {
         public string? Text { get; set; } = "text default";
+
         public int? Number { get; set; } = 17;
     }
 

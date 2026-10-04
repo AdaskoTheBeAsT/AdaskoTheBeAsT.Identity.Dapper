@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Controllers;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity;
@@ -12,7 +11,6 @@ using AdaskoTheBeAsT.Identity.Dapper.WebApi.Services;
 using AutoMapper;
 using AwesomeAssertions;
 using MediatR;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -23,6 +21,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Test;
 
 public sealed class AuthorizationTest : IClassFixture<ApiFactory>
 {
+    private static readonly string[] AdministratorRoles = { "Administrator" };
+
     private readonly ApiFactory _factory;
 
     public AuthorizationTest(ApiFactory factory) => _factory = factory;
@@ -45,7 +45,7 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
     public async Task AnonymousRegistrationCannotChooseRoles()
     {
         using var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
-        using var response = await client.PostAsJsonAsync("/api/user", new UserModel { Roles = new[] { "Administrator" } }, cancellationToken: TestContext.Current.CancellationToken);
+        using var response = await client.PostAsJsonAsync("/api/user", new UserModel { Roles = AdministratorRoles }, cancellationToken: TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
@@ -69,7 +69,7 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
     {
         var id = Guid.NewGuid();
         using var client = AuthenticatedClient(id);
-        using var response = await client.PutAsJsonAsync($"/api/user/{id}", new UpdateUserModel { Roles = new[] { "Administrator" } }, cancellationToken: TestContext.Current.CancellationToken);
+        using var response = await client.PutAsJsonAsync($"/api/user/{id}", new UpdateUserModel { Roles = AdministratorRoles }, cancellationToken: TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
@@ -98,7 +98,7 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
     public async Task RegistrationHandlerRejectsPrivilegedRolesBeforePersistence()
     {
         var handler = new CreateUserRequestHandler(null!);
-        var result = await handler.Handle(new CreateUserRequest { Roles = new[] { "Administrator" } }, CancellationToken.None);
+        var result = await handler.Handle(new CreateUserRequest { Roles = AdministratorRoles }, CancellationToken.None);
         result.Succeeded.Should().BeFalse();
         result.Errors.Should().Contain(error => error.Code == "RoleAssignmentNotAllowed");
     }
@@ -111,16 +111,5 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
         var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
         return client;
-    }
-}
-
-public sealed class ApiFactory : WebApplicationFactory<Program>
-{
-    public string SigningKey { get; } = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
-
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-        builder.UseSetting("TokenServiceOptions:SigningKey", SigningKey);
-        builder.UseEnvironment("Testing");
     }
 }

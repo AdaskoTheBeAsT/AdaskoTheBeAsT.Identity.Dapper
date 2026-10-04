@@ -73,7 +73,7 @@ public abstract class GuidRoleStoreTableDrivenStepDefinitionsBase<
             role.Name = MakeScenarioUniqueValue(role.Name);
             var result = await store.CreateAsync(role, CancellationToken.None);
             result.Succeeded.Should().BeTrue();
-            _rolesByName[role.Name!] = role;
+            _rolesByName[role.Name] = role;
         }
     }
 
@@ -113,6 +113,7 @@ public abstract class GuidRoleStoreTableDrivenStepDefinitionsBase<
         return Task.CompletedTask;
     }
 
+#pragma warning disable MA0051 // Method is too long
     protected async Task ExecuteRoleStoreMethodAsync(string methodName, Table table)
     {
         using var store = CreateRoleStore();
@@ -124,10 +125,11 @@ public abstract class GuidRoleStoreTableDrivenStepDefinitionsBase<
                 var role = CreateRole(table, row ?? throw new InvalidOperationException("Exactly one row is required."));
                 role.Name = MakeScenarioUniqueValue(role.Name);
                 LastIdentityResult = await store.CreateAsync(role, CancellationToken.None);
-                _rolesByName[role.Name!] = role;
+                _rolesByName[role.Name] = role;
                 LastRole = await store.FindByIdAsync(role.Id.ToString(), CancellationToken.None);
                 break;
             }
+
             case "UpdateAsync":
             {
                 var existingRole = GetRole(table, row ?? throw new InvalidOperationException("Exactly one row is required."));
@@ -141,6 +143,7 @@ public abstract class GuidRoleStoreTableDrivenStepDefinitionsBase<
                 {
                     existingRole.ConcurrencyStamp.Should().NotBe(originalStamp);
                 }
+
                 if (!string.Equals(previousName, existingRole.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     _rolesByName.Remove(previousName);
@@ -150,6 +153,7 @@ public abstract class GuidRoleStoreTableDrivenStepDefinitionsBase<
                 LastRole = await store.FindByIdAsync(existingRole.Id.ToString(), CancellationToken.None);
                 break;
             }
+
             case "DeleteAsync":
             {
                 var role = GetRole(table, row ?? throw new InvalidOperationException("Exactly one row is required."));
@@ -158,12 +162,14 @@ public abstract class GuidRoleStoreTableDrivenStepDefinitionsBase<
                 LastRole = await store.FindByIdAsync(role.Id.ToString(), CancellationToken.None);
                 break;
             }
+
             case "FindByIdAsync":
             {
                 var role = GetRole(table, row ?? throw new InvalidOperationException("Exactly one row is required."));
                 LastRole = await store.FindByIdAsync(role.Id.ToString(), CancellationToken.None);
                 break;
             }
+
             case "FindByNameAsync":
             {
                 LastRole = await store.FindByNameAsync(
@@ -172,12 +178,14 @@ public abstract class GuidRoleStoreTableDrivenStepDefinitionsBase<
                     CancellationToken.None);
                 break;
             }
+
             case "GetClaimsAsync":
             {
                 var role = GetRole(table, row ?? throw new InvalidOperationException("Exactly one row is required."));
                 LastClaims = await store.GetClaimsAsync(role, CancellationToken.None);
                 break;
             }
+
             case "AddClaimAsync":
             {
                 var role = GetRole(table, row ?? throw new InvalidOperationException("Exactly one row is required."));
@@ -190,6 +198,7 @@ public abstract class GuidRoleStoreTableDrivenStepDefinitionsBase<
                 LastClaims = await store.GetClaimsAsync(role, CancellationToken.None);
                 break;
             }
+
             case "RemoveClaimAsync":
             {
                 var role = GetRole(table, row ?? throw new InvalidOperationException("Exactly one row is required."));
@@ -202,15 +211,18 @@ public abstract class GuidRoleStoreTableDrivenStepDefinitionsBase<
                 LastClaims = await store.GetClaimsAsync(role, CancellationToken.None);
                 break;
             }
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(methodName), methodName, message: null);
         }
     }
 
+#pragma warning restore MA0051
+
     protected void AssertLastIdentityResultSuccessful()
     {
         LastIdentityResult.Should().NotBeNull();
-        LastIdentityResult!.Succeeded.Should().BeTrue();
+        LastIdentityResult.Succeeded.Should().BeTrue();
         LastIdentityResult.Errors.Should().BeEmpty();
     }
 
@@ -223,10 +235,10 @@ public abstract class GuidRoleStoreTableDrivenStepDefinitionsBase<
             switch (header)
             {
                 case "Id":
-                    LastRole!.Id.ToString().Should().Be(row[header]);
+                    LastRole.Id.ToString().Should().Be(row[header]);
                     break;
                 case "Name":
-                    LastRole!.Name.Should().Be(MakeScenarioUniqueValue(row[header]));
+                    LastRole.Name.Should().Be(MakeScenarioUniqueValue(row[header]));
                     break;
                 default:
                     break;
@@ -258,20 +270,20 @@ public abstract class GuidRoleStoreTableDrivenStepDefinitionsBase<
 
     protected void AssertLastVerifiedMethod(string methodName) => LastVerifiedMethodName.Should().Be(methodName);
 
-    private TRole GetRole(Table table, DataTableRow row)
-    {
-        var roleName = MakeScenarioUniqueValue(GetRequiredValue(table, row, "RoleName"));
-        return _rolesByName.TryGetValue(roleName, out var role)
-            ? role
-            : throw new KeyNotFoundException($"Role '{roleName}' was not created in the scenario setup.");
-    }
-
     private static string BuildScenarioKey(string scenarioTitle)
     {
         var sanitized = new string(scenarioTitle.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
         var prefix = string.IsNullOrWhiteSpace(sanitized) ? "scenario" : sanitized[..Math.Min(12, sanitized.Length)];
         var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(scenarioTitle)))[..8].ToLowerInvariant();
         return $"{prefix}{hash}";
+    }
+
+    private TRole GetRole(Table table, DataTableRow row)
+    {
+        var roleName = MakeScenarioUniqueValue(GetRequiredValue(table, row, "RoleName"));
+        return _rolesByName.TryGetValue(roleName, out var role)
+            ? role
+            : throw new KeyNotFoundException($"Role '{roleName}' was not created in the scenario setup.");
     }
 
     private string MakeScenarioUniqueValue(string? value) =>

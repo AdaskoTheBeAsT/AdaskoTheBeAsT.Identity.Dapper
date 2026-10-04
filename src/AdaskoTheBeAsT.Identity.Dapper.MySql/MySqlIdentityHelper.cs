@@ -41,6 +41,7 @@ public class MySqlIdentityHelper
             },
             StringComparer.OrdinalIgnoreCase);
 
+#pragma warning disable MA0051 // Method is too long
     public string GetInsertTemplate(
         string tableName,
         string keyTypeName,
@@ -73,6 +74,7 @@ public class MySqlIdentityHelper
                     SELECT @NewId AS Id;
                     """;
             }
+
             case "int":
             case "Int32":
             case "System.Int32":
@@ -118,8 +120,10 @@ public class MySqlIdentityHelper
                     SELECT @NewId AS Id;
                     """;
             }
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));
         }
     }
+#pragma warning restore MA0051
 }
