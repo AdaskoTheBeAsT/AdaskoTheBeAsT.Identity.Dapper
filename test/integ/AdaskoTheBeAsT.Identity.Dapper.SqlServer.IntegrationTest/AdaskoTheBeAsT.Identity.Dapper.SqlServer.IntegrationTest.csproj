@@ -16,17 +16,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.72" />
-    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.3" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" />
-    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="181.19.0" />
-    <PackageReference Include="Testcontainers.MsSql" Version="4.11.0" />
+    <PackageReference Include="Dapper" Version="2.1.89" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.89" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.12" />
+    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="181.37.1" />
+    <PackageReference Include="Testcontainers.MsSql" Version="4.15.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.SqlServer\AdaskoTheBeAsT.Identity.Dapper.SqlServer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.SqlServer\AdaskoTheBeAsT.Identity.Dapper.SqlServer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
     <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
   </ItemGroup>
 

@@ -7,4 +7,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
 public class GetAllRolesRequest
     : IRequest<IEnumerable<RoleModel>>
 {
+    public int Offset { get; set; }
+
+    public int PageSize { get; set; } = 100;
 }

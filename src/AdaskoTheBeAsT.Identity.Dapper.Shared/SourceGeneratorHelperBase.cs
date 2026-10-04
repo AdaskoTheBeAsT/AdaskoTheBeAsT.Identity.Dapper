@@ -61,40 +61,42 @@ public abstract class SourceGeneratorHelperBase
         _applicationRoleStoreGenerator = applicationRoleStoreGenerator;
     }
 
+    protected virtual DatabaseProvider Provider => DatabaseProvider.SqlServer;
+
+#pragma warning disable MA0051 // Method is too long
     public void GenerateCode(
         SourceProductionContext context,
         Compilation compilation,
         IdentityDapperOptions options,
-        (string KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) generationInfo)
+        (string KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items, IList<INamedTypeSymbol> Types) generationInfo)
     {
-        var grouped = generationInfo
-            .Items
-            .GroupBy<(IPropertySymbol, string), INamedTypeSymbol>(
-                p => p.Item1.ContainingType,
-                SymbolEqualityComparer.Default);
-
         var set = new HashSet<string>(_entityNames, StringComparer.OrdinalIgnoreCase);
         var namespaceName = "EmptyNamespace";
 
         var schemaPart = GenerateSchemaPart(options.Schema);
         var attributeTypeSymbol = compilation.GetTypeByMetadataName("AdaskoTheBeAsT.Identity.Dapper.Attributes.InsertOwnIdAttribute");
+        var mappings = new Dictionary<string, IDictionary<string, string>>(StringComparer.Ordinal);
+        foreach (var type in generationInfo.Types)
+        {
+            mappings[GetIdentityBaseName(type)] = GetPropertiesForType(generationInfo.Items, type)
+                .ToDictionary(p => p.PropertySymbol.Name, p => p.ColumnName, StringComparer.Ordinal);
+        }
 
         var typePropertiesDict = new Dictionary<string, IList<PropertyColumnTypeTriple>>(StringComparer.OrdinalIgnoreCase);
         var userInsertOwnId = false;
         var roleInsertOwnId = false;
-        foreach (var group in grouped)
+        foreach (var type in generationInfo.Types)
         {
-            var baseTypeName = group.Key.BaseType?.Name ?? string.Empty;
-            namespaceName = group.Key.ContainingNamespace.ToDisplayString();
-            var insertOwnId = group.Key.GetAttributes()
-                .Any(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeTypeSymbol));
+            var baseTypeName = GetIdentityBaseName(type);
+            namespaceName = type.ContainingNamespace.ToDisplayString();
+            var insertOwnId = HasAttribute(type, attributeTypeSymbol);
             if (insertOwnId)
             {
-                if (baseTypeName == nameof(IdentityUser))
+                if (string.Equals(baseTypeName, nameof(IdentityUser), StringComparison.Ordinal))
                 {
                     userInsertOwnId = true;
                 }
-                else if (baseTypeName == nameof(IdentityRole))
+                else if (string.Equals(baseTypeName, nameof(IdentityRole), StringComparison.Ordinal))
                 {
                     roleInsertOwnId = true;
                 }
@@ -106,8 +108,9 @@ public abstract class SourceGeneratorHelperBase
                 namespaceName,
                 schemaPart,
                 options.SkipNormalized,
-                insertOwnId);
-            var allProperties = ProcessClass(context, config, group.ToList());
+                insertOwnId)
+            { Provider = Provider, ColumnMappings = mappings };
+            var allProperties = ProcessClass(context, config, GetPropertiesForType(generationInfo.Items, type).ToList());
             typePropertiesDict[baseTypeName] = allProperties;
             set.Remove(baseTypeName);
         }
@@ -120,7 +123,8 @@ public abstract class SourceGeneratorHelperBase
                 namespaceName,
                 schemaPart,
                 options.SkipNormalized,
-                false);
+                insertOwnId: false)
+            { Provider = Provider, ColumnMappings = mappings };
             var allProperties = ProcessClass(
                 context,
                 config,
@@ -139,12 +143,50 @@ public abstract class SourceGeneratorHelperBase
 
         GenerateAdditionalFiles(context, options);
     }
+#pragma warning restore MA0051
 
     protected abstract string GenerateSchemaPart(string dbSchema);
 
     protected abstract void GenerateAdditionalFiles(
         SourceProductionContext context,
         IdentityDapperOptions options);
+
+    private static string GetIdentityBaseName(INamedTypeSymbol type)
+    {
+        var baseType = type.BaseType;
+        while (baseType != null && !string.Equals(baseType.ContainingNamespace.ToDisplayString(), "Microsoft.AspNetCore.Identity", StringComparison.Ordinal))
+        {
+            baseType = baseType.BaseType;
+        }
+
+        return baseType?.Name ?? string.Empty;
+    }
+
+    private static IEnumerable<(IPropertySymbol PropertySymbol, string ColumnName)> GetPropertiesForType(
+        IEnumerable<(IPropertySymbol PropertySymbol, string ColumnName)> properties, INamedTypeSymbol type) =>
+        properties.Where(p => SymbolEqualityComparer.Default.Equals(p.PropertySymbol.ContainingType, type) ||
+            IdentityDapperSourceGeneratorBase.IsApplicationBase(p.PropertySymbol.ContainingType, type));
+
+    private static bool HasAttribute(INamedTypeSymbol type, INamedTypeSymbol? attributeType)
+    {
+        for (var current = type; current != null; current = current.BaseType)
+        {
+            if (current.GetAttributes().Any(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeType)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static IEnumerable<PropertyColumnTypeTriple> Extract(
+        IList<(IPropertySymbol PropertySymbol, string ColumnName)> list) =>
+        list.Select(
+            i => new PropertyColumnTypeTriple(
+                i.PropertySymbol.Name,
+                i.PropertySymbol.Type.ToDisplayString(),
+                i.ColumnName));
 
     private IList<PropertyColumnTypeTriple> ProcessClass(
         SourceProductionContext context,
@@ -219,17 +261,13 @@ public abstract class SourceGeneratorHelperBase
         return propertyColumnTypeTriples;
     }
 
-    private IList<PropertyColumnTypeTriple> ProcessIdentityUserRoleClaim(
+    private void ProcessIdentityUserRoleClaim(
         SourceProductionContext context,
         IdentityDapperConfiguration config)
     {
-        var propertyColumnTypeTriples = _identityUserRoleClaimClassGenerator.GetAllProperties(
-            new List<PropertyColumnTypeTriple>(),
-            config.InsertOwnId);
         var content = _identityUserRoleClaimClassGenerator.Generate(config);
 
         context.AddSource("IdentityUserRoleClaimSql.g.cs", SourceText.From(content, Encoding.UTF8));
-        return propertyColumnTypeTriples;
     }
 
     private IList<PropertyColumnTypeTriple> ProcessIdentityUserClaim(
@@ -287,14 +325,6 @@ public abstract class SourceGeneratorHelperBase
         context.AddSource("IdentityUserTokenSql.g.cs", SourceText.From(content, Encoding.UTF8));
         return propertyColumnTypeTriples;
     }
-
-    private IEnumerable<PropertyColumnTypeTriple> Extract(
-        IList<(IPropertySymbol PropertySymbol, string ColumnName)> list) =>
-        list.Select(
-            i => new PropertyColumnTypeTriple(
-                i.PropertySymbol.Name,
-                i.PropertySymbol.Type.ToDisplayString(),
-                i.ColumnName));
 
     private void ProcessApplicationStores(
         SourceProductionContext context,

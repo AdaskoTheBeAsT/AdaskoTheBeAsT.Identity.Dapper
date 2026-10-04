@@ -1,8 +1,8 @@
 using AdaskoTheBeAsT.Identity.Dapper.IntegrationTest.Common;
 using AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest;
 using AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Identity;
-using Reqnroll;
 using Microsoft.Data.Sqlite;
+using Reqnroll;
 using SqliteUserOnlyStoreBase =
     AdaskoTheBeAsT.Identity.Dapper.DapperUserOnlyStoreBase<
         AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Identity.ApplicationUser,
@@ -48,53 +48,49 @@ public sealed class WithoutNormalizedAspNetIdentityGuidUserStoreStepDefinitions
     {
     }
 
-    protected override SqliteUserOnlyStoreBase CreateUserStoreInstance() => CreateUserStore();
-
-    protected override SqliteUserStoreBase CreateRoleCapableUserStoreInstance() => CreateUserStore();
-
     [Given("I have configured SQLite UserStore without normalized and Guid id")]
-    public Task GivenIHaveConfiguredUserStoreWithoutNormalizedAndGuidId() => ResetUserStoreScenarioAsync();
+    public Task GivenIHaveConfiguredUserStoreWithoutNormalizedAndGuidIdAsync() => ResetUserStoreScenarioAsync();
 
     [Given("I created users for SQLite UserStore")]
-    public Task GivenICreatedUsersForUserStore(Table table) => CreateUsersFromTableAsync(table);
+    public Task GivenICreatedUsersForUserStoreAsync(Table table) => CreateUsersFromTableAsync(table);
 
     [Given("I created roles for SQLite UserStore")]
-    public Task GivenICreatedRolesForUserStore(Table table) => CreateRolesFromTableAsync(table);
+    public Task GivenICreatedRolesForUserStoreAsync(Table table) => CreateRolesFromTableAsync(table);
 
     [Given("I added user claims for SQLite UserStore")]
-    public Task GivenIAddedUserClaimsForUserStore(Table table) => AddUserClaimsFromTableAsync(table);
+    public Task GivenIAddedUserClaimsForUserStoreAsync(Table table) => AddUserClaimsFromTableAsync(table);
 
     [Given("I added role claims for SQLite UserStore")]
-    public Task GivenIAddedRoleClaimsForUserStore(Table table) => AddRoleClaimsFromTableAsync(table);
+    public Task GivenIAddedRoleClaimsForUserStoreAsync(Table table) => AddRoleClaimsFromTableAsync(table);
 
     [Given("I added user logins for SQLite UserStore")]
-    public Task GivenIAddedUserLoginsForUserStore(Table table) => AddUserLoginsFromTableAsync(table);
+    public Task GivenIAddedUserLoginsForUserStoreAsync(Table table) => AddUserLoginsFromTableAsync(table);
 
     [Given("I added user tokens for SQLite UserStore")]
-    public Task GivenIAddedUserTokensForUserStore(Table table) => AddUserTokensFromTableAsync(table);
+    public Task GivenIAddedUserTokensForUserStoreAsync(Table table) => AddUserTokensFromTableAsync(table);
 
     [Given("I set authenticator keys for SQLite UserStore")]
-    public Task GivenISetAuthenticatorKeysForUserStore(Table table) => SetAuthenticatorKeysFromTableAsync(table);
+    public Task GivenISetAuthenticatorKeysForUserStoreAsync(Table table) => SetAuthenticatorKeysFromTableAsync(table);
 
     [Given("I replaced recovery codes for SQLite UserStore")]
-    public Task GivenIReplacedRecoveryCodesForUserStore(Table table) => ReplaceRecoveryCodesFromTableAsync(table);
+    public Task GivenIReplacedRecoveryCodesForUserStoreAsync(Table table) => ReplaceRecoveryCodesFromTableAsync(table);
 
     [Given("I added users to roles for SQLite UserStore")]
-    public Task GivenIAddedUsersToRolesForUserStore(Table table) => AddUsersToRolesFromTableAsync(table);
+    public Task GivenIAddedUsersToRolesForUserStoreAsync(Table table) => AddUsersToRolesFromTableAsync(table);
 
     [When("I verify {string} on SQLite UserStore without normalized and Guid id")]
-    public async Task WhenIVerifyMethodOnUserStoreWithoutNormalizedAndGuidId(string methodName)
+    public async Task WhenIVerifyMethodOnUserStoreWithoutNormalizedAndGuidIdAsync(string methodName)
     {
         await VerifyUserStoreMethodAsync(methodName);
         LastVerifiedMethodName = methodName;
     }
 
     [When("I execute {string} on SQLite UserStore")]
-    public Task WhenIExecuteMethodOnUserStore(string methodName) =>
+    public Task WhenIExecuteMethodOnUserStoreAsync(string methodName) =>
         ExecuteUserStoreDatabaseMethodAsync(methodName, table: null);
 
     [When("I execute {string} on SQLite UserStore with parameters")]
-    public Task WhenIExecuteMethodOnUserStoreWithParameters(string methodName, Table table) =>
+    public Task WhenIExecuteMethodOnUserStoreWithParametersAsync(string methodName, Table table) =>
         ExecuteUserStoreDatabaseMethodAsync(methodName, table);
 
     [Then("the last identity result for SQLite UserStore should be successful")]
@@ -146,4 +142,8 @@ public sealed class WithoutNormalizedAspNetIdentityGuidUserStoreStepDefinitions
     {
         AssertLastVerifiedMethod(methodName);
     }
+
+    protected override SqliteUserOnlyStoreBase CreateUserStoreInstance() => CreateUserStore();
+
+    protected override SqliteUserStoreBase CreateRoleCapableUserStoreInstance() => CreateUserStore();
 }

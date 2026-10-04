@@ -1,7 +1,7 @@
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
-using Oracle.ManagedDataAccess.Client;
 using AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity;
 using AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.TestCollections;
+using Oracle.ManagedDataAccess.Client;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest;
 

@@ -24,10 +24,24 @@ indent_size = 2
 indent_size = 4
 insert_final_newline = true
 
+# Source-generator output
+[*.g.cs]
+generated_code = true
+
+# Reqnroll-generated tests
+[*.feature.cs]
+generated_code = true
+
 ###############################
 # .NET Coding Conventions     #
 ###############################
 [*.{cs,vb}]
+# Focused correctness, disposal, async, and security checks.
+dotnet_diagnostic.CA2000.severity = warning
+dotnet_diagnostic.CA2012.severity = warning
+dotnet_diagnostic.CA3075.severity = warning
+dotnet_diagnostic.CA5350.severity = warning
+dotnet_diagnostic.CA5351.severity = warning
 # Organize usings
 dotnet_separate_import_directive_groups = false
 dotnet_sort_system_directives_first = true

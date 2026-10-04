@@ -5,4 +5,5 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity;
 public class ApplicationUserLogin
     : IdentityUserLogin<Guid>
 {
+    public string AuditSource { get; set; } = "login";
 }

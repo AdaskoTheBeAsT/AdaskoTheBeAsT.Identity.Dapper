@@ -13,10 +13,11 @@ public abstract class IdentityRoleClaimClassGeneratorBase
         IdentityDapperConfiguration config,
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
+        config = config.ForGeneration("IdentityRoleClaim", Provider, propertyColumnTypeTriples);
         var sb = new StringBuilder();
-        GenerateUsing(sb, config.KeyTypeName);
+        GenerateSqlUsing(sb);
         GenerateNamespaceStart(sb, config.NamespaceName);
-        GenerateClassStart(sb, "IdentityRoleClaimSql", "IIdentityRoleClaimSql");
+        GenerateSqlClassStart(sb, "IdentityRoleClaimSql", "IIdentityRoleClaimSql");
         GenerateCreateSql(sb, config, propertyColumnTypeTriples);
         GenerateDeleteSql(sb, config);
         GenerateGetByRoleIdSql(sb, config);
@@ -44,9 +45,7 @@ public abstract class IdentityRoleClaimClassGeneratorBase
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityRoleClaimCreateSql(config, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $@"        public string CreateSql {{ get; }} =
-            @""{content}"";");
+        sb.Append("        public string CreateSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -55,9 +54,7 @@ public abstract class IdentityRoleClaimClassGeneratorBase
         IdentityDapperConfiguration config)
     {
         var content = ProcessIdentityRoleClaimDeleteSql(config);
-        sb.AppendLine(
-            $@"        public string DeleteSql {{ get; }} =
-            @""{content}"";");
+        sb.Append("        public string DeleteSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -66,8 +63,6 @@ public abstract class IdentityRoleClaimClassGeneratorBase
         IdentityDapperConfiguration config)
     {
         var content = ProcessIdentityRoleClaimGetByRoleIdSql(config);
-        sb.AppendLine(
-            $@"        public string GetByRoleIdSql {{ get; }} =
-            @""{content}"";");
+        sb.Append("        public string GetByRoleIdSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
     }
 }

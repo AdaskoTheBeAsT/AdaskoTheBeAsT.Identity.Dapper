@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.Threading;
 using System.Threading.Tasks;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Models;
@@ -11,6 +13,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Roles = "Administrator")]
 public class RoleController : ControllerBase
 {
     private readonly IMapper _mapper;
@@ -24,14 +27,15 @@ public class RoleController : ControllerBase
         _mediator = mediator;
     }
 
-    [AllowAnonymous]
     [HttpPost]
+#pragma warning disable SEC0019 // Authentication uses explicit bearer headers, not automatically submitted cookie credentials.
     public async Task<IActionResult> CreateRoleAsync([FromBody] RoleModel roleModel)
+#pragma warning restore SEC0019
     {
         try
         {
             var request = _mapper.Map<CreateRoleRequest>(roleModel);
-            var result = await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
+            var result = await _mediator.Send(request, HttpContext.RequestAborted).ConfigureAwait(continueOnCapturedContext: false);
             if (result.Succeeded)
             {
                 return Ok();
@@ -45,15 +49,21 @@ public class RoleController : ControllerBase
         }
     }
 
-    [AllowAnonymous]
     [HttpGet]
-    public async Task<IActionResult> GetAllRolesAsync()
+    public async Task<IActionResult> GetAllRolesAsync(
+        [FromQuery, Range(0, int.MaxValue)] int offset = 0,
+        [FromQuery, Range(1, IdentityPaging.MaxPageSize)] int pageSize = 100,
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            var request = new GetAllRolesRequest();
-            var roles = await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
+            var request = new GetAllRolesRequest { Offset = offset, PageSize = pageSize };
+            var roles = await _mediator.Send(request, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             return Ok(roles);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {

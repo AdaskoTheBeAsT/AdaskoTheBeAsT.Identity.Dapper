@@ -1,30 +1,29 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Models;
 using AutoMapper;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
 
 public class GetAllRolesRequestHandler
     : IRequestHandler<GetAllRolesRequest, IEnumerable<RoleModel>>
 {
-    private readonly RoleManager<ApplicationRole> _roleManager;
+    private readonly IPagedRoleStore<ApplicationRole> _roles;
     private readonly IMapper _mapper;
 
-    public GetAllRolesRequestHandler(RoleManager<ApplicationRole> roleManager, IMapper mapper)
+    public GetAllRolesRequestHandler(IPagedRoleStore<ApplicationRole> roles, IMapper mapper)
     {
-        _roleManager = roleManager;
+        _roles = roles;
         _mapper = mapper;
     }
 
-    public Task<IEnumerable<RoleModel>> Handle(GetAllRolesRequest request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<RoleModel>> Handle(GetAllRolesRequest request, CancellationToken cancellationToken)
     {
-        var roles = _roleManager.Roles.ToList();
-        return Task.FromResult(_mapper.Map<IEnumerable<RoleModel>>(roles));
+        var roles = await _roles.GetRolesPageAsync(request.Offset, request.PageSize, cancellationToken).ConfigureAwait(false);
+        return _mapper.Map<IEnumerable<RoleModel>>(roles);
     }
 }

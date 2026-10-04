@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 using Microsoft.AspNetCore.Identity;
@@ -13,14 +14,19 @@ public abstract class IdentityUserClaimClassGeneratorBase
         IdentityDapperConfiguration config,
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
+        config = config.ForGeneration("IdentityUserClaim", Provider, propertyColumnTypeTriples);
         var sb = new StringBuilder();
-        GenerateUsing(sb, config.KeyTypeName);
+        GenerateSqlUsing(sb);
         GenerateNamespaceStart(sb, config.NamespaceName);
-        GenerateClassStart(sb, "IdentityUserClaimSql", "IIdentityUserClaimSql");
+        GenerateSqlClassStart(sb, "IdentityUserClaimSql", "IIdentityUserClaimBatchSql");
         GenerateCreateSql(sb, config, propertyColumnTypeTriples);
         GenerateDeleteSql(sb, config);
         GenerateGetByUserIdSql(sb, config);
         GenerateReplaceSql(sb, config, propertyColumnTypeTriples);
+        var sql = Sql(config, propertyColumnTypeTriples);
+        var names = string.Join(", ", propertyColumnTypeTriples.Select(p => Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(p.PropertyName, quote: true)));
+        sb.AppendLine();
+        sb.Append("        public string CreateBatchItemSql { get; } =\r\n            ").Append(RawStringLiteral.Format(sql.CreateClaimBatchItem())).Append(";\r\n\r\n        public string DeleteBatchItemSql { get; } =\r\n            ").Append(RawStringLiteral.Format(sql.DeleteClaimBatchItem())).Append(";\r\n\r\n        public System.Collections.Generic.IReadOnlyList<string> CreateBatchParameterNames { get; } = new[] { ").Append(names).Append(" };\r\n\r\n        public string BatchPrefix { get; } = ").Append(Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(Provider == DatabaseProvider.Oracle ? "BEGIN\n" : string.Empty, quote: true)).Append(";\r\n\r\n        public string BatchSuffix { get; } = ").Append(Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(Provider == DatabaseProvider.Oracle ? "\nEND;" : string.Empty, quote: true)).Append(';').AppendLine();
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
@@ -49,9 +55,7 @@ public abstract class IdentityUserClaimClassGeneratorBase
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityUserClaimCreateSql(config, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $@"        public string CreateSql {{ get; }} =
-            @""{content}"";");
+        sb.Append("        public string CreateSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -60,9 +64,7 @@ public abstract class IdentityUserClaimClassGeneratorBase
         IdentityDapperConfiguration config)
     {
         var content = ProcessIdentityUserClaimDeleteSql(config);
-        sb.AppendLine(
-            $@"        public string DeleteSql {{ get; }} =
-            @""{content}"";");
+        sb.Append("        public string DeleteSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -71,9 +73,7 @@ public abstract class IdentityUserClaimClassGeneratorBase
         IdentityDapperConfiguration config)
     {
         var content = ProcessIdentityUserClaimGetByUserIdSql(config);
-        sb.AppendLine(
-            $@"        public string GetByUserIdSql {{ get; }} =
-            @""{content}"";");
+        sb.Append("        public string GetByUserIdSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -83,8 +83,6 @@ public abstract class IdentityUserClaimClassGeneratorBase
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityUserClaimReplaceSql(config, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $@"        public string ReplaceSql {{ get; }} =
-            @""{content}"";");
+        sb.Append("        public string ReplaceSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
     }
 }

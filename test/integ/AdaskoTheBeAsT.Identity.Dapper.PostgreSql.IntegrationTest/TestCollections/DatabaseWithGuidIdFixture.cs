@@ -1,5 +1,6 @@
-using AdaskoTheBeAsT.Identity.Dapper.PostgreSql.IntegrationTest.Util;
+using AdaskoTheBeAsT.Identity.Dapper.IntegrationTest.Common;
 using AdaskoTheBeAsT.Identity.Dapper.PostgreSql;
+using AdaskoTheBeAsT.Identity.Dapper.PostgreSql.IntegrationTest.Util;
 using DbUp;
 using Testcontainers.PostgreSql;
 using Xunit;
@@ -11,82 +12,60 @@ public sealed class DatabaseWithGuidIdFixture
         IDisposable
 {
     private const string DbName = "WithoutNormalizedAspNetIdentityGuid";
-    private readonly SemaphoreSlim _initializationLock = new(1, 1);
-    private bool _initialized;
+    private readonly FixtureResourceLifecycle _lifecycle;
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2213:Disposable fields should be disposed", Justification = "FixtureResourceLifecycle invokes CleanupAsync exactly once.")]
     private readonly PostgreSqlContainer _postgreSqlContainer
         = new PostgreSqlBuilder("postgres:18.3")
             .WithDatabase(DbName)
             .WithUsername("admin")
             .WithPassword("TestPass123!")
-            .WithPortBinding(64320, 5432)
             .Build();
-
-    public static DatabaseWithGuidIdFixture Shared { get; } = new();
 
     public DatabaseWithGuidIdFixture()
     {
+        _lifecycle = new FixtureResourceLifecycle(InitializeCoreAsync, CleanupAsync);
         PostgreSqlDapperConfig.ConfigureTypeHandlers();
     }
+
+    public static DatabaseWithGuidIdFixture Shared { get; } = new();
 
     public string ConnectionString { get; set; } = string.Empty;
 
     public TestOutputHelperAdapter TestOutputHelperAdapter { get; } = new();
 
-    public async Task InitializeAsync()
+    public ValueTask InitializeAsync() => new(_lifecycle.InitializeAsync());
+
+    public ValueTask DisposeAsync() => _lifecycle.DisposeAsync();
+
+    public void Dispose() => _lifecycle.Dispose();
+
+    private async Task InitializeCoreAsync()
     {
-        if (_initialized)
-        {
-            return;
-        }
-
-        await _initializationLock.WaitAsync();
-        try
-        {
-            if (_initialized)
-            {
-                return;
-            }
-
-            await _postgreSqlContainer.StartAsync();
-            var path = Path.Combine("Scripts", "WithoutNormalizedAspNetIdentityGuid.sql");
+        await _postgreSqlContainer.StartAsync(Xunit.TestContext.Current.CancellationToken);
+        var path = Path.Combine("Scripts", "WithoutNormalizedAspNetIdentityGuid.sql");
 #pragma warning disable SCS0018
-            var content = await File.ReadAllTextAsync(path);
+        var content = await File.ReadAllTextAsync(path, Xunit.TestContext.Current.CancellationToken);
 #pragma warning restore SCS0018
-            ConnectionString = _postgreSqlContainer.GetConnectionString();
-            var upgradeEngineBuilder = DeployChanges.To
-                .PostgresqlDatabase(ConnectionString, "public")
-                .WithScript(
-                    "Script_000001_Init", content)
-                .LogTo(TestOutputHelperAdapter);
+        ConnectionString = _postgreSqlContainer.GetConnectionString();
+        var upgradeEngineBuilder = DeployChanges.To
+            .PostgresqlDatabase(ConnectionString, "public")
+            .WithScript(
+                "Script_000001_Init", content)
+            .LogTo(TestOutputHelperAdapter);
 
-            var upgradeEngine = upgradeEngineBuilder.Build();
+        var upgradeEngine = upgradeEngineBuilder.Build();
 
-            var result = upgradeEngine.PerformUpgrade();
-            var msg = result.Successful
-                ? "Successfully ran migrations"
-                : $"Failed to run migrations {result.Error}";
-            TestOutputHelperAdapter.WriteInformation($"final {msg}");
-            _initialized = true;
-        }
-        catch (Exception ex)
+        var result = upgradeEngine.PerformUpgrade();
+        var msg = result.Successful
+            ? "Successfully ran migrations"
+            : $"Failed to run migrations {result.Error}";
+        TestOutputHelperAdapter.WriteInformation($"final {msg}");
+        if (!result.Successful)
         {
-            Console.WriteLine(ex);
-            throw;
-        }
-        finally
-        {
-            _initializationLock.Release();
+            throw new InvalidOperationException("PostgreSQL test schema initialization failed.", result.Error);
         }
     }
 
-    public async Task DisposeAsync()
-    {
-        await _postgreSqlContainer.DisposeAsync().AsTask();
-        _initializationLock.Dispose();
-    }
-
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-    public void Dispose() => DisposeAsync().GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+    private Task CleanupAsync() => _postgreSqlContainer.DisposeAsync().AsTask();
 }

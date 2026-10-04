@@ -9,6 +9,4 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
 [JsonDerivedType(typeof(AuthPasswordRequest), typeDiscriminator: "password")]
 [JsonDerivedType(typeof(AuthRefreshTokenRequest), typeDiscriminator: "refresh_token")]
 public class AuthRequestBase
-    : IRequest<Token>
-{
-}
+    : IRequest<Token>;

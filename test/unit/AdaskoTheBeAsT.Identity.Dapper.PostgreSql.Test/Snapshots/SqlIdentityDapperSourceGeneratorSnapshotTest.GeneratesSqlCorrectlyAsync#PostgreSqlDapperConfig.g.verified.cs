@@ -1,4 +1,4 @@
-﻿//HintName: PostgreSqlDapperConfig.g.cs
+//HintName: PostgreSqlDapperConfig.g.cs
 using System;
 using Dapper;
 

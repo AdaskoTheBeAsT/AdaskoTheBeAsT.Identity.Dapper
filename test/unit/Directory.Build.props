@@ -1,0 +1,12 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Common\*.cs" Link="Common\%(Filename)%(Extension)" />
+    <Compile Include="$(MSBuildThisFileDirectory)..\..\src\AdaskoTheBeAsT.Identity.Dapper.Shared\RawStringLiteral.cs" Link="Common\RawStringLiteral.cs" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.89" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
+    <PackageReference Include="Npgsql" Version="10.0.2" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.200" />
+    <PackageReference Include="Dapper.Oracle" Version="2.0.3" />
+  </ItemGroup>
+</Project>

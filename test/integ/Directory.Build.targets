@@ -1,0 +1,25 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- Reqnroll's default cache omits the framework plugin, so an xUnit upgrade
+       can leave incompatible code-behind files in obj. -->
+  <Target Name="IncludeReqnrollPluginsInGenerationCache"
+          BeforeTargets="ReqnrollCreateProcessFeatureFileInputsCacheFile">
+    <ItemGroup>
+      <ReqnrollProcessFeatureFileInputs Include="TestFrameworkPlugins">
+        <_ParameterValue>@(ReqnrollGeneratorPlugins)</_ParameterValue>
+      </ReqnrollProcessFeatureFileInputs>
+    </ItemGroup>
+  </Target>
+
+  <!-- Legacy code-behind is intentionally retained as user work, not compiled.
+       Clear the deletion list before both compilation's legacy-file warning and
+       Clean/Rebuild; Reqnroll excludes it from Compile using feature metadata. -->
+  <Target Name="PreserveTrackedReqnrollCodeBehind"
+          BeforeTargets="CoreCompile;CleanFeatureFilesInProject"
+          Condition="'$(ReqnrollUseIntermediateOutputPathForCodeBehind)' == 'true'">
+    <ItemGroup>
+      <ReqnrollLegacyCodeBehindFiles Remove="@(ReqnrollLegacyCodeBehindFiles)" />
+    </ItemGroup>
+  </Target>
+</Project>

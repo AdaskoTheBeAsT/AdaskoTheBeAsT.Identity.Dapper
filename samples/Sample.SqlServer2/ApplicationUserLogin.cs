@@ -3,6 +3,4 @@ using Microsoft.AspNetCore.Identity;
 namespace Sample.SqlServer2;
 
 public class ApplicationUserLogin
-    : IdentityUserLogin<Guid>
-{
-}
+    : IdentityUserLogin<Guid>;

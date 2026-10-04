@@ -9,37 +9,38 @@ public class SqliteSourceGenerationHelper
     : SourceGeneratorHelperBase
 {
     public SqliteSourceGenerationHelper()
-        : base(
-            new SqliteIdentityRoleClassGenerator(),
-            new SqliteIdentityRoleClaimClassGenerator(),
-            new SqliteIdentityUserClassGenerator(),
-            new SqliteIdentityUserClaimClassGenerator(),
-            new SqliteIdentityUserLoginClassGenerator(),
-            new SqliteIdentityUserRoleClassGenerator(),
-            new SqliteIdentityUserTokenClassGenerator(),
-            new SqliteIdentityUserRoleClaimClassGenerator(),
-            new SqliteApplicationUserOnlyStoreGenerator(),
-            new SqliteApplicationUserStoreGenerator(),
-            new SqliteApplicationRoleStoreGenerator())
+            : base(
+                new SqliteIdentityRoleClassGenerator(),
+                new SqliteIdentityRoleClaimClassGenerator(),
+                new SqliteIdentityUserClassGenerator(),
+                new SqliteIdentityUserClaimClassGenerator(),
+                new SqliteIdentityUserLoginClassGenerator(),
+                new SqliteIdentityUserRoleClassGenerator(),
+                new SqliteIdentityUserTokenClassGenerator(),
+                new SqliteIdentityUserRoleClaimClassGenerator(),
+                new SqliteApplicationUserOnlyStoreGenerator(),
+                new SqliteApplicationUserStoreGenerator(),
+                new SqliteApplicationRoleStoreGenerator())
     {
     }
+
+    protected override DatabaseProvider Provider => DatabaseProvider.Sqlite;
 
     protected override string GenerateSchemaPart(string dbSchema) => string.Empty;
 
     protected override void GenerateAdditionalFiles(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+            SourceProductionContext context,
+            IdentityDapperOptions options)
     {
-        GenerateGuidTypeHandler(context, options);
-        GenerateNullableGuidTypeHandler(context, options);
-        GenerateDateTimeOffsetTypeHandler(context, options);
-        GenerateNullableDateTimeOffsetTypeHandler(context, options);
-        GenerateDapperConfig(context, options);
+        GenerateGuidTypeHandler(context);
+        GenerateNullableGuidTypeHandler(context);
+        GenerateDateTimeOffsetTypeHandler(context);
+        GenerateNullableDateTimeOffsetTypeHandler(context);
+        GenerateDapperConfig(context);
     }
 
-    private void GenerateGuidTypeHandler(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+    private static void GenerateGuidTypeHandler(
+            SourceProductionContext context)
     {
         const string content =
             """
@@ -58,16 +59,16 @@ public class SqliteSourceGenerationHelper
                     {
                         return Guid.Empty;
                     }
-            
+
                     var asString = value?.ToString();
                     if (Guid.TryParse(asString, out var guid))
                     {
                         return guid;
                     }
-            
+
                     return Guid.Empty;
                 }
-            
+
                 public override void SetValue(
                     IDbDataParameter parameter,
                     Guid value)
@@ -80,9 +81,8 @@ public class SqliteSourceGenerationHelper
         context.AddSource("SqliteGuidTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableGuidTypeHandler(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+    private static void GenerateNullableGuidTypeHandler(
+            SourceProductionContext context)
     {
         const string content =
             """
@@ -101,16 +101,16 @@ public class SqliteSourceGenerationHelper
                     {
                         return null;
                     }
-            
+
                     var asString = value?.ToString();
                     if (Guid.TryParse(asString, out var guid))
                     {
                         return guid;
                     }
-            
+
                     return null;
                 }
-            
+
                 public override void SetValue(
                     IDbDataParameter parameter,
                     Guid? value)
@@ -120,7 +120,7 @@ public class SqliteSourceGenerationHelper
                         parameter.Value = DBNull.Value;
                         return;
                     }
-            
+
                     parameter.Value = value!.Value.ToString("D");
                 }
             }
@@ -129,9 +129,8 @@ public class SqliteSourceGenerationHelper
         context.AddSource("SqliteNullableGuidTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateDateTimeOffsetTypeHandler(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+    private static void GenerateDateTimeOffsetTypeHandler(
+            SourceProductionContext context)
     {
         const string content =
             """
@@ -185,9 +184,8 @@ public class SqliteSourceGenerationHelper
         context.AddSource("SqliteDateTimeOffsetTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableDateTimeOffsetTypeHandler(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+    private static void GenerateNullableDateTimeOffsetTypeHandler(
+            SourceProductionContext context)
     {
         const string content =
             """
@@ -241,9 +239,8 @@ public class SqliteSourceGenerationHelper
         context.AddSource("SqliteNullableDateTimeOffsetTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateDapperConfig(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+    private static void GenerateDapperConfig(
+            SourceProductionContext context)
     {
         const string content =
             """

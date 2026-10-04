@@ -1,9 +1,11 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Exceptions;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Models;
 using AutoMapper;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,12 +29,12 @@ public class TokenController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost]
-    public async Task<IActionResult> TokenAsync([FromForm] AuthenticationModel model)
+    public async Task<IActionResult> TokenAsync([FromForm] AuthenticationModel model, CancellationToken cancellationToken)
     {
         try
         {
             var request = Map(model);
-            var result = await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
+            var result = await _mediator.Send(request, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             return Ok(result);
         }
         catch (UserNotFoundException)
@@ -43,16 +45,31 @@ public class TokenController : ControllerBase
         {
             return Unauthorized();
         }
-        catch (Exception ex)
+        catch (InvalidRefreshTokenException)
         {
-            return BadRequest(ex);
+            return Unauthorized();
+        }
+        catch (InvalidGrantTypeException)
+        {
+            return BadRequest(new { error = "unsupported_grant_type" });
+        }
+        catch (ValidationException)
+        {
+            return BadRequest(new { error = "invalid_request" });
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return Problem(statusCode: 500, title: "Token issuance failed.");
         }
     }
 
     private AuthRequestBase Map(AuthenticationModel model) =>
         model?.GrantType switch
         {
-            GrantType.ClientCredentials => _mapper.Map<AuthClientCredentialRequest>(model),
             GrantType.Password => _mapper.Map<AuthPasswordRequest>(model),
             GrantType.RefreshToken => _mapper.Map<AuthRefreshTokenRequest>(model),
             _ => throw new InvalidGrantTypeException(),

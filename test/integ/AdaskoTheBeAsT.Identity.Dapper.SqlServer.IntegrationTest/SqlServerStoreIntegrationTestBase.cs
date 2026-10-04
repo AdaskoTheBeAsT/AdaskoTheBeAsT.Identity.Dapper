@@ -1,8 +1,10 @@
 using System.Security.Claims;
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
+using AdaskoTheBeAsT.Identity.Dapper.IntegrationTest.Common;
 using AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Identity;
 using AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.TestCollections;
 using AwesomeAssertions;
+using AwesomeAssertions.Specialized;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
@@ -36,161 +38,9 @@ namespace AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest;
 
 public abstract class SqlServerStoreIntegrationTestBase
 {
-    protected ApplicationRoleStore CreateRoleStore() => new(CreateConnectionProvider());
-
-    protected ApplicationUserOnlyStore CreateUserOnlyStore() => new(CreateConnectionProvider());
-
-    protected ApplicationUserStore CreateUserStore() => new(CreateConnectionProvider());
-
-    protected Task VerifyRoleStoreMethodAsync(string methodName) =>
-        methodName switch
-        {
-            "Roles" => VerifyRoleStoreRolesAsync(),
-            "Dispose" => VerifyRoleStoreDisposeAsync(),
-            "CreateAsync" or
-            "UpdateAsync" or
-            "DeleteAsync" or
-            "GetRoleIdAsync" or
-            "GetRoleNameAsync" or
-            "SetRoleNameAsync" or
-            "ConvertIdFromString" or
-            "ConvertIdToString" or
-            "FindByIdAsync" or
-            "FindByNameAsync" or
-            "GetNormalizedRoleNameAsync" or
-            "SetNormalizedRoleNameAsync" or
-            "GetClaimsAsync" or
-            "AddClaimAsync" or
-            "RemoveClaimAsync" => VerifyRoleStoreMethodsAsync(CreateRoleStore),
-            _ => throw new ArgumentOutOfRangeException(nameof(methodName), methodName, message: null),
-        };
-
-    protected Task VerifyUserOnlyStoreMethodAsync(string methodName) =>
-        VerifyCommonUserStoreMethodAsync(methodName, () => CreateUserOnlyStore());
-
-    protected Task VerifyUserStoreMethodAsync(string methodName) =>
-        methodName switch
-        {
-            "GetUsersInRoleAsync" or
-            "AddToRoleAsync" or
-            "RemoveFromRoleAsync" or
-            "GetRolesAsync" or
-            "IsInRoleAsync" or
-            "GetRoleClaimsAsync" or
-            "GetUserAndRoleClaimsAsync" => VerifyUserRoleMethodsAsync(CreateUserStore),
-            _ => VerifyCommonUserStoreMethodAsync(methodName, () => CreateUserStore()),
-        };
-
-    private Task VerifyCommonUserStoreMethodAsync(
-        string methodName,
-        Func<SqlServerUserOnlyStoreBase> storeFactory) =>
-        methodName switch
-        {
-            "Users" => VerifyUsersPropertyAsync(storeFactory),
-            "Dispose" => VerifyUserStoreDisposeAsync(storeFactory),
-            "GetClaimsAsync" or
-            "AddClaimsAsync" or
-            "ReplaceClaimAsync" or
-            "RemoveClaimsAsync" or
-            "GetUsersForClaimAsync" => VerifyUserClaimMethodsAsync(storeFactory),
-            "AddLoginAsync" or
-            "RemoveLoginAsync" or
-            "GetLoginsAsync" or
-            "FindByLoginAsync" => VerifyUserLoginMethodsAsync(storeFactory),
-            "SetTokenAsync" or
-            "RemoveTokenAsync" or
-            "GetTokenAsync" or
-            "SetAuthenticatorKeyAsync" or
-            "GetAuthenticatorKeyAsync" or
-            "CountCodesAsync" or
-            "ReplaceCodesAsync" or
-            "RedeemCodeAsync" => VerifyUserTokenAndRecoveryMethodsAsync(storeFactory),
-            "GetUserIdAsync" or
-            "GetUserNameAsync" or
-            "SetUserNameAsync" or
-            "GetNormalizedUserNameAsync" or
-            "SetNormalizedUserNameAsync" or
-            "CreateAsync" or
-            "UpdateAsync" or
-            "DeleteAsync" or
-            "FindByIdAsync" or
-            "ConvertIdFromString" or
-            "ConvertIdToString" or
-            "FindByNameAsync" or
-            "SetPasswordHashAsync" or
-            "GetPasswordHashAsync" or
-            "HasPasswordAsync" or
-            "GetEmailConfirmedAsync" or
-            "SetEmailConfirmedAsync" or
-            "SetEmailAsync" or
-            "GetEmailAsync" or
-            "GetNormalizedEmailAsync" or
-            "SetNormalizedEmailAsync" or
-            "FindByEmailAsync" or
-            "GetLockoutEndDateAsync" or
-            "SetLockoutEndDateAsync" or
-            "IncrementAccessFailedCountAsync" or
-            "ResetAccessFailedCountAsync" or
-            "GetAccessFailedCountAsync" or
-            "GetLockoutEnabledAsync" or
-            "SetLockoutEnabledAsync" or
-            "SetPhoneNumberAsync" or
-            "GetPhoneNumberAsync" or
-            "GetPhoneNumberConfirmedAsync" or
-            "SetPhoneNumberConfirmedAsync" or
-            "SetSecurityStampAsync" or
-            "GetSecurityStampAsync" or
-            "SetTwoFactorEnabledAsync" or
-            "GetTwoFactorEnabledAsync" => VerifyCommonUserStoreMethodsAsync(storeFactory),
-            _ => throw new ArgumentOutOfRangeException(nameof(methodName), methodName, message: null),
-        };
-
-    private async Task VerifyRoleStoreRolesAsync()
+    protected static async Task VerifyRoleStoreMethodsAsync(Func<SqlServerRoleStoreBase> storeFactory)
     {
-        using var store = CreateRoleStore();
-        var role = CreateRole();
-
-        AssertSucceeded(await store.CreateAsync(role, CancellationToken.None));
-
-        store.Roles.Should().ContainSingle(x => x.Id == role.Id);
-    }
-
-    private async Task VerifyUsersPropertyAsync(Func<SqlServerUserOnlyStoreBase> storeFactory)
-    {
-        using var roleStore = CreateRoleStore();
-        using var userStore = CreateUserStore();
-        var user = CreateUser();
-        var role = CreateRole();
-
-        AssertSucceeded(await userStore.CreateAsync(user, CancellationToken.None));
-        AssertSucceeded(await roleStore.CreateAsync(role, CancellationToken.None));
-        await userStore.AddToRoleAsync(user, role.Name!, CancellationToken.None);
-
-        using var store = storeFactory();
-        store.Users.Should().ContainSingle(x => x.Id == user.Id);
-    }
-
-    private async Task VerifyRoleStoreDisposeAsync()
-    {
-        var store = CreateRoleStore();
-        store.Dispose();
-
-        Func<Task> action = () => store.GetRoleIdAsync(CreateRole(), CancellationToken.None);
-        await action.Should().ThrowAsync<ObjectDisposedException>();
-    }
-
-    private async Task VerifyUserStoreDisposeAsync(Func<SqlServerUserOnlyStoreBase> storeFactory)
-    {
-        var store = storeFactory();
-        store.Dispose();
-
-        Func<Task> action = () => store.GetUserIdAsync(CreateUser(), CancellationToken.None);
-        await action.Should().ThrowAsync<ObjectDisposedException>();
-    }
-
-    protected async Task VerifyRoleStoreMethodsAsync(Func<SqlServerRoleStoreBase> storeFactory)
-    {
-        using var store = storeFactory();
+        using var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
         var role = CreateRole();
 
         AssertSucceeded(await store.CreateAsync(role, CancellationToken.None));
@@ -207,18 +57,19 @@ public abstract class SqlServerStoreIntegrationTestBase
         var updatedRoleName = $"role-updated-{Guid.NewGuid():N}";
         await store.SetRoleNameAsync(role, updatedRoleName, CancellationToken.None);
         await store.SetNormalizedRoleNameAsync(role, $"normalized-{Guid.NewGuid():N}", CancellationToken.None);
-        role.ConcurrencyStamp = Guid.NewGuid().ToString("N");
+        var originalStamp = role.ConcurrencyStamp;
 
         AssertSucceeded(await store.UpdateAsync(role, CancellationToken.None));
+        role.ConcurrencyStamp.Should().NotBe(originalStamp);
 
         var roleById = await store.FindByIdAsync(roleId, CancellationToken.None);
         roleById.Should().NotBeNull();
-        roleById!.Id.Should().Be(role.Id);
+        roleById.Id.Should().Be(role.Id);
         roleById.Name.Should().Be(updatedRoleName);
 
         var roleByName = await store.FindByNameAsync(updatedRoleName, CancellationToken.None);
         roleByName.Should().NotBeNull();
-        roleByName!.Id.Should().Be(role.Id);
+        roleByName.Id.Should().Be(role.Id);
 
         var manageUsersClaim = new Claim("permission", "manage-users");
         var auditClaim = new Claim("permission", "audit-users");
@@ -245,9 +96,10 @@ public abstract class SqlServerStoreIntegrationTestBase
         (await store.FindByIdAsync(roleId, CancellationToken.None)).Should().BeNull();
     }
 
-    protected async Task VerifyCommonUserStoreMethodsAsync(Func<SqlServerUserOnlyStoreBase> storeFactory)
+#pragma warning disable MA0051 // Method is too long
+    protected static async Task VerifyCommonUserStoreMethodsAsync(Func<SqlServerUserOnlyStoreBase> storeFactory)
     {
-        using var store = storeFactory();
+        using var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
         var user = CreateUser();
 
         AssertSucceeded(await store.CreateAsync(user, CancellationToken.None));
@@ -272,13 +124,13 @@ public abstract class SqlServerStoreIntegrationTestBase
         await store.SetPasswordHashAsync(user, updatedPasswordHash, CancellationToken.None);
         await store.SetEmailAsync(user, updatedEmail, CancellationToken.None);
         await store.SetNormalizedEmailAsync(user, $"normalized-{Guid.NewGuid():N}@example.com", CancellationToken.None);
-        await store.SetEmailConfirmedAsync(user, true, CancellationToken.None);
+        await store.SetEmailConfirmedAsync(user, confirmed: true, CancellationToken.None);
         await store.SetLockoutEndDateAsync(user, updatedLockoutEnd, CancellationToken.None);
-        await store.SetLockoutEnabledAsync(user, true, CancellationToken.None);
+        await store.SetLockoutEnabledAsync(user, enabled: true, CancellationToken.None);
         await store.SetPhoneNumberAsync(user, updatedPhoneNumber, CancellationToken.None);
-        await store.SetPhoneNumberConfirmedAsync(user, true, CancellationToken.None);
+        await store.SetPhoneNumberConfirmedAsync(user, confirmed: true, CancellationToken.None);
         await store.SetSecurityStampAsync(user, updatedSecurityStamp, CancellationToken.None);
-        await store.SetTwoFactorEnabledAsync(user, true, CancellationToken.None);
+        await store.SetTwoFactorEnabledAsync(user, enabled: true, CancellationToken.None);
 
         (await store.GetPasswordHashAsync(user, CancellationToken.None)).Should().Be(updatedPasswordHash);
         (await store.HasPasswordAsync(user, CancellationToken.None)).Should().BeTrue();
@@ -296,15 +148,15 @@ public abstract class SqlServerStoreIntegrationTestBase
 
         var userById = await store.FindByIdAsync(userId, CancellationToken.None);
         userById.Should().NotBeNull();
-        userById!.Id.Should().Be(user.Id);
+        userById.Id.Should().Be(user.Id);
 
         var userByName = await store.FindByNameAsync(updatedUserName, CancellationToken.None);
         userByName.Should().NotBeNull();
-        userByName!.Id.Should().Be(user.Id);
+        userByName.Id.Should().Be(user.Id);
 
         var userByEmail = await store.FindByEmailAsync(updatedEmail, CancellationToken.None);
         userByEmail.Should().NotBeNull();
-        userByEmail!.Id.Should().Be(user.Id);
+        userByEmail.Id.Should().Be(user.Id);
 
         (await store.GetUserNameAsync(userById, CancellationToken.None)).Should().Be(updatedUserName);
         (await store.GetNormalizedUserNameAsync(userById, CancellationToken.None)).Should().Be(updatedUserName);
@@ -326,7 +178,7 @@ public abstract class SqlServerStoreIntegrationTestBase
 
         var userAfterIncrement = await store.FindByIdAsync(userId, CancellationToken.None);
         userAfterIncrement.Should().NotBeNull();
-        userAfterIncrement!.AccessFailedCount.Should().Be(1);
+        userAfterIncrement.AccessFailedCount.Should().Be(1);
 
         await store.ResetAccessFailedCountAsync(userAfterIncrement, CancellationToken.None);
         (await store.GetAccessFailedCountAsync(userAfterIncrement, CancellationToken.None)).Should().Be(0);
@@ -335,15 +187,17 @@ public abstract class SqlServerStoreIntegrationTestBase
 
         var userAfterReset = await store.FindByIdAsync(userId, CancellationToken.None);
         userAfterReset.Should().NotBeNull();
-        userAfterReset!.AccessFailedCount.Should().Be(0);
+        userAfterReset.AccessFailedCount.Should().Be(0);
 
         AssertSucceeded(await store.DeleteAsync(userAfterReset, CancellationToken.None));
         (await store.FindByIdAsync(userId, CancellationToken.None)).Should().BeNull();
     }
 
-    protected async Task VerifyUserClaimMethodsAsync(Func<SqlServerUserOnlyStoreBase> storeFactory)
+#pragma warning restore MA0051
+
+    protected static async Task VerifyUserClaimMethodsAsync(Func<SqlServerUserOnlyStoreBase> storeFactory)
     {
-        using var store = storeFactory();
+        using var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
         var user = CreateUser();
 
         AssertSucceeded(await store.CreateAsync(user, CancellationToken.None));
@@ -381,9 +235,9 @@ public abstract class SqlServerStoreIntegrationTestBase
         (await store.GetClaimsAsync(user, CancellationToken.None)).Should().BeEmpty();
     }
 
-    protected async Task VerifyUserLoginMethodsAsync(Func<SqlServerUserOnlyStoreBase> storeFactory)
+    protected static async Task VerifyUserLoginMethodsAsync(Func<SqlServerUserOnlyStoreBase> storeFactory)
     {
-        using var store = storeFactory();
+        using var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
         var user = CreateUser();
 
         AssertSucceeded(await store.CreateAsync(user, CancellationToken.None));
@@ -403,16 +257,16 @@ public abstract class SqlServerStoreIntegrationTestBase
 
         var userByLogin = await store.FindByLoginAsync(login.LoginProvider, login.ProviderKey, CancellationToken.None);
         userByLogin.Should().NotBeNull();
-        userByLogin!.Id.Should().Be(user.Id);
+        userByLogin.Id.Should().Be(user.Id);
 
         await store.RemoveLoginAsync(user, login.LoginProvider, login.ProviderKey, CancellationToken.None);
         (await store.GetLoginsAsync(user, CancellationToken.None)).Should().BeEmpty();
         (await store.FindByLoginAsync(login.LoginProvider, login.ProviderKey, CancellationToken.None)).Should().BeNull();
     }
 
-    protected async Task VerifyUserTokenAndRecoveryMethodsAsync(Func<SqlServerUserOnlyStoreBase> storeFactory)
+    protected static async Task VerifyUserTokenAndRecoveryMethodsAsync(Func<SqlServerUserOnlyStoreBase> storeFactory)
     {
-        using var store = storeFactory();
+        using var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
         var user = CreateUser();
 
         AssertSucceeded(await store.CreateAsync(user, CancellationToken.None));
@@ -426,85 +280,13 @@ public abstract class SqlServerStoreIntegrationTestBase
         await store.SetAuthenticatorKeyAsync(user, "auth-key", CancellationToken.None);
         (await store.GetAuthenticatorKeyAsync(user, CancellationToken.None)).Should().Be("auth-key");
 
-        await store.ReplaceCodesAsync(user, new[] { "code-1", "code-2", "code-3" }, CancellationToken.None);
+        await store.ReplaceCodesAsync(user, StoreContractTestData.RecoveryCodes, CancellationToken.None);
         (await store.CountCodesAsync(user, CancellationToken.None)).Should().Be(3);
 
         (await store.RedeemCodeAsync(user, "code-1", CancellationToken.None)).Should().BeTrue();
         (await store.CountCodesAsync(user, CancellationToken.None)).Should().Be(2);
         (await store.RedeemCodeAsync(user, "missing-code", CancellationToken.None)).Should().BeFalse();
     }
-
-    protected async Task VerifyUserRoleMethodsAsync(Func<SqlServerUserStoreBase> storeFactory)
-    {
-        using var userStore = storeFactory();
-        using var roleStore = CreateRoleStore();
-
-        var user = CreateUser();
-        var role = CreateRole();
-
-        AssertSucceeded(await userStore.CreateAsync(user, CancellationToken.None));
-        AssertSucceeded(await roleStore.CreateAsync(role, CancellationToken.None));
-
-        var userClaim = new Claim("department", "engineering");
-        var roleClaim = new Claim("permission", "manage-users");
-
-        await userStore.AddClaimsAsync(user, new[] { userClaim }, CancellationToken.None);
-        await roleStore.AddClaimAsync(role, roleClaim, CancellationToken.None);
-        await userStore.AddToRoleAsync(user, role.Name!, CancellationToken.None);
-
-        (await userStore.IsInRoleAsync(user, role.Name!, CancellationToken.None)).Should().BeTrue();
-        (await userStore.GetRolesAsync(user, CancellationToken.None)).Should().BeEquivalentTo(new[] { role.Name! });
-
-        var usersInRole = await userStore.GetUsersInRoleAsync(role.Name!, CancellationToken.None);
-        usersInRole.Should().ContainSingle(x => x.Id == user.Id);
-
-        ProjectClaims(await userStore.GetRoleClaimsAsync(user, CancellationToken.None))
-            .Should()
-            .BeEquivalentTo(new[] { (roleClaim.Type, roleClaim.Value) });
-
-        ProjectClaims(await userStore.GetUserAndRoleClaimsAsync(user, CancellationToken.None))
-            .Should()
-            .BeEquivalentTo(
-                new[]
-                {
-                    (userClaim.Type, userClaim.Value),
-                    (roleClaim.Type, roleClaim.Value),
-                });
-
-        await userStore.RemoveFromRoleAsync(user, role.Name!, CancellationToken.None);
-
-        (await userStore.IsInRoleAsync(user, role.Name!, CancellationToken.None)).Should().BeFalse();
-        (await userStore.GetRolesAsync(user, CancellationToken.None)).Should().BeEmpty();
-        (await userStore.GetUsersInRoleAsync(role.Name!, CancellationToken.None)).Should().BeEmpty();
-        (await userStore.GetRoleClaimsAsync(user, CancellationToken.None)).Should().BeEmpty();
-    }
-
-    private static IEnumerable<(string Type, string Value)> ProjectClaims(IEnumerable<Claim> claims) =>
-        claims.Select(x => (x.Type, x.Value));
-
-    private static ApplicationRole CreateRole() =>
-        new()
-        {
-            Name = $"role-{Guid.NewGuid():N}",
-            ConcurrencyStamp = Guid.NewGuid().ToString("N"),
-        };
-
-    private static ApplicationUser CreateUser() =>
-        new()
-        {
-            Id = Guid.NewGuid(),
-            UserName = $"user-{Guid.NewGuid():N}",
-            Email = $"user-{Guid.NewGuid():N}@example.com",
-            EmailConfirmed = false,
-            PasswordHash = "initial-password-hash",
-            SecurityStamp = "initial-security-stamp",
-            ConcurrencyStamp = Guid.NewGuid().ToString("N"),
-            PhoneNumber = "+15550000000",
-            PhoneNumberConfirmed = false,
-            TwoFactorEnabled = false,
-            LockoutEnabled = false,
-            AccessFailedCount = 0,
-        };
 
     protected static ApplicationRole CreateRole(Table table, DataTableRow row)
     {
@@ -534,15 +316,7 @@ public abstract class SqlServerStoreIntegrationTestBase
         return user;
     }
 
-    private static void AssertSucceeded(IdentityResult result)
-    {
-        result.Succeeded.Should().BeTrue();
-        result.Errors.Should().BeEmpty();
-    }
-
-    private TestSqlConnectionProvider CreateConnectionProvider() => new(DatabaseWithGuidIdFixture.Shared.ConnectionString);
-
-    protected async Task ResetDatabaseAsync()
+    protected static async Task ResetDatabaseAsync()
     {
         const string cleanupSql =
             """
@@ -560,8 +334,8 @@ public abstract class SqlServerStoreIntegrationTestBase
     }
 
     protected static string GetRequiredValue(Table table, DataTableRow row, string columnName) =>
-        GetOptionalValue(table, row, columnName) ??
-        throw new InvalidOperationException($"Column '{columnName}' is required.");
+                    GetOptionalValue(table, row, columnName) ??
+                    throw new InvalidOperationException($"Column '{columnName}' is required.");
 
     protected static string? GetOptionalValue(Table table, DataTableRow row, string columnName)
     {
@@ -585,17 +359,253 @@ public abstract class SqlServerStoreIntegrationTestBase
     protected static int? GetIntValue(Table table, DataTableRow row, string columnName)
     {
         var value = GetOptionalValue(table, row, columnName);
-        return value == null ? null : int.Parse(value);
+        return value == null ? null : int.Parse(value, System.Globalization.CultureInfo.InvariantCulture);
     }
 
     protected static DateTimeOffset? GetDateTimeOffsetValue(Table table, DataTableRow row, string columnName)
     {
         var value = GetOptionalValue(table, row, columnName);
-        return value == null ? null : DateTimeOffset.Parse(value);
+        return value == null ? null : DateTimeOffset.Parse(value, System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    protected static ApplicationRoleStore CreateRoleStore() => new(CreateConnectionProvider());
+
+    protected static ApplicationUserOnlyStore CreateUserOnlyStore() => new(CreateConnectionProvider());
+
+    protected static ApplicationUserStore CreateUserStore() => new(CreateConnectionProvider());
+
+    protected static Task VerifyRoleStoreMethodAsync(string methodName) =>
+                    methodName switch
+                    {
+                        "Roles" => VerifyRoleStoreRolesAsync(),
+                        "Dispose" => VerifyRoleStoreDisposeAsync(),
+                        "CreateAsync" or
+                        "UpdateAsync" or
+                        "DeleteAsync" or
+                        "GetRoleIdAsync" or
+                        "GetRoleNameAsync" or
+                        "SetRoleNameAsync" or
+                        "ConvertIdFromString" or
+                        "ConvertIdToString" or
+                        "FindByIdAsync" or
+                        "FindByNameAsync" or
+                        "GetNormalizedRoleNameAsync" or
+                        "SetNormalizedRoleNameAsync" or
+                        "GetClaimsAsync" or
+                        "AddClaimAsync" or
+                        "RemoveClaimAsync" => VerifyRoleStoreMethodsAsync(CreateRoleStore),
+                        _ => throw new ArgumentOutOfRangeException(nameof(methodName), methodName, message: null),
+                    };
+
+    protected static Task VerifyUserOnlyStoreMethodAsync(string methodName) =>
+                    VerifyCommonUserStoreMethodAsync(methodName, () => CreateUserOnlyStore());
+
+    protected static Task VerifyUserStoreMethodAsync(string methodName) =>
+                    methodName switch
+                    {
+                        "GetUsersInRoleAsync" or
+                        "AddToRoleAsync" or
+                        "RemoveFromRoleAsync" or
+                        "GetRolesAsync" or
+                        "IsInRoleAsync" or
+                        "GetRoleClaimsAsync" or
+                        "GetUserAndRoleClaimsAsync" => VerifyUserRoleMethodsAsync(CreateUserStore),
+                        _ => VerifyCommonUserStoreMethodAsync(methodName, () => CreateUserStore()),
+                    };
+
+    protected static async Task VerifyUserRoleMethodsAsync(Func<SqlServerUserStoreBase> storeFactory)
+    {
+        using var userStore = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
+        using var roleStore = CreateRoleStore();
+
+        var user = CreateUser();
+        var role = CreateRole();
+
+        AssertSucceeded(await userStore.CreateAsync(user, CancellationToken.None));
+        AssertSucceeded(await roleStore.CreateAsync(role, CancellationToken.None));
+
+        var userClaim = new Claim("department", "engineering");
+        var roleClaim = new Claim("permission", "manage-users");
+
+        await userStore.AddClaimsAsync(user, new[] { userClaim }, CancellationToken.None);
+        await roleStore.AddClaimAsync(role, roleClaim, CancellationToken.None);
+        await userStore.AddToRoleAsync(user, role.Name!, CancellationToken.None);
+
+        (await userStore.IsInRoleAsync(user, role.Name!, CancellationToken.None)).Should().BeTrue();
+        (await userStore.GetRolesAsync(user, CancellationToken.None)).Should().BeEquivalentTo(role.Name!);
+
+        var usersInRole = await userStore.GetUsersInRoleAsync(role.Name!, CancellationToken.None);
+        usersInRole.Should().ContainSingle(x => x.Id == user.Id);
+
+        ProjectClaims(await userStore.GetRoleClaimsAsync(user, CancellationToken.None))
+            .Should()
+            .BeEquivalentTo(new[] { (roleClaim.Type, roleClaim.Value) });
+
+        ProjectClaims(await userStore.GetUserAndRoleClaimsAsync(user, CancellationToken.None))
+            .Should()
+            .BeEquivalentTo(
+                new[]
+                {
+                    (userClaim.Type, userClaim.Value),
+                    (roleClaim.Type, roleClaim.Value),
+                });
+
+        await userStore.RemoveFromRoleAsync(user, role.Name!, CancellationToken.None);
+
+        (await userStore.IsInRoleAsync(user, role.Name!, CancellationToken.None)).Should().BeFalse();
+        (await userStore.GetRolesAsync(user, CancellationToken.None)).Should().BeEmpty();
+        (await userStore.GetUsersInRoleAsync(role.Name!, CancellationToken.None)).Should().BeEmpty();
+        (await userStore.GetRoleClaimsAsync(user, CancellationToken.None)).Should().BeEmpty();
+    }
+
+    private static Task<ExceptionAssertions<ObjectDisposedException>> VerifyUserStoreDisposeAsync(Func<SqlServerUserOnlyStoreBase> storeFactory)
+    {
+        var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
+#pragma warning disable IDISP016 // Assert that a disposed store rejects calls.
+        store.Dispose();
+
+        Func<Task<string>> action = () => store.GetUserIdAsync(CreateUser(), CancellationToken.None);
+#pragma warning restore IDISP016
+        return action.Should().ThrowAsync<ObjectDisposedException>();
+    }
+
+    private static IEnumerable<(string Type, string Value)> ProjectClaims(IEnumerable<Claim> claims) =>
+                    claims.Select(x => (x.Type, x.Value));
+
+    private static ApplicationRole CreateRole() =>
+                    new()
+                    {
+                        Name = $"role-{Guid.NewGuid():N}",
+                        ConcurrencyStamp = Guid.NewGuid().ToString("N"),
+                    };
+
+    private static ApplicationUser CreateUser() =>
+                    new()
+                    {
+                        Id = Guid.NewGuid(),
+                        UserName = $"user-{Guid.NewGuid():N}",
+                        Email = $"user-{Guid.NewGuid():N}@example.com",
+                        EmailConfirmed = false,
+                        PasswordHash = "initial-password-hash",
+                        SecurityStamp = "initial-security-stamp",
+                        ConcurrencyStamp = Guid.NewGuid().ToString("N"),
+                        PhoneNumber = "+15550000000",
+                        PhoneNumberConfirmed = false,
+                        TwoFactorEnabled = false,
+                        LockoutEnabled = false,
+                        AccessFailedCount = 0,
+                    };
+
+    private static void AssertSucceeded(IdentityResult result)
+    {
+        result.Succeeded.Should().BeTrue();
+        result.Errors.Should().BeEmpty();
+    }
+
+    private static TestSqlConnectionProvider CreateConnectionProvider() => new(DatabaseWithGuidIdFixture.Shared.ConnectionString);
+
+    private static Task VerifyCommonUserStoreMethodAsync(
+                    string methodName,
+                    Func<SqlServerUserOnlyStoreBase> storeFactory) =>
+                    methodName switch
+                    {
+                        "Users" => VerifyUsersPropertyAsync(storeFactory),
+                        "Dispose" => VerifyUserStoreDisposeAsync(storeFactory),
+                        "GetClaimsAsync" or
+                        "AddClaimsAsync" or
+                        "ReplaceClaimAsync" or
+                        "RemoveClaimsAsync" or
+                        "GetUsersForClaimAsync" => VerifyUserClaimMethodsAsync(storeFactory),
+                        "AddLoginAsync" or
+                        "RemoveLoginAsync" or
+                        "GetLoginsAsync" or
+                        "FindByLoginAsync" => VerifyUserLoginMethodsAsync(storeFactory),
+                        "SetTokenAsync" or
+                        "RemoveTokenAsync" or
+                        "GetTokenAsync" or
+                        "SetAuthenticatorKeyAsync" or
+                        "GetAuthenticatorKeyAsync" or
+                        "CountCodesAsync" or
+                        "ReplaceCodesAsync" or
+                        "RedeemCodeAsync" => VerifyUserTokenAndRecoveryMethodsAsync(storeFactory),
+                        "GetUserIdAsync" or
+                        "GetUserNameAsync" or
+                        "SetUserNameAsync" or
+                        "GetNormalizedUserNameAsync" or
+                        "SetNormalizedUserNameAsync" or
+                        "CreateAsync" or
+                        "UpdateAsync" or
+                        "DeleteAsync" or
+                        "FindByIdAsync" or
+                        "ConvertIdFromString" or
+                        "ConvertIdToString" or
+                        "FindByNameAsync" or
+                        "SetPasswordHashAsync" or
+                        "GetPasswordHashAsync" or
+                        "HasPasswordAsync" or
+                        "GetEmailConfirmedAsync" or
+                        "SetEmailConfirmedAsync" or
+                        "SetEmailAsync" or
+                        "GetEmailAsync" or
+                        "GetNormalizedEmailAsync" or
+                        "SetNormalizedEmailAsync" or
+                        "FindByEmailAsync" or
+                        "GetLockoutEndDateAsync" or
+                        "SetLockoutEndDateAsync" or
+                        "IncrementAccessFailedCountAsync" or
+                        "ResetAccessFailedCountAsync" or
+                        "GetAccessFailedCountAsync" or
+                        "GetLockoutEnabledAsync" or
+                        "SetLockoutEnabledAsync" or
+                        "SetPhoneNumberAsync" or
+                        "GetPhoneNumberAsync" or
+                        "GetPhoneNumberConfirmedAsync" or
+                        "SetPhoneNumberConfirmedAsync" or
+                        "SetSecurityStampAsync" or
+                        "GetSecurityStampAsync" or
+                        "SetTwoFactorEnabledAsync" or
+                        "GetTwoFactorEnabledAsync" => VerifyCommonUserStoreMethodsAsync(storeFactory),
+                        _ => throw new ArgumentOutOfRangeException(nameof(methodName), methodName, message: null),
+                    };
+
+    private static async Task VerifyRoleStoreRolesAsync()
+    {
+        using var store = CreateRoleStore();
+        var role = CreateRole();
+
+        AssertSucceeded(await store.CreateAsync(role, CancellationToken.None));
+
+        store.Roles.Should().ContainSingle(x => x.Id == role.Id);
+    }
+
+    private static async Task VerifyUsersPropertyAsync(Func<SqlServerUserOnlyStoreBase> storeFactory)
+    {
+        using var roleStore = CreateRoleStore();
+        using var userStore = CreateUserStore();
+        var user = CreateUser();
+        var role = CreateRole();
+
+        AssertSucceeded(await userStore.CreateAsync(user, CancellationToken.None));
+        AssertSucceeded(await roleStore.CreateAsync(role, CancellationToken.None));
+        await userStore.AddToRoleAsync(user, role.Name!, CancellationToken.None);
+
+        using var store = storeFactory?.Invoke() ?? throw new ArgumentNullException(nameof(storeFactory));
+        store.Users.Should().ContainSingle(x => x.Id == user.Id);
+    }
+
+    private static Task<ExceptionAssertions<ObjectDisposedException>> VerifyRoleStoreDisposeAsync()
+    {
+        var store = CreateRoleStore();
+#pragma warning disable IDISP016 // Assert that a disposed store rejects calls.
+        store.Dispose();
+
+        Func<Task<string>> action = () => store.GetRoleIdAsync(CreateRole(), CancellationToken.None);
+#pragma warning restore IDISP016
+        return action.Should().ThrowAsync<ObjectDisposedException>();
     }
 
     private sealed class TestSqlConnectionProvider
-        : IIdentityDbConnectionProvider<SqlConnection>
+                    : IIdentityDbConnectionProvider<SqlConnection>
     {
         private readonly string _connectionString;
 

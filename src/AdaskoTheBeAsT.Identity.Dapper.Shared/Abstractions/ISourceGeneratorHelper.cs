@@ -9,5 +9,5 @@ public interface ISourceGeneratorHelper
         SourceProductionContext context,
         Compilation compilation,
         IdentityDapperOptions options,
-        (string KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) generationInfo);
+        (string KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items, IList<INamedTypeSymbol> Types) generationInfo);
 }

@@ -1,39 +1,51 @@
 ﻿//HintName: IdentityUserTokenSql.g.cs
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
-
 namespace AdaskoTheBeAsT.Identity.Dapper.Sample
 {
-    public class IdentityUserTokenSql
-        : IIdentityUserTokenSql
+    public class IdentityUserTokenSql : IIdentityUserTokenConcurrencySql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO AspNetUserTokens(
-UserId
-,LoginProvider
-,Name
-,Value)
-VALUES(
-:UserId
-,:LoginProvider
-,:Name
-,:Value);";
+            """
+            INSERT INTO AspNetUserTokens(
+                "USERID"
+               ,"LOGINPROVIDER"
+               ,"NAME"
+               ,"VALUE")
+            VALUES(
+                :UserId
+               ,:LoginProvider
+               ,:Name
+               ,:Value);
+            """;
+
+        public string UpdateSql { get; } =
+            """
+            UPDATE AspNetUserTokens
+            SET "VALUE"=:Value
+            WHERE "USERID"=:UserId
+              AND "LOGINPROVIDER"=:LoginProvider
+              AND "NAME"=:Name
+              AND (UTL_RAW.CAST_TO_RAW("VALUE")=UTL_RAW.CAST_TO_RAW(:OriginalValue) OR ("VALUE" IS NULL AND :OriginalValue IS NULL));
+            """;
 
         public string DeleteSql { get; } =
-            @"DELETE FROM AspNetUserTokens
-WHERE LoginProvider=:LoginProvider
-  AND Name=:Name
-  AND Value=:Value
-  AND UserId=:UserId;";
+            """
+            DELETE FROM AspNetUserTokens
+            WHERE "USERID"=:UserId
+              AND "LOGINPROVIDER"=:LoginProvider
+              AND "NAME"=:Name;
+            """;
 
         public string GetByUserIdSql { get; } =
-            @"SELECT UserId AS UserId
-,LoginProvider AS LoginProvider
-,Name AS Name
-,Value AS Value
-FROM AspNetUserTokens
-WHERE UserId=:UserId
-  AND LoginProvider=:LoginProvider
-  AND Name=:Name
-FETCH FIRST 1 ROWS ONLY;";
+            """
+            SELECT "USERID" AS "USERID"
+                  ,"LOGINPROVIDER" AS "LOGINPROVIDER"
+                  ,"NAME" AS "NAME"
+                  ,"VALUE" AS "VALUE"
+            FROM AspNetUserTokens
+            WHERE "USERID"=:UserId
+              AND "LOGINPROVIDER"=:LoginProvider
+              AND "NAME"=:Name;
+            """;
     }
 }

@@ -41,6 +41,7 @@ public class OracleIdentityHelper
             },
             StringComparer.OrdinalIgnoreCase);
 
+#pragma warning disable MA0051 // Method is too long
     public string GetInsertTemplate(
         string tableName,
         string keyTypeName,
@@ -52,27 +53,31 @@ public class OracleIdentityHelper
             case "System.Guid":
                 if (insertOwnId)
                 {
-                    return $@"DECLARE id {tableName}.ID%type;
-BEGIN
-    INSERT INTO {tableName}(
-    /**insert**/)
-    VALUES(
-    /**values**/)
-    RETURNING Id INTO :OutputId;
-END;";
+                    return $$"""
+                        DECLARE id {{tableName}}.ID%type;
+                        BEGIN
+                            INSERT INTO {{tableName}}(
+                            /**insert**/)
+                            VALUES(
+                            /**values**/)
+                            RETURNING Id INTO :OutputId;
+                        END;
+                        """;
                 }
 
-                return $@"DECLARE id {tableName}.ID%type;
-BEGIN
-    id := SYS_GUID();
-    INSERT INTO {tableName}(
-    Id,
-    /**insert**/)
-    VALUES(
-    id,
-    /**values**/)
-    RETURNING Id INTO :OutputId;
-END;";
+                return $$"""
+                    DECLARE id {{tableName}}.ID%type;
+                    BEGIN
+                        id := SYS_GUID();
+                        INSERT INTO {{tableName}}(
+                        Id,
+                        /**insert**/)
+                        VALUES(
+                        id,
+                        /**values**/)
+                        RETURNING Id INTO :OutputId;
+                    END;
+                    """;
             case "int":
             case "Int32":
             case "System.Int32":
@@ -85,44 +90,51 @@ END;";
             case "ulong":
             case "UInt64":
             case "USystem.Int64":
-                return $@"DECLARE id {tableName}.ID%type;
-BEGIN
-    INSERT INTO {tableName}(
-    /**insert**/)
-    VALUES(
-    /**values**/)
-    RETURNING Id INTO :OutputId;
-END;";
+                return $$"""
+                    DECLARE id {{tableName}}.ID%type;
+                    BEGIN
+                        INSERT INTO {{tableName}}(
+                        /**insert**/)
+                        VALUES(
+                        /**values**/)
+                        RETURNING Id INTO :OutputId;
+                    END;
+                    """;
             case "string":
             case "String":
             case "System.String":
                 if (insertOwnId)
                 {
-                    return $@"DECLARE id {tableName}.ID%type;
-BEGIN
-    INSERT INTO {tableName}(
-    /**insert**/)
-    VALUES(
-    /**values**/)
-    RETURNING Id INTO :OutputId;
-END;";
+                    return $$"""
+                        DECLARE id {{tableName}}.ID%type;
+                        BEGIN
+                            INSERT INTO {{tableName}}(
+                            /**insert**/)
+                            VALUES(
+                            /**values**/)
+                            RETURNING Id INTO :OutputId;
+                        END;
+                        """;
                 }
 
-                return $@"DECLARE
-    id {tableName}.ID%type;
-    guid_id RAW(16);
-BEGIN
-    guid_id := SYS_GUID();
-    INSERT INTO {tableName}(
-    Id,
-    /**insert**/)
-    VALUES(
-    RAWTOHEX(guid_id),
-    /**values**/)
-    RETURNING RAWTOHEX(guid_id) INTO :OutputId;
-END;";
+                return $$"""
+                    DECLARE
+                        id {{tableName}}.ID%type;
+                        guid_id RAW(16);
+                    BEGIN
+                        guid_id := SYS_GUID();
+                        INSERT INTO {{tableName}}(
+                        Id,
+                        /**insert**/)
+                        VALUES(
+                        RAWTOHEX(guid_id),
+                        /**values**/)
+                        RETURNING RAWTOHEX(guid_id) INTO :OutputId;
+                    END;
+                    """;
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));
         }
     }
+#pragma warning restore MA0051
 }

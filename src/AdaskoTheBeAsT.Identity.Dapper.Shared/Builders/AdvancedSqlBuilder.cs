@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Dapper;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Builders;
@@ -47,7 +48,7 @@ public class AdvancedSqlBuilder
         (AddClause(
             nameof(skip),
             GetSkipClause(skip, dbType),
-            null,
+            parameters: null,
             string.Empty,
             string.Empty,
             string.Empty,
@@ -59,34 +60,36 @@ public class AdvancedSqlBuilder
         (AddClause(
             nameof(take),
             GetTakeClause(take, dbType),
-            null,
+            parameters: null,
             string.Empty,
             string.Empty,
             string.Empty,
             isInclusive: false) as AdvancedSqlBuilder)!;
 
-    private string GetSkipClause(int skip, DbType dbType)
+    private static string GetSkipClause(int skip, DbType dbType)
     {
+        var value = skip.ToString(CultureInfo.InvariantCulture);
         return dbType switch
         {
-            DbType.SqlServer => $"OFFSET {skip} ROWS",
-            DbType.Postgres => $"OFFSET {skip}",
-            DbType.MySql => $"OFFSET {skip}",
-            DbType.Sqlite => $"OFFSET {skip}",
-            DbType.Oracle => $"OFFSET {skip} ROWS",
+            DbType.SqlServer => $"OFFSET {value} ROWS",
+            DbType.Postgres => $"OFFSET {value}",
+            DbType.MySql => $"OFFSET {value}",
+            DbType.Sqlite => $"OFFSET {value}",
+            DbType.Oracle => $"OFFSET {value} ROWS",
             _ => throw new NotSupportedException($"Unsupported database type: {dbType}"),
         };
     }
 
-    private string GetTakeClause(int take, DbType dbType)
+    private static string GetTakeClause(int take, DbType dbType)
     {
+        var value = take.ToString(CultureInfo.InvariantCulture);
         return dbType switch
         {
-            DbType.SqlServer => $"FETCH NEXT {take} ROWS ONLY",
-            DbType.Postgres => $"LIMIT {take}",
-            DbType.MySql => $"LIMIT {take}",
-            DbType.Sqlite => $"LIMIT {take}",
-            DbType.Oracle => $"FETCH NEXT {take} ROWS ONLY",
+            DbType.SqlServer => $"FETCH NEXT {value} ROWS ONLY",
+            DbType.Postgres => $"LIMIT {value}",
+            DbType.MySql => $"LIMIT {value}",
+            DbType.Sqlite => $"LIMIT {value}",
+            DbType.Oracle => $"FETCH NEXT {value} ROWS ONLY",
             _ => throw new NotSupportedException($"Unsupported database type: {dbType}"),
         };
     }

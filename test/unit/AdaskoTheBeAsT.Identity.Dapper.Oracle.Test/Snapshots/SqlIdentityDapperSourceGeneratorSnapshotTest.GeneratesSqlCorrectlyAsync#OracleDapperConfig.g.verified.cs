@@ -1,4 +1,5 @@
 ﻿//HintName: OracleDapperConfig.g.cs
+using System;
 using Dapper;
 using Dapper.Oracle;
 using Dapper.Oracle.TypeHandler;
@@ -13,12 +14,14 @@ public static class OracleDapperConfig
         SqlMapper.RemoveTypeMap(typeof(Guid?));
         SqlMapper.RemoveTypeMap(typeof(DateTimeOffset));
         SqlMapper.RemoveTypeMap(typeof(DateTimeOffset?));
+        SqlMapper.RemoveTypeMap(typeof(bool));
+        SqlMapper.RemoveTypeMap(typeof(bool?));
         SqlMapper.AddTypeHandler(new GuidRaw16TypeHandler());
         SqlMapper.AddTypeHandler(new NullableGuidRaw16TypeHandler());
-        OracleTypeMapper.AddTypeHandler(typeof(DateTimeOffset), new DateTimeOffsetTypeHandler());
-        OracleTypeMapper.AddTypeHandler(typeof(DateTimeOffset?), new NullableDateTimeOffsetTypeHandler());
-        OracleTypeMapper.AddTypeHandler(typeof(bool), new BooleanCharTypeHandler(StringComparison.OrdinalIgnoreCase));
-        OracleTypeMapper.AddTypeHandler(
+        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(DateTimeOffset), new DateTimeOffsetTypeHandler());
+        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(DateTimeOffset?), new NullableDateTimeOffsetTypeHandler());
+        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(bool), new BooleanCharTypeHandler(StringComparison.OrdinalIgnoreCase));
+        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(
             typeof(bool?),
             new NullableBooleanCharTypeHandler(StringComparison.OrdinalIgnoreCase));
     }

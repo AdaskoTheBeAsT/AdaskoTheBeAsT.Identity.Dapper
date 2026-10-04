@@ -2,66 +2,71 @@ namespace AdaskoTheBeAsT.Identity.Dapper.PostgreSql.Test;
 
 public class SqlIdentityDapperSourceGeneratorSnapshotTest
 {
+#pragma warning disable MA0051 // Method is too long
     [Fact]
     public Task GeneratesSqlCorrectlyAsync()
     {
         // The source code to test
-        const string source = @"
-using System;
-using System.ComponentModel.DataAnnotations.Schema;
-using AdaskoTheBeAsT.Identity.Dapper;
-using Microsoft.AspNetCore.Identity;
+        const string source = """
 
-namespace AdaskoTheBeAsT.Identity.Dapper.Sample;
+            using System;
+            using System.ComponentModel.DataAnnotations.Schema;
+            using AdaskoTheBeAsT.Identity.Dapper;
+            using AdaskoTheBeAsT.Identity.Dapper.Attributes;
+            using Microsoft.AspNetCore.Identity;
 
-[InsertOwnId]
-public class ApplicationUser
-    : IdentityUser<Guid>
-{
-    [Column(""IsActive"")]
-    public bool Active { get; set; }
+            namespace AdaskoTheBeAsT.Identity.Dapper.Sample;
 
-    public override string? NormalizedUserName { get => UserName; set => UserName = value; }
+            [InsertOwnId]
+            public class ApplicationUser
+                : IdentityUser<Guid>
+            {
+                [Column("IsActive")]
+                public bool Active { get; set; }
 
-    public override string? NormalizedEmail { get => Email; set => Email = value; }
-}
+                public override string? NormalizedUserName { get => UserName; set => UserName = value; }
 
-public class ApplicationRole
-    : IdentityRole<Guid>
-{
-    [Column(""IsActive"")]
-    public bool Active { get; set; }
+                public override string? NormalizedEmail { get => Email; set => Email = value; }
+            }
 
-    public override string? NormalizedName { get => Name; set => Name = value; }
-}
+            public class ApplicationRole
+                : IdentityRole<Guid>
+            {
+                [Column("IsActive")]
+                public bool Active { get; set; }
 
-public class ApplicationRoleClaim
-    : IdentityRoleClaim<Guid>
-{
-}
+                public override string? NormalizedName { get => Name; set => Name = value; }
+            }
 
-public class ApplicationUserClaim
-    : IdentityUserClaim<Guid>
-{
-}
+            public class ApplicationRoleClaim
+                : IdentityRoleClaim<Guid>
+            {
+            }
 
-public class ApplicationUserLogin
-    : IdentityUserLogin<Guid>
-{
-}
+            public class ApplicationUserClaim
+                : IdentityUserClaim<Guid>
+            {
+            }
 
-public class ApplicationUserRole
-    : IdentityUserRole<Guid>
-{
-}
+            public class ApplicationUserLogin
+                : IdentityUserLogin<Guid>
+            {
+            }
 
-public class ApplicationUserToken
-    : IdentityUserToken<Guid>
-{
-}
-";
+            public class ApplicationUserRole
+                : IdentityUserRole<Guid>
+            {
+            }
+
+            public class ApplicationUserToken
+                : IdentityUserToken<Guid>
+            {
+            }
+
+            """;
 
         // Pass the source code to our helper and snapshot test the output
         return TestHelper.VerifyAsync(source);
     }
+#pragma warning restore MA0051
 }

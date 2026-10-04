@@ -6,16 +6,18 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 public class OracleIdentityStoreGeneratorBase
     : IdentityStoreGeneratorBase
 {
-    protected void GenerateNormalizeSqlMethod(StringBuilder sb)
+    protected static void GenerateNormalizeSqlMethod(StringBuilder sb)
     {
         sb.AppendLine(
-            @"        private static string NormalizeSql(string sql)
-        {
-            return sql.StartsWith(""DECLARE"", StringComparison.OrdinalIgnoreCase) ||
-                   sql.StartsWith(""BEGIN"", StringComparison.OrdinalIgnoreCase)
-                ? sql
-                : sql.Trim().TrimEnd(';');
-        }");
+            """
+                    private static string NormalizeSql(string sql)
+                    {
+                        return sql.StartsWith("DECLARE", StringComparison.OrdinalIgnoreCase) ||
+                               sql.StartsWith("BEGIN", StringComparison.OrdinalIgnoreCase)
+                            ? sql
+                            : sql.Trim().TrimEnd(';');
+                    }
+            """);
         sb.AppendLine();
     }
 
@@ -25,8 +27,12 @@ public class OracleIdentityStoreGeneratorBase
     {
         sb.AppendLine("#nullable enable");
         sb.AppendLine("using System;");
+        sb.AppendLine("using System.Collections.Generic;");
         sb.AppendLine("using System.Data;");
+        sb.AppendLine("using System.Linq;");
         sb.AppendLine("using System.Security.Claims;");
+        sb.AppendLine("using System.Threading;");
+        sb.AppendLine("using System.Threading.Tasks;");
         sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper;");
         sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper.Abstractions;");
         sb.AppendLine("using Dapper;");

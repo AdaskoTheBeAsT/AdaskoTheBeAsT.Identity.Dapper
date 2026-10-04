@@ -1,8 +1,12 @@
-﻿//HintName: ApplicationRoleStore.g.cs
+//HintName: ApplicationRoleStore.g.cs
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
 using AdaskoTheBeAsT.Identity.Dapper;
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 using Dapper;
@@ -29,8 +33,9 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
         {
             get
             {
+                ThrowIfDisposed();
                 using var connection = ConnectionProvider.Provide();
-                return connection.Query<ApplicationRole>(NormalizeSql(IdentityRoleSql.GetRolesSql)).AsQueryable();
+                return connection.QueryIdentity<ApplicationRole>(NormalizeSql(IdentityRoleSql.GetRolesSql)).AsQueryable();
             }
         }
 
@@ -48,12 +53,13 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             CancellationToken cancellationToken)
         {
             var sql = IdentityRoleSql.CreateSql;
-            var parameters = new OracleDynamicParameters();
+            var parameters = new OracleDynamicParameters { BindByName = true };
             parameters.Add("OutputId", dbType: OracleMappingType.Raw, direction: ParameterDirection.ReturnValue, size: 16);
             parameters.Add("Name", role.Name, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             parameters.Add("NormalizedName", role.NormalizedName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             parameters.Add("ConcurrencyStamp", role.ConcurrencyStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-            await connection.ExecuteAsync(sql, parameters).ConfigureAwait(continueOnCapturedContext: false);
+            parameters.Add("Active", role.Active, OracleMappingType.Char, ParameterDirection.Input, 1);
+            await connection.ExecuteAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken)).ConfigureAwait(continueOnCapturedContext: false);
             var idBytes = parameters.Get<byte[]>("OutputId");
             role.Id = new Guid(idBytes);
         }
@@ -64,12 +70,21 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             CancellationToken cancellationToken)
         {
             var sql = NormalizeSql(IdentityRoleSql.UpdateSql);
-            var parameters = new OracleDynamicParameters();
+            var parameters = new OracleDynamicParameters { BindByName = true };
+            var stamp = Guid.NewGuid().ToString();
+            parameters.Add("OriginalConcurrencyStamp", role.ConcurrencyStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             parameters.Add("Id", role.Id, OracleMappingType.Raw, ParameterDirection.Input, 16);
             parameters.Add("Name", role.Name, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             parameters.Add("NormalizedName", role.NormalizedName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-            parameters.Add("ConcurrencyStamp", role.ConcurrencyStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-            await connection.ExecuteAsync(sql, parameters).ConfigureAwait(continueOnCapturedContext: false);
+            parameters.Add("ConcurrencyStamp", stamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+            parameters.Add("Active", role.Active, OracleMappingType.Char, ParameterDirection.Input, 1);
+            var affected = await connection.ExecuteAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken)).ConfigureAwait(continueOnCapturedContext: false);
+            if (affected != 1)
+            {
+                throw new DBConcurrencyException();
+            }
+
+            role.ConcurrencyStamp = stamp;
         }
 
         protected override async Task DeleteImplAsync(
@@ -78,9 +93,14 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             CancellationToken cancellationToken)
         {
             var sql = NormalizeSql(IdentityRoleSql.DeleteSql);
-            var parameters = new OracleDynamicParameters();
+            var parameters = new OracleDynamicParameters { BindByName = true };
+            parameters.Add("ConcurrencyStamp", role.ConcurrencyStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             parameters.Add("Id", role.Id, OracleMappingType.Raw, ParameterDirection.Input, 16);
-            await connection.ExecuteAsync(sql, parameters).ConfigureAwait(continueOnCapturedContext: false);
+            var affected = await connection.ExecuteAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken)).ConfigureAwait(continueOnCapturedContext: false);
+            if (affected != 1)
+            {
+                throw new DBConcurrencyException();
+            }
         }
 
         protected override async Task<ApplicationRole?> FindByIdImplAsync(
@@ -89,9 +109,9 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             CancellationToken cancellationToken)
         {
             var sql = NormalizeSql(IdentityRoleSql.FindByIdSql);
-            var parameters = new OracleDynamicParameters();
+            var parameters = new OracleDynamicParameters { BindByName = true };
             parameters.Add("Id", roleId, OracleMappingType.Raw, ParameterDirection.Input, 16);
-            return await connection.QueryFirstOrDefaultAsync<ApplicationRole>(sql, parameters)
+            return await connection.QueryIdentityFirstOrDefaultAsync<ApplicationRole>(sql, parameters, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
 
@@ -101,9 +121,9 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             CancellationToken cancellationToken)
         {
             var sql = NormalizeSql(IdentityRoleSql.FindByNameSql);
-            var parameters = new OracleDynamicParameters();
+            var parameters = new OracleDynamicParameters { BindByName = true };
             parameters.Add("NormalizedName", normalizedRoleName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-            return await connection.QueryFirstOrDefaultAsync<ApplicationRole>(sql, parameters)
+            return await connection.QueryIdentityFirstOrDefaultAsync<ApplicationRole>(sql, parameters, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
 
@@ -113,9 +133,9 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             CancellationToken cancellationToken)
         {
             var sql = NormalizeSql(IdentityRoleClaimSql.GetByRoleIdSql);
-            var parameters = new OracleDynamicParameters();
+            var parameters = new OracleDynamicParameters { BindByName = true };
             parameters.Add("Id", roleId, OracleMappingType.Raw, ParameterDirection.Input, 16);
-            return (await connection.QueryAsync<Claim>(sql, parameters)
+            return (await connection.QueryAsync<Claim>(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken))
                     .ConfigureAwait(continueOnCapturedContext: false))
                 .AsList();
         }
@@ -125,12 +145,12 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             ApplicationRoleClaim roleClaim,
             CancellationToken cancellationToken)
         {
-            var sql = IdentityRoleClaimSql.CreateSql;
-            var parameters = new OracleDynamicParameters();
-            parameters.Add("RoleId", roleClaim.RoleId, OracleMappingType.Raw, ParameterDirection.Input, 16);
-            parameters.Add("ClaimType", roleClaim.ClaimType, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-            parameters.Add("ClaimValue", roleClaim.ClaimValue, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-            await connection.ExecuteAsync(sql, parameters)
+            var sql = NormalizeSql(IdentityRoleClaimSql.CreateSql);
+            var parameters = new OracleDynamicParameters { BindByName = true };
+                parameters.Add("RoleId", roleClaim.RoleId, OracleMappingType.Raw, ParameterDirection.Input, 16);
+                parameters.Add("ClaimType", roleClaim.ClaimType, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+                parameters.Add("ClaimValue", roleClaim.ClaimValue, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+            await connection.ExecuteAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken))
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
 
@@ -140,11 +160,11 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sample
             CancellationToken cancellationToken)
         {
             var sql = NormalizeSql(IdentityRoleClaimSql.DeleteSql);
-            var parameters = new OracleDynamicParameters();
+            var parameters = new OracleDynamicParameters { BindByName = true };
             parameters.Add("RoleId", roleClaim.RoleId, OracleMappingType.Raw, ParameterDirection.Input, 16);
             parameters.Add("ClaimType", roleClaim.ClaimType, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
             parameters.Add("ClaimValue", roleClaim.ClaimValue, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-            await connection.ExecuteAsync(sql, parameters)
+            await connection.ExecuteAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken))
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
     }

@@ -1,7 +1,7 @@
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
-using Npgsql;
 using AdaskoTheBeAsT.Identity.Dapper.PostgreSql.IntegrationTest.Identity;
 using AdaskoTheBeAsT.Identity.Dapper.PostgreSql.IntegrationTest.TestCollections;
+using Npgsql;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.PostgreSql.IntegrationTest;
 

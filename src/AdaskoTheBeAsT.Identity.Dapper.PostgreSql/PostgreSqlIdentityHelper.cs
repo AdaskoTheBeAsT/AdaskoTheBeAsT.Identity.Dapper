@@ -62,35 +62,36 @@ public class PostgreSqlIdentityHelper
             case "ulong":
             case "UInt64":
             case "USystem.Int64":
-                return $@"INSERT INTO {tableName}(
-/**insert**/)
-VALUES(
-/**values**/)
-RETURNING Id AS """"Id"""";";
+                return $$"""
+                    INSERT INTO {{tableName}}(
+                    /**insert**/)
+                    VALUES(
+                    /**values**/)
+                    RETURNING Id AS "Id";
+                    """;
             case "string":
             case "String":
             case "System.String":
                 if (insertOwnId)
                 {
-                    return $@"INSERT INTO {tableName}(
-/**insert**/)
-VALUES(
-/**values**/);
-SELECT @Id AS """"Id"""";";
+                    return $$"""
+                        INSERT INTO {{tableName}}(
+                        /**insert**/)
+                        VALUES(
+                        /**values**/)
+                        RETURNING Id AS "Id";
+                        """;
                 }
 
-                return $@"DO $$ 
-DECLARE
-    id UUID := gen_random_uuid();
-BEGIN
-    INSERT INTO {{tableName}}(
-    Id,
-    /**insert**/)
-    VALUES(
-    id::text,
-    /**values**/);
-    SELECT id::text AS """"Id"""";
-END $$;";
+                return $$"""
+                    INSERT INTO {{tableName}}(
+                    Id,
+                    /**insert**/)
+                    VALUES(
+                    gen_random_uuid()::text,
+                    /**values**/)
+                    RETURNING Id AS "Id";
+                    """;
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));
         }

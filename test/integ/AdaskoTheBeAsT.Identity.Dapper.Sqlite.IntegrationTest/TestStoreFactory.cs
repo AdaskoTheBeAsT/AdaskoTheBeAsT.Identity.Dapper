@@ -1,7 +1,7 @@
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
-using Microsoft.Data.Sqlite;
 using AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Identity;
 using AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.TestCollections;
+using Microsoft.Data.Sqlite;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest;
 

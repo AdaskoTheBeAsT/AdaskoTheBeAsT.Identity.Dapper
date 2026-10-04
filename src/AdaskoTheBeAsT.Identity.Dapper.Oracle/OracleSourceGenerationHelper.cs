@@ -10,27 +10,29 @@ public class OracleSourceGenerationHelper
     : SourceGeneratorHelperBase
 {
     public OracleSourceGenerationHelper()
-        : base(
-            new OracleIdentityRoleClassGenerator(),
-            new OracleIdentityRoleClaimClassGenerator(),
-            new OracleIdentityUserClassGenerator(),
-            new OracleIdentityUserClaimClassGenerator(),
-            new OracleIdentityUserLoginClassGenerator(),
-            new OracleIdentityUserRoleClassGenerator(),
-            new OracleIdentityUserTokenClassGenerator(),
-            new OracleIdentityUserRoleClaimClassGenerator(),
-            new OracleApplicationUserOnlyStoreGenerator(),
-            new OracleApplicationUserStoreGenerator(),
-            new OracleApplicationRoleStoreGenerator())
+                : base(
+                    new OracleIdentityRoleClassGenerator(),
+                    new OracleIdentityRoleClaimClassGenerator(),
+                    new OracleIdentityUserClassGenerator(),
+                    new OracleIdentityUserClaimClassGenerator(),
+                    new OracleIdentityUserLoginClassGenerator(),
+                    new OracleIdentityUserRoleClassGenerator(),
+                    new OracleIdentityUserTokenClassGenerator(),
+                    new OracleIdentityUserRoleClaimClassGenerator(),
+                    new OracleApplicationUserOnlyStoreGenerator(),
+                    new OracleApplicationUserStoreGenerator(),
+                    new OracleApplicationRoleStoreGenerator())
     {
     }
 
+    protected override DatabaseProvider Provider => DatabaseProvider.Oracle;
+
     protected override string GenerateSchemaPart(string dbSchema) =>
-        string.IsNullOrEmpty(dbSchema) ? string.Empty : $"{dbSchema}.";
+                string.IsNullOrEmpty(dbSchema) ? string.Empty : $"{dbSchema}.";
 
     protected override void GenerateAdditionalFiles(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+                SourceProductionContext context,
+                IdentityDapperOptions options)
     {
         GenerateGuidRaw16TypeHandler(context);
         GenerateNullableGuidRaw16TypeHandler(context);
@@ -53,8 +55,8 @@ public class OracleSourceGenerationHelper
         GenerateOracleDapperConfig(context, options);
     }
 
-    private void GenerateGuidRaw16TypeHandler(
-        SourceProductionContext context)
+    private static void GenerateGuidRaw16TypeHandler(
+                SourceProductionContext context)
     {
         const string content =
             """
@@ -92,42 +94,50 @@ public class OracleSourceGenerationHelper
         context.AddSource("GuidRaw16TypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateBooleanCharTypeHandler(
-        SourceProductionContext context)
+    private static void GenerateBooleanCharTypeHandler(
+                SourceProductionContext context)
     {
         const string content =
             """
+            using System;
             using System.Data;
             using Dapper.Oracle.TypeHandler;
-            
+
             namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
-            
-            public class BooleanCharTypeHandler(StringComparison comparison = StringComparison.Ordinal)
+
+            public class BooleanCharTypeHandler
                 : TypeHandlerBase<bool>
             {
+                private readonly StringComparison _comparison;
+
+                public BooleanCharTypeHandler(StringComparison comparison = StringComparison.Ordinal)
+                {
+                    _comparison = comparison;
+                }
+
                 public override void SetValue(IDbDataParameter parameter, bool value)
                 {
                     SetOracleDbTypeOnParameter(parameter, "Char", 1);
                     parameter.Value = value ? "Y" : "N";
                 }
-            
+
                 public override bool Parse(object value)
                 {
                     if (value is string text)
                     {
-                        if (text.Equals("Y", comparison))
+                        if (text.Equals("Y", _comparison))
                         {
                             return true;
                         }
-            
-                        if (text.Equals("N", comparison))
+
+                        if (text.Equals("N", _comparison))
                         {
                             return false;
                         }
-            
+
                         throw new NotSupportedException($"'{text}' was unexpected - expected 'Y' or 'N'");
                     }
-            
+
                     throw new NotSupportedException($"Don't know how to convert a {value.GetType()} to a Boolean");
                 }
             }
@@ -136,20 +146,27 @@ public class OracleSourceGenerationHelper
         context.AddSource("BooleanCharTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableBooleanCharTypeHandler(
-        SourceProductionContext context)
+    private static void GenerateNullableBooleanCharTypeHandler(
+                SourceProductionContext context)
     {
         const string content =
             """
+            using System;
             using System.Data;
             using Dapper.Oracle.TypeHandler;
-            
+
             namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
-            
+
             public class NullableBooleanCharTypeHandler
-                (StringComparison comparison = StringComparison.Ordinal)
                 : TypeHandlerBase<bool?>
             {
+                private readonly StringComparison _comparison;
+
+                public NullableBooleanCharTypeHandler(StringComparison comparison = StringComparison.Ordinal)
+                {
+                    _comparison = comparison;
+                }
+
                 public override void SetValue(IDbDataParameter parameter, bool? value)
                 {
                     SetOracleDbTypeOnParameter(parameter, "Char", 1);
@@ -158,31 +175,31 @@ public class OracleSourceGenerationHelper
                         parameter.Value = DBNull.Value;
                         return;
                     }
-            
+
                     parameter.Value = value.Value ? "Y" : "N";
                 }
-            
+
                 public override bool? Parse(object value)
                 {
                     if (value == DBNull.Value)
                     {
                         return null;
                     }
-            
+
                     if (value is string text)
                     {
-                        if (text.Equals("Y", comparison))
+                        if (text.Equals("Y", _comparison))
                         {
                             return true;
                         }
-                        if (text.Equals("N", comparison))
+                        if (text.Equals("N", _comparison))
                         {
                             return false;
                         }
-            
+
                         throw new NotSupportedException($"'{text}' was unexpected - expected 'Y' or 'N'");
                     }
-            
+
                     throw new NotSupportedException($"Don't know how to convert a {value.GetType()} to a Boolean");
                 }
             }
@@ -191,16 +208,17 @@ public class OracleSourceGenerationHelper
         context.AddSource("NullableBooleanCharTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableBooleanNumericTypeHandler(
-        SourceProductionContext context)
+    private static void GenerateNullableBooleanNumericTypeHandler(
+                SourceProductionContext context)
     {
         const string content =
             """
+            using System;
             using System.Data;
             using Dapper.Oracle.TypeHandler;
-            
+
             namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
-            
+
             public class NullableBooleanNumericTypeHandler
                 : TypeHandlerBase<bool?>
             {
@@ -212,22 +230,22 @@ public class OracleSourceGenerationHelper
                         parameter.Value = DBNull.Value;
                         return;
                     }
-            
+
                     parameter.Value = (value.Value ? 1 : 0);
                 }
-            
+
                 public override bool? Parse(object value)
                 {
                     if (value == DBNull.Value)
                     {
                         return null;
                     }
-            
+
                     if (value is int intVal)
                     {
                         return intVal != 0;
                     }
-            
+
                     return null;
                 }
             }
@@ -236,22 +254,35 @@ public class OracleSourceGenerationHelper
         context.AddSource("NullableBooleanNumericTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableBooleanStringTypeHandler(
+#pragma warning disable MA0051 // Method is too long
+    private static void GenerateNullableBooleanStringTypeHandler(
         SourceProductionContext context)
     {
         const string content =
             """
+            using System;
             using Dapper.Oracle.TypeHandler;
             using System.Data;
-            
+
             namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
-            
-            public class NullableBooleanStringTypeHandler(
-                string trueValue,
-                string falseValue,
-                StringComparison comparison = StringComparison.Ordinal)
+
+            public class NullableBooleanStringTypeHandler
                 : TypeHandlerBase<bool?>
             {
+                private readonly string _trueValue;
+                private readonly string _falseValue;
+                private readonly StringComparison _comparison;
+
+                public NullableBooleanStringTypeHandler(
+                    string trueValue,
+                    string falseValue,
+                    StringComparison comparison = StringComparison.Ordinal)
+                {
+                    _trueValue = trueValue;
+                    _falseValue = falseValue;
+                    _comparison = comparison;
+                }
+
                 public override void SetValue(IDbDataParameter parameter, bool? value)
                 {
                     SetOracleDbTypeOnParameter(parameter, "Varchar2");
@@ -260,31 +291,31 @@ public class OracleSourceGenerationHelper
                         parameter.Value = DBNull.Value;
                         return;
                     }
-            
-                    parameter.Value = (value.Value ? trueValue : falseValue);
+
+                    parameter.Value = (value.Value ? _trueValue : _falseValue);
                 }
-            
+
                 public override bool? Parse(object value)
                 {
                     if (value == DBNull.Value)
                     {
                         return null;
                     }
-            
+
                     if (value is string text)
                     {
-                        if (text.Equals(trueValue, comparison))
+                        if (text.Equals(_trueValue, _comparison))
                         {
                             return true;
                         }
-                        if (text.Equals(falseValue, comparison))
+                        if (text.Equals(_falseValue, _comparison))
                         {
                             return false;
                         }
-            
-                        throw new NotSupportedException($"'{text}' was unexpected - expected '{trueValue}' or '{falseValue}'");
+
+                        throw new NotSupportedException($"'{text}' was unexpected - expected '{_trueValue}' or '{_falseValue}'");
                     }
-            
+
                     throw new NotSupportedException($"Don't know how to convert a {value.GetType()} to a Boolean");
                 }
             }
@@ -293,16 +324,19 @@ public class OracleSourceGenerationHelper
         context.AddSource("NullableBooleanStringTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableGuidRaw16TypeHandler(
+#pragma warning restore MA0051
+
+    private static void GenerateNullableGuidRaw16TypeHandler(
         SourceProductionContext context)
     {
         const string content =
             """
+            using System;
             using Dapper.Oracle.TypeHandler;
             using System.Data;
-            
+
             namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
-            
+
             public class NullableGuidRaw16TypeHandler
                 : TypeHandlerBase<Guid?>
             {
@@ -314,22 +348,22 @@ public class OracleSourceGenerationHelper
                         parameter.Value = DBNull.Value;
                         return;
                     }
-            
+
                     parameter.Value = value.Value.ToByteArray();
                 }
-            
+
                 public override Guid? Parse(object value)
                 {
                     if (value == DBNull.Value)
                     {
                         return null;
                     }
-            
+
                     if (value is byte[] b)
                     {
                         return new Guid(b);
                     }
-            
+
                     return null;
                 }
             }
@@ -338,8 +372,8 @@ public class OracleSourceGenerationHelper
         context.AddSource("NullableGuidRaw16TypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateDateTimeOffsetTypeHandler(
-        SourceProductionContext context)
+    private static void GenerateDateTimeOffsetTypeHandler(
+                SourceProductionContext context)
     {
         const string content =
             """
@@ -392,8 +426,8 @@ public class OracleSourceGenerationHelper
         context.AddSource("DateTimeOffsetTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableDateTimeOffsetTypeHandler(
-        SourceProductionContext context)
+    private static void GenerateNullableDateTimeOffsetTypeHandler(
+                SourceProductionContext context)
     {
         const string content =
             """
@@ -446,19 +480,21 @@ public class OracleSourceGenerationHelper
         context.AddSource("NullableDateTimeOffsetTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateOracleDapperConfig(
+#pragma warning disable MA0051 // Method is too long
+    private static void GenerateOracleDapperConfig(
         SourceProductionContext context,
         IdentityDapperOptions options)
     {
         var sb = new StringBuilder();
         const string content1 =
             """
+            using System;
             using Dapper;
             using Dapper.Oracle;
             using Dapper.Oracle.TypeHandler;
-            
+
             namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
-            
+
             public static class OracleDapperConfig
             {
                 public static void ConfigureTypeHandlers()
@@ -472,10 +508,10 @@ public class OracleSourceGenerationHelper
         sb.AppendLine(content1);
 
         if (string.Equals(options.StoreBooleanAs, "char", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "char", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(options.StoreBooleanAs, "char", StringComparison.OrdinalIgnoreCase))
+            string.Equals(options.StoreBooleanAs, "numeric", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(options.StoreBooleanAs, "string", StringComparison.OrdinalIgnoreCase))
         {
-            var content2 =
+            const string? content2 =
                 """
                         SqlMapper.RemoveTypeMap(typeof(bool));
                         SqlMapper.RemoveTypeMap(typeof(bool?));
@@ -483,25 +519,21 @@ public class OracleSourceGenerationHelper
             sb.AppendLine(content2);
         }
 
-        var content3 =
+        const string? content3 =
             """
                     SqlMapper.AddTypeHandler(new GuidRaw16TypeHandler());
                     SqlMapper.AddTypeHandler(new NullableGuidRaw16TypeHandler());
-                    OracleTypeMapper.AddTypeHandler(typeof(DateTimeOffset), new DateTimeOffsetTypeHandler());
-                    OracleTypeMapper.AddTypeHandler(typeof(DateTimeOffset?), new NullableDateTimeOffsetTypeHandler());
-                    OracleTypeMapper.AddTypeHandler(typeof(bool), new BooleanCharTypeHandler(StringComparison.OrdinalIgnoreCase));
-                    OracleTypeMapper.AddTypeHandler(
-                        typeof(bool?),
-                        new NullableBooleanCharTypeHandler(StringComparison.OrdinalIgnoreCase));
+                    global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(DateTimeOffset), new DateTimeOffsetTypeHandler());
+                    global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(DateTimeOffset?), new NullableDateTimeOffsetTypeHandler());
             """;
         sb.AppendLine(content3);
 
         if (string.Equals(options.StoreBooleanAs, "char", StringComparison.OrdinalIgnoreCase))
         {
-            var content4 =
+            const string? content4 =
                 """
-                        OracleTypeMapper.AddTypeHandler(typeof(bool), new BooleanCharTypeHandler(StringComparison.OrdinalIgnoreCase));
-                        OracleTypeMapper.AddTypeHandler(
+                        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(bool), new BooleanCharTypeHandler(StringComparison.OrdinalIgnoreCase));
+                        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(
                             typeof(bool?),
                             new NullableBooleanCharTypeHandler(StringComparison.OrdinalIgnoreCase));
                 """;
@@ -509,28 +541,28 @@ public class OracleSourceGenerationHelper
         }
         else if (string.Equals(options.StoreBooleanAs, "numeric", StringComparison.OrdinalIgnoreCase))
         {
-            var content5 =
+            const string? content5 =
                 """
-                        OracleTypeMapper.AddTypeHandler(typeof(bool), new BooleanNumericTypeHandler());
-                        OracleTypeMapper.AddTypeHandler(typeof(bool?), new NullableBooleanNumericTypeHandler());
+                        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(bool), new BooleanNumericTypeHandler());
+                        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(bool?), new NullableBooleanNumericTypeHandler());
                 """;
             sb.AppendLine(content5);
         }
         else if (string.Equals(options.StoreBooleanAs, "string", StringComparison.OrdinalIgnoreCase))
         {
-            var content6 =
+            const string? content6 =
                 """
-                        OracleTypeMapper.AddTypeHandler(
+                        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(
                             typeof(bool),
                             new BooleanStringTypeHandler("Yes", "No", StringComparison.OrdinalIgnoreCase));
-                        OracleTypeMapper.AddTypeHandler(
+                        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(
                             typeof(bool?),
                             new NullableBooleanStringTypeHandler("Yes", "No", StringComparison.OrdinalIgnoreCase));
                 """;
             sb.AppendLine(content6);
         }
 
-        var content7 =
+        const string? content7 =
             """
                 }
             }
@@ -539,4 +571,5 @@ public class OracleSourceGenerationHelper
 
         context.AddSource("OracleDapperConfig.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     }
+#pragma warning restore MA0051
 }

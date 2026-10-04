@@ -9,47 +9,48 @@ public class MySqlSourceGenerationHelper
     : SourceGeneratorHelperBase
 {
     public MySqlSourceGenerationHelper()
-        : base(
-            new MySqlIdentityRoleClassGenerator(),
-            new MySqlIdentityRoleClaimClassGenerator(),
-            new MySqlIdentityUserClassGenerator(),
-            new MySqlIdentityUserClaimClassGenerator(),
-            new MySqlIdentityUserLoginClassGenerator(),
-            new MySqlIdentityUserRoleClassGenerator(),
-            new MySqlIdentityUserTokenClassGenerator(),
-            new MySqlIdentityUserRoleClaimClassGenerator(),
-            new MySqlApplicationUserOnlyStoreGenerator(),
-            new MySqlApplicationUserStoreGenerator(),
-            new MySqlApplicationRoleStoreGenerator())
+            : base(
+                new MySqlIdentityRoleClassGenerator(),
+                new MySqlIdentityRoleClaimClassGenerator(),
+                new MySqlIdentityUserClassGenerator(),
+                new MySqlIdentityUserClaimClassGenerator(),
+                new MySqlIdentityUserLoginClassGenerator(),
+                new MySqlIdentityUserRoleClassGenerator(),
+                new MySqlIdentityUserTokenClassGenerator(),
+                new MySqlIdentityUserRoleClaimClassGenerator(),
+                new MySqlApplicationUserOnlyStoreGenerator(),
+                new MySqlApplicationUserStoreGenerator(),
+                new MySqlApplicationRoleStoreGenerator())
     {
     }
+
+    protected override DatabaseProvider Provider => DatabaseProvider.MySql;
 
     protected override string GenerateSchemaPart(string dbSchema) =>
-        string.IsNullOrEmpty(dbSchema) ? string.Empty : $"`{dbSchema}`.";
+            string.IsNullOrEmpty(dbSchema) ? string.Empty : $"`{dbSchema}`.";
 
     protected override void GenerateAdditionalFiles(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+            SourceProductionContext context,
+            IdentityDapperOptions options)
     {
-        GenerateGuidTypeHandler(context, options);
-        GenerateNullableGuidTypeHandler(context, options);
-        GenerateDateTimeOffsetTypeHandler(context, options);
-        GenerateNullableDateTimeOffsetTypeHandler(context, options);
-        GenerateDapperConfig(context, options);
+        GenerateGuidTypeHandler(context);
+        GenerateNullableGuidTypeHandler(context);
+        GenerateDateTimeOffsetTypeHandler(context);
+        GenerateNullableDateTimeOffsetTypeHandler(context);
+        GenerateDapperConfig(context);
     }
 
-    private void GenerateGuidTypeHandler(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+    private static void GenerateGuidTypeHandler(
+            SourceProductionContext context)
     {
         const string content =
             """
             using System;
             using System.Data;
             using Dapper;
-            
+
             namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
-            
+
             public class MySqlGuidTypeHandler
                 : SqlMapper.TypeHandler<Guid>
             {
@@ -59,16 +60,16 @@ public class MySqlSourceGenerationHelper
                     {
                         return Guid.Empty;
                     }
-            
+
                     var asString = value?.ToString();
                     if (Guid.TryParse(asString, out var guid))
                     {
                         return guid;
                     }
-            
+
                     return Guid.Empty;
                 }
-            
+
                 public override void SetValue(
                     IDbDataParameter parameter,
                     Guid value)
@@ -81,9 +82,8 @@ public class MySqlSourceGenerationHelper
         context.AddSource("MySqlGuidTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableGuidTypeHandler(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+    private static void GenerateNullableGuidTypeHandler(
+            SourceProductionContext context)
     {
         const string content =
             """
@@ -102,16 +102,16 @@ public class MySqlSourceGenerationHelper
                     {
                         return null;
                     }
-            
+
                     var asString = value?.ToString();
                     if (Guid.TryParse(asString, out var guid))
                     {
                         return guid;
                     }
-            
+
                     return null;
                 }
-            
+
                 public override void SetValue(
                     IDbDataParameter parameter,
                     Guid? value)
@@ -121,7 +121,7 @@ public class MySqlSourceGenerationHelper
                         parameter.Value = DBNull.Value;
                         return;
                     }
-            
+
                     parameter.Value = value!.Value.ToString("D");
                 }
             }
@@ -130,9 +130,8 @@ public class MySqlSourceGenerationHelper
         context.AddSource("MySqlNullableGuidTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateDateTimeOffsetTypeHandler(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+    private static void GenerateDateTimeOffsetTypeHandler(
+            SourceProductionContext context)
     {
         const string content =
             """
@@ -140,9 +139,9 @@ public class MySqlSourceGenerationHelper
             using System.Data;
             using System.Globalization;
             using Dapper;
-            
+
             namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
-            
+
             public class MySqlDateTimeOffsetTypeHandler
                 : SqlMapper.TypeHandler<DateTimeOffset>
             {
@@ -173,7 +172,7 @@ public class MySqlSourceGenerationHelper
                                 DateTimeKind.Utc)),
                     };
                 }
-            
+
                 public override void SetValue(
                     IDbDataParameter parameter,
                     DateTimeOffset value)
@@ -186,9 +185,8 @@ public class MySqlSourceGenerationHelper
         context.AddSource("MySqlDateTimeOffsetTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateNullableDateTimeOffsetTypeHandler(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+    private static void GenerateNullableDateTimeOffsetTypeHandler(
+            SourceProductionContext context)
     {
         const string content =
             """
@@ -242,17 +240,16 @@ public class MySqlSourceGenerationHelper
         context.AddSource("MySqlNullableDateTimeOffsetTypeHandler.g.cs", SourceText.From(content, Encoding.UTF8));
     }
 
-    private void GenerateDapperConfig(
-        SourceProductionContext context,
-        IdentityDapperOptions options)
+    private static void GenerateDapperConfig(
+            SourceProductionContext context)
     {
         const string content =
             """
             using System;
             using Dapper;
-            
+
             namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
-            
+
             public static class MySqlDapperConfig
             {
                 public static void ConfigureTypeHandlers()

@@ -1,4 +1,5 @@
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Models;
@@ -11,6 +12,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IMapper _mapper;
@@ -28,26 +30,35 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateUserAsync([FromBody] UserModel userModel)
     {
+        if (userModel.Roles is { Count: > 0 })
+        {
+            return BadRequest("Roles cannot be assigned during public registration.");
+        }
+
         try
         {
             var request = _mapper.Map<CreateUserRequest>(userModel);
-            await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
-            return Ok();
+            var result = await _mediator.Send(request, HttpContext.RequestAborted).ConfigureAwait(continueOnCapturedContext: false);
+            return result.Succeeded ? Ok() : BadRequest(result.Errors);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex);
+            return Problem("User creation failed.");
         }
     }
 
-    [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserByIdAsync(Guid id)
     {
+        if (!CanManageUser(id))
+        {
+            return Forbid();
+        }
+
         try
         {
             var request = new GetUserByIdRequest { UserId = id };
-            var user = await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
+            var user = await _mediator.Send(request, HttpContext.RequestAborted).ConfigureAwait(continueOnCapturedContext: false);
             if (user == null)
             {
                 return NotFound();
@@ -55,21 +66,27 @@ public class UserController : ControllerBase
 
             return Ok(user);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex.Message);
+            return Problem("User lookup failed.");
         }
     }
 
-    [AllowAnonymous]
     [HttpPut("{id}")]
+#pragma warning disable SEC0019 // Authentication uses explicit bearer headers, not automatically submitted cookie credentials.
     public async Task<IActionResult> UpdateUserAsync(Guid id, [FromBody] UpdateUserModel updateUserModel)
+#pragma warning restore SEC0019
     {
+        if (!CanManageUser(id) || (updateUserModel.Roles != null && !User.IsInRole("Administrator")))
+        {
+            return Forbid();
+        }
+
         try
         {
             var request = _mapper.Map<UpdateUserRequest>(updateUserModel);
             request.UserId = id;
-            var result = await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
+            var result = await _mediator.Send(request, HttpContext.RequestAborted).ConfigureAwait(continueOnCapturedContext: false);
             if (result.Succeeded)
             {
                 return NoContent();
@@ -77,20 +94,26 @@ public class UserController : ControllerBase
 
             return BadRequest(result.Errors);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex.Message);
+            return Problem("User update failed.");
         }
     }
 
-    [AllowAnonymous]
     [HttpDelete("{id}")]
+#pragma warning disable SEC0019 // Authentication uses explicit bearer headers, not automatically submitted cookie credentials.
     public async Task<IActionResult> DeleteUserAsync(Guid id)
+#pragma warning restore SEC0019
     {
+        if (!CanManageUser(id))
+        {
+            return Forbid();
+        }
+
         try
         {
             var request = new DeleteUserRequest { UserId = id };
-            var result = await _mediator.Send(request).ConfigureAwait(continueOnCapturedContext: false);
+            var result = await _mediator.Send(request, HttpContext.RequestAborted).ConfigureAwait(continueOnCapturedContext: false);
             if (result.Succeeded)
             {
                 return NoContent();
@@ -98,9 +121,14 @@ public class UserController : ControllerBase
 
             return BadRequest(result.Errors);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex.Message);
+            return Problem("User deletion failed.");
         }
     }
+
+    private bool CanManageUser(Guid id) =>
+        User.Identity?.IsAuthenticated == true &&
+        (User.IsInRole("Administrator") ||
+         (Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var currentId) && currentId == id));
 }

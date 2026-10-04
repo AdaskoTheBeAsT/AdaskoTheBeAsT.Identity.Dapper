@@ -1,59 +1,88 @@
 ﻿//HintName: IdentityRoleSql.g.cs
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
-
 namespace AdaskoTheBeAsT.Identity.Dapper.Sample
 {
-    public class IdentityRoleSql
-        : IIdentityRoleSql
+    public class IdentityRoleSql : IIdentityRoleConcurrencySql, IIdentityRolePagingSql
     {
         public string CreateSql { get; } =
-            @"DECLARE id AspNetRoles.ID%type;
-BEGIN
-    id := SYS_GUID();
-    INSERT INTO AspNetRoles(
-    Id,
-    Name
-,NormalizedName
-,ConcurrencyStamp)
-    VALUES(
-    id,
-    :Name
-,:NormalizedName
-,:ConcurrencyStamp)
-    RETURNING Id INTO :OutputId;
-END;";
+            """
+            BEGIN
+            INSERT INTO AspNetRoles(
+                "ID"
+               ,"NAME"
+               ,"NORMALIZEDNAME"
+               ,"CONCURRENCYSTAMP"
+               ,"ISACTIVE")
+            VALUES(
+                SYS_GUID()
+               ,:Name
+               ,:NormalizedName
+               ,:ConcurrencyStamp
+               ,:Active)
+            RETURNING "ID" INTO :OutputId;
+            END;
+            """;
 
         public string UpdateSql { get; } =
-            @"UPDATE AspNetRoles
-SET Name=:Name
-,NormalizedName=:NormalizedName
-,ConcurrencyStamp=:ConcurrencyStamp
-WHERE Id=:Id;";
+            """
+            UPDATE AspNetRoles
+            SET "NAME"=:Name
+               ,"NORMALIZEDNAME"=:NormalizedName
+               ,"CONCURRENCYSTAMP"=:ConcurrencyStamp
+               ,"ISACTIVE"=:Active
+            WHERE "ID"=:Id
+              AND ("CONCURRENCYSTAMP"=:OriginalConcurrencyStamp OR ("CONCURRENCYSTAMP" IS NULL AND :OriginalConcurrencyStamp IS NULL));
+            """;
 
         public string DeleteSql { get; } =
-            @"DELETE FROM AspNetRoles WHERE Id=:Id;";
+            """
+            DELETE FROM AspNetRoles
+            WHERE "ID"=:Id
+              AND ("CONCURRENCYSTAMP"=:ConcurrencyStamp OR ("CONCURRENCYSTAMP" IS NULL AND :ConcurrencyStamp IS NULL));
+            """;
 
         public string FindByIdSql { get; } =
-            @"SELECT Id
-,Name AS Name
-,NormalizedName AS NormalizedName
-,ConcurrencyStamp AS ConcurrencyStamp
-FROM AspNetRoles
-WHERE Id=:Id;";
+            """
+            SELECT "ID" AS "ID"
+                  ,"NAME" AS "NAME"
+                  ,"NORMALIZEDNAME" AS "NORMALIZEDNAME"
+                  ,"CONCURRENCYSTAMP" AS "CONCURRENCYSTAMP"
+                  ,"ISACTIVE" AS "ACTIVE"
+            FROM AspNetRoles
+            WHERE "ID"=:Id;
+            """;
 
         public string FindByNameSql { get; } =
-            @"SELECT Id
-,Name AS Name
-,NormalizedName AS NormalizedName
-,ConcurrencyStamp AS ConcurrencyStamp
-FROM AspNetRoles
-WHERE NormalizedName=:NormalizedName;";
+            """
+            SELECT "ID" AS "ID"
+                  ,"NAME" AS "NAME"
+                  ,"NORMALIZEDNAME" AS "NORMALIZEDNAME"
+                  ,"CONCURRENCYSTAMP" AS "CONCURRENCYSTAMP"
+                  ,"ISACTIVE" AS "ACTIVE"
+            FROM AspNetRoles
+            WHERE "NORMALIZEDNAME"=:NormalizedName;
+            """;
 
         public string GetRolesSql { get; } =
-            @"SELECT Id
-,Name AS Name
-,NormalizedName AS NormalizedName
-,ConcurrencyStamp AS ConcurrencyStamp
-FROM AspNetRoles;";
+            """
+            SELECT "ID" AS "ID"
+                  ,"NAME" AS "NAME"
+                  ,"NORMALIZEDNAME" AS "NORMALIZEDNAME"
+                  ,"CONCURRENCYSTAMP" AS "CONCURRENCYSTAMP"
+                  ,"ISACTIVE" AS "ACTIVE"
+            FROM AspNetRoles;
+            """;
+
+        public string GetRolesPageSql { get; } =
+            """
+            SELECT "ID" AS "ID"
+                  ,"NAME" AS "NAME"
+                  ,"NORMALIZEDNAME" AS "NORMALIZEDNAME"
+                  ,"CONCURRENCYSTAMP" AS "CONCURRENCYSTAMP"
+                  ,"ISACTIVE" AS "ACTIVE"
+            FROM AspNetRoles
+            ORDER BY "ID"
+            OFFSET :Offset ROWS FETCH NEXT :PageSize ROWS ONLY
+            """;
     }
 }

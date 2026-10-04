@@ -1,8 +1,8 @@
 using AdaskoTheBeAsT.Identity.Dapper.IntegrationTest.Common;
 using AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest;
 using AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Identity;
-using Reqnroll;
 using Microsoft.Data.Sqlite;
+using Reqnroll;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Steps;
 
@@ -31,23 +31,23 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
     }
 
     [Given("I have configured SQLite RoleStore without normalized and Guid id")]
-    public Task GivenIHaveConfiguredRoleStoreWithoutNormalizedAndGuidId() => ResetRoleStoreScenarioAsync();
+    public Task GivenIHaveConfiguredRoleStoreWithoutNormalizedAndGuidIdAsync() => ResetRoleStoreScenarioAsync();
 
     [Given("I created roles for SQLite RoleStore")]
-    public Task GivenICreatedRolesForRoleStore(Table table) => CreateRolesFromTableAsync(table);
+    public Task GivenICreatedRolesForRoleStoreAsync(Table table) => CreateRolesFromTableAsync(table);
 
     [Given("I added role claims for SQLite RoleStore")]
-    public Task GivenIAddedRoleClaimsForRoleStore(Table table) => AddRoleClaimsFromTableAsync(table);
+    public Task GivenIAddedRoleClaimsForRoleStoreAsync(Table table) => AddRoleClaimsFromTableAsync(table);
 
     [When("I verify {string} on SQLite RoleStore without normalized and Guid id")]
-    public Task WhenIVerifyMethodOnRoleStoreWithoutNormalizedAndGuidId(string methodName) =>
+    public Task WhenIVerifyMethodOnRoleStoreWithoutNormalizedAndGuidIdAsync(string methodName) =>
         VerifyRoleStoreMethodAndRememberAsync(methodName);
 
     [When("I execute {string} on SQLite RoleStore")]
-    public Task WhenIExecuteMethodOnRoleStore(string methodName) => ExecuteRoleStoreMethodAsync(methodName);
+    public Task WhenIExecuteMethodOnRoleStoreAsync(string methodName) => ExecuteRoleStoreMethodAsync(methodName);
 
     [When("I execute {string} on SQLite RoleStore with parameters")]
-    public Task WhenIExecuteMethodOnRoleStoreWithParameters(string methodName, Table table) =>
+    public Task WhenIExecuteMethodOnRoleStoreWithParametersAsync(string methodName, Table table) =>
         ExecuteRoleStoreMethodAsync(methodName, table);
 
     [Then("the last identity result for SQLite RoleStore should be successful")]

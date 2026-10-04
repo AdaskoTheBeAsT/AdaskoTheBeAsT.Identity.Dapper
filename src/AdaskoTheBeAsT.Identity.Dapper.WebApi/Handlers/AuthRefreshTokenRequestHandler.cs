@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
@@ -16,31 +17,33 @@ public class AuthRefreshTokenRequestHandler
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserRoleClaimStore<ApplicationUser> _userRoleClaimStore;
     private readonly ITokenService _tokenService;
+    private readonly SignInManager<ApplicationUser> _signInManager;
 
     public AuthRefreshTokenRequestHandler(
         UserManager<ApplicationUser> userManager,
         IUserRoleClaimStore<ApplicationUser> userRoleClaimStore,
-        ITokenService tokenService)
+        ITokenService tokenService,
+        SignInManager<ApplicationUser> signInManager)
     {
         _userManager = userManager;
         _userRoleClaimStore = userRoleClaimStore;
         _tokenService = tokenService;
+        _signInManager = signInManager;
     }
 
     public async Task<Token> Handle(
         AuthRefreshTokenRequest request,
         CancellationToken cancellationToken)
     {
-        var refreshToken = _tokenService.GetRefreshToken(request.RefreshToken ?? string.Empty);
-        if (refreshToken == null)
+        cancellationToken.ThrowIfCancellationRequested();
+        var refreshToken = _tokenService.ConsumeRefreshToken(request.RefreshToken ?? string.Empty);
+        var user = await _userManager.FindByIdAsync(refreshToken.Subject ?? string.Empty).ConfigureAwait(continueOnCapturedContext: false);
+        if (user == null ||
+            !string.Equals(user.SecurityStamp, refreshToken.SecurityStamp, StringComparison.Ordinal) ||
+            !await _signInManager.CanSignInAsync(user).ConfigureAwait(continueOnCapturedContext: false) ||
+            (_userManager.SupportsUserLockout && await _userManager.IsLockedOutAsync(user).ConfigureAwait(continueOnCapturedContext: false)))
         {
             throw new InvalidRefreshTokenException();
-        }
-
-        var user = await _userManager.FindByNameAsync(refreshToken.Subject ?? string.Empty).ConfigureAwait(continueOnCapturedContext: false);
-        if (user == null)
-        {
-            throw new UserNotFoundException($"User {refreshToken.Subject} not found");
         }
 
         var roles = await _userManager.GetRolesAsync(user).ConfigureAwait(continueOnCapturedContext: false);

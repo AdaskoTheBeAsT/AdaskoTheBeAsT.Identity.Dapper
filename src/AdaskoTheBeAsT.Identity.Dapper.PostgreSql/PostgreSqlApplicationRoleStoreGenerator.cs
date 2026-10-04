@@ -29,17 +29,19 @@ public class PostgreSqlApplicationRoleStoreGenerator
         return sb.ToString();
     }
 
-    private void GenerateConstructor(StringBuilder sb)
+    private static void GenerateConstructor(StringBuilder sb)
     {
         sb.AppendLine(
-            @"        public ApplicationRoleStore(
-            IIdentityDbConnectionProvider<NpgsqlConnection> connectionProvider)
-            : base(
-                new IdentityErrorDescriber(),
-                connectionProvider,
-                new IdentityRoleSql(),
-                new IdentityRoleClaimSql())
-        {
-        }");
+            """
+                    public ApplicationRoleStore(
+                        IIdentityDbConnectionProvider<NpgsqlConnection> connectionProvider)
+                        : base(
+                            new IdentityErrorDescriber(),
+                            connectionProvider,
+                            new IdentityRoleSql(),
+                            new IdentityRoleClaimSql())
+                    {
+                    }
+            """);
     }
 }

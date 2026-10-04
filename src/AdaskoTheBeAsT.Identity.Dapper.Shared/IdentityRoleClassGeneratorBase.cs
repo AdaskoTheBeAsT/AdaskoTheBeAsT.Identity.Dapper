@@ -13,16 +13,19 @@ public abstract class IdentityRoleClassGeneratorBase
         IdentityDapperConfiguration config,
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
+        config = config.ForGeneration("IdentityRole", Provider, propertyColumnTypeTriples);
         var sb = new StringBuilder();
-        GenerateUsing(sb, config.KeyTypeName);
+        GenerateSqlUsing(sb);
         GenerateNamespaceStart(sb, config.NamespaceName);
-        GenerateClassStart(sb, "IdentityRoleSql", "IIdentityRoleSql");
+        GenerateSqlClassStart(sb, "IdentityRoleSql", "IIdentityRoleConcurrencySql, IIdentityRolePagingSql");
         GenerateCreateSql(sb, config, propertyColumnTypeTriples);
         GenerateUpdateSql(sb, config, propertyColumnTypeTriples);
         GenerateDeleteSql(sb, config);
         GenerateFindByIdSql(sb, config, propertyColumnTypeTriples);
         GenerateFindByNameSql(sb, config, propertyColumnTypeTriples);
         GenerateGetRolesSql(sb, config, propertyColumnTypeTriples);
+        sb.AppendLine();
+        sb.Append("        public string GetRolesPageSql { get; } =\r\n            ").Append(RawStringLiteral.Format(Sql(config, propertyColumnTypeTriples).GetPage())).Append(';').AppendLine();
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
@@ -61,9 +64,7 @@ public abstract class IdentityRoleClassGeneratorBase
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityRoleCreateSql(config, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $@"        public string CreateSql {{ get; }} =
-            @""{content}"";");
+        sb.Append("        public string CreateSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -72,10 +73,11 @@ public abstract class IdentityRoleClassGeneratorBase
         IdentityDapperConfiguration config,
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityRoleUpdateSql(config, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $@"        public string UpdateSql {{ get; }} =
-            @""{content}"";");
+        var content = AddConcurrencyPredicate(
+            ProcessIdentityRoleUpdateSql(config, propertyColumnTypeTriples),
+            config,
+            "OriginalConcurrencyStamp");
+        sb.Append("        public string UpdateSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -83,10 +85,9 @@ public abstract class IdentityRoleClassGeneratorBase
         StringBuilder sb,
         IdentityDapperConfiguration config)
     {
-        var content = ProcessIdentityRoleDeleteSql(config);
-        sb.AppendLine(
-            $@"        public string DeleteSql {{ get; }} =
-            @""{content}"";");
+        var content = AddConcurrencyPredicate(
+            ProcessIdentityRoleDeleteSql(config), config, "ConcurrencyStamp");
+        sb.Append("        public string DeleteSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -96,9 +97,7 @@ public abstract class IdentityRoleClassGeneratorBase
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityRoleFindByIdSql(config, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $@"        public string FindByIdSql {{ get; }} =
-            @""{content}"";");
+        sb.Append("        public string FindByIdSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -108,9 +107,7 @@ public abstract class IdentityRoleClassGeneratorBase
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityRoleFindByNameSql(config, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $@"        public string FindByNameSql {{ get; }} =
-            @""{content}"";");
+        sb.Append("        public string FindByNameSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
         sb.AppendLine();
     }
 
@@ -120,8 +117,6 @@ public abstract class IdentityRoleClassGeneratorBase
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
         var content = ProcessIdentityRoleGetRolesSql(config, propertyColumnTypeTriples);
-        sb.AppendLine(
-            $@"        public string GetRolesSql {{ get; }} =
-            @""{content}"";");
+        sb.Append("        public string GetRolesSql { get; } =\r\n            ").Append(RawStringLiteral.Format(content)).Append(';').AppendLine();
     }
 }

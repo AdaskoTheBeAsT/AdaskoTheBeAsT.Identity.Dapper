@@ -354,3 +354,5 @@ MigrationBackup/
 
 .dotcover/*
 !.dotcover/.gitkeep
+/plan_astra.md
+/plan_postgresql.md

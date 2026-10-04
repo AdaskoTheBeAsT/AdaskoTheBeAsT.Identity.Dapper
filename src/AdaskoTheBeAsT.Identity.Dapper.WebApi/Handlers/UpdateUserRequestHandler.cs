@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity;
-using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
@@ -13,12 +12,10 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
 public class UpdateUserRequestHandler : IRequestHandler<UpdateUserRequest, IdentityResult>
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IMapper _mapper;
 
-    public UpdateUserRequestHandler(UserManager<ApplicationUser> userManager, IMapper mapper)
+    public UpdateUserRequestHandler(UserManager<ApplicationUser> userManager)
     {
         _userManager = userManager;
-        _mapper = mapper;
     }
 
     public async Task<IdentityResult> Handle(UpdateUserRequest request, CancellationToken cancellationToken)
@@ -34,9 +31,18 @@ public class UpdateUserRequestHandler : IRequestHandler<UpdateUserRequest, Ident
             return IdentityResult.Failed(new IdentityError { Description = "User not found" });
         }
 
-        _mapper.Map(request, user);
+        if (request.UserName != null)
+        {
+            user.UserName = request.UserName;
+        }
+
         var result = await _userManager.UpdateAsync(user).ConfigureAwait(continueOnCapturedContext: false);
         if (!result.Succeeded)
+        {
+            return result;
+        }
+
+        if (request.Roles == null)
         {
             return result;
         }

@@ -41,6 +41,7 @@ public class SqliteIdentityHelper
             },
             StringComparer.OrdinalIgnoreCase);
 
+#pragma warning disable MA0051 // Method is too long
     public string GetInsertTemplate(
         string tableName,
         string keyTypeName,
@@ -52,23 +53,27 @@ public class SqliteIdentityHelper
             case "System.Guid":
                 if (insertOwnId)
                 {
-                    return $@"INSERT INTO {tableName}(
-    /**insert**/)
-VALUES(
-    /**values**/);
-SELECT @Id AS Id;";
+                    return $$"""
+                        INSERT INTO {{tableName}}(
+                            /**insert**/)
+                        VALUES(
+                            /**values**/);
+                        SELECT @Id AS Id;
+                        """;
                 }
 
-                return $@"WITH new_id AS (
-    SELECT lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || '4' || substr(hex(randomblob(2)), 2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)), 2) || '-' || hex(randomblob(6))) AS id
-)
-INSERT INTO {tableName}(
-    Id,
-    /**insert**/)
-VALUES(
-    (SELECT id FROM new_id),
-    /**values**/)
-RETURNING (SELECT id FROM new_id) AS Id;";
+                return $$"""
+                    WITH new_id AS (
+                        SELECT lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || '4' || substr(hex(randomblob(2)), 2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)), 2) || '-' || hex(randomblob(6))) AS id
+                    )
+                    INSERT INTO {{tableName}}(
+                        Id,
+                        /**insert**/)
+                    VALUES(
+                        (SELECT id FROM new_id),
+                        /**values**/)
+                    RETURNING (SELECT id FROM new_id) AS Id;
+                    """;
             case "int":
             case "Int32":
             case "System.Int32":
@@ -81,35 +86,42 @@ RETURNING (SELECT id FROM new_id) AS Id;";
             case "ulong":
             case "UInt64":
             case "USystem.Int64":
-                return $@"INSERT INTO {tableName}(
-/**insert**/)
-VALUES(
-/**values**/);
-SELECT LAST_INSERT_ROWID() AS Id;";
+                return $$"""
+                    INSERT INTO {{tableName}}(
+                    /**insert**/)
+                    VALUES(
+                    /**values**/);
+                    SELECT LAST_INSERT_ROWID() AS Id;
+                    """;
             case "string":
             case "String":
             case "System.String":
                 if (insertOwnId)
                 {
-                    return $@"INSERT INTO {tableName}(
-    /**insert**/)
-VALUES(
-    /**values**/);
-SELECT @Id AS Id;";
+                    return $$"""
+                        INSERT INTO {{tableName}}(
+                            /**insert**/)
+                        VALUES(
+                            /**values**/);
+                        SELECT @Id AS Id;
+                        """;
                 }
 
-                return $@"WITH new_id AS (
-    SELECT lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || '4' || substr(hex(randomblob(2)), 2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)), 2) || '-' || hex(randomblob(6))) AS id
-)
-INSERT INTO {tableName}(
-    Id,
-    /**insert**/)
-VALUES(
-    (SELECT id FROM new_id),
-    /**values**/)
-RETURNING (SELECT id FROM new_id) AS Id;";
+                return $$"""
+                    WITH new_id AS (
+                        SELECT lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || '4' || substr(hex(randomblob(2)), 2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)), 2) || '-' || hex(randomblob(6))) AS id
+                    )
+                    INSERT INTO {{tableName}}(
+                        Id,
+                        /**insert**/)
+                    VALUES(
+                        (SELECT id FROM new_id),
+                        /**values**/)
+                    RETURNING (SELECT id FROM new_id) AS Id;
+                    """;
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));
         }
     }
+#pragma warning restore MA0051
 }

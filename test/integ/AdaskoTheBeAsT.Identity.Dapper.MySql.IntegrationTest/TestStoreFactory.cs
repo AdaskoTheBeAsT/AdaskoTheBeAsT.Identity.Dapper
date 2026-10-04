@@ -1,7 +1,7 @@
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
-using MySql.Data.MySqlClient;
 using AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest.Identity;
 using AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest.TestCollections;
+using MySql.Data.MySqlClient;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest;
 

@@ -1,11 +1,10 @@
 using AdaskoTheBeAsT.Identity.Dapper.Attributes;
-using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Identity;
 
 [InsertOwnId]
 public class ApplicationUser
-    : IdentityUser<Guid>
+    : AuditedUser
 {
     public override string? NormalizedUserName
     {

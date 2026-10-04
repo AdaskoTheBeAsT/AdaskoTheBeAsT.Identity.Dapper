@@ -1,4 +1,4 @@
-﻿//HintName: PostgreSqlDateTimeOffsetTypeHandler.g.cs
+//HintName: PostgreSqlDateTimeOffsetTypeHandler.g.cs
 using System;
 using System.Data;
 using System.Globalization;

@@ -1,4 +1,4 @@
-﻿//HintName: ApplicationUserOnlyStore.g.cs
+//HintName: ApplicationUserOnlyStore.g.cs
 using System;
 using AdaskoTheBeAsT.Identity.Dapper;
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;

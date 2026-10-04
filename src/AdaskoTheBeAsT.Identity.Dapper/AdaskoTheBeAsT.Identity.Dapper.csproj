@@ -7,7 +7,7 @@
     <RepositoryType>github</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Description>Autogenerates Identity stores based on Dapper</Description>
-    <PackageVersion>4.0.0</PackageVersion>
+    <PackageVersion>5.0.0</PackageVersion>
     <Authors>Adam "AdaskoTheBeAsT" Pluciński</Authors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IncludeSymbols>true</IncludeSymbols>
@@ -19,14 +19,15 @@
     <Copyright>Adam "AdaskoTheBeAsT" Pluciński</Copyright>
     <PackageTags>Identity;Dapper;</PackageTags>
     <PackageReleaseNotes>
+      - 5.0.0 breaking release: regenerate stores for concurrency-aware writes and review custom property mappings. Migration guide: https://github.com/AdaskoTheBeAsT/AdaskoTheBeAsT.Identity.Dapper/blob/main/MIGRATION.md
       - first release
     </PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.72" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" PrivateAssets="all" />
+    <PackageReference Include="Dapper" Version="2.1.89" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.12" />
   </ItemGroup>
 
   <ItemGroup>

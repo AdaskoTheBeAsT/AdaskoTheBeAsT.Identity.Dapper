@@ -1,32 +1,35 @@
 ﻿//HintName: IdentityRoleClaimSql.g.cs
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
-
 namespace AdaskoTheBeAsT.Identity.Dapper.Sample
 {
-    public class IdentityRoleClaimSql
-        : IIdentityRoleClaimSql
+    public class IdentityRoleClaimSql : IIdentityRoleClaimSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO AspNetRoleClaims(
-[RoleId]
-,[ClaimType]
-,[ClaimValue])
-VALUES(
-@RoleId
-,@ClaimType
-,@ClaimValue);
-SELECT SCOPE_IDENTITY();";
+            """
+            INSERT INTO AspNetRoleClaims(
+                [RoleId]
+               ,[ClaimType]
+               ,[ClaimValue])
+            VALUES(
+                @RoleId
+               ,@ClaimType
+               ,@ClaimValue);
+            """;
 
         public string DeleteSql { get; } =
-            @"DELETE FROM AspNetRoleClaims
-WHERE RoleId=@RoleId
-  AND ClaimType=@ClaimType
-  AND ClaimValue=@ClaimValue;";
+            """
+            DELETE FROM AspNetRoleClaims
+            WHERE [RoleId]=@RoleId
+              AND [ClaimType]=@ClaimType
+              AND [ClaimValue]=@ClaimValue;
+            """;
 
         public string GetByRoleIdSql { get; } =
-            @"SELECT ClaimType AS Type,
-ClaimValue AS Value
-FROM AspNetRoleClaims
-WHERE RoleId=@Id;";
+            """
+            SELECT [ClaimType] AS [Type]
+                  ,[ClaimValue] AS [Value]
+            FROM AspNetRoleClaims
+            WHERE [RoleId]=@Id;
+            """;
     }
 }

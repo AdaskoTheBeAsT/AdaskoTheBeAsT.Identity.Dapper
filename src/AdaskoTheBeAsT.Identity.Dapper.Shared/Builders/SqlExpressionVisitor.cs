@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -55,7 +56,7 @@ public class SqlExpressionVisitor(char parameterPrefix)
         {
             Visit(node.Object);
             _sqlBuilder.Append(" LIKE ");
-            var parameterName = $"{parameterPrefix}p{_parameterIndex++}";
+            var parameterName = $"{parameterPrefix}p{(_parameterIndex++).ToString(CultureInfo.InvariantCulture)}";
             _sqlBuilder.Append(parameterName);
             _parameters[parameterName] = $"%{GetValue(node.Arguments[0])}%";
             return node;
@@ -74,7 +75,7 @@ public class SqlExpressionVisitor(char parameterPrefix)
 
     protected override Expression VisitBinary(BinaryExpression node)
     {
-        _sqlBuilder.Append("(");
+        _sqlBuilder.Append('(');
         Visit(node.Left);
 
         if (node.NodeType is ExpressionType.Equal or ExpressionType.NotEqual)
@@ -85,13 +86,13 @@ public class SqlExpressionVisitor(char parameterPrefix)
             }
             else
             {
-                _sqlBuilder.Append($" {GetSqlOperator(node.NodeType)} ");
+                _sqlBuilder.Append(' ').Append(GetSqlOperator(node.NodeType)).Append(' ');
                 Visit(node.Right);
             }
         }
         else
         {
-            _sqlBuilder.Append($" {GetSqlOperator(node.NodeType)} ");
+            _sqlBuilder.Append(' ').Append(GetSqlOperator(node.NodeType)).Append(' ');
             Visit(node.Right);
         }
 
@@ -110,7 +111,7 @@ public class SqlExpressionVisitor(char parameterPrefix)
         var constantValue = GetValue(node);
         if (constantValue != null)
         {
-            var parameterName = $"{parameterPrefix}p{_parameterIndex++}";
+            var parameterName = $"{parameterPrefix}p{(_parameterIndex++).ToString(CultureInfo.InvariantCulture)}";
             _sqlBuilder.Append(parameterName);
             _parameters[parameterName] = constantValue;
         }
@@ -130,7 +131,7 @@ public class SqlExpressionVisitor(char parameterPrefix)
         }
         else
         {
-            var parameterName = $"{parameterPrefix}p{_parameterIndex++}";
+            var parameterName = $"{parameterPrefix}p{(_parameterIndex++).ToString(CultureInfo.InvariantCulture)}";
             _sqlBuilder.Append(parameterName);
             _parameters[parameterName] = node.Value;
         }

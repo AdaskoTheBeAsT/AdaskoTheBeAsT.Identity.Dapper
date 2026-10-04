@@ -13,4 +13,7 @@ public class SrcGen
         : base(new OracleSourceGenerationHelper())
     {
     }
+
+    protected override bool IsSupportedPropertyType(ITypeSymbol type) =>
+        OracleTypeMapper.IsSupportedPropertyType(type.ToDisplayString());
 }
