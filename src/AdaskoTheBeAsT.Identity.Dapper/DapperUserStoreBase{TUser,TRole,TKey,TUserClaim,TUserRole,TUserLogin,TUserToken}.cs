@@ -44,7 +44,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     {
         IdentityUserRoleSql = identityUserRoleSql ?? throw new ArgumentNullException(nameof(identityUserRoleSql));
         IdentityRoleSql = identityRoleSql ?? throw new ArgumentNullException(nameof(identityRoleSql));
-        IdentityUserRoleClaimSql = identityUserRoleClaimSql ?? throw new ArgumentNullException(nameof(identityUserRoleClaimSql));
+        IdentityUserRoleClaimSql = identityUserRoleClaimSql ??
+                                   throw new ArgumentNullException(nameof(identityUserRoleClaimSql));
     }
 
     protected IIdentityUserRoleSql IdentityUserRoleSql { get; }
@@ -88,7 +89,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
 
-        var role = await FindRoleImplAsync(connection, roleName, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        var role = await FindRoleImplAsync(connection, roleName, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
         if (role == null)
         {
             throw new RoleNotFoundException($"Role {roleName} not found");
@@ -113,7 +115,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        var role = await FindRoleImplAsync(connection, roleName, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        var role = await FindRoleImplAsync(connection, roleName, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
         if (role == null)
         {
             throw new RoleNotFoundException($"Role {roleName} not found");
@@ -156,7 +159,8 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        var role = await FindRoleImplAsync(connection, roleName, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        var role = await FindRoleImplAsync(connection, roleName, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
         if (role == null)
         {
             throw new RoleNotFoundException($"Role {roleName} not found");
@@ -206,7 +210,9 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
     /// <param name="user">The associated user.</param>
     /// <param name="role">The associated role.</param>
     /// <returns></returns>
-    protected virtual TUserRole CreateUserRole(TUser user, TRole role)
+    protected virtual TUserRole CreateUserRole(
+        TUser user,
+        TRole role)
     {
         return new TUserRole
         {
@@ -219,9 +225,10 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         TDbConnection connection,
         string roleName,
         CancellationToken cancellationToken) =>
-        (await connection.QueryAsync<TUser>(
+        (await connection.QueryIdentityAsync<TUser>(
                 IdentityUserSql.GetUsersInRoleSql,
-                new { NormalizedName = roleName })
+                new { NormalizedName = roleName },
+                cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false))
         .AsList();
 
@@ -231,8 +238,10 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         TRole role,
         CancellationToken cancellationToken) =>
         await connection.ExecuteAsync(
-                IdentityUserRoleSql.CreateSql,
-                CreateUserRole(user, role))
+                new CommandDefinition(
+                    IdentityUserRoleSql.CreateSql,
+                    CreateUserRole(user, role),
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
 
     protected virtual async Task RemoveFromRoleImplAsync(
@@ -241,8 +250,10 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         TRole role,
         CancellationToken cancellationToken) =>
         await connection.ExecuteAsync(
-                IdentityUserRoleSql.DeleteSql,
-                CreateUserRole(user, role))
+                new CommandDefinition(
+                    IdentityUserRoleSql.DeleteSql,
+                    CreateUserRole(user, role),
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
 
     protected virtual async Task<IList<string>> GetRolesImplAsync(
@@ -250,8 +261,10 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         TUser user,
         CancellationToken cancellationToken) =>
         (await connection.QueryAsync<string>(
-                IdentityUserRoleSql.GetRoleNamesByUserIdSql,
-                new { UserId = user.Id })
+                new CommandDefinition(
+                    IdentityUserRoleSql.GetRoleNamesByUserIdSql,
+                    new { UserId = user.Id },
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false))
         .AsList();
 
@@ -261,8 +274,10 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         TRole role,
         CancellationToken cancellationToken) =>
         (await connection.QueryFirstOrDefaultAsync<int>(
-                IdentityUserRoleSql.GetCountSql,
-                CreateUserRole(user, role))
+                new CommandDefinition(
+                    IdentityUserRoleSql.GetCountSql,
+                    CreateUserRole(user, role),
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false)) > 0;
 
     protected virtual async Task<IList<Claim>> GetRoleClaimsImplAsync(
@@ -270,8 +285,10 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         TUser user,
         CancellationToken cancellationToken) =>
         (await connection.QueryAsync<Claim>(
-                IdentityUserRoleClaimSql.GetRoleClaimsByUserIdSql,
-                user)
+                new CommandDefinition(
+                    IdentityUserRoleClaimSql.GetRoleClaimsByUserIdSql,
+                    user,
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false))
         .AsList();
 
@@ -280,8 +297,10 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         TUser user,
         CancellationToken cancellationToken) =>
         (await connection.QueryAsync<Claim>(
-                IdentityUserRoleClaimSql.GetUserAndRoleClaimsByUserIdSql,
-                user)
+                new CommandDefinition(
+                    IdentityUserRoleClaimSql.GetUserAndRoleClaimsByUserIdSql,
+                    user,
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false))
         .AsList();
 
@@ -296,9 +315,10 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         TDbConnection connection,
         string roleName,
         CancellationToken cancellationToken) =>
-        await connection.QueryFirstOrDefaultAsync<TRole?>(
+        await connection.QueryIdentityFirstOrDefaultAsync<TRole>(
                 IdentityRoleSql.FindByNameSql,
-                new { NormalizedName = roleName })
+                new { NormalizedName = roleName },
+                cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
     /// <summary>
@@ -315,11 +335,13 @@ public class DapperUserStoreBase<TUser, TRole, TKey, TUserClaim, TUserRole, TUse
         TKey roleId,
         CancellationToken cancellationToken) =>
         await connection.QueryFirstOrDefaultAsync<TUserRole?>(
-                IdentityUserRoleSql.GetByUserIdRoleIdSql,
-                new
-                {
-                    UserId = userId,
-                    RoleId = roleId,
-                })
+                new CommandDefinition(
+                    IdentityUserRoleSql.GetByUserIdRoleIdSql,
+                    new
+                    {
+                        UserId = userId,
+                        RoleId = roleId,
+                    },
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
 }

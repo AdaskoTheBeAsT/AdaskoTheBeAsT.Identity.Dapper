@@ -112,8 +112,12 @@ public sealed class WithoutNormalizedAspNetIdentityGuidRoleStoreStepDefinitions
                 existingRole.Name = GetOptionalValue(table, row, "NewName") is { } newName
                     ? MakeScenarioUniqueValue(newName)
                     : existingRole.Name;
-                existingRole.ConcurrencyStamp = GetOptionalValue(table, row, "NewConcurrencyStamp") ?? existingRole.ConcurrencyStamp;
+                var originalStamp = existingRole.ConcurrencyStamp;
                 _lastIdentityResult = await store.UpdateAsync(existingRole, CancellationToken.None);
+                if (_lastIdentityResult.Succeeded)
+                {
+                    existingRole.ConcurrencyStamp.Should().NotBe(originalStamp);
+                }
                 if (!string.Equals(previousName, existingRole.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     _rolesByName.Remove(previousName);

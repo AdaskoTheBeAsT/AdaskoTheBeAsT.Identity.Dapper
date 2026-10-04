@@ -32,14 +32,16 @@ public class MySqlApplicationRoleStoreGenerator
     private void GenerateConstructor(StringBuilder sb)
     {
         sb.AppendLine(
-            @"        public ApplicationRoleStore(
-            IIdentityDbConnectionProvider<MySqlConnection> connectionProvider)
-            : base(
-                new IdentityErrorDescriber(),
-                connectionProvider,
-                new IdentityRoleSql(),
-                new IdentityRoleClaimSql())
-        {
-        }");
+            """
+                    public ApplicationRoleStore(
+                        IIdentityDbConnectionProvider<MySqlConnection> connectionProvider)
+                        : base(
+                            new IdentityErrorDescriber(),
+                            connectionProvider,
+                            new IdentityRoleSql(),
+                            new IdentityRoleClaimSql())
+                    {
+                    }
+            """);
     }
 }

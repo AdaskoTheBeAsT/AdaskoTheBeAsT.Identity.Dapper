@@ -65,29 +65,42 @@ public abstract class SourceGeneratorHelperBase
         SourceProductionContext context,
         Compilation compilation,
         IdentityDapperOptions options,
-        (string KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) generationInfo)
+        (string KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items, IList<INamedTypeSymbol> Types) generationInfo)
     {
-        var grouped = generationInfo
-            .Items
-            .GroupBy<(IPropertySymbol, string), INamedTypeSymbol>(
-                p => p.Item1.ContainingType,
-                SymbolEqualityComparer.Default);
-
         var set = new HashSet<string>(_entityNames, StringComparer.OrdinalIgnoreCase);
         var namespaceName = "EmptyNamespace";
 
         var schemaPart = GenerateSchemaPart(options.Schema);
         var attributeTypeSymbol = compilation.GetTypeByMetadataName("AdaskoTheBeAsT.Identity.Dapper.Attributes.InsertOwnIdAttribute");
+        var mappings = new Dictionary<string, IDictionary<string, string>>(StringComparer.Ordinal);
+        foreach (var type in generationInfo.Types)
+        {
+            var identityBase = type.BaseType;
+            while (identityBase != null && identityBase.ContainingNamespace.ToDisplayString() != "Microsoft.AspNetCore.Identity")
+            {
+                identityBase = identityBase.BaseType;
+            }
+
+            mappings[identityBase!.Name] = generationInfo.Items
+                .Where(p => SymbolEqualityComparer.Default.Equals(p.PropertySymbol.ContainingType, type) ||
+                    IdentityDapperSourceGeneratorBase.IsApplicationBase(p.PropertySymbol.ContainingType, type))
+                .ToDictionary(p => p.PropertySymbol.Name, p => p.ColumnName, StringComparer.Ordinal);
+        }
 
         var typePropertiesDict = new Dictionary<string, IList<PropertyColumnTypeTriple>>(StringComparer.OrdinalIgnoreCase);
         var userInsertOwnId = false;
         var roleInsertOwnId = false;
-        foreach (var group in grouped)
+        foreach (var type in generationInfo.Types)
         {
-            var baseTypeName = group.Key.BaseType?.Name ?? string.Empty;
-            namespaceName = group.Key.ContainingNamespace.ToDisplayString();
-            var insertOwnId = group.Key.GetAttributes()
-                .Any(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeTypeSymbol));
+            var baseType = type.BaseType;
+            while (baseType != null && baseType.ContainingNamespace.ToDisplayString() != "Microsoft.AspNetCore.Identity")
+            {
+                baseType = baseType.BaseType;
+            }
+
+            var baseTypeName = baseType?.Name ?? string.Empty;
+            namespaceName = type.ContainingNamespace.ToDisplayString();
+            var insertOwnId = HasAttribute(type, attributeTypeSymbol);
             if (insertOwnId)
             {
                 if (baseTypeName == nameof(IdentityUser))
@@ -106,8 +119,10 @@ public abstract class SourceGeneratorHelperBase
                 namespaceName,
                 schemaPart,
                 options.SkipNormalized,
-                insertOwnId);
-            var allProperties = ProcessClass(context, config, group.ToList());
+                insertOwnId) { Provider = Provider, ColumnMappings = mappings };
+            var allProperties = ProcessClass(context, config, generationInfo.Items
+                .Where(p => SymbolEqualityComparer.Default.Equals(p.PropertySymbol.ContainingType, type) ||
+                    IdentityDapperSourceGeneratorBase.IsApplicationBase(p.PropertySymbol.ContainingType, type)).ToList());
             typePropertiesDict[baseTypeName] = allProperties;
             set.Remove(baseTypeName);
         }
@@ -120,7 +135,7 @@ public abstract class SourceGeneratorHelperBase
                 namespaceName,
                 schemaPart,
                 options.SkipNormalized,
-                false);
+                false) { Provider = Provider, ColumnMappings = mappings };
             var allProperties = ProcessClass(
                 context,
                 config,
@@ -141,6 +156,21 @@ public abstract class SourceGeneratorHelperBase
     }
 
     protected abstract string GenerateSchemaPart(string dbSchema);
+
+    private static bool HasAttribute(INamedTypeSymbol type, INamedTypeSymbol? attributeType)
+    {
+        for (var current = type; current != null; current = current.BaseType)
+        {
+            if (current.GetAttributes().Any(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeType)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected virtual DatabaseProvider Provider => DatabaseProvider.SqlServer;
 
     protected abstract void GenerateAdditionalFiles(
         SourceProductionContext context,

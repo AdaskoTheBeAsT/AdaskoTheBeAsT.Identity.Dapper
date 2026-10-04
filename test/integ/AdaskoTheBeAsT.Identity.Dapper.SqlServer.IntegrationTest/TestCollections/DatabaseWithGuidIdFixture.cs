@@ -1,3 +1,4 @@
+using AdaskoTheBeAsT.Identity.Dapper.IntegrationTest.Common;
 using AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.Util;
 using DotNet.Testcontainers.Builders;
 using Microsoft.Data.SqlClient;
@@ -13,9 +14,9 @@ public sealed class DatabaseWithGuidIdFixture
         IDisposable
 {
     private const string DbName = "WithoutNormalizedAspNetIdentityGuid";
-    private readonly SemaphoreSlim _initializationLock = new(1, 1);
-    private bool _initialized;
+    private readonly FixtureResourceLifecycle _lifecycle;
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2213:Disposable fields should be disposed", Justification = "FixtureResourceLifecycle invokes CleanupAsync exactly once.")]
     private readonly MsSqlContainer _msSqlContainer
         = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest")
             .WithEnvironment("ACCEPT_EULA", "Y")
@@ -41,56 +42,31 @@ public sealed class DatabaseWithGuidIdFixture
 
     public DatabaseWithGuidIdFixture()
     {
+        _lifecycle = new FixtureResourceLifecycle(InitializeCoreAsync, CleanupAsync);
     }
 
     public string ConnectionString { get; set; } = string.Empty;
 
-    public async Task InitializeAsync()
+    public ValueTask InitializeAsync() => new(_lifecycle.InitializeAsync());
+
+    private async Task InitializeCoreAsync()
     {
-        if (_initialized)
+        await _msSqlContainer.StartAsync();
+        ConnectionString = _msSqlContainer.GetConnectionString();
+        await using var connection = new SqlConnection(ConnectionString);
+        await CreateDbAsync(connection);
+        var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(ConnectionString)
         {
-            return;
-        }
-
-        await _initializationLock.WaitAsync();
-        try
-        {
-            if (_initialized)
-            {
-                return;
-            }
-
-            await _msSqlContainer.StartAsync();
-            ConnectionString = _msSqlContainer.GetConnectionString();
-            await using var connection = new SqlConnection(ConnectionString);
-            await CreateDbAsync(connection);
-            var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(ConnectionString)
-            {
-                InitialCatalog = DbName,
-            };
-            ConnectionString = sqlConnectionStringBuilder.ConnectionString;
-            _initialized = true;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            throw;
-        }
-        finally
-        {
-            _initializationLock.Release();
-        }
+            InitialCatalog = DbName,
+        };
+        ConnectionString = sqlConnectionStringBuilder.ConnectionString;
     }
 
-    public async Task DisposeAsync()
-    {
-        await _msSqlContainer.DisposeAsync().AsTask();
-        _initializationLock.Dispose();
-    }
+    public ValueTask DisposeAsync() => _lifecycle.DisposeAsync();
 
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-    public void Dispose() => DisposeAsync().GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+    public void Dispose() => _lifecycle.Dispose();
+
+    private Task CleanupAsync() => _msSqlContainer.DisposeAsync().AsTask();
 
     private Task CreateDbAsync(SqlConnection connection)
     {

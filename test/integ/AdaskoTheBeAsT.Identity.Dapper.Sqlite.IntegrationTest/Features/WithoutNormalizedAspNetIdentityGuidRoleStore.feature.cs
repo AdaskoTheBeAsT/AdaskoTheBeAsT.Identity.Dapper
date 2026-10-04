@@ -17,21 +17,21 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Features
     
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "3.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class WithoutNormalizedAspNetIdentityGuidRoleStoreFeature : object, global::Xunit.IClassFixture<WithoutNormalizedAspNetIdentityGuidRoleStoreFeature.FixtureData>, global::Xunit.IAsyncLifetime
+    public partial class WithoutNormalizedAspNetIdentityGuidRoleStoreFeature : object, Xunit.IClassFixture<WithoutNormalizedAspNetIdentityGuidRoleStoreFeature.FixtureData>, Xunit.IAsyncLifetime
     {
         
         private global::Reqnroll.ITestRunner testRunner;
+        
+        private Xunit.ITestOutputHelper _testOutputHelper;
         
         private static string[] featureTags = ((string[])(null));
         
         private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "WithoutNormalizedAspNetIdentityGuidRoleStore", "A short summary of the feature", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
-        private global::Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
-        
 #line 1 "WithoutNormalizedAspNetIdentityGuidRoleStore.feature"
 #line hidden
         
-        public WithoutNormalizedAspNetIdentityGuidRoleStoreFeature(WithoutNormalizedAspNetIdentityGuidRoleStoreFeature.FixtureData fixtureData, global::Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public WithoutNormalizedAspNetIdentityGuidRoleStoreFeature(WithoutNormalizedAspNetIdentityGuidRoleStoreFeature.FixtureData fixtureData, Xunit.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
         }
@@ -90,7 +90,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Features
         public void ScenarioInitialize(global::Reqnroll.ScenarioInfo scenarioInfo, global::Reqnroll.RuleInfo ruleInfo)
         {
             testRunner.OnScenarioInitialize(scenarioInfo, ruleInfo);
-            testRunner.ScenarioContext.ScenarioContainer.RegisterInstanceAs<global::Xunit.Abstractions.ITestOutputHelper>(_testOutputHelper);
+            testRunner.ScenarioContext.ScenarioContainer.RegisterInstanceAs<Xunit.ITestOutputHelper>(_testOutputHelper);
         }
         
         public async global::System.Threading.Tasks.Task ScenarioStartAsync()
@@ -108,7 +108,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Features
             return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/WithoutNormalizedAspNetIdentityGuidRoleStore.feature.ndjson", 19);
         }
         
-        async global::System.Threading.Tasks.Task global::Xunit.IAsyncLifetime.InitializeAsync()
+        async System.Threading.Tasks.ValueTask Xunit.IAsyncLifetime.InitializeAsync()
         {
             try
             {
@@ -118,7 +118,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Features
             {
                 try
                 {
-                    ((global::Xunit.IAsyncLifetime)(this)).DisposeAsync();
+                    ((Xunit.IAsyncLifetime)(this)).DisposeAsync();
                 }
                 catch (System.Exception e2)
                 {
@@ -128,12 +128,12 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Features
             }
         }
         
-        async global::System.Threading.Tasks.Task global::Xunit.IAsyncLifetime.DisposeAsync()
+        async System.Threading.Tasks.ValueTask System.IAsyncDisposable.DisposeAsync()
         {
             await this.TestTearDownAsync();
         }
         
-        [global::Xunit.SkippableTheoryAttribute(DisplayName="Verify lightweight RoleStore method <method> without normalized and Guid id")]
+        [global::Xunit.TheoryAttribute(DisplayName="Verify lightweight RoleStore method <method> without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidRoleStore")]
         [global::Xunit.TraitAttribute("Description", "Verify lightweight RoleStore method <method> without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -183,7 +183,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Query Roles without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Query Roles without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidRoleStore")]
         [global::Xunit.TraitAttribute("Description", "Query Roles without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -234,7 +234,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Create role with CreateAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Create role with CreateAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidRoleStore")]
         [global::Xunit.TraitAttribute("Description", "Create role with CreateAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -283,7 +283,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Update role with UpdateAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Update role with UpdateAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidRoleStore")]
         [global::Xunit.TraitAttribute("Description", "Update role with UpdateAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -341,7 +341,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Delete role with DeleteAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Delete role with DeleteAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidRoleStore")]
         [global::Xunit.TraitAttribute("Description", "Delete role with DeleteAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -391,7 +391,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Find role with FindByIdAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Find role with FindByIdAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidRoleStore")]
         [global::Xunit.TraitAttribute("Description", "Find role with FindByIdAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -442,7 +442,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Find role with FindByNameAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Find role with FindByNameAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidRoleStore")]
         [global::Xunit.TraitAttribute("Description", "Find role with FindByNameAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -493,7 +493,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Get role claims with GetClaimsAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Get role claims with GetClaimsAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidRoleStore")]
         [global::Xunit.TraitAttribute("Description", "Get role claims with GetClaimsAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -564,7 +564,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Add role claim with AddClaimAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Add role claim with AddClaimAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidRoleStore")]
         [global::Xunit.TraitAttribute("Description", "Add role claim with AddClaimAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -621,7 +621,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Remove role claim with RemoveClaimAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Remove role claim with RemoveClaimAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidRoleStore")]
         [global::Xunit.TraitAttribute("Description", "Remove role claim with RemoveClaimAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -695,15 +695,15 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
         
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "3.0.0.0")]
         [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-        public class FixtureData : object, global::Xunit.IAsyncLifetime
+        public class FixtureData : object, Xunit.IAsyncLifetime
         {
             
-            async global::System.Threading.Tasks.Task global::Xunit.IAsyncLifetime.InitializeAsync()
+            async System.Threading.Tasks.ValueTask Xunit.IAsyncLifetime.InitializeAsync()
             {
                 await WithoutNormalizedAspNetIdentityGuidRoleStoreFeature.FeatureSetupAsync();
             }
             
-            async global::System.Threading.Tasks.Task global::Xunit.IAsyncLifetime.DisposeAsync()
+            async System.Threading.Tasks.ValueTask System.IAsyncDisposable.DisposeAsync()
             {
                 await WithoutNormalizedAspNetIdentityGuidRoleStoreFeature.FeatureTearDownAsync();
             }

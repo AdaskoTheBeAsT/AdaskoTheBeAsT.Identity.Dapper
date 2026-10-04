@@ -1,3 +1,4 @@
+using AdaskoTheBeAsT.Identity.Dapper.IntegrationTest.Common;
 using AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.Util;
 using DbUp;
 using DbUp.Oracle;
@@ -10,10 +11,9 @@ public sealed class DatabaseWithGuidIdFixture
     : IAsyncLifetime,
         IDisposable
 {
-    private const string DbName = "XEPDB1";
-    private readonly SemaphoreSlim _initializationLock = new(1, 1);
-    private bool _initialized;
+    private readonly FixtureResourceLifecycle _lifecycle;
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2213:Disposable fields should be disposed", Justification = "FixtureResourceLifecycle invokes CleanupAsync exactly once.")]
     private readonly OracleContainer _oracleContainer
         = new OracleBuilder("gvenzl/oracle-xe:21.3.0-slim-faststart")
             .WithPassword("TestPass123!")
@@ -24,69 +24,63 @@ public sealed class DatabaseWithGuidIdFixture
 
     public DatabaseWithGuidIdFixture()
     {
+        _lifecycle = new FixtureResourceLifecycle(InitializeCoreAsync, CleanupAsync);
         OracleDapperConfig.ConfigureTypeHandlers();
-        //OracleDapperConfig.ConfigureTypeHandlers(BooleanAs.Char);
     }
 
     public string ConnectionString { get; set; } = string.Empty;
 
     public TestOutputHelperAdapter TestOutputHelperAdapter { get; } = new();
 
-    public async Task InitializeAsync()
+    public ValueTask InitializeAsync() => new(_lifecycle.InitializeAsync());
+
+    private async Task InitializeCoreAsync()
     {
-        if (_initialized)
-        {
-            return;
-        }
-
-        await _initializationLock.WaitAsync();
-        try
-        {
-            if (_initialized)
-            {
-                return;
-            }
-
-            await _oracleContainer.StartAsync();
-            var path = Path.Combine("Scripts", "WithoutNormalizedAspNetIdentityGuid.sql");
+        await _oracleContainer.StartAsync();
+        var path = Path.Combine("Scripts", "WithoutNormalizedAspNetIdentityGuid.sql");
 #pragma warning disable SCS0018
-            var content = await File.ReadAllTextAsync(path);
+        var content = await File.ReadAllTextAsync(path);
+        content += """
+
+            /
+            ALTER TABLE ASPNETUSERS ADD (CreatedOn TIMESTAMP NULL, DisplayLabel VARCHAR2(256) NULL)
+            /
+            ALTER TABLE ASPNETUSERCLAIMS ADD AuditSource VARCHAR2(256)
+            /
+            ALTER TABLE ASPNETROLECLAIMS ADD AuditSource VARCHAR2(256)
+            /
+            ALTER TABLE ASPNETUSERLOGINS ADD AuditSource VARCHAR2(256)
+            /
+            ALTER TABLE ASPNETUSERROLES ADD AuditSource VARCHAR2(256)
+            /
+            ALTER TABLE ASPNETUSERTOKENS ADD AuditSource VARCHAR2(256)
+            /
+            """;
 #pragma warning restore SCS0018
-            ConnectionString = _oracleContainer.GetConnectionString();
-            var upgradeEngineBuilder = DeployChanges.To
-                .OracleDatabaseWithDefaultDelimiter(ConnectionString)
-                .WithScript(
-                    "Script_000001_Init", content)
-                .LogTo(TestOutputHelperAdapter);
+        ConnectionString = _oracleContainer.GetConnectionString();
+        var upgradeEngineBuilder = DeployChanges.To
+            .OracleDatabaseWithDefaultDelimiter(ConnectionString)
+            .WithScript(
+                "Script_000001_Init", content)
+            .LogTo(TestOutputHelperAdapter);
 
-            var upgradeEngine = upgradeEngineBuilder.Build();
+        var upgradeEngine = upgradeEngineBuilder.Build();
 
-            var result = upgradeEngine.PerformUpgrade();
+        var result = upgradeEngine.PerformUpgrade();
 
-            var msg = result.Successful
-                ? "Successfully ran migrations"
-                : $"Failed to run migrations {result?.Error}";
-            TestOutputHelperAdapter.LogInformation($"final {msg}");
-            _initialized = true;
-        }
-        catch (Exception ex)
+        var msg = result.Successful
+            ? "Successfully ran migrations"
+            : $"Failed to run migrations {result.Error}";
+        TestOutputHelperAdapter.LogInformation($"final {msg}");
+        if (!result.Successful)
         {
-            Console.WriteLine(ex);
-            throw;
-        }
-        finally
-        {
-            _initializationLock.Release();
+            throw new InvalidOperationException("Oracle test schema initialization failed.", result.Error);
         }
     }
 
-    public async Task DisposeAsync()
-    {
-        await _oracleContainer.DisposeAsync().AsTask();
-        _initializationLock.Dispose();
-    }
+    public ValueTask DisposeAsync() => _lifecycle.DisposeAsync();
 
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-    public void Dispose() => DisposeAsync().GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+    public void Dispose() => _lifecycle.Dispose();
+
+    private Task CleanupAsync() => _oracleContainer.DisposeAsync().AsTask();
 }

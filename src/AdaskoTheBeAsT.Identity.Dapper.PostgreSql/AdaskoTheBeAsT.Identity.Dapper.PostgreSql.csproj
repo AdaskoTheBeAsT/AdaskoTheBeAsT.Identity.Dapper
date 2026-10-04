@@ -9,7 +9,7 @@
     <RepositoryType>github</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Description>Autogenerates Identity stores based on Dapper</Description>
-    <PackageVersion>4.0.0</PackageVersion>
+    <PackageVersion>5.0.0</PackageVersion>
     <Authors>Adam "AdaskoTheBeAsT" Pluciński</Authors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IncludeSymbols>true</IncludeSymbols>
@@ -21,6 +21,7 @@
     <Copyright>Adam "AdaskoTheBeAsT" Pluciński</Copyright>
     <PackageTags>Identity;Dapper;PostgreSQL</PackageTags>
     <PackageReleaseNotes>
+      - 5.0.0 breaking release: regenerate stores for concurrency-aware writes; generated code requires C# 11 or later. Migration guide: https://github.com/AdaskoTheBeAsT/AdaskoTheBeAsT.Identity.Dapper/blob/main/MIGRATION.md
       - 1.3.2 change escape character for PostgreSQL in other places
       - 1.3.1 change escape character for PostgreSQL
       - 1.3.0 first release
@@ -29,12 +30,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.72" PrivateAssets="all" GeneratePathProperty="true" />
-    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" PrivateAssets="all" GeneratePathProperty="true" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" PrivateAssets="all" ExcludeAssets="runtime">
+    <PackageReference Include="Dapper" Version="2.1.89" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.89" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" PrivateAssets="all" ExcludeAssets="runtime">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.12" PrivateAssets="all" GeneratePathProperty="true" />
   </ItemGroup>
 
   <PropertyGroup>

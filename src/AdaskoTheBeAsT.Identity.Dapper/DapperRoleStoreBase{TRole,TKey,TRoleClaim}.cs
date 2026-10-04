@@ -14,7 +14,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper;
 
 public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
     : IRoleClaimStore<TRole>,
-        IQueryableRoleStore<TRole>
+        IQueryableRoleStore<TRole>,
+        IPagedRoleStore<TRole>
     where TRole : IdentityRole<TKey>
     where TKey : IEquatable<TKey>
     where TRoleClaim : IdentityRoleClaim<TKey>, new()
@@ -50,9 +51,34 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
     {
         get
         {
+            ThrowIfDisposed();
             using var connection = ConnectionProvider.Provide();
-            return connection.Query<TRole>(IdentityRoleSql.GetRolesSql).AsQueryable();
+            return connection.QueryIdentity<TRole>(IdentityRoleSql.GetRolesSql).AsQueryable();
         }
+    }
+
+    public virtual async Task<IList<TRole>> GetRolesPageAsync(
+        int offset,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        IdentityPaging.Validate(offset, pageSize);
+        if (IdentityRoleSql is not IIdentityRolePagingSql sql)
+        {
+            throw new NotSupportedException("Regenerate the Identity stores to enable database-side role paging.");
+        }
+
+        using var connection = ConnectionProvider.Provide();
+        return (await connection.QueryIdentityAsync<TRole>(
+            sql.GetRolesPageSql,
+            new
+            {
+                Offset = offset,
+                PageSize = pageSize
+            },
+            cancellationToken).ConfigureAwait(false)).AsList();
     }
 
     protected IIdentityDbConnectionProvider<TDbConnection> ConnectionProvider { get; }
@@ -79,6 +105,10 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
             await CreateImplAsync(connection, role, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             return IdentityResult.Success;
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             return IdentityResult.Failed(
@@ -102,11 +132,20 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
+        EnsureConcurrencySql();
         try
         {
             using var connection = ConnectionProvider.Provide();
             await UpdateImplAsync(connection, role, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             return IdentityResult.Success;
+        }
+        catch (DBConcurrencyException)
+        {
+            return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -131,11 +170,20 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
+        EnsureConcurrencySql();
         try
         {
             using var connection = ConnectionProvider.Provide();
             await DeleteImplAsync(connection, role, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             return IdentityResult.Success;
+        }
+        catch (DBConcurrencyException)
+        {
+            return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -154,7 +202,9 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
     /// <param name="role">The role whose ID should be returned.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that contains the ID of the role.</returns>
-    public virtual Task<string> GetRoleIdAsync(TRole role, CancellationToken cancellationToken)
+    public virtual Task<string> GetRoleIdAsync(
+        TRole role,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -166,13 +216,24 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
         return Task.FromResult(ConvertIdToString(role.Id) ?? string.Empty);
     }
 
+    private void EnsureConcurrencySql()
+    {
+        if (IdentityRoleSql is not IIdentityRoleConcurrencySql)
+        {
+            throw new NotSupportedException(
+                "Regenerate the Identity stores before updating or deleting roles: concurrency-capable SQL is required.");
+        }
+    }
+
     /// <summary>
     /// Gets the name of a role from the store as an asynchronous operation.
     /// </summary>
     /// <param name="role">The role whose name should be returned.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that contains the name of the role.</returns>
-    public virtual Task<string?> GetRoleNameAsync(TRole role, CancellationToken cancellationToken)
+    public virtual Task<string?> GetRoleNameAsync(
+        TRole role,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -191,7 +252,10 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
     /// <param name="roleName">The name of the role.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual Task SetRoleNameAsync(TRole role, string? roleName, CancellationToken cancellationToken)
+    public virtual Task SetRoleNameAsync(
+        TRole role,
+        string? roleName,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -265,7 +329,9 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
     /// <param name="role">The role whose normalized name should be retrieved.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that contains the name of the role.</returns>
-    public virtual Task<string?> GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken)
+    public virtual Task<string?> GetNormalizedRoleNameAsync(
+        TRole role,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -284,7 +350,10 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
     /// <param name="normalizedName">The normalized name to set.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual Task SetNormalizedRoleNameAsync(TRole role, string? normalizedName, CancellationToken cancellationToken)
+    public virtual Task SetNormalizedRoleNameAsync(
+        TRole role,
+        string? normalizedName,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -319,7 +388,8 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        return await GetClaimsImplAsync(connection, role.Id, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        return await GetClaimsImplAsync(connection, role.Id, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
     }
 
     /// <summary>
@@ -377,7 +447,9 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
     /// <param name="role">The associated role.</param>
     /// <param name="claim">The associated claim.</param>
     /// <returns>The role claim entity.</returns>
-    protected virtual TRoleClaim CreateRoleClaim(TRole role, Claim claim)
+    protected virtual TRoleClaim CreateRoleClaim(
+        TRole role,
+        Claim claim)
     {
         return new TRoleClaim
         {
@@ -400,37 +472,71 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
         TRole role,
         CancellationToken cancellationToken)
     {
-        role.Id = await connection.QueryFirstAsync<TKey>(IdentityRoleSql.CreateSql, role).ConfigureAwait(continueOnCapturedContext: false);
+        role.Id = await connection.QueryFirstAsync<TKey>(
+            new CommandDefinition(
+                IdentityRoleSql.CreateSql,
+                role,
+                cancellationToken: cancellationToken)).ConfigureAwait(continueOnCapturedContext: false);
     }
 
     protected virtual async Task UpdateImplAsync(
         TDbConnection connection,
         TRole role,
-        CancellationToken cancellationToken) =>
-        await connection.ExecuteAsync(IdentityRoleSql.UpdateSql, role).ConfigureAwait(continueOnCapturedContext: false);
+        CancellationToken cancellationToken)
+    {
+        var stamp = Guid.NewGuid().ToString();
+        var parameters = new DynamicParameters(role);
+        parameters.Add("OriginalConcurrencyStamp", role.ConcurrencyStamp);
+        parameters.Add("ConcurrencyStamp", stamp);
+        var affected = await connection.ExecuteAsync(
+                new CommandDefinition(
+                    IdentityRoleSql.UpdateSql,
+                    parameters,
+                    cancellationToken: cancellationToken))
+            .ConfigureAwait(continueOnCapturedContext: false);
+        if (affected != 1)
+        {
+            throw new DBConcurrencyException();
+        }
+
+        role.ConcurrencyStamp = stamp;
+    }
 
     protected virtual async Task DeleteImplAsync(
         TDbConnection connection,
         TRole role,
-        CancellationToken cancellationToken) =>
-        await connection.ExecuteAsync(IdentityRoleSql.DeleteSql, role).ConfigureAwait(continueOnCapturedContext: false);
+        CancellationToken cancellationToken)
+    {
+        var affected = await connection.ExecuteAsync(
+                new CommandDefinition(
+                    IdentityRoleSql.DeleteSql,
+                    role,
+                    cancellationToken: cancellationToken))
+            .ConfigureAwait(continueOnCapturedContext: false);
+        if (affected != 1)
+        {
+            throw new DBConcurrencyException();
+        }
+    }
 
     protected virtual async Task<TRole?> FindByIdImplAsync(
         TDbConnection connection,
         TKey? roleId,
         CancellationToken cancellationToken) =>
-        await connection.QueryFirstOrDefaultAsync<TRole?>(
+        await connection.QueryIdentityFirstOrDefaultAsync<TRole>(
                 IdentityRoleSql.FindByIdSql,
-                new { Id = roleId })
+                new { Id = roleId },
+                cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
     protected virtual async Task<TRole?> FindByNameImplAsync(
         TDbConnection connection,
         string normalizedRoleName,
         CancellationToken cancellationToken) =>
-        await connection.QueryFirstOrDefaultAsync<TRole?>(
+        await connection.QueryIdentityFirstOrDefaultAsync<TRole>(
                 IdentityRoleSql.FindByNameSql,
-                new { NormalizedName = normalizedRoleName })
+                new { NormalizedName = normalizedRoleName },
+                cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
     protected virtual async Task<IList<Claim>> GetClaimsImplAsync(
@@ -438,8 +544,10 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
         TKey roleId,
         CancellationToken cancellationToken) =>
         (await connection.QueryAsync<Claim>(
-                IdentityRoleClaimSql.GetByRoleIdSql,
-                new { Id = roleId })
+                new CommandDefinition(
+                    IdentityRoleClaimSql.GetByRoleIdSql,
+                    new { Id = roleId },
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false))
         .AsList();
 
@@ -448,8 +556,10 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
         TRoleClaim roleClaim,
         CancellationToken cancellationToken) =>
         await connection.ExecuteAsync(
-                IdentityRoleClaimSql.CreateSql,
-                roleClaim)
+                new CommandDefinition(
+                    IdentityRoleClaimSql.CreateSql,
+                    roleClaim,
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
 
     protected virtual async Task RemoveClaimImplAsync(
@@ -457,7 +567,9 @@ public class DapperRoleStoreBase<TRole, TKey, TRoleClaim, TDbConnection>
         TRoleClaim roleClaim,
         CancellationToken cancellationToken) =>
         await connection.ExecuteAsync(
-                IdentityRoleClaimSql.DeleteSql,
-                roleClaim)
+                new CommandDefinition(
+                    IdentityRoleClaimSql.DeleteSql,
+                    roleClaim,
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
 }

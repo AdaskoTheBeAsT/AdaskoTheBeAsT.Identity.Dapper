@@ -1,0 +1,71 @@
+name: Quality
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-unit:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build managed solution
+        run: dotnet build WithoutSqlDb.slnf -c Release -p:GeneratePackageOnBuild=false -p:ReqnrollUseIntermediateOutputPathForCodeBehind=true
+      - name: Run generator tests
+        env:
+          DiffEngine_Disabled: 'true'
+        run: |
+          foreach ($provider in @('SqlServer', 'PostgreSql', 'Oracle', 'MySql', 'Sqlite')) {
+            dotnet test --project "test/unit/AdaskoTheBeAsT.Identity.Dapper.$provider.Test/AdaskoTheBeAsT.Identity.Dapper.$provider.Test.csproj" -c Release -p:GeneratePackageOnBuild=false --report-xunit-trx --results-directory TestResults
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+      - name: Run API authorization tests
+        run: dotnet test --project test/api/AdaskoTheBeAsT.Identity.Dapper.WebApi.Test/AdaskoTheBeAsT.Identity.Dapper.WebApi.Test.csproj -c Release -p:GeneratePackageOnBuild=false --report-xunit-trx --results-directory TestResults
+      - name: Verify clean package consumer
+        run: ./eng/package-smoke.ps1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-results-${{ matrix.os }}
+          path: TestResults
+          if-no-files-found: ignore
+
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        provider: [SqlServer, PostgreSql, MySql, Oracle, Sqlite]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Run provider contract tests
+        run: dotnet test --project test/integ/AdaskoTheBeAsT.Identity.Dapper.${{ matrix.provider }}.IntegrationTest/AdaskoTheBeAsT.Identity.Dapper.${{ matrix.provider }}.IntegrationTest.csproj -c Release -p:GeneratePackageOnBuild=false --report-xunit-trx --results-directory TestResults
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-results-${{ matrix.provider }}
+          path: TestResults
+          if-no-files-found: ignore

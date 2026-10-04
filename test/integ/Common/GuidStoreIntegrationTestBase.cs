@@ -280,9 +280,10 @@ public abstract class GuidStoreIntegrationTestBase<
         var updatedRoleName = $"role-updated-{Guid.NewGuid():N}";
         await store.SetRoleNameAsync(role, updatedRoleName, CancellationToken.None);
         await store.SetNormalizedRoleNameAsync(role, $"normalized-{Guid.NewGuid():N}", CancellationToken.None);
-        role.ConcurrencyStamp = Guid.NewGuid().ToString("N");
+        var originalStamp = role.ConcurrencyStamp;
 
         AssertSucceeded(await store.UpdateAsync(role, CancellationToken.None));
+        role.ConcurrencyStamp.Should().NotBe(originalStamp);
 
         var roleById = await store.FindByIdAsync(roleId, CancellationToken.None);
         roleById.Should().NotBeNull();

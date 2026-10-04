@@ -14,7 +14,7 @@
     <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_SkipNormalized" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(CompilerGeneratedFilesOutputPath)' != ''">
     <!-- Exclude the output of source generators from the compilation -->
     <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
   </ItemGroup>
@@ -24,10 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.72" />
-    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" />
+    <PackageReference Include="Dapper" Version="2.1.89" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.89" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.12" />
   </ItemGroup>
 
   <ItemGroup>

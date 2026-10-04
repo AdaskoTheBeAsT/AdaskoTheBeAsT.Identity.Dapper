@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
-using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Exceptions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -13,8 +12,6 @@ namespace AdaskoTheBeAsT.Identity.Dapper.SourceGenerator;
 
 public abstract class IdentityDapperSourceGeneratorBase
 {
-    private const string Column = "Column";
-    private const string DefaultStringTypeName = "string";
     private readonly ISourceGeneratorHelper _sourceGeneratorHelper;
 
     protected IdentityDapperSourceGeneratorBase(
@@ -84,16 +81,12 @@ public abstract class IdentityDapperSourceGeneratorBase
     }
 
     private static bool IsSyntaxTargetForGeneration(SyntaxNode node)
-        => node is ClassDeclarationSyntax { BaseList: { } } classDeclaration
-           && classDeclaration.BaseList.Types
-               .Select(t => t.Type).Where(
-                   t => t is GenericNameSyntax { Identifier.Value: { } })
-               .Cast<GenericNameSyntax>()
-               .Any(
-                   s => s.Identifier.ValueText.StartsWith(nameof(Identity), StringComparison.OrdinalIgnoreCase));
+        => node is ClassDeclarationSyntax { BaseList: { } };
 
     private static ClassDeclarationSyntax? GetSemanticTargetForGeneration(GeneratorSyntaxContext context) =>
         context.Node as ClassDeclarationSyntax;
+
+    protected virtual bool IsSupportedPropertyType(ITypeSymbol type) => true;
 
     private void Execute(
         SourceProductionContext context,
@@ -115,26 +108,29 @@ public abstract class IdentityDapperSourceGeneratorBase
             context,
             compilation,
             distinctClassDeclarations,
+            options,
             context.CancellationToken);
 
         // If there were errors in the EnumDeclarationSyntax, we won't create an
         // EnumToGenerate for it, so make sure we have something to generate
-        if (classesToGenerate.Items.Count > 0)
+        if (classesToGenerate.Types.Count > 0)
         {
             // generate the source code and add it to the output
             _sourceGeneratorHelper.GenerateCode(context, compilation, options, classesToGenerate);
         }
     }
 
-    private (string KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items) GetTypesToGenerate(
+    private (string KeyTypeName, IList<(IPropertySymbol PropertySymbol, string ColumnName)> Items, IList<INamedTypeSymbol> Types) GetTypesToGenerate(
         SourceProductionContext context,
         Compilation compilation,
         IEnumerable<ClassDeclarationSyntax>? distinctClassDeclarations,
+        IdentityDapperOptions options,
         CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
 
         var identityPropertiesSymbol = new List<(IPropertySymbol PropertySymbol, string ColumnName)>();
+        var identityTypes = new List<INamedTypeSymbol>();
         if (distinctClassDeclarations == null)
         {
             context.ReportDiagnostic(
@@ -148,98 +144,173 @@ public abstract class IdentityDapperSourceGeneratorBase
                         isEnabledByDefault: true),
                     location: null,
                     Array.Empty<object>()));
-            return (string.Empty, identityPropertiesSymbol);
+            return (string.Empty, identityPropertiesSymbol, identityTypes);
         }
 
         var keyTypeName = string.Empty;
 
-        foreach (var classDeclarationSyntax in distinctClassDeclarations)
+        var candidates = new List<INamedTypeSymbol>();
+        foreach (var declaration in distinctClassDeclarations)
         {
-            var semanticModel = compilation.GetSemanticModel(classDeclarationSyntax.SyntaxTree);
-            if (classDeclarationSyntax.BaseList is null)
+            var model = compilation.GetSemanticModel(declaration.SyntaxTree);
+            if (model.GetDeclaredSymbol(declaration) is INamedTypeSymbol candidate &&
+                !candidate.IsAbstract && candidate.TypeParameters.Length == 0 &&
+                FindIdentityBase(candidate) != null &&
+                !candidates.Any(t => SymbolEqualityComparer.Default.Equals(t, candidate)))
             {
-                continue;
+                candidates.Add(candidate);
+            }
+        }
+
+        var selected = candidates.Where(t => !candidates.Any(other => IsApplicationBase(t, other))).ToList();
+        foreach (var group in selected.GroupBy(t => FindIdentityBase(t)!.Name))
+        {
+            if (group.Count() > 1)
+            {
+                ReportModelError(context, "ATBID103", "Multiple application entities for the same Identity type",
+                    group.Last().DeclaringSyntaxReferences[0].GetSyntax(token));
+                return (string.Empty, identityPropertiesSymbol, identityTypes);
+            }
+        }
+
+        foreach (var type in selected)
+        {
+            token.ThrowIfCancellationRequested();
+            var classDeclarationSyntax = type.DeclaringSyntaxReferences[0].GetSyntax(token);
+            var identityClass = FindIdentityBase(type)!;
+            var key = identityClass.TypeArguments[0];
+            var localKeyType = key.SpecialType switch
+            {
+                SpecialType.System_String => "string",
+                SpecialType.System_Int32 => "int",
+                SpecialType.System_Int64 => "long",
+                _ when key.ToDisplayString() == "System.Guid" => "Guid",
+                _ => string.Empty,
+            };
+            if (string.IsNullOrEmpty(localKeyType))
+            {
+                ReportModelError(context, "ATBID101", "Unsupported Identity key type", classDeclarationSyntax);
+                return (string.Empty, new List<(IPropertySymbol, string)>(), new List<INamedTypeSymbol>());
             }
 
-            var types = classDeclarationSyntax.BaseList
-                .Types
-                .Select(t => t.Type);
-
-            var identityClass = types.Where(
-                    t => t is GenericNameSyntax { Identifier.Value: { } })
-                .Cast<GenericNameSyntax>()
-                .FirstOrDefault(
-                    s => s.Identifier.ValueText.StartsWith(nameof(Identity), StringComparison.OrdinalIgnoreCase));
-
-            if (identityClass == null)
-            {
-                continue;
-            }
-
-            var localKeyType = ProcessIdentityClass(semanticModel, classDeclarationSyntax, identityClass, identityPropertiesSymbol);
             if (!string.IsNullOrEmpty(keyTypeName) &&
                 !keyTypeName.Equals(localKeyType, StringComparison.OrdinalIgnoreCase))
             {
-                throw new KeyTypeNotSameException();
+                ReportModelError(context, "ATBID102", "Identity entities must use the same key type", classDeclarationSyntax);
+                return (string.Empty, new List<(IPropertySymbol, string)>(), new List<INamedTypeSymbol>());
             }
 
             keyTypeName = localKeyType;
-        }
-
-        return (keyTypeName, identityPropertiesSymbol);
-    }
-
-    private string ProcessIdentityClass(
-        SemanticModel semanticModel,
-        ClassDeclarationSyntax classDeclarationSyntax,
-        GenericNameSyntax identityClass,
-        IList<(IPropertySymbol PropertySymbol, string ColumnName)> identityPropertiesSymbol)
-    {
-        var keyTypeName = identityClass.TypeArgumentList.Arguments.Any()
-            ? (identityClass.TypeArgumentList.Arguments[0] as IdentifierNameSyntax)?.Identifier.ValueText ??
-              DefaultStringTypeName
-            : DefaultStringTypeName;
-
-        foreach (var memberDeclarationSyntax in classDeclarationSyntax.Members)
-        {
-            if (memberDeclarationSyntax is not PropertyDeclarationSyntax propertyDeclarationSyntax)
+            identityTypes.Add(type);
+            var identityProperties = identityClass.GetMembers().OfType<IPropertySymbol>()
+                .ToDictionary(p => p.Name, StringComparer.Ordinal);
+            var names = new HashSet<string>(StringComparer.Ordinal);
+            for (var current = type; current != null &&
+                current.ContainingNamespace.ToDisplayString() != "Microsoft.AspNetCore.Identity"; current = current.BaseType)
             {
-                continue;
-            }
+                foreach (var member in current.GetMembers().Where(m => !m.IsImplicitlyDeclared))
+                {
+                    // Resolve shadowing before filtering accessors or attributes. Otherwise an
+                    // excluded derived member can accidentally resurrect a mapped base property.
+                    if (!names.Add(member.Name)) continue;
+                    var location = member.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax(token) ?? classDeclarationSyntax;
+                    var isIdentityProperty = identityProperties.TryGetValue(member.Name, out var identityProperty);
+                    if (isIdentityProperty &&
+                        (member is not IPropertySymbol overridingProperty || !Overrides(overridingProperty, identityProperty!) ||
+                         overridingProperty.GetMethod?.DeclaredAccessibility != Accessibility.Public ||
+                         overridingProperty.SetMethod?.DeclaredAccessibility != Accessibility.Public))
+                    {
+                        ReportModelError(context, "ATBID106",
+                            $"Identity property '{member.Name}' requires a compatible public override with public get and set accessors; hiding is not supported", location);
+                        return (string.Empty, new List<(IPropertySymbol, string)>(), new List<INamedTypeSymbol>());
+                    }
 
-            if (semanticModel.GetDeclaredSymbol(propertyDeclarationSyntax) is not IPropertySymbol propertySymbol)
-            {
-                continue;
-            }
+                    if (member is not IPropertySymbol property || property.IsIndexer) continue;
+                    var ignored = FindPropertyAttribute(property, "System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute") != null;
+                    if (ignored && isIdentityProperty && IsRequiredIdentityProperty(identityClass.Name, property.Name, options))
+                    {
+                        ReportModelError(context, "ATBID105",
+                            $"Required Identity property '{property.Name}' cannot be excluded with [NotMapped]", location);
+                        return (string.Empty, new List<(IPropertySymbol, string)>(), new List<INamedTypeSymbol>());
+                    }
 
-            ProcessProperty(identityPropertiesSymbol, propertySymbol, propertyDeclarationSyntax);
+                    if (property.IsStatic || property.DeclaredAccessibility != Accessibility.Public ||
+                        property.GetMethod?.DeclaredAccessibility != Accessibility.Public ||
+                        property.SetMethod?.DeclaredAccessibility != Accessibility.Public)
+                    {
+                        continue;
+                    }
+
+                    var column = FindPropertyAttribute(property, "System.ComponentModel.DataAnnotations.Schema.ColumnAttribute");
+                    var columnName = column?.ConstructorArguments.FirstOrDefault().Value as string ?? property.Name;
+                    if (!ignored && !IsSupportedPropertyType(property.Type))
+                    {
+                        ReportModelError(context, "ATBID104", $"Unsupported mapped property type: {property.Type}",
+                            property.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax(token) ?? classDeclarationSyntax);
+                        return (string.Empty, new List<(IPropertySymbol, string)>(), new List<INamedTypeSymbol>());
+                    }
+
+                    identityPropertiesSymbol.Add((property, ignored ? string.Empty : columnName));
+                }
+            }
         }
 
-        return keyTypeName;
+        return (keyTypeName, identityPropertiesSymbol, identityTypes);
     }
 
-    private void ProcessProperty(
-        IList<(IPropertySymbol PropertySymbol, string ColumnName)> identityPropertiesSymbol,
-        IPropertySymbol propertySymbol,
-        PropertyDeclarationSyntax propertyDeclarationSyntax)
+    private static bool Overrides(IPropertySymbol property, IPropertySymbol identityProperty)
     {
-        var columnName = propertySymbol.Name;
-
-        var attributeListSyntax = propertyDeclarationSyntax
-            .AttributeLists
-            .FirstOrDefault(
-                al => al.Attributes.Any(
-                    a => (a.Name as IdentifierNameSyntax)?.Identifier.ValueText.Contains(Column) ??
-                         false));
-
-        var attributes = attributeListSyntax?.Attributes.FirstOrDefault(
-            a => (a.Name as IdentifierNameSyntax)?.Identifier.ValueText.Contains(Column) ?? false);
-        if (attributes?.ArgumentList?.Arguments.FirstOrDefault()?.Expression is LiteralExpressionSyntax
-            literalExpressionSyntax)
+        for (var current = property.OverriddenProperty; current != null; current = current.OverriddenProperty)
         {
-            columnName = literalExpressionSyntax.Token.ValueText;
+            if (SymbolEqualityComparer.Default.Equals(current, identityProperty)) return true;
         }
 
-        identityPropertiesSymbol.Add((PropertySymbol: propertySymbol, ColumnName: columnName));
+        return false;
     }
+
+    private static bool IsRequiredIdentityProperty(string entity, string property, IdentityDapperOptions options) =>
+        !(options.SkipNormalized && property is "NormalizedUserName" or "NormalizedEmail" or "NormalizedName") &&
+        !(property == "Id" && entity is "IdentityUserClaim" or "IdentityRoleClaim");
+
+    private static INamedTypeSymbol? FindIdentityBase(INamedTypeSymbol type)
+    {
+        for (var current = type.BaseType; current != null; current = current.BaseType)
+        {
+            if (current.ContainingNamespace.ToDisplayString() == "Microsoft.AspNetCore.Identity" &&
+                current.IsGenericType && current.TypeArguments.Length == 1 &&
+                current.Name is "IdentityUser" or "IdentityRole" or "IdentityUserClaim" or
+                    "IdentityRoleClaim" or "IdentityUserLogin" or "IdentityUserRole" or "IdentityUserToken")
+            {
+                return current;
+            }
+        }
+
+        return null;
+    }
+
+    internal static bool IsApplicationBase(INamedTypeSymbol possibleBase, INamedTypeSymbol type)
+    {
+        for (var current = type.BaseType; current != null; current = current.BaseType)
+        {
+            if (SymbolEqualityComparer.Default.Equals(current, possibleBase)) return true;
+        }
+
+        return false;
+    }
+
+    private static AttributeData? FindPropertyAttribute(IPropertySymbol property, string name)
+    {
+        for (var current = property; current != null; current = current.OverriddenProperty)
+        {
+            var attribute = current.GetAttributes().FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == name);
+            if (attribute != null) return attribute;
+        }
+
+        return null;
+    }
+
+    private static void ReportModelError(SourceProductionContext context, string id, string message, SyntaxNode node) =>
+        context.ReportDiagnostic(Diagnostic.Create(
+            new DiagnosticDescriptor(id, message, message, "Code generation", DiagnosticSeverity.Error, true),
+            node.GetLocation()));
 }

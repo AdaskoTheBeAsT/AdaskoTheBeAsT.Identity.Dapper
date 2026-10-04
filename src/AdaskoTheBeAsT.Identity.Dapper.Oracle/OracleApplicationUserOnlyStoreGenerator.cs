@@ -41,10 +41,9 @@ public class OracleApplicationUserOnlyStoreGenerator
         OracleApplicationUserHelper.GenerateFindByIdImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateFindByNameImpl(sb);
         OracleApplicationUserHelper.GenerateGetClaimsImpl(sb, keyTypeName);
-        OracleApplicationUserHelper.GenerateAddClaimsImpl(sb, keyTypeName);
+        OracleApplicationUserHelper.GenerateClaimBatchParameters(sb, keyTypeName, typePropertiesDict["IdentityUserClaim"], options);
         OracleApplicationUserHelper.GenerateReplaceClaimImpl(sb, keyTypeName);
-        OracleApplicationUserHelper.GenerateRemoveClaimsImpl(sb, keyTypeName);
-        OracleApplicationUserHelper.GenerateAddLoginImpl(sb, keyTypeName);
+        OracleApplicationUserHelper.GenerateAddLoginImpl(sb, keyTypeName, typePropertiesDict["IdentityUserLogin"], options);
         OracleApplicationUserHelper.GenerateRemoveLoginImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateGetLoginsImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateFindUserImpl(sb, keyTypeName);
@@ -53,7 +52,8 @@ public class OracleApplicationUserOnlyStoreGenerator
         OracleApplicationUserHelper.GenerateFindByEmailImpl(sb);
         OracleApplicationUserHelper.GenerateGetUsersForClaimImpl(sb);
         OracleApplicationUserHelper.GenerateFindTokenImpl(sb, keyTypeName);
-        OracleApplicationUserHelper.GenerateAddUserTokenImpl(sb, keyTypeName);
+        OracleApplicationUserHelper.GenerateAddUserTokenImpl(sb, keyTypeName, typePropertiesDict["IdentityUserToken"], options);
+        OracleApplicationUserHelper.GenerateTryUpdateTokenImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateRemoveUserTokenImpl(sb, keyTypeName);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
@@ -63,31 +63,36 @@ public class OracleApplicationUserOnlyStoreGenerator
     private void GenerateConstructor(StringBuilder sb)
     {
         sb.AppendLine(
-            @"        public ApplicationUserOnlyStore(
-            IIdentityDbConnectionProvider<OracleConnection> connectionProvider)
-            : base(
-                new IdentityErrorDescriber(),
-                connectionProvider,
-                new IdentityUserSql(),
-                new IdentityUserClaimSql(),
-                new IdentityUserLoginSql(),
-                new IdentityUserTokenSql())
-        {
-        }");
+            """
+                    public ApplicationUserOnlyStore(
+                        IIdentityDbConnectionProvider<OracleConnection> connectionProvider)
+                        : base(
+                            new IdentityErrorDescriber(),
+                            connectionProvider,
+                            new IdentityUserSql(),
+                            new IdentityUserClaimSql(),
+                            new IdentityUserLoginSql(),
+                            new IdentityUserTokenSql())
+                    {
+                    }
+            """);
         sb.AppendLine();
     }
 
     private void GenerateUsersProperty(StringBuilder sb)
     {
         sb.AppendLine(
-            @"        public override IQueryable<ApplicationUser> Users
-        {
-            get
-            {
-                using var connection = ConnectionProvider.Provide();
-                return connection.Query<ApplicationUser>(NormalizeSql(IdentityUserSql.GetUsersSql)).AsQueryable();
-            }
-        }");
+            """
+                    public override IQueryable<ApplicationUser> Users
+                    {
+                        get
+                        {
+                            ThrowIfDisposed();
+                            using var connection = ConnectionProvider.Provide();
+                            return connection.QueryIdentity<ApplicationUser>(NormalizeSql(IdentityUserSql.GetUsersSql)).AsQueryable();
+                        }
+                    }
+            """);
         sb.AppendLine();
     }
 }

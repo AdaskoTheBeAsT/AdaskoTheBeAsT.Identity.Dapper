@@ -1,28 +1,30 @@
 ﻿//HintName: IdentityUserRoleClaimSql.g.cs
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
-
 namespace AdaskoTheBeAsT.Identity.Dapper.Sample
 {
-    public class IdentityUserRoleClaimSql
-        : IIdentityUserRoleClaimSql
+    public class IdentityUserRoleClaimSql : IIdentityUserRoleClaimSql
     {
         public string GetRoleClaimsByUserIdSql { get; } =
-            @"SELECT DISTINCT rc.ClaimType AS ""Type"",
-         rc.ClaimValue AS ""Value""
-FROM AspNetRoleClaims rc
-INNER JOIN AspNetUserRoles ur ON ur.RoleId=rc.RoleId
-WHERE ur.UserId=@Id;";
+            """
+            SELECT DISTINCT rc."claimtype" AS "Type"
+                           ,rc."claimvalue" AS "Value"
+            FROM aspnetroleclaims rc INNER JOIN
+                 aspnetuserroles ur ON ur."roleid"=rc."roleid"
+            WHERE ur."userid"=@Id;
+            """;
 
         public string GetUserAndRoleClaimsByUserIdSql { get; } =
-            @"SELECT uc.ClaimType AS ""Type""
-      ,uc.ClaimValue AS ""Value""
-FROM AspNetUserClaims uc
-WHERE uc.userid=@Id
-UNION
-SELECT rc.ClaimType AS ""Type""
-      ,rc.ClaimValue AS ""Value""
-FROM AspNetRoleClaims rc
-INNER JOIN AspNetUserRoles ur ON ur.RoleId=rc.RoleId
-WHERE ur.userid=@Id";
+            """
+            SELECT uc."claimtype" AS "Type"
+                  ,uc."claimvalue" AS "Value"
+            FROM aspnetuserclaims uc
+            WHERE uc."userid"=@Id
+            UNION
+            SELECT rc."claimtype" AS "Type"
+                  ,rc."claimvalue" AS "Value"
+            FROM aspnetroleclaims rc INNER JOIN
+                 aspnetuserroles ur ON ur."roleid"=rc."roleid"
+            WHERE ur."userid"=@Id;
+            """;
     }
 }

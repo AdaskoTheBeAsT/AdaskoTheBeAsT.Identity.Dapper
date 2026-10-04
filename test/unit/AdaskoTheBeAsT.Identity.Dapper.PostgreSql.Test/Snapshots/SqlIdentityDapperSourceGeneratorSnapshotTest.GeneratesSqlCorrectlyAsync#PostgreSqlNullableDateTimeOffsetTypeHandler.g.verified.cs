@@ -1,4 +1,4 @@
-﻿//HintName: PostgreSqlNullableDateTimeOffsetTypeHandler.g.cs
+//HintName: PostgreSqlNullableDateTimeOffsetTypeHandler.g.cs
 using System;
 using System.Data;
 using System.Globalization;

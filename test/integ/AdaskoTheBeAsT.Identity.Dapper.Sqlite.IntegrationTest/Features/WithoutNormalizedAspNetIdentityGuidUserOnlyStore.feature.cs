@@ -17,21 +17,21 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Features
     
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "3.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class WithoutNormalizedAspNetIdentityGuidUserOnlyStoreFeature : object, global::Xunit.IClassFixture<WithoutNormalizedAspNetIdentityGuidUserOnlyStoreFeature.FixtureData>, global::Xunit.IAsyncLifetime
+    public partial class WithoutNormalizedAspNetIdentityGuidUserOnlyStoreFeature : object, Xunit.IClassFixture<WithoutNormalizedAspNetIdentityGuidUserOnlyStoreFeature.FixtureData>, Xunit.IAsyncLifetime
     {
         
         private global::Reqnroll.ITestRunner testRunner;
+        
+        private Xunit.ITestOutputHelper _testOutputHelper;
         
         private static string[] featureTags = ((string[])(null));
         
         private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore", "A short summary of the feature", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
-        private global::Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
-        
 #line 1 "WithoutNormalizedAspNetIdentityGuidUserOnlyStore.feature"
 #line hidden
         
-        public WithoutNormalizedAspNetIdentityGuidUserOnlyStoreFeature(WithoutNormalizedAspNetIdentityGuidUserOnlyStoreFeature.FixtureData fixtureData, global::Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public WithoutNormalizedAspNetIdentityGuidUserOnlyStoreFeature(WithoutNormalizedAspNetIdentityGuidUserOnlyStoreFeature.FixtureData fixtureData, Xunit.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
         }
@@ -90,7 +90,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Features
         public void ScenarioInitialize(global::Reqnroll.ScenarioInfo scenarioInfo, global::Reqnroll.RuleInfo ruleInfo)
         {
             testRunner.OnScenarioInitialize(scenarioInfo, ruleInfo);
-            testRunner.ScenarioContext.ScenarioContainer.RegisterInstanceAs<global::Xunit.Abstractions.ITestOutputHelper>(_testOutputHelper);
+            testRunner.ScenarioContext.ScenarioContainer.RegisterInstanceAs<Xunit.ITestOutputHelper>(_testOutputHelper);
         }
         
         public async global::System.Threading.Tasks.Task ScenarioStartAsync()
@@ -108,7 +108,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Features
             return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/WithoutNormalizedAspNetIdentityGuidUserOnlyStore.feature.ndjson", 58);
         }
         
-        async global::System.Threading.Tasks.Task global::Xunit.IAsyncLifetime.InitializeAsync()
+        async System.Threading.Tasks.ValueTask Xunit.IAsyncLifetime.InitializeAsync()
         {
             try
             {
@@ -118,7 +118,7 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Features
             {
                 try
                 {
-                    ((global::Xunit.IAsyncLifetime)(this)).DisposeAsync();
+                    ((Xunit.IAsyncLifetime)(this)).DisposeAsync();
                 }
                 catch (System.Exception e2)
                 {
@@ -128,12 +128,12 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Features
             }
         }
         
-        async global::System.Threading.Tasks.Task global::Xunit.IAsyncLifetime.DisposeAsync()
+        async System.Threading.Tasks.ValueTask System.IAsyncDisposable.DisposeAsync()
         {
             await this.TestTearDownAsync();
         }
         
-        [global::Xunit.SkippableTheoryAttribute(DisplayName="Verify lightweight UserOnlyStore method <method> without normalized and Guid id")]
+        [global::Xunit.TheoryAttribute(DisplayName="Verify lightweight UserOnlyStore method <method> without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Verify lightweight UserOnlyStore method <method> without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -206,7 +206,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Query Users with Users without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Query Users with Users without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Query Users with Users without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -273,7 +273,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Create user with CreateAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Create user with CreateAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Create user with CreateAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -324,7 +324,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Update user with UpdateAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Update user with UpdateAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Update user with UpdateAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -386,7 +386,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Delete user with DeleteAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Delete user with DeleteAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Delete user with DeleteAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -438,7 +438,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Find user with FindByIdAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Find user with FindByIdAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Find user with FindByIdAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -493,7 +493,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Find user with FindByNameAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Find user with FindByNameAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Find user with FindByNameAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -548,7 +548,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Find user with FindByEmailAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Find user with FindByEmailAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Find user with FindByEmailAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -603,7 +603,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Get user claims with GetClaimsAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Get user claims with GetClaimsAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Get user claims with GetClaimsAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -676,7 +676,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Add user claims with AddClaimsAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Add user claims with AddClaimsAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Add user claims with AddClaimsAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -742,7 +742,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Replace user claim with ReplaceClaimAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Replace user claim with ReplaceClaimAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Replace user claim with ReplaceClaimAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -816,7 +816,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Remove user claims with RemoveClaimsAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Remove user claims with RemoveClaimsAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Remove user claims with RemoveClaimsAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -883,7 +883,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Add user login with AddLoginAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Add user login with AddLoginAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Add user login with AddLoginAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -946,7 +946,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Remove user login with RemoveLoginAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Remove user login with RemoveLoginAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Remove user login with RemoveLoginAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -1016,7 +1016,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Get user logins with GetLoginsAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Get user logins with GetLoginsAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Get user logins with GetLoginsAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -1086,7 +1086,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Find user by login with FindByLoginAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Find user by login with FindByLoginAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Find user by login with FindByLoginAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -1156,7 +1156,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Increment access failed count with IncrementAccessFailedCountAsync without normal" +
+        [global::Xunit.FactAttribute(DisplayName="Increment access failed count with IncrementAccessFailedCountAsync without normal" +
             "ized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Increment access failed count with IncrementAccessFailedCountAsync without normal" +
@@ -1220,7 +1220,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Get users for claim with GetUsersForClaimAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Get users for claim with GetUsersForClaimAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Get users for claim with GetUsersForClaimAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -1288,7 +1288,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Set token with SetTokenAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Set token with SetTokenAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Set token with SetTokenAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -1343,7 +1343,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Remove token with RemoveTokenAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Remove token with RemoveTokenAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Remove token with RemoveTokenAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -1409,7 +1409,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Get token with GetTokenAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Get token with GetTokenAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Get token with GetTokenAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -1475,7 +1475,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Set authenticator key with SetAuthenticatorKeyAsync without normalized and Guid i" +
+        [global::Xunit.FactAttribute(DisplayName="Set authenticator key with SetAuthenticatorKeyAsync without normalized and Guid i" +
             "d")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Set authenticator key with SetAuthenticatorKeyAsync without normalized and Guid i" +
@@ -1529,7 +1529,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Get authenticator key with GetAuthenticatorKeyAsync without normalized and Guid i" +
+        [global::Xunit.FactAttribute(DisplayName="Get authenticator key with GetAuthenticatorKeyAsync without normalized and Guid i" +
             "d")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Get authenticator key with GetAuthenticatorKeyAsync without normalized and Guid i" +
@@ -1590,7 +1590,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Count recovery codes with CountCodesAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Count recovery codes with CountCodesAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Count recovery codes with CountCodesAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -1648,7 +1648,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Replace recovery codes with ReplaceCodesAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Replace recovery codes with ReplaceCodesAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Replace recovery codes with ReplaceCodesAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -1699,7 +1699,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             await this.ScenarioCleanupAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Redeem recovery code with RedeemCodeAsync without normalized and Guid id")]
+        [global::Xunit.FactAttribute(DisplayName="Redeem recovery code with RedeemCodeAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("FeatureTitle", "WithoutNormalizedAspNetIdentityGuidUserOnlyStore")]
         [global::Xunit.TraitAttribute("Description", "Redeem recovery code with RedeemCodeAsync without normalized and Guid id")]
         [global::Xunit.TraitAttribute("Category", "xunit:collection[DatabaseWithGuidIdCollection]")]
@@ -1761,15 +1761,15 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
         
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "3.0.0.0")]
         [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-        public class FixtureData : object, global::Xunit.IAsyncLifetime
+        public class FixtureData : object, Xunit.IAsyncLifetime
         {
             
-            async global::System.Threading.Tasks.Task global::Xunit.IAsyncLifetime.InitializeAsync()
+            async System.Threading.Tasks.ValueTask Xunit.IAsyncLifetime.InitializeAsync()
             {
                 await WithoutNormalizedAspNetIdentityGuidUserOnlyStoreFeature.FeatureSetupAsync();
             }
             
-            async global::System.Threading.Tasks.Task global::Xunit.IAsyncLifetime.DisposeAsync()
+            async System.Threading.Tasks.ValueTask System.IAsyncDisposable.DisposeAsync()
             {
                 await WithoutNormalizedAspNetIdentityGuidUserOnlyStoreFeature.FeatureTearDownAsync();
             }

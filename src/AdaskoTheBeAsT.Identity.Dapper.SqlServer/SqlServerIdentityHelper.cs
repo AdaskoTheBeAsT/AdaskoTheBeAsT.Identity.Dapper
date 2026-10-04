@@ -46,58 +46,59 @@ public class SqlServerIdentityHelper
         string keyTypeName,
         bool insertOwnId)
     {
+        if (insertOwnId)
+        {
+            return $$"""
+                INSERT INTO {{tableName}}(
+                /**insert**/)
+                OUTPUT inserted.Id
+                VALUES(
+                /**values**/);
+                """;
+        }
+
         switch (keyTypeName)
         {
             case "Guid":
             case "System.Guid":
-                return $@"INSERT INTO {tableName}(
-/**insert**/)
-OUTPUT inserted.Id
-VALUES(
-/**values**/);";
+            case "string":
+            case "String":
+            case "System.String":
+                // Let the Id column default generate the key (NEWSEQUENTIALID in the GUID database projects).
+                // String-key tables also need an Id default unless InsertOwnId is enabled.
+                return $$"""
+                    INSERT INTO {{tableName}}(
+                    /**insert**/)
+                    OUTPUT inserted.Id
+                    VALUES(
+                    /**values**/);
+                    """;
             case "int":
             case "Int32":
             case "System.Int32":
             case "uint":
             case "UInt32":
             case "System.UInt32":
-                return $@"INSERT INTO {tableName}(
-/**insert**/)
-VALUES(
-/**values**/);
-SELECT CAST(SCOPE_IDENTITY() AS INT);";
+                return $$"""
+                    INSERT INTO {{tableName}}(
+                    /**insert**/)
+                    VALUES(
+                    /**values**/);
+                    SELECT CAST(SCOPE_IDENTITY() AS INT);
+                    """;
             case "long":
             case "Int64":
             case "System.Int64":
             case "ulong":
             case "UInt64":
             case "USystem.Int64":
-                return $@"INSERT INTO {tableName}(
-/**insert**/)
-VALUES(
-/**values**/);
-SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
-            case "string":
-            case "String":
-            case "System.String":
-                if (insertOwnId)
-                {
-                    return $@"INSERT INTO {tableName}(
-/**insert**/)
-VALUES(
-/**values**/);
-SELECT @Id;";
-                }
-
-                return $@"DECLARE @Id uniqueidentifier;
-SET @Id = NEWSEQUENTIALID();
-INSERT INTO {tableName}(
-Id,
-/**insert**/)
-OUTPUT inserted.Id
-VALUES(
-CAST(@Id AS VARCHAR(36)),
-/**values**/);";
+                return $$"""
+                    INSERT INTO {{tableName}}(
+                    /**insert**/)
+                    VALUES(
+                    /**values**/);
+                    SELECT CAST(SCOPE_IDENTITY() AS BIGINT);
+                    """;
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));
         }

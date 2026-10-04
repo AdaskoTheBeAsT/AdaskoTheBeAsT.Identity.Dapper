@@ -8,6 +8,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
 public class MySqlSourceGenerationHelper
     : SourceGeneratorHelperBase
 {
+    protected override DatabaseProvider Provider => DatabaseProvider.MySql;
+
     public MySqlSourceGenerationHelper()
         : base(
             new MySqlIdentityRoleClassGenerator(),
@@ -47,9 +49,9 @@ public class MySqlSourceGenerationHelper
             using System;
             using System.Data;
             using Dapper;
-            
+
             namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
-            
+
             public class MySqlGuidTypeHandler
                 : SqlMapper.TypeHandler<Guid>
             {
@@ -59,16 +61,16 @@ public class MySqlSourceGenerationHelper
                     {
                         return Guid.Empty;
                     }
-            
+
                     var asString = value?.ToString();
                     if (Guid.TryParse(asString, out var guid))
                     {
                         return guid;
                     }
-            
+
                     return Guid.Empty;
                 }
-            
+
                 public override void SetValue(
                     IDbDataParameter parameter,
                     Guid value)
@@ -102,16 +104,16 @@ public class MySqlSourceGenerationHelper
                     {
                         return null;
                     }
-            
+
                     var asString = value?.ToString();
                     if (Guid.TryParse(asString, out var guid))
                     {
                         return guid;
                     }
-            
+
                     return null;
                 }
-            
+
                 public override void SetValue(
                     IDbDataParameter parameter,
                     Guid? value)
@@ -121,7 +123,7 @@ public class MySqlSourceGenerationHelper
                         parameter.Value = DBNull.Value;
                         return;
                     }
-            
+
                     parameter.Value = value!.Value.ToString("D");
                 }
             }
@@ -140,9 +142,9 @@ public class MySqlSourceGenerationHelper
             using System.Data;
             using System.Globalization;
             using Dapper;
-            
+
             namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
-            
+
             public class MySqlDateTimeOffsetTypeHandler
                 : SqlMapper.TypeHandler<DateTimeOffset>
             {
@@ -173,7 +175,7 @@ public class MySqlSourceGenerationHelper
                                 DateTimeKind.Utc)),
                     };
                 }
-            
+
                 public override void SetValue(
                     IDbDataParameter parameter,
                     DateTimeOffset value)
@@ -250,9 +252,9 @@ public class MySqlSourceGenerationHelper
             """
             using System;
             using Dapper;
-            
+
             namespace AdaskoTheBeAsT.Identity.Dapper.MySql;
-            
+
             public static class MySqlDapperConfig
             {
                 public static void ConfigureTypeHandlers()

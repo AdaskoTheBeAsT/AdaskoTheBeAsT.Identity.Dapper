@@ -13,19 +13,26 @@ public abstract class IdentityUserClassGeneratorBase
         IdentityDapperConfiguration config,
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
+        config = config.ForGeneration("IdentityUser", Provider, propertyColumnTypeTriples);
         var sb = new StringBuilder();
-        GenerateUsing(sb, config.KeyTypeName);
+        GenerateSqlUsing(sb);
         GenerateNamespaceStart(sb, config.NamespaceName);
-        GenerateClassStart(sb, "IdentityUserSql", "IIdentityUserSql");
+        GenerateSqlClassStart(sb, "IdentityUserSql", "IIdentityUserConcurrencySql, IIdentityUserPagingSql");
         GenerateCreateSql(sb, config, propertyColumnTypeTriples);
         GenerateUpdateSql(sb, config, propertyColumnTypeTriples);
-        GenerateDeleteSql(sb, config);
+        GenerateDeleteSql(sb, config, propertyColumnTypeTriples);
         GenerateFindByIdSql(sb, config, propertyColumnTypeTriples);
         GenerateFindByNameSql(sb, config, propertyColumnTypeTriples);
         GenerateFindByEmailSql(sb, config, propertyColumnTypeTriples);
         GenerateGetUsersForClaimSql(sb, config, propertyColumnTypeTriples);
         GenerateGetUsersInRoleSql(sb, config, propertyColumnTypeTriples);
         GenerateGetUsersSql(sb, config, propertyColumnTypeTriples);
+        sb.AppendLine();
+        sb.AppendLine(
+            $$"""
+                    public string GetUsersPageSql { get; } =
+                        {{RawStringLiteral.Format(Sql(config, propertyColumnTypeTriples).GetPage())}};
+            """);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
@@ -77,8 +84,10 @@ public abstract class IdentityUserClassGeneratorBase
     {
         var content = ProcessIdentityUserCreateSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string CreateSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string CreateSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -87,21 +96,30 @@ public abstract class IdentityUserClassGeneratorBase
         IdentityDapperConfiguration config,
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserUpdateSql(config, propertyColumnTypeTriples);
+        var content = AddConcurrencyPredicate(
+            ProcessIdentityUserUpdateSql(config, propertyColumnTypeTriples),
+            config,
+            "OriginalConcurrencyStamp");
         sb.AppendLine(
-            $@"        public string UpdateSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string UpdateSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
     private void GenerateDeleteSql(
         StringBuilder sb,
-        IdentityDapperConfiguration config)
+        IdentityDapperConfiguration config,
+        IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
-        var content = ProcessIdentityUserDeleteSql(config);
+        var content = AddConcurrencyPredicate(
+            ProcessIdentityUserDeleteSql(config), config, "ConcurrencyStamp");
         sb.AppendLine(
-            $@"        public string DeleteSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string DeleteSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -112,8 +130,10 @@ public abstract class IdentityUserClassGeneratorBase
     {
         var content = ProcessIdentityUserFindByIdSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string FindByIdSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string FindByIdSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -124,8 +144,10 @@ public abstract class IdentityUserClassGeneratorBase
     {
         var content = ProcessIdentityUserFindByNameSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string FindByNameSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string FindByNameSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -136,8 +158,10 @@ public abstract class IdentityUserClassGeneratorBase
     {
         var content = ProcessIdentityUserFindByEmailSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string FindByEmailSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string FindByEmailSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -148,8 +172,10 @@ public abstract class IdentityUserClassGeneratorBase
     {
         var content = ProcessIdentityUserGetUsersForClaimSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string GetUsersForClaimSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string GetUsersForClaimSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -160,8 +186,10 @@ public abstract class IdentityUserClassGeneratorBase
     {
         var content = ProcessIdentityUserGetUsersInRoleSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string GetUsersInRoleSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string GetUsersInRoleSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -172,7 +200,9 @@ public abstract class IdentityUserClassGeneratorBase
     {
         var content = ProcessIdentityUserGetUsersSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string GetUsersSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string GetUsersSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
     }
 }

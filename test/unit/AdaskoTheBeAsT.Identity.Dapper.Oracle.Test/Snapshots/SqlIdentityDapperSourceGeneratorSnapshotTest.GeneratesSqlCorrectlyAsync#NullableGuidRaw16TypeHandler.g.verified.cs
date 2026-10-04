@@ -1,4 +1,5 @@
 ﻿//HintName: NullableGuidRaw16TypeHandler.g.cs
+using System;
 using Dapper.Oracle.TypeHandler;
 using System.Data;
 

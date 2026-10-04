@@ -12,13 +12,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.72" />
+    <PackageReference Include="Dapper" Version="2.1.89" />
     <PackageReference Include="Dapper.Oracle" Version="2.0.3" />
-    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.89" />
     <PackageReference Include="dbup-oracle" Version="6.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.5" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.200" />
-    <PackageReference Include="Testcontainers.Oracle" Version="4.11.0" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.12" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.301" />
+    <PackageReference Include="Testcontainers.Oracle" Version="4.15.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.Oracle\AdaskoTheBeAsT.Identity.Dapper.Oracle.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.Oracle\AdaskoTheBeAsT.Identity.Dapper.Oracle.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
     <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
   </ItemGroup>
 

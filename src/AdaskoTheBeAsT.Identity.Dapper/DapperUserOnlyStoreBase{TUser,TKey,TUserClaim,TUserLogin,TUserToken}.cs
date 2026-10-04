@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
@@ -24,7 +26,8 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         IUserAuthenticationTokenStore<TUser>,
         IUserAuthenticatorKeyStore<TUser>,
         IUserTwoFactorRecoveryCodeStore<TUser>,
-        IQueryableUserStore<TUser>
+        IQueryableUserStore<TUser>,
+        IPagedUserStore<TUser>
     where TUser : IdentityUser<TKey>
     where TKey : IEquatable<TKey>
     where TUserClaim : IdentityUserClaim<TKey>, new()
@@ -62,9 +65,34 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     {
         get
         {
+            ThrowIfDisposed();
             using var connection = ConnectionProvider.Provide();
-            return connection.Query<TUser>(IdentityUserSql.GetUsersSql).AsQueryable();
+            return connection.QueryIdentity<TUser>(IdentityUserSql.GetUsersSql).AsQueryable();
         }
+    }
+
+    public virtual async Task<IList<TUser>> GetUsersPageAsync(
+        int offset,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        IdentityPaging.Validate(offset, pageSize);
+        if (IdentityUserSql is not IIdentityUserPagingSql sql)
+        {
+            throw new NotSupportedException("Regenerate the Identity stores to enable database-side user paging.");
+        }
+
+        using var connection = ConnectionProvider.Provide();
+        return (await connection.QueryIdentityAsync<TUser>(
+            sql.GetUsersPageSql,
+            new
+            {
+                Offset = offset,
+                PageSize = pageSize
+            },
+            cancellationToken).ConfigureAwait(false)).AsList();
     }
 
     protected IIdentityDbConnectionProvider<TDbConnection> ConnectionProvider { get; }
@@ -89,7 +117,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user whose identifier should be retrieved.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing the identifier for the specified <paramref name="user" />.</returns>
-    public virtual Task<string> GetUserIdAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string> GetUserIdAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -107,7 +137,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user whose name should be retrieved.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing the name for the specified <paramref name="user" />.</returns>
-    public virtual Task<string?> GetUserNameAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetUserNameAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -126,7 +158,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="userName">The user name to set.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual Task SetUserNameAsync(TUser user, string? userName, CancellationToken cancellationToken)
+    public virtual Task SetUserNameAsync(
+        TUser user,
+        string? userName,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -145,7 +180,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user whose normalized name should be retrieved.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing the normalized user name for the specified <paramref name="user" />.</returns>
-    public virtual Task<string?> GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetNormalizedUserNameAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -164,7 +201,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="normalizedName">The normalized name to set.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual Task SetNormalizedUserNameAsync(TUser user, string? normalizedName, CancellationToken cancellationToken)
+    public virtual Task SetNormalizedUserNameAsync(
+        TUser user,
+        string? normalizedName,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -195,6 +235,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
             await CreateImplAsync(connection, user, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             return IdentityResult.Success;
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             return IdentityResult.Failed(
@@ -218,11 +262,20 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
+        EnsureConcurrencySql();
         try
         {
             using var connection = ConnectionProvider.Provide();
             await UpdateImplAsync(connection, user, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             return IdentityResult.Success;
+        }
+        catch (DBConcurrencyException)
+        {
+            return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -247,11 +300,20 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
+        EnsureConcurrencySql();
         try
         {
             using var connection = ConnectionProvider.Provide();
             await DeleteImplAsync(connection, user, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             return IdentityResult.Success;
+        }
+        catch (DBConcurrencyException)
+        {
+            return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -331,7 +393,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="passwordHash">The password hash to set.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual Task SetPasswordHashAsync(TUser user, string? passwordHash, CancellationToken cancellationToken)
+    public virtual Task SetPasswordHashAsync(
+        TUser user,
+        string? passwordHash,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -350,7 +415,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user to retrieve the password hash for.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> that contains the password hash for the user.</returns>
-    public virtual Task<string?> GetPasswordHashAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetPasswordHashAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -369,7 +436,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>A <see cref="T:System.Threading.Tasks.Task`1" /> containing a flag indicating if the specified user has a password. If the
     /// user has a password the returned value with be true, otherwise it will be false.</returns>
-    public virtual Task<bool> HasPasswordAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<bool> HasPasswordAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         return Task.FromResult(user.PasswordHash != null);
@@ -513,15 +582,20 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <returns>
     /// The <see cref="T:System.Threading.Tasks.Task" /> for the asynchronous operation, containing the user, if any which matched the specified login provider and key.
     /// </returns>
-    public virtual async Task<TUser?> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
+    public virtual async Task<TUser?> FindByLoginAsync(
+        string loginProvider,
+        string providerKey,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         using var connection = ConnectionProvider.Provide();
-        var val = await FindUserLoginImplAsync(connection, loginProvider, providerKey, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        var val = await FindUserLoginImplAsync(connection, loginProvider, providerKey, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
         if (val != null)
         {
-            return await FindUserImplAsync(connection, val.UserId, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            return await FindUserImplAsync(connection, val.UserId, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
         }
 
         return null;
@@ -537,7 +611,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// The task object containing the results of the asynchronous operation, a flag indicating whether the email address for the specified <paramref name="user" />
     /// has been confirmed or not.
     /// </returns>
-    public virtual Task<bool> GetEmailConfirmedAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<bool> GetEmailConfirmedAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -556,7 +632,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="confirmed">A flag indicating if the email address has been confirmed, true if the address is confirmed otherwise false.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    public virtual Task SetEmailConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken)
+    public virtual Task SetEmailConfirmedAsync(
+        TUser user,
+        bool confirmed,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -576,7 +655,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="email">The email to set.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    public virtual Task SetEmailAsync(TUser user, string? email, CancellationToken cancellationToken)
+    public virtual Task SetEmailAsync(
+        TUser user,
+        string? email,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -595,7 +677,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user whose email should be returned.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The task object containing the results of the asynchronous operation, the email address for the specified <paramref name="user" />.</returns>
-    public virtual Task<string?> GetEmailAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetEmailAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -615,7 +699,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <returns>
     /// The task object containing the results of the asynchronous lookup operation, the normalized email address if any associated with the specified user.
     /// </returns>
-    public virtual Task<string?> GetNormalizedEmailAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetNormalizedEmailAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -634,7 +720,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="normalizedEmail">The normalized email to set for the specified <paramref name="user" />.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The task object representing the asynchronous operation.</returns>
-    public virtual Task SetNormalizedEmailAsync(TUser user, string? normalizedEmail, CancellationToken cancellationToken)
+    public virtual Task SetNormalizedEmailAsync(
+        TUser user,
+        string? normalizedEmail,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -676,7 +765,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// A <see cref="T:System.Threading.Tasks.Task`1" /> that represents the result of the asynchronous query, a <see cref="T:System.DateTimeOffset" /> containing the last time
     /// a user's lockout expired, if any.
     /// </returns>
-    public virtual Task<DateTimeOffset?> GetLockoutEndDateAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<DateTimeOffset?> GetLockoutEndDateAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -695,7 +786,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="lockoutEnd">The <see cref="T:System.DateTimeOffset" /> after which the <paramref name="user" />'s lockout should end.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual Task SetLockoutEndDateAsync(TUser user, DateTimeOffset? lockoutEnd, CancellationToken cancellationToken)
+    public virtual Task SetLockoutEndDateAsync(
+        TUser user,
+        DateTimeOffset? lockoutEnd,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -714,7 +808,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user whose cancellation count should be incremented.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing the incremented failed access count.</returns>
-    public virtual async Task<int> IncrementAccessFailedCountAsync(TUser user, CancellationToken cancellationToken)
+    public virtual async Task<int> IncrementAccessFailedCountAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -735,7 +831,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
     /// <remarks>This is typically called after the account is successfully accessed.</remarks>
-    public virtual Task ResetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task ResetAccessFailedCountAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -754,7 +852,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user whose failed access count should be retrieved.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing the failed access count.</returns>
-    public virtual Task<int> GetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<int> GetAccessFailedCountAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -774,7 +874,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <returns>
     /// The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, true if a user can be locked out, otherwise false.
     /// </returns>
-    public virtual Task<bool> GetLockoutEnabledAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<bool> GetLockoutEnabledAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -793,7 +895,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="enabled">A flag indicating if lock out can be enabled for the specified <paramref name="user" />.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual Task SetLockoutEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken)
+    public virtual Task SetLockoutEnabledAsync(
+        TUser user,
+        bool enabled,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -813,7 +918,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="phoneNumber">The telephone number to set.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual Task SetPhoneNumberAsync(TUser user, string? phoneNumber, CancellationToken cancellationToken)
+    public virtual Task SetPhoneNumberAsync(
+        TUser user,
+        string? phoneNumber,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -832,7 +940,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user whose telephone number should be retrieved.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing the user's telephone number, if any.</returns>
-    public virtual Task<string?> GetPhoneNumberAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetPhoneNumberAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -853,7 +963,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, returning true if the specified <paramref name="user" /> has a confirmed
     /// telephone number otherwise false.
     /// </returns>
-    public virtual Task<bool> GetPhoneNumberConfirmedAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<bool> GetPhoneNumberConfirmedAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -872,7 +984,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="confirmed">A flag indicating whether the user's telephone number has been confirmed.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual Task SetPhoneNumberConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken)
+    public virtual Task SetPhoneNumberConfirmedAsync(
+        TUser user,
+        bool confirmed,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -892,7 +1007,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="stamp">The security stamp to set.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual Task SetSecurityStampAsync(TUser user, string stamp, CancellationToken cancellationToken)
+    public virtual Task SetSecurityStampAsync(
+        TUser user,
+        string stamp,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -916,7 +1034,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user whose security stamp should be set.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing the security stamp for the specified <paramref name="user" />.</returns>
-    public virtual Task<string?> GetSecurityStampAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetSecurityStampAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -936,7 +1056,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="enabled">A flag indicating whether the specified <paramref name="user" /> has two factor authentication enabled.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual Task SetTwoFactorEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken)
+    public virtual Task SetTwoFactorEnabledAsync(
+        TUser user,
+        bool enabled,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -959,7 +1082,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing a flag indicating whether the specified
     /// <paramref name="user" /> has two factor authentication enabled or not.
     /// </returns>
-    public virtual Task<bool> GetTwoFactorEnabledAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<bool> GetTwoFactorEnabledAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -999,7 +1124,12 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="value">The value of the token.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual async Task SetTokenAsync(TUser user, string loginProvider, string name, string? value, CancellationToken cancellationToken)
+    public virtual async Task SetTokenAsync(
+        TUser user,
+        string loginProvider,
+        string name,
+        string? value,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -1021,7 +1151,11 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="name">The name of the token.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual async Task RemoveTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
+    public virtual async Task RemoveTokenAsync(
+        TUser user,
+        string loginProvider,
+        string name,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -1043,7 +1177,11 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="name">The name of the token.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual async Task<string?> GetTokenAsync(TUser user, string loginProvider, string name, CancellationToken cancellationToken)
+    public virtual async Task<string?> GetTokenAsync(
+        TUser user,
+        string loginProvider,
+        string name,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -1064,7 +1202,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="key">The authenticator key to set.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation.</returns>
-    public virtual Task SetAuthenticatorKeyAsync(TUser user, string key, CancellationToken cancellationToken)
+    public virtual Task SetAuthenticatorKeyAsync(
+        TUser user,
+        string key,
+        CancellationToken cancellationToken)
     {
         return SetTokenAsync(user, InternalLoginProvider, AuthenticatorKeyTokenName, key, cancellationToken);
     }
@@ -1075,7 +1216,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user whose security stamp should be set.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="T:System.Threading.Tasks.Task" /> that represents the asynchronous operation, containing the security stamp for the specified <paramref name="user" />.</returns>
-    public virtual Task<string?> GetAuthenticatorKeyAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<string?> GetAuthenticatorKeyAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         return GetTokenAsync(user, InternalLoginProvider, AuthenticatorKeyTokenName, cancellationToken);
     }
@@ -1086,7 +1229,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The user who owns the recovery code.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The number of valid recovery codes for the user..</returns>
-    public virtual Task<int> CountCodesAsync(TUser user, CancellationToken cancellationToken)
+    public virtual Task<int> CountCodesAsync(
+        TUser user,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -1105,9 +1250,19 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="recoveryCodes">The new recovery codes for the user.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The new recovery codes for the user.</returns>
-    public virtual Task ReplaceCodesAsync(TUser user, IEnumerable<string> recoveryCodes, CancellationToken cancellationToken)
+    public virtual Task ReplaceCodesAsync(
+        TUser user,
+        IEnumerable<string> recoveryCodes,
+        CancellationToken cancellationToken)
     {
-        var value = string.Join(";", recoveryCodes);
+        if (recoveryCodes == null)
+        {
+            throw new ArgumentNullException(nameof(recoveryCodes));
+        }
+
+        var value = string.Join(
+            ";",
+            recoveryCodes.Where(c => !string.IsNullOrEmpty(c)).Distinct(StringComparer.OrdinalIgnoreCase));
         return SetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, value, cancellationToken);
     }
 
@@ -1119,7 +1274,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="code">The recovery code to use.</param>
     /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>True if the recovery code was found for the user.</returns>
-    public virtual Task<bool> RedeemCodeAsync(TUser user, string code, CancellationToken cancellationToken)
+    public virtual Task<bool> RedeemCodeAsync(
+        TUser user,
+        string code,
+        CancellationToken cancellationToken)
     {
         var code2 = code;
         cancellationToken.ThrowIfCancellationRequested();
@@ -1141,8 +1299,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         TUser user,
         CancellationToken cancellationToken)
     {
-        var text = (await GetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, cancellationToken).ConfigureAwait(continueOnCapturedContext: false)) ?? string.Empty;
-        return text.Length > 0 ? text.Split(';').Length : 0;
+        var text = (await GetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false)) ?? string.Empty;
+        return text.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Length;
     }
 
     protected virtual async Task<bool> RedeemCodeImplAsync(
@@ -1150,18 +1309,64 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         string code2,
         CancellationToken cancellationToken)
     {
-        var source = ((await GetTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName, cancellationToken).ConfigureAwait(continueOnCapturedContext: false)) ?? string.Empty).Split(';');
-        if (source.Contains(code2, StringComparer.OrdinalIgnoreCase))
+        if (string.IsNullOrEmpty(code2))
         {
-            var recoveryCodes = new List<string>(source.Where(s => !string.Equals(
-                s,
-                code2,
-                StringComparison.Ordinal)));
-            await ReplaceCodesAsync(user, recoveryCodes, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-            return true;
+            return false;
         }
 
-        return false;
+        using var connection = ConnectionProvider.Provide();
+        while (true)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var token = await FindTokenImplAsync(
+                    connection,
+                    user,
+                    InternalLoginProvider,
+                    RecoveryCodeTokenName,
+                    cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
+            var source = (token?.Value ?? string.Empty).Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            if (token == null || !source.Contains(code2, StringComparer.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            var originalValue = token.Value;
+            token.Value = string.Join(
+                ";",
+                source.Where(s => !string.Equals(s, code2, StringComparison.OrdinalIgnoreCase)));
+            if (await TryUpdateTokenImplAsync(connection, token, originalValue, cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false))
+            {
+                return true;
+            }
+        }
+    }
+
+    protected virtual async Task<bool> TryUpdateTokenImplAsync(
+        TDbConnection connection,
+        TUserToken token,
+        string? originalValue,
+        CancellationToken cancellationToken)
+    {
+        if (IdentityUserTokenSql is not IIdentityUserTokenConcurrencySql sql)
+        {
+            throw new NotSupportedException("Regenerate the Identity stores to enable atomic token updates.");
+        }
+
+        return await connection.ExecuteAsync(
+                new CommandDefinition(
+                    sql.UpdateSql,
+                    new
+                    {
+                        token.UserId,
+                        token.LoginProvider,
+                        token.Name,
+                        token.Value,
+                        OriginalValue = originalValue
+                    },
+                    cancellationToken: cancellationToken))
+            .ConfigureAwait(continueOnCapturedContext: false) == 1;
     }
 
     protected virtual async Task<string?> GetTokenImplAsync(
@@ -1171,7 +1376,8 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         string name,
         CancellationToken cancellationToken)
     {
-        return (await FindTokenImplAsync(connection, user, loginProvider, name, cancellationToken).ConfigureAwait(continueOnCapturedContext: false))?.Value;
+        return (await FindTokenImplAsync(connection, user, loginProvider, name, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false))?.Value;
     }
 
     protected virtual async Task SetTokenImplAsync(
@@ -1182,17 +1388,31 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         string? value,
         CancellationToken cancellationToken)
     {
-        var val = await FindTokenImplAsync(connection, user, loginProvider, name, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        var val = await FindTokenImplAsync(connection, user, loginProvider, name, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
         if (val == null)
         {
-            await AddUserTokenImplAsync(connection, CreateUserToken(user, loginProvider, name, value), cancellationToken)
+            await AddUserTokenImplAsync(
+                    connection,
+                    CreateUserToken(user, loginProvider, name, value),
+                    cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
         else
         {
-            await RemoveUserTokenImplAsync(connection, val, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-            await AddUserTokenImplAsync(connection, CreateUserToken(user, loginProvider, name, value), cancellationToken)
-                .ConfigureAwait(continueOnCapturedContext: false);
+            // A no-op completes at this read, even when a driver reports only changed rows.
+            if (string.Equals(val.Value, value, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            var originalValue = val.Value;
+            val.Value = value;
+            if (!await TryUpdateTokenImplAsync(connection, val, originalValue, cancellationToken)
+                    .ConfigureAwait(continueOnCapturedContext: false))
+            {
+                throw new DBConcurrencyException("The token was changed by another operation.");
+            }
         }
     }
 
@@ -1203,10 +1423,12 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         string name,
         CancellationToken cancellationToken)
     {
-        var val = await FindTokenImplAsync(connection, user, loginProvider, name, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+        var val = await FindTokenImplAsync(connection, user, loginProvider, name, cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
         if (val != null)
         {
-            await RemoveUserTokenImplAsync(connection, val, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            await RemoveUserTokenImplAsync(connection, val, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 
@@ -1216,7 +1438,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The associated user.</param>
     /// <param name="claim">The associated claim.</param>
     /// <returns></returns>
-    protected virtual TUserClaim CreateUserClaim(TUser user, Claim claim)
+    protected virtual TUserClaim CreateUserClaim(
+        TUser user,
+        Claim claim)
     {
         var val = new TUserClaim
         {
@@ -1232,7 +1456,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="user">The associated user.</param>
     /// <param name="login">The associated login.</param>
     /// <returns></returns>
-    protected virtual TUserLogin CreateUserLogin(TUser user, UserLoginInfo login)
+    protected virtual TUserLogin CreateUserLogin(
+        TUser user,
+        UserLoginInfo login)
     {
         return new TUserLogin
         {
@@ -1251,7 +1477,11 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
     /// <param name="name">The name of the user token.</param>
     /// <param name="value">The value of the user token.</param>
     /// <returns></returns>
-    protected virtual TUserToken CreateUserToken(TUser user, string loginProvider, string name, string? value)
+    protected virtual TUserToken CreateUserToken(
+        TUser user,
+        string loginProvider,
+        string name,
+        string? value)
     {
         return new TUserToken
         {
@@ -1273,6 +1503,15 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         }
     }
 
+    private void EnsureConcurrencySql()
+    {
+        if (IdentityUserSql is not IIdentityUserConcurrencySql)
+        {
+            throw new NotSupportedException(
+                "Regenerate the Identity stores before updating or deleting users: concurrency-capable SQL is required.");
+        }
+    }
+
     protected virtual void Dispose(bool disposing)
     {
         if (disposing)
@@ -1286,37 +1525,71 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         TUser user,
         CancellationToken cancellationToken)
     {
-        user.Id = await connection.QueryFirstAsync<TKey>(IdentityUserSql.CreateSql, user).ConfigureAwait(continueOnCapturedContext: false);
+        user.Id = await connection.QueryFirstAsync<TKey>(
+            new CommandDefinition(
+                IdentityUserSql.CreateSql,
+                user,
+                cancellationToken: cancellationToken)).ConfigureAwait(continueOnCapturedContext: false);
     }
 
     protected virtual async Task UpdateImplAsync(
         TDbConnection connection,
         TUser user,
-        CancellationToken cancellationToken) =>
-        await connection.ExecuteAsync(IdentityUserSql.UpdateSql, user).ConfigureAwait(continueOnCapturedContext: false);
+        CancellationToken cancellationToken)
+    {
+        var stamp = Guid.NewGuid().ToString();
+        var parameters = new DynamicParameters(user);
+        parameters.Add("OriginalConcurrencyStamp", user.ConcurrencyStamp);
+        parameters.Add("ConcurrencyStamp", stamp);
+        var affected = await connection.ExecuteAsync(
+                new CommandDefinition(
+                    IdentityUserSql.UpdateSql,
+                    parameters,
+                    cancellationToken: cancellationToken))
+            .ConfigureAwait(continueOnCapturedContext: false);
+        if (affected != 1)
+        {
+            throw new DBConcurrencyException();
+        }
+
+        user.ConcurrencyStamp = stamp;
+    }
 
     protected virtual async Task DeleteImplAsync(
         TDbConnection connection,
         TUser user,
-        CancellationToken cancellationToken) =>
-        await connection.ExecuteAsync(IdentityUserSql.DeleteSql, user).ConfigureAwait(continueOnCapturedContext: false);
+        CancellationToken cancellationToken)
+    {
+        var affected = await connection.ExecuteAsync(
+                new CommandDefinition(
+                    IdentityUserSql.DeleteSql,
+                    user,
+                    cancellationToken: cancellationToken))
+            .ConfigureAwait(continueOnCapturedContext: false);
+        if (affected != 1)
+        {
+            throw new DBConcurrencyException();
+        }
+    }
 
     protected virtual async Task<TUser?> FindByIdImplAsync(
         TDbConnection connection,
         TKey? userId,
         CancellationToken cancellationToken) =>
-        await connection.QueryFirstOrDefaultAsync<TUser?>(
+        await connection.QueryIdentityFirstOrDefaultAsync<TUser>(
                 IdentityUserSql.FindByIdSql,
-                new { Id = userId })
+                new { Id = userId },
+                cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
     protected virtual async Task<TUser?> FindByNameImplAsync(
         TDbConnection connection,
         string normalizedUserName,
         CancellationToken cancellationToken) =>
-        await connection.QueryFirstOrDefaultAsync<TUser?>(
+        await connection.QueryIdentityFirstOrDefaultAsync<TUser>(
                 IdentityUserSql.FindByNameSql,
-                new { NormalizedUserName = normalizedUserName })
+                new { NormalizedUserName = normalizedUserName },
+                cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
     protected virtual async Task<IList<Claim>> GetClaimsImplAsync(
@@ -1324,8 +1597,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         TKey userId,
         CancellationToken cancellationToken) =>
         (await connection.QueryAsync<Claim>(
-                IdentityUserClaimSql.GetByUserIdSql,
-                new { Id = userId })
+                new CommandDefinition(
+                    IdentityUserClaimSql.GetByUserIdSql,
+                    new { Id = userId },
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false))
         .AsList();
 
@@ -1335,11 +1610,20 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         IEnumerable<Claim> claims,
         CancellationToken cancellationToken)
     {
+        if (IdentityUserClaimSql is IIdentityUserClaimBatchSql batchSql)
+        {
+            await ExecuteClaimsBatchImplAsync(connection, user, claims, batchSql, true, cancellationToken)
+                .ConfigureAwait(false);
+            return;
+        }
+
         foreach (var claim in claims)
         {
             await connection.ExecuteAsync(
-                    IdentityUserClaimSql.CreateSql,
-                    CreateUserClaim(user, claim))
+                    new CommandDefinition(
+                        IdentityUserClaimSql.CreateSql,
+                        CreateUserClaim(user, claim),
+                        cancellationToken: cancellationToken))
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
     }
@@ -1351,17 +1635,19 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         Claim newClaim,
         CancellationToken cancellationToken) =>
         await connection.ExecuteAsync(
-                IdentityUserClaimSql.ReplaceSql,
-                new
-                {
-                    UserId = user.Id,
-                    ClaimTypeOld = claim.Type,
-                    ClaimValueOld = claim.Value,
-                    ClaimType = newClaim.Type,
-                    ClaimValue = newClaim.Value,
-                    ClaimTypeNew = newClaim.Type,
-                    ClaimValueNew = newClaim.Value,
-                })
+                new CommandDefinition(
+                    IdentityUserClaimSql.ReplaceSql,
+                    new
+                    {
+                        UserId = user.Id,
+                        ClaimTypeOld = claim.Type,
+                        ClaimValueOld = claim.Value,
+                        ClaimType = newClaim.Type,
+                        ClaimValue = newClaim.Value,
+                        ClaimTypeNew = newClaim.Type,
+                        ClaimValueNew = newClaim.Value,
+                    },
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
 
     protected virtual async Task RemoveClaimsImplAsync(
@@ -1370,12 +1656,70 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         IEnumerable<Claim> claims,
         CancellationToken cancellationToken)
     {
+        if (IdentityUserClaimSql is IIdentityUserClaimBatchSql batchSql)
+        {
+            await ExecuteClaimsBatchImplAsync(connection, user, claims, batchSql, false, cancellationToken)
+                .ConfigureAwait(false);
+            return;
+        }
+
         foreach (var claim in claims)
         {
             await connection.ExecuteAsync(
-                    IdentityUserClaimSql.DeleteSql,
-                    CreateUserClaim(user, claim))
+                    new CommandDefinition(
+                        IdentityUserClaimSql.DeleteSql,
+                        CreateUserClaim(user, claim),
+                        cancellationToken: cancellationToken))
                 .ConfigureAwait(continueOnCapturedContext: false);
+        }
+    }
+
+    protected virtual object CreateClaimBatchParameters(
+        IReadOnlyList<TUserClaim> claims,
+        IReadOnlyList<string> parameterNames) =>
+        new IdentityClaimBatchParameters<TUserClaim>(claims, parameterNames);
+
+    private async Task ExecuteClaimsBatchImplAsync(
+        TDbConnection connection,
+        TUser user,
+        IEnumerable<Claim> claims,
+        IIdentityUserClaimBatchSql sql,
+        bool create,
+        CancellationToken cancellationToken)
+    {
+        var names = create ? sql.CreateBatchParameterNames : new[] { "UserId", "ClaimType", "ClaimValue" };
+        if (names.Count == 0) throw new InvalidOperationException("Claim batch SQL requires bind parameters.");
+        // Stay below SQLite's conservative 999-parameter limit and bound retained entities.
+        var batchSize = Math.Max(1, Math.Min(32, 900 / names.Count));
+        using var source = claims.GetEnumerator();
+        while (true)
+        {
+            var batch = new List<TUserClaim>(batchSize);
+            while (batch.Count < batchSize)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (!source.MoveNext()) break;
+                batch.Add(CreateUserClaim(user, source.Current));
+            }
+
+            if (batch.Count == 0) break;
+            // Dapper filters properties before resolving their types. Expose the original names
+            // only in a comment so excluded custom properties never reach the typed binder.
+            var command = new StringBuilder("-- Dapper typed parameters:");
+            foreach (var name in names) command.Append(" @").Append(name);
+            command.Append('\n').Append(sql.BatchPrefix);
+            var template = create ? sql.CreateBatchItemSql : sql.DeleteBatchItemSql;
+            for (var i = 0; i < batch.Count; i++)
+            {
+                command.AppendFormat(CultureInfo.InvariantCulture, template, i).Append('\n');
+            }
+
+            command.Append(sql.BatchSuffix);
+            await connection.ExecuteAsync(
+                new CommandDefinition(
+                    command.ToString(),
+                    CreateClaimBatchParameters(batch, names),
+                    cancellationToken: cancellationToken)).ConfigureAwait(false);
         }
     }
 
@@ -1385,8 +1729,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         UserLoginInfo login,
         CancellationToken cancellationToken) =>
         await connection.ExecuteAsync(
-                IdentityUserLoginSql.CreateSql,
-                CreateUserLogin(user, login))
+                new CommandDefinition(
+                    IdentityUserLoginSql.CreateSql,
+                    CreateUserLogin(user, login),
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
 
     protected virtual async Task RemoveLoginImplAsync(
@@ -1396,13 +1742,15 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         string providerKey,
         CancellationToken cancellationToken) =>
         await connection.ExecuteAsync(
-                IdentityUserLoginSql.DeleteSql,
-                new
-                {
-                    LoginProvider = loginProvider,
-                    ProviderKey = providerKey,
-                    UserId = user.Id,
-                })
+                new CommandDefinition(
+                    IdentityUserLoginSql.DeleteSql,
+                    new
+                    {
+                        LoginProvider = loginProvider,
+                        ProviderKey = providerKey,
+                        UserId = user.Id,
+                    },
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
 
     protected virtual async Task<IList<UserLoginInfo>> GetLoginsImplAsync(
@@ -1411,16 +1759,17 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         CancellationToken cancellationToken)
     {
         var logins = await connection.QueryAsync<TUserLogin>(
-                IdentityUserLoginSql.GetByUserIdSql,
-                user)
+                new CommandDefinition(
+                    IdentityUserLoginSql.GetByUserIdSql,
+                    user,
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
 
         return logins
-            .Select(
-                login => new UserLoginInfo(
-                    login.LoginProvider,
-                    login.ProviderKey,
-                    login.ProviderDisplayName))
+            .Select(login => new UserLoginInfo(
+                login.LoginProvider,
+                login.ProviderKey,
+                login.ProviderDisplayName))
             .ToList();
     }
 
@@ -1436,9 +1785,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         TKey userId,
         CancellationToken cancellationToken)
     {
-        return await connection.QueryFirstOrDefaultAsync<TUser?>(
+        return await connection.QueryIdentityFirstOrDefaultAsync<TUser>(
                 IdentityUserSql.FindByIdSql,
-                new { Id = userId })
+                new { Id = userId },
+                cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
     }
 
@@ -1459,13 +1809,15 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         CancellationToken cancellationToken)
     {
         return await connection.QueryFirstOrDefaultAsync<TUserLogin>(
-                IdentityUserLoginSql.GetByUserIdLoginProviderKeySql,
-                new
-                {
-                    UserId = userId,
-                    LoginProvider = loginProvider,
-                    ProviderKey = providerKey,
-                })
+                new CommandDefinition(
+                    IdentityUserLoginSql.GetByUserIdLoginProviderKeySql,
+                    new
+                    {
+                        UserId = userId,
+                        LoginProvider = loginProvider,
+                        ProviderKey = providerKey,
+                    },
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
     }
 
@@ -1484,12 +1836,14 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         CancellationToken cancellationToken)
     {
         return await connection.QueryFirstOrDefaultAsync<TUserLogin>(
-                IdentityUserLoginSql.GetByLoginProviderKeySql,
-                new
-                {
-                    LoginProvider = loginProvider,
-                    ProviderKey = providerKey,
-                })
+                new CommandDefinition(
+                    IdentityUserLoginSql.GetByLoginProviderKeySql,
+                    new
+                    {
+                        LoginProvider = loginProvider,
+                        ProviderKey = providerKey,
+                    },
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
     }
 
@@ -1497,22 +1851,24 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         TDbConnection connection,
         string normalizedEmail,
         CancellationToken cancellationToken) =>
-        await connection.QueryFirstOrDefaultAsync<TUser?>(
+        await connection.QueryIdentityFirstOrDefaultAsync<TUser>(
                 IdentityUserSql.FindByEmailSql,
-                new { NormalizedEmail = normalizedEmail })
+                new { NormalizedEmail = normalizedEmail },
+                cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
     protected virtual async Task<IList<TUser>> GetUsersForClaimImplAsync(
         TDbConnection connection,
         Claim claim,
         CancellationToken cancellationToken) =>
-        (await connection.QueryAsync<TUser>(
+        (await connection.QueryIdentityAsync<TUser>(
                 IdentityUserSql.GetUsersForClaimSql,
                 new
                 {
                     ClaimType = claim.Type,
                     ClaimValue = claim.Value,
-                })
+                },
+                cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false))
         .AsList();
 
@@ -1534,8 +1890,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         string name,
         CancellationToken cancellationToken) =>
         await connection.QueryFirstOrDefaultAsync<TUserToken?>(
-                IdentityUserTokenSql.GetByUserIdSql,
-                CreateUserToken(user, loginProvider, name, value: null))
+                new CommandDefinition(
+                    IdentityUserTokenSql.GetByUserIdSql,
+                    CreateUserToken(user, loginProvider, name, value: null),
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
 
 
@@ -1551,8 +1909,10 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         TUserToken token,
         CancellationToken cancellationToken) =>
         await connection.ExecuteAsync(
-                IdentityUserTokenSql.CreateSql,
-                token)
+                new CommandDefinition(
+                    IdentityUserTokenSql.CreateSql,
+                    token,
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
 
 
@@ -1568,7 +1928,9 @@ public class DapperUserOnlyStoreBase<TUser, TKey, TUserClaim, TUserLogin, TUserT
         TUserToken token,
         CancellationToken cancellationToken) =>
         await connection.ExecuteAsync(
-                IdentityUserTokenSql.DeleteSql,
-                token)
+                new CommandDefinition(
+                    IdentityUserTokenSql.DeleteSql,
+                    token,
+                    cancellationToken: cancellationToken))
             .ConfigureAwait(continueOnCapturedContext: false);
 }

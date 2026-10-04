@@ -41,10 +41,9 @@ public class OracleApplicationUserStoreGenerator
         OracleApplicationUserHelper.GenerateFindByIdImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateFindByNameImpl(sb);
         OracleApplicationUserHelper.GenerateGetClaimsImpl(sb, keyTypeName);
-        OracleApplicationUserHelper.GenerateAddClaimsImpl(sb, keyTypeName);
+        OracleApplicationUserHelper.GenerateClaimBatchParameters(sb, keyTypeName, typePropertiesDict["IdentityUserClaim"], options);
         OracleApplicationUserHelper.GenerateReplaceClaimImpl(sb, keyTypeName);
-        OracleApplicationUserHelper.GenerateRemoveClaimsImpl(sb, keyTypeName);
-        OracleApplicationUserHelper.GenerateAddLoginImpl(sb, keyTypeName);
+        OracleApplicationUserHelper.GenerateAddLoginImpl(sb, keyTypeName, typePropertiesDict["IdentityUserLogin"], options);
         OracleApplicationUserHelper.GenerateRemoveLoginImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateGetLoginsImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateFindUserImpl(sb, keyTypeName);
@@ -53,10 +52,11 @@ public class OracleApplicationUserStoreGenerator
         OracleApplicationUserHelper.GenerateFindByEmailImpl(sb);
         OracleApplicationUserHelper.GenerateGetUsersForClaimImpl(sb);
         OracleApplicationUserHelper.GenerateFindTokenImpl(sb, keyTypeName);
-        OracleApplicationUserHelper.GenerateAddUserTokenImpl(sb, keyTypeName);
+        OracleApplicationUserHelper.GenerateAddUserTokenImpl(sb, keyTypeName, typePropertiesDict["IdentityUserToken"], options);
+        OracleApplicationUserHelper.GenerateTryUpdateTokenImpl(sb, keyTypeName);
         OracleApplicationUserHelper.GenerateRemoveUserTokenImpl(sb, keyTypeName);
         GenerateGetUsersInRoleImpl(sb);
-        GenerateAddToRoleImpl(sb, keyTypeName);
+        GenerateAddToRoleImpl(sb, keyTypeName, typePropertiesDict["IdentityUserRole"], options);
         GenerateRemoveFromRoleImpl(sb, keyTypeName);
         GenerateGetRolesImpl(sb, keyTypeName);
         GenerateIsInRoleImpl(sb, keyTypeName);
@@ -72,34 +72,39 @@ public class OracleApplicationUserStoreGenerator
     private void GenerateConstructor(StringBuilder sb)
     {
         sb.AppendLine(
-            @"        public ApplicationUserStore(
-            IIdentityDbConnectionProvider<OracleConnection> connectionProvider)
-            : base(
-                new IdentityErrorDescriber(),
-                connectionProvider,
-                new IdentityUserSql(),
-                new IdentityUserClaimSql(),
-                new IdentityUserLoginSql(),
-                new IdentityUserTokenSql(),
-                new IdentityUserRoleSql(),
-                new IdentityRoleSql(),
-                new IdentityUserRoleClaimSql())
-        {
-        }");
+            """
+                    public ApplicationUserStore(
+                        IIdentityDbConnectionProvider<OracleConnection> connectionProvider)
+                        : base(
+                            new IdentityErrorDescriber(),
+                            connectionProvider,
+                            new IdentityUserSql(),
+                            new IdentityUserClaimSql(),
+                            new IdentityUserLoginSql(),
+                            new IdentityUserTokenSql(),
+                            new IdentityUserRoleSql(),
+                            new IdentityRoleSql(),
+                            new IdentityUserRoleClaimSql())
+                    {
+                    }
+            """);
         sb.AppendLine();
     }
 
     private void GenerateUsersProperty(StringBuilder sb)
     {
         sb.AppendLine(
-            @"        public override IQueryable<ApplicationUser> Users
-        {
-            get
-            {
-                using var connection = ConnectionProvider.Provide();
-                return connection.Query<ApplicationUser>(NormalizeSql(IdentityUserSql.GetUsersSql)).AsQueryable();
-            }
-        }");
+            """
+                    public override IQueryable<ApplicationUser> Users
+                    {
+                        get
+                        {
+                            ThrowIfDisposed();
+                            using var connection = ConnectionProvider.Provide();
+                            return connection.QueryIdentity<ApplicationUser>(NormalizeSql(IdentityUserSql.GetUsersSql)).AsQueryable();
+                        }
+                    }
+            """);
         sb.AppendLine();
     }
 
@@ -107,21 +112,25 @@ public class OracleApplicationUserStoreGenerator
         StringBuilder sb)
     {
         sb.AppendLine(
-            $@"        protected override async Task<IList<ApplicationUser>> GetUsersInRoleImplAsync(
-            OracleConnection connection,
-            string roleName,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityUserSql.GetUsersInRoleSql);
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task<IList<ApplicationUser>> GetUsersInRoleImplAsync(
+                        OracleConnection connection,
+                        string roleName,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityUserSql.GetUsersInRoleSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
 
         sb.AppendLine(
-            $@"            parameters.Add(""NormalizedName"", roleName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+            $$"""            parameters.Add("NormalizedName", roleName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
 
         sb.AppendLine(
-            $@"            return (await connection.QueryAsync<ApplicationUser>(sql, parameters)
-                    .ConfigureAwait(continueOnCapturedContext: false))
-                .AsList();");
+            $$"""
+                        return (await connection.QueryIdentityAsync<ApplicationUser>(sql, parameters, cancellationToken)
+                                .ConfigureAwait(continueOnCapturedContext: false))
+                            .AsList();
+            """);
 
         sb.AppendLine("        }");
 
@@ -130,26 +139,29 @@ public class OracleApplicationUserStoreGenerator
 
     private void GenerateAddToRoleImpl(
         StringBuilder sb,
-        string keyTypeName)
+        string keyTypeName,
+        IList<PropertyColumnTypeTriple> properties,
+        IdentityDapperOptions options)
     {
         sb.AppendLine(
-            $@"        protected override async Task AddToRoleImplAsync(
-            OracleConnection connection,
-            ApplicationUser user,
-            ApplicationRole role,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityUserRoleSql.CreateSql);
-            var parameters = new OracleDynamicParameters();");
-        var idType = OracleTypeMapper.MapIdType(keyTypeName);
-        var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.AppendLine(
-            $@"            parameters.Add(""UserId"", user.Id, {idType}, ParameterDirection.Input, {idSize});
-            parameters.Add(""RoleId"", role.Id, {idType}, ParameterDirection.Input, {idSize});");
+            $$"""
+                    protected override async Task AddToRoleImplAsync(
+                        OracleConnection connection,
+                        ApplicationUser user,
+                        ApplicationRole role,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityUserRoleSql.CreateSql);
+                        var entity = CreateUserRole(user, role);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
+        OracleApplicationUserHelper.GenerateEntityParameters(sb, properties, "entity", keyTypeName, options);
 
         sb.AppendLine(
-            $@"            await connection.ExecuteAsync(sql, parameters)
-                .ConfigureAwait(continueOnCapturedContext: false);");
+            $$"""
+                        await connection.ExecuteAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken))
+                            .ConfigureAwait(continueOnCapturedContext: false);
+            """);
 
         sb.AppendLine("        }");
 
@@ -161,23 +173,29 @@ public class OracleApplicationUserStoreGenerator
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task RemoveFromRoleImplAsync(
-            OracleConnection connection,
-            ApplicationUser user,
-            ApplicationRole role,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityUserRoleSql.DeleteSql);
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task RemoveFromRoleImplAsync(
+                        OracleConnection connection,
+                        ApplicationUser user,
+                        ApplicationRole role,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityUserRoleSql.DeleteSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
         sb.AppendLine(
-            $@"            parameters.Add(""UserId"", user.Id, {idType}, ParameterDirection.Input, {idSize});
-            parameters.Add(""RoleId"", role.Id, {idType}, ParameterDirection.Input, {idSize});");
+            $$"""
+                        parameters.Add("UserId", user.Id, {{idType}}, ParameterDirection.Input, {{idSize}});
+                        parameters.Add("RoleId", role.Id, {{idType}}, ParameterDirection.Input, {{idSize}});
+            """);
 
         sb.AppendLine(
-            $@"            await connection.ExecuteAsync(sql, parameters)
-                .ConfigureAwait(continueOnCapturedContext: false);");
+            $$"""
+                        await connection.ExecuteAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken))
+                            .ConfigureAwait(continueOnCapturedContext: false);
+            """);
 
         sb.AppendLine("        }");
 
@@ -189,22 +207,26 @@ public class OracleApplicationUserStoreGenerator
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task<IList<string>> GetRolesImplAsync(
-            OracleConnection connection,
-            ApplicationUser user,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityUserRoleSql.GetRoleNamesByUserIdSql);
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task<IList<string>> GetRolesImplAsync(
+                        OracleConnection connection,
+                        ApplicationUser user,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityUserRoleSql.GetRoleNamesByUserIdSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
         sb.AppendLine(
-            $@"            parameters.Add(""UserId"", user.Id, {idType}, ParameterDirection.Input, {idSize});");
+            $$"""            parameters.Add("UserId", user.Id, {{idType}}, ParameterDirection.Input, {{idSize}});""");
 
         sb.AppendLine(
-            $@"            return (await connection.QueryAsync<string>(sql, parameters)
-                    .ConfigureAwait(continueOnCapturedContext: false))
-                .AsList();");
+            $$"""
+                        return (await connection.QueryAsync<string>(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken))
+                                .ConfigureAwait(continueOnCapturedContext: false))
+                            .AsList();
+            """);
 
         sb.AppendLine("        }");
 
@@ -216,23 +238,29 @@ public class OracleApplicationUserStoreGenerator
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task<bool> IsInRoleImplAsync(
-            OracleConnection connection,
-            ApplicationUser user,
-            ApplicationRole role,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityUserRoleSql.GetCountSql);
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task<bool> IsInRoleImplAsync(
+                        OracleConnection connection,
+                        ApplicationUser user,
+                        ApplicationRole role,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityUserRoleSql.GetCountSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
         sb.AppendLine(
-            $@"            parameters.Add(""UserId"", user.Id, {idType}, ParameterDirection.Input, {idSize});
-            parameters.Add(""RoleId"", role.Id, {idType}, ParameterDirection.Input, {idSize});");
+            $$"""
+                        parameters.Add("UserId", user.Id, {{idType}}, ParameterDirection.Input, {{idSize}});
+                        parameters.Add("RoleId", role.Id, {{idType}}, ParameterDirection.Input, {{idSize}});
+            """);
 
         sb.AppendLine(
-            $@"            return (await connection.QueryFirstOrDefaultAsync<int>(sql, parameters)
-                    .ConfigureAwait(continueOnCapturedContext: false)) > 0;");
+            $$"""
+                        return (await connection.QueryFirstOrDefaultAsync<int>(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken))
+                                .ConfigureAwait(continueOnCapturedContext: false)) > 0;
+            """);
 
         sb.AppendLine("        }");
 
@@ -244,22 +272,26 @@ public class OracleApplicationUserStoreGenerator
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task<IList<Claim>> GetRoleClaimsImplAsync(
-            OracleConnection connection,
-            ApplicationUser user,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityUserRoleClaimSql.GetRoleClaimsByUserIdSql);
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task<IList<Claim>> GetRoleClaimsImplAsync(
+                        OracleConnection connection,
+                        ApplicationUser user,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityUserRoleClaimSql.GetRoleClaimsByUserIdSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
         sb.AppendLine(
-            $@"            parameters.Add(""Id"", user.Id, {idType}, ParameterDirection.Input, {idSize});");
+            $$"""            parameters.Add("Id", user.Id, {{idType}}, ParameterDirection.Input, {{idSize}});""");
 
         sb.AppendLine(
-            $@"            return (await connection.QueryAsync<Claim>(sql, parameters)
-                        .ConfigureAwait(continueOnCapturedContext: false))
-                    .AsList();");
+            $$"""
+                        return (await connection.QueryAsync<Claim>(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken))
+                                    .ConfigureAwait(continueOnCapturedContext: false))
+                                .AsList();
+            """);
 
         sb.AppendLine("        }");
 
@@ -271,22 +303,26 @@ public class OracleApplicationUserStoreGenerator
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task<IList<Claim>> GetUserAndRoleClaimsImplAsync(
-            OracleConnection connection,
-            ApplicationUser user,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityUserRoleClaimSql.GetUserAndRoleClaimsByUserIdSql);
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task<IList<Claim>> GetUserAndRoleClaimsImplAsync(
+                        OracleConnection connection,
+                        ApplicationUser user,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityUserRoleClaimSql.GetUserAndRoleClaimsByUserIdSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
         sb.AppendLine(
-            $@"            parameters.Add(""Id"", user.Id, {idType}, ParameterDirection.Input, {idSize});");
+            $$"""            parameters.Add("Id", user.Id, {{idType}}, ParameterDirection.Input, {{idSize}});""");
 
         sb.AppendLine(
-            $@"            return (await connection.QueryAsync<Claim>(sql, parameters)
-                        .ConfigureAwait(continueOnCapturedContext: false))
-                    .AsList();");
+            $$"""
+                        return (await connection.QueryAsync<Claim>(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken))
+                                    .ConfigureAwait(continueOnCapturedContext: false))
+                                .AsList();
+            """);
 
         sb.AppendLine("        }");
 
@@ -297,19 +333,23 @@ public class OracleApplicationUserStoreGenerator
         StringBuilder sb)
     {
         sb.AppendLine(
-            $@"        protected override async Task<ApplicationRole?> FindRoleImplAsync(
-            OracleConnection connection,
-            string roleName,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityRoleSql.FindByNameSql);
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task<ApplicationRole?> FindRoleImplAsync(
+                        OracleConnection connection,
+                        string roleName,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityRoleSql.FindByNameSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
         sb.AppendLine(
-            $@"            parameters.Add(""NormalizedName"", roleName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+            $$"""            parameters.Add("NormalizedName", roleName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
 
         sb.AppendLine(
-            $@"            return await connection.QueryFirstOrDefaultAsync<ApplicationRole>(sql, parameters)
-                    .ConfigureAwait(continueOnCapturedContext: false);");
+            $$"""
+                        return await connection.QueryIdentityFirstOrDefaultAsync<ApplicationRole>(sql, parameters, cancellationToken)
+                                .ConfigureAwait(continueOnCapturedContext: false);
+            """);
 
         sb.AppendLine("        }");
 
@@ -321,23 +361,29 @@ public class OracleApplicationUserStoreGenerator
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task<ApplicationUserRole?> FindUserRoleAsync(
-            OracleConnection connection,
-            {keyTypeName} userId,
-            {keyTypeName} roleId,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityUserRoleSql.GetByUserIdRoleIdSql);
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task<ApplicationUserRole?> FindUserRoleAsync(
+                        OracleConnection connection,
+                        {{keyTypeName}} userId,
+                        {{keyTypeName}} roleId,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityUserRoleSql.GetByUserIdRoleIdSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
         sb.AppendLine(
-            $@"            parameters.Add(""UserId"", userId, {idType}, ParameterDirection.Input, {idSize});
-            parameters.Add(""RoleId"", roleId, {idType}, ParameterDirection.Input, {idSize});");
+            $$"""
+                        parameters.Add("UserId", userId, {{idType}}, ParameterDirection.Input, {{idSize}});
+                        parameters.Add("RoleId", roleId, {{idType}}, ParameterDirection.Input, {{idSize}});
+            """);
 
         sb.AppendLine(
-            $@"            return await connection.QueryFirstOrDefaultAsync<ApplicationUserRole>(sql, parameters)
-                    .ConfigureAwait(continueOnCapturedContext: false);");
+            $$"""
+                        return await connection.QueryFirstOrDefaultAsync<ApplicationUserRole>(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken))
+                                .ConfigureAwait(continueOnCapturedContext: false);
+            """);
 
         sb.AppendLine("        }");
 

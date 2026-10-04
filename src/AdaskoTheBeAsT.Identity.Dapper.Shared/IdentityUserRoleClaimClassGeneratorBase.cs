@@ -10,10 +10,11 @@ public abstract class IdentityUserRoleClaimClassGeneratorBase
 {
     public string Generate(IdentityDapperConfiguration config)
     {
+        config = config.ForGeneration("IdentityUserRoleClaim", Provider, new List<PropertyColumnTypeTriple>());
         var sb = new StringBuilder();
-        GenerateUsing(sb, config.KeyTypeName);
+        GenerateSqlUsing(sb);
         GenerateNamespaceStart(sb, config.NamespaceName);
-        GenerateClassStart(sb, "IdentityUserRoleClaimSql", "IIdentityUserRoleClaimSql");
+        GenerateSqlClassStart(sb, "IdentityUserRoleClaimSql", "IIdentityUserRoleClaimSql");
         GenerateGetRoleClaimsByUserIdSql(sb, config);
         GenerateGetUserAndRoleClaimsByUserIdSql(sb, config);
         GenerateClassEnd(sb);
@@ -35,8 +36,10 @@ public abstract class IdentityUserRoleClaimClassGeneratorBase
     {
         var content = ProcessIdentityUserRoleClaimGetRoleClaimsByUserIdSql(config);
         sb.AppendLine(
-            $@"        public string GetRoleClaimsByUserIdSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string GetRoleClaimsByUserIdSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -46,7 +49,9 @@ public abstract class IdentityUserRoleClaimClassGeneratorBase
     {
         var content = ProcessIdentityUserRoleClaimGetUserAndRoleClaimsByUserIdSql(config);
         sb.AppendLine(
-            $@"        public string GetUserAndRoleClaimsByUserIdSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string GetUserAndRoleClaimsByUserIdSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
     }
 }

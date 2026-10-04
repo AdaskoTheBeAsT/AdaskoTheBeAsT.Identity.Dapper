@@ -1,4 +1,4 @@
-﻿//HintName: NullableDateTimeOffsetTypeHandler.g.cs
+//HintName: NullableDateTimeOffsetTypeHandler.g.cs
 using System;
 using System.Data;
 using System.Globalization;

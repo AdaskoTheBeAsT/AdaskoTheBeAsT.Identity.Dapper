@@ -32,16 +32,18 @@ public class SqliteApplicationUserOnlyStoreGenerator
     private void GenerateConstructor(StringBuilder sb)
     {
         sb.AppendLine(
-            @"        public ApplicationUserOnlyStore(
-            IIdentityDbConnectionProvider<SqliteConnection> connectionProvider)
-            : base(
-                new IdentityErrorDescriber(),
-                connectionProvider,
-                new IdentityUserSql(),
-                new IdentityUserClaimSql(),
-                new IdentityUserLoginSql(),
-                new IdentityUserTokenSql())
-        {
-        }");
+            """
+                    public ApplicationUserOnlyStore(
+                        IIdentityDbConnectionProvider<SqliteConnection> connectionProvider)
+                        : base(
+                            new IdentityErrorDescriber(),
+                            connectionProvider,
+                            new IdentityUserSql(),
+                            new IdentityUserClaimSql(),
+                            new IdentityUserLoginSql(),
+                            new IdentityUserTokenSql())
+                    {
+                    }
+            """);
     }
 }

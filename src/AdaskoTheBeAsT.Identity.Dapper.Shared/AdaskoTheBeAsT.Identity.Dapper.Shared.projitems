@@ -29,6 +29,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Exceptions\KeyTypeNotSameException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IdentityClassGeneratorBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IdentityDapperConfiguration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MappedIdentitySql.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RawStringLiteral.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IdentityDapperOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IdentityDapperSourceGeneratorBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IdentityRoleClaimClassGeneratorBase.cs" />

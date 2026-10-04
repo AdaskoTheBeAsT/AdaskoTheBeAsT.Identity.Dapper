@@ -1,4 +1,4 @@
-﻿//HintName: ApplicationRoleStore.g.cs
+//HintName: ApplicationRoleStore.g.cs
 using System;
 using AdaskoTheBeAsT.Identity.Dapper;
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;

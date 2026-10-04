@@ -4,6 +4,19 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 
 public static class OracleTypeMapper
 {
+    public static bool IsSupportedPropertyType(string typeName)
+    {
+        try
+        {
+            MapParameterEndByTypeName(typeName, "char");
+            return true;
+        }
+        catch (NotSupportedException)
+        {
+            return false;
+        }
+    }
+
     public static string MapIdType(string keyTypeName)
     {
         return keyTypeName switch
@@ -61,7 +74,8 @@ public static class OracleTypeMapper
             return "OracleMappingType.Char, ParameterDirection.Input, 1);";
         }
         
-        if (string.Equals(storeBooleanAs, "number", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(storeBooleanAs, "number", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(storeBooleanAs, "numeric", StringComparison.OrdinalIgnoreCase))
         {
             return "OracleMappingType.Int16, ParameterDirection.Input);";
         }
@@ -76,6 +90,7 @@ public static class OracleTypeMapper
 
     public static string MapParameterEndByTypeName(string? typeName, string? storeBooleanAs)
     {
+        typeName = typeName?.TrimEnd('?');
         if (string.Equals(typeName, "bool", StringComparison.OrdinalIgnoreCase))
         {
             return MapParameterEndByStoreBooleanAs(storeBooleanAs);
@@ -91,11 +106,41 @@ public static class OracleTypeMapper
             return "OracleMappingType.Int32, ParameterDirection.Input);";
         }
 
+        if (string.Equals(typeName, "long", StringComparison.OrdinalIgnoreCase))
+        {
+            return "OracleMappingType.Int64, ParameterDirection.Input);";
+        }
+
+        if (typeName is "Guid" or "System.Guid")
+        {
+            return "OracleMappingType.Raw, ParameterDirection.Input, 16);";
+        }
+
         if (string.Equals(typeName, "decimal", StringComparison.OrdinalIgnoreCase))
         {
             return "OracleMappingType.Decimal, ParameterDirection.Input, precision: 28, scale: 18);";
         }
 
-        return string.Empty;
+        if (typeName is "DateTime" or "System.DateTime" or "DateTimeOffset" or "System.DateTimeOffset")
+        {
+            return "OracleMappingType.TimeStamp, ParameterDirection.Input);";
+        }
+
+        if (typeName is "byte[]" or "System.Byte[]")
+        {
+            return "OracleMappingType.Blob, ParameterDirection.Input);";
+        }
+
+        if (typeName is "short" or "ushort" or "byte" or "sbyte")
+        {
+            return "OracleMappingType.Int16, ParameterDirection.Input);";
+        }
+
+        if (typeName is "float" or "double")
+        {
+            return "OracleMappingType.Double, ParameterDirection.Input);";
+        }
+
+        throw new NotSupportedException($"Unsupported Oracle property type: {typeName}");
     }
 }

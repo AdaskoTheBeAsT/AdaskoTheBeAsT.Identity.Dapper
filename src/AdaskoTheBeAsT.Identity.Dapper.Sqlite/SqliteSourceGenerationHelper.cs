@@ -8,6 +8,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite;
 public class SqliteSourceGenerationHelper
     : SourceGeneratorHelperBase
 {
+    protected override DatabaseProvider Provider => DatabaseProvider.Sqlite;
+
     public SqliteSourceGenerationHelper()
         : base(
             new SqliteIdentityRoleClassGenerator(),
@@ -58,16 +60,16 @@ public class SqliteSourceGenerationHelper
                     {
                         return Guid.Empty;
                     }
-            
+
                     var asString = value?.ToString();
                     if (Guid.TryParse(asString, out var guid))
                     {
                         return guid;
                     }
-            
+
                     return Guid.Empty;
                 }
-            
+
                 public override void SetValue(
                     IDbDataParameter parameter,
                     Guid value)
@@ -101,16 +103,16 @@ public class SqliteSourceGenerationHelper
                     {
                         return null;
                     }
-            
+
                     var asString = value?.ToString();
                     if (Guid.TryParse(asString, out var guid))
                     {
                         return guid;
                     }
-            
+
                     return null;
                 }
-            
+
                 public override void SetValue(
                     IDbDataParameter parameter,
                     Guid? value)
@@ -120,7 +122,7 @@ public class SqliteSourceGenerationHelper
                         parameter.Value = DBNull.Value;
                         return;
                     }
-            
+
                     parameter.Value = value!.Value.ToString("D");
                 }
             }

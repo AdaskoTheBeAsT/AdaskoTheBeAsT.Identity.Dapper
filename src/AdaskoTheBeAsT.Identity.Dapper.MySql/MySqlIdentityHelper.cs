@@ -53,21 +53,25 @@ public class MySqlIdentityHelper
             {
                 if (insertOwnId)
                 {
-                    return $@"INSERT INTO {tableName}(
-/**insert**/)
-VALUES(
-/**values**/);
-SELECT @Id AS Id;";
+                    return $$"""
+                        INSERT INTO {{tableName}}(
+                        /**insert**/)
+                        VALUES(
+                        /**values**/);
+                        SELECT @Id AS Id;
+                        """;
                 }
 
-                return $@"SET @NewId=UUID();
-INSERT INTO {tableName}(
-Id,
-/**insert**/)
-VALUES(
-@NewId,
-/**values**/);
-SELECT @NewId AS Id;";
+                return $$"""
+                    SET @NewId=UUID();
+                    INSERT INTO {{tableName}}(
+                    Id,
+                    /**insert**/)
+                    VALUES(
+                    @NewId,
+                    /**values**/);
+                    SELECT @NewId AS Id;
+                    """;
             }
             case "int":
             case "Int32":
@@ -81,32 +85,38 @@ SELECT @NewId AS Id;";
             case "ulong":
             case "UInt64":
             case "USystem.Int64":
-                return $@"INSERT INTO {tableName}(
-/**insert**/)
-VALUES(
-/**values**/);
-SELECT CAST(LAST_INSERT_ID() AS UNSIGNED INTEGER) AS Id;";
+                return $$"""
+                    INSERT INTO {{tableName}}(
+                    /**insert**/)
+                    VALUES(
+                    /**values**/);
+                    SELECT CAST(LAST_INSERT_ID() AS UNSIGNED INTEGER) AS Id;
+                    """;
             case "string":
             case "String":
             case "System.String":
             {
                 if (insertOwnId)
                 {
-                    return $@"INSERT INTO {tableName}(
-/**insert**/)
-VALUES(
-/**values**/);
-SELECT @Id AS Id;";
+                    return $$"""
+                        INSERT INTO {{tableName}}(
+                        /**insert**/)
+                        VALUES(
+                        /**values**/);
+                        SELECT @Id AS Id;
+                        """;
                 }
 
-                return $@"SET @NewId=UUID();
-INSERT INTO {tableName}(
-Id,
-/**insert**/)
-VALUES(
-@NewId,
-/**values**/);
-SELECT @NewId AS Id;";
+                return $$"""
+                    SET @NewId=UUID();
+                    INSERT INTO {{tableName}}(
+                    Id,
+                    /**insert**/)
+                    VALUES(
+                    @NewId,
+                    /**values**/);
+                    SELECT @NewId AS Id;
+                    """;
             }
             default:
                 throw new ArgumentOutOfRangeException(nameof(keyTypeName));

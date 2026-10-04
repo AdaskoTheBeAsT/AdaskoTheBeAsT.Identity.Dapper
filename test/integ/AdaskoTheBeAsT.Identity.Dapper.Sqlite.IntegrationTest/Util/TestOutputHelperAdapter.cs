@@ -1,5 +1,5 @@
 using DbUp.Engine.Output;
-using Xunit.Abstractions;
+using Xunit;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.Util;
 

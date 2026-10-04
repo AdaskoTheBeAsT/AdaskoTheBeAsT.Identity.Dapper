@@ -32,16 +32,18 @@ public class MySqlApplicationUserOnlyStoreGenerator
     private void GenerateConstructor(StringBuilder sb)
     {
         sb.AppendLine(
-            @"        public ApplicationUserOnlyStore(
-            IIdentityDbConnectionProvider<MySqlConnection> connectionProvider)
-            : base(
-                new IdentityErrorDescriber(),
-                connectionProvider,
-                new IdentityUserSql(),
-                new IdentityUserClaimSql(),
-                new IdentityUserLoginSql(),
-                new IdentityUserTokenSql())
-        {
-        }");
+            """
+                    public ApplicationUserOnlyStore(
+                        IIdentityDbConnectionProvider<MySqlConnection> connectionProvider)
+                        : base(
+                            new IdentityErrorDescriber(),
+                            connectionProvider,
+                            new IdentityUserSql(),
+                            new IdentityUserClaimSql(),
+                            new IdentityUserLoginSql(),
+                            new IdentityUserTokenSql())
+                    {
+                    }
+            """);
     }
 }

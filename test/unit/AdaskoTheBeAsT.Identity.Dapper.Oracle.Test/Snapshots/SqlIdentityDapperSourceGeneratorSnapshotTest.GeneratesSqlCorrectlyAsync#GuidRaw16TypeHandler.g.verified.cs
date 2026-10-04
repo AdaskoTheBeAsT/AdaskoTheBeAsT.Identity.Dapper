@@ -1,4 +1,4 @@
-﻿//HintName: GuidRaw16TypeHandler.g.cs
+//HintName: GuidRaw16TypeHandler.g.cs
 using System;
 using System.Data;
 using Dapper;

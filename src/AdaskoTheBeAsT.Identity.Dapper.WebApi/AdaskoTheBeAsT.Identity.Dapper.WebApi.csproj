@@ -39,13 +39,17 @@
     <!--<PackageReference Include="AdaskoTheBeAsT.Identity.Dapper" Version="1.2.0" />
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.SqlServer" Version="1.2.0" />-->
     <PackageReference Include="AdaskoTheBeAsT.MediatR.SimpleInjector.AspNetCore" Version="12.0.0" />
-    <PackageReference Include="Dapper" Version="2.1.72" />
-    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.66" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
+    <PackageReference Include="Dapper" Version="2.1.89" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.89" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+    <!-- MediatR.SimpleInjector 12.0.0 references this compatibility assembly but omits it from its dependencies. -->
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.12" />
+    <PackageReference Include="Microsoft.OpenApi" Version="2.12.2" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
     <PackageReference Include="SimpleInjector.Integration.AspNetCore.Mvc.Core" Version="5.5.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.17.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
   </ItemGroup>
 
 </Project>

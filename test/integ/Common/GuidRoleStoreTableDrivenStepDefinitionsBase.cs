@@ -135,8 +135,12 @@ public abstract class GuidRoleStoreTableDrivenStepDefinitionsBase<
                 existingRole.Name = GetOptionalValue(table, row, "NewName") is { } newName
                     ? MakeScenarioUniqueValue(newName)
                     : existingRole.Name;
-                existingRole.ConcurrencyStamp = GetOptionalValue(table, row, "NewConcurrencyStamp") ?? existingRole.ConcurrencyStamp;
+                var originalStamp = existingRole.ConcurrencyStamp;
                 LastIdentityResult = await store.UpdateAsync(existingRole, CancellationToken.None);
+                if (LastIdentityResult.Succeeded)
+                {
+                    existingRole.ConcurrencyStamp.Should().NotBe(originalStamp);
+                }
                 if (!string.Equals(previousName, existingRole.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     _rolesByName.Remove(previousName);

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using AdaskoTheBeAsT.Identity.Dapper.SourceGenerator.Abstractions;
 using Microsoft.AspNetCore.Identity;
@@ -13,14 +14,32 @@ public abstract class IdentityUserClaimClassGeneratorBase
         IdentityDapperConfiguration config,
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
+        config = config.ForGeneration("IdentityUserClaim", Provider, propertyColumnTypeTriples);
         var sb = new StringBuilder();
-        GenerateUsing(sb, config.KeyTypeName);
+        GenerateSqlUsing(sb);
         GenerateNamespaceStart(sb, config.NamespaceName);
-        GenerateClassStart(sb, "IdentityUserClaimSql", "IIdentityUserClaimSql");
+        GenerateSqlClassStart(sb, "IdentityUserClaimSql", "IIdentityUserClaimBatchSql");
         GenerateCreateSql(sb, config, propertyColumnTypeTriples);
         GenerateDeleteSql(sb, config);
         GenerateGetByUserIdSql(sb, config);
         GenerateReplaceSql(sb, config, propertyColumnTypeTriples);
+        var sql = Sql(config, propertyColumnTypeTriples);
+        var names = string.Join(", ", propertyColumnTypeTriples.Select(p => Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(p.PropertyName, true)));
+        sb.AppendLine();
+        sb.AppendLine(
+            $$"""
+                    public string CreateBatchItemSql { get; } =
+                        {{RawStringLiteral.Format(sql.CreateClaimBatchItem())}};
+
+                    public string DeleteBatchItemSql { get; } =
+                        {{RawStringLiteral.Format(sql.DeleteClaimBatchItem())}};
+
+                    public System.Collections.Generic.IReadOnlyList<string> CreateBatchParameterNames { get; } = new[] { {{names}} };
+
+                    public string BatchPrefix { get; } = {{Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(Provider == DatabaseProvider.Oracle ? "BEGIN\n" : "", true)}};
+
+                    public string BatchSuffix { get; } = {{Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(Provider == DatabaseProvider.Oracle ? "\nEND;" : "", true)}};
+            """);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
         return sb.ToString();
@@ -50,8 +69,10 @@ public abstract class IdentityUserClaimClassGeneratorBase
     {
         var content = ProcessIdentityUserClaimCreateSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string CreateSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string CreateSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -61,8 +82,10 @@ public abstract class IdentityUserClaimClassGeneratorBase
     {
         var content = ProcessIdentityUserClaimDeleteSql(config);
         sb.AppendLine(
-            $@"        public string DeleteSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string DeleteSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -72,8 +95,10 @@ public abstract class IdentityUserClaimClassGeneratorBase
     {
         var content = ProcessIdentityUserClaimGetByUserIdSql(config);
         sb.AppendLine(
-            $@"        public string GetByUserIdSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string GetByUserIdSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -84,7 +109,9 @@ public abstract class IdentityUserClaimClassGeneratorBase
     {
         var content = ProcessIdentityUserClaimReplaceSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string ReplaceSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string ReplaceSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
     }
 }

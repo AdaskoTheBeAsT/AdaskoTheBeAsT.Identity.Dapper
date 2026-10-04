@@ -13,10 +13,11 @@ public abstract class IdentityRoleClaimClassGeneratorBase
         IdentityDapperConfiguration config,
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
+        config = config.ForGeneration("IdentityRoleClaim", Provider, propertyColumnTypeTriples);
         var sb = new StringBuilder();
-        GenerateUsing(sb, config.KeyTypeName);
+        GenerateSqlUsing(sb);
         GenerateNamespaceStart(sb, config.NamespaceName);
-        GenerateClassStart(sb, "IdentityRoleClaimSql", "IIdentityRoleClaimSql");
+        GenerateSqlClassStart(sb, "IdentityRoleClaimSql", "IIdentityRoleClaimSql");
         GenerateCreateSql(sb, config, propertyColumnTypeTriples);
         GenerateDeleteSql(sb, config);
         GenerateGetByRoleIdSql(sb, config);
@@ -45,8 +46,10 @@ public abstract class IdentityRoleClaimClassGeneratorBase
     {
         var content = ProcessIdentityRoleClaimCreateSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string CreateSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string CreateSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -56,8 +59,10 @@ public abstract class IdentityRoleClaimClassGeneratorBase
     {
         var content = ProcessIdentityRoleClaimDeleteSql(config);
         sb.AppendLine(
-            $@"        public string DeleteSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string DeleteSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -67,7 +72,9 @@ public abstract class IdentityRoleClaimClassGeneratorBase
     {
         var content = ProcessIdentityRoleClaimGetByRoleIdSql(config);
         sb.AppendLine(
-            $@"        public string GetByRoleIdSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string GetByRoleIdSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
     }
 }

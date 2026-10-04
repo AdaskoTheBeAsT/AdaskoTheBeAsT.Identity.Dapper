@@ -52,7 +52,7 @@ public class OracleApplicationRoleStoreGenerator
         GenerateFindByIdImpl(sb, keyTypeName);
         GenerateFindByNameImpl(sb);
         GenerateGetClaimsImpl(sb, keyTypeName);
-        GenerateAddClaimImpl(sb, keyTypeName);
+        GenerateAddClaimImpl(sb, keyTypeName, typePropertiesDict["IdentityRoleClaim"], options);
         GenerateRemoveClaimImpl(sb, keyTypeName);
         GenerateClassEnd(sb);
         GenerateNamespaceEnd(sb);
@@ -62,15 +62,17 @@ public class OracleApplicationRoleStoreGenerator
     private void GenerateConstructor(StringBuilder sb)
     {
         sb.AppendLine(
-            @"        public ApplicationRoleStore(
-            IIdentityDbConnectionProvider<OracleConnection> connectionProvider)
-            : base(
-                new IdentityErrorDescriber(),
-                connectionProvider,
-                new IdentityRoleSql(),
-                new IdentityRoleClaimSql())
-        {
-        }");
+            """
+                    public ApplicationRoleStore(
+                        IIdentityDbConnectionProvider<OracleConnection> connectionProvider)
+                        : base(
+                            new IdentityErrorDescriber(),
+                            connectionProvider,
+                            new IdentityRoleSql(),
+                            new IdentityRoleClaimSql())
+                    {
+                    }
+            """);
 
         sb.AppendLine();
     }
@@ -78,14 +80,17 @@ public class OracleApplicationRoleStoreGenerator
     private void GenerateRolesProperty(StringBuilder sb)
     {
         sb.AppendLine(
-            @"        public override IQueryable<ApplicationRole> Roles
-        {
-            get
-            {
-                using var connection = ConnectionProvider.Provide();
-                return connection.Query<ApplicationRole>(NormalizeSql(IdentityRoleSql.GetRolesSql)).AsQueryable();
-            }
-        }");
+            """
+                    public override IQueryable<ApplicationRole> Roles
+                    {
+                        get
+                        {
+                            ThrowIfDisposed();
+                            using var connection = ConnectionProvider.Provide();
+                            return connection.QueryIdentity<ApplicationRole>(NormalizeSql(IdentityRoleSql.GetRolesSql)).AsQueryable();
+                        }
+                    }
+            """);
 
         sb.AppendLine();
     }
@@ -98,61 +103,69 @@ public class OracleApplicationRoleStoreGenerator
         bool insertOwnId)
     {
         sb.AppendLine(
-            $@"        protected override async Task CreateImplAsync(
-            OracleConnection connection,
-            ApplicationRole role,
-            CancellationToken cancellationToken)
-        {{
-            var sql = IdentityRoleSql.CreateSql;
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task CreateImplAsync(
+                        OracleConnection connection,
+                        ApplicationRole role,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = IdentityRoleSql.CreateSql;
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
         sb.AppendLine(
-            $@"            parameters.Add(""OutputId"", dbType: {idType}, direction: ParameterDirection.ReturnValue, size: {idSize});");
+            $$"""            parameters.Add("OutputId", dbType: {{idType}}, direction: ParameterDirection.ReturnValue, size: {{idSize}});""");
 
         if (insertOwnId)
         {
             sb.AppendLine(
-                $@"            parameters.Add(""Id"", role.Id, {idType}, ParameterDirection.Input, {idSize});");
+                $$"""            parameters.Add("Id", role.Id, {{idType}}, ParameterDirection.Input, {{idSize}});""");
         }
 
         sb.AppendLine(
-            $@"            parameters.Add(""Name"", role.Name, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+            $$"""            parameters.Add("Name", role.Name, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
 
         if (!options.SkipNormalized)
         {
             sb.AppendLine(
-                $@"            parameters.Add(""NormalizedName"", role.NormalizedName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+                $$"""            parameters.Add("NormalizedName", role.NormalizedName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
         }
 
         sb.AppendLine(
-            $@"            parameters.Add(""ConcurrencyStamp"", role.ConcurrencyStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+            $$"""            parameters.Add("ConcurrencyStamp", role.ConcurrencyStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
 
         if (typePropertiesDict.TryGetValue(nameof(IdentityRole<int>), out var properties))
         {
             foreach (var item in properties.Where(e => !_excludedProperties.Contains(e.PropertyName)))
             {
                 sb.AppendLine(
-                    $@"            parameters.Add(""{item.ColumnName}"", role.{item.PropertyName}, {OracleTypeMapper.MapParameterEndByTypeName(item.PropertyType, options.StoreBooleanAs)}");
+                    $$"""            parameters.Add("{{item.PropertyName}}", {{OracleApplicationUserHelper.PropertyAccess("role", item.PropertyName)}}, {{OracleTypeMapper.MapParameterEndByTypeName(item.PropertyType, options.StoreBooleanAs)}}""");
             }
         }
 
         sb.AppendLine(
-            $@"            await connection.ExecuteAsync(sql, parameters).ConfigureAwait(continueOnCapturedContext: false);");
+            "            await connection.ExecuteAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken)).ConfigureAwait(continueOnCapturedContext: false);");
 
-        if (string.Equals(keyTypeName, "string", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(keyTypeName, "int", StringComparison.OrdinalIgnoreCase) ||
+        if (string.Equals(keyTypeName, "string", StringComparison.OrdinalIgnoreCase))
+        {
+            sb.AppendLine(
+                """            role.Id = parameters.Get<string>("OutputId").TrimEnd();""");
+        }
+        else if (string.Equals(keyTypeName, "int", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(keyTypeName, "long", StringComparison.OrdinalIgnoreCase))
         {
             sb.AppendLine(
-                $@"            role.Id = parameters.Get<{keyTypeName}>(""OutputId"");");
+                $$"""            role.Id = parameters.Get<{{keyTypeName}}>("OutputId");""");
         }
         else if (string.Equals(keyTypeName, "Guid", StringComparison.OrdinalIgnoreCase))
         {
             sb.AppendLine(
-                $@"            var idBytes = parameters.Get<byte[]>(""OutputId"");
-            role.Id = new Guid(idBytes);");
+                $$"""
+                            var idBytes = parameters.Get<byte[]>("OutputId");
+                            role.Id = new Guid(idBytes);
+                """);
         }
 
         sb.AppendLine("        }");
@@ -167,43 +180,55 @@ public class OracleApplicationRoleStoreGenerator
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task UpdateImplAsync(
-            OracleConnection connection,
-            ApplicationRole role,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityRoleSql.UpdateSql);
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task UpdateImplAsync(
+                        OracleConnection connection,
+                        ApplicationRole role,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityRoleSql.UpdateSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+                        var stamp = Guid.NewGuid().ToString();
+                        parameters.Add("OriginalConcurrencyStamp", role.ConcurrencyStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+            """);
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
 
         sb.AppendLine(
-            $@"            parameters.Add(""Id"", role.Id, {idType}, ParameterDirection.Input, {idSize});");
+            $$"""            parameters.Add("Id", role.Id, {{idType}}, ParameterDirection.Input, {{idSize}});""");
 
         sb.AppendLine(
-            $@"            parameters.Add(""Name"", role.Name, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+            $$"""            parameters.Add("Name", role.Name, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
 
         if (!options.SkipNormalized)
         {
             sb.AppendLine(
-                $@"            parameters.Add(""NormalizedName"", role.NormalizedName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+                $$"""            parameters.Add("NormalizedName", role.NormalizedName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
         }
 
         sb.AppendLine(
-            $@"            parameters.Add(""ConcurrencyStamp"", role.ConcurrencyStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+            $$"""            parameters.Add("ConcurrencyStamp", stamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
 
         if (typePropertiesDict.TryGetValue(nameof(IdentityRole<int>), out var properties))
         {
             foreach (var item in properties.Where(e => !_excludedProperties.Contains(e.PropertyName)))
             {
                 sb.AppendLine(
-                    $@"            parameters.Add(""{item.ColumnName}"", role.{item.PropertyName}, {OracleTypeMapper.MapParameterEndByTypeName(item.PropertyType, options.StoreBooleanAs)}");
+                    $$"""            parameters.Add("{{item.PropertyName}}", {{OracleApplicationUserHelper.PropertyAccess("role", item.PropertyName)}}, {{OracleTypeMapper.MapParameterEndByTypeName(item.PropertyType, options.StoreBooleanAs)}}""");
             }
         }
 
         sb.AppendLine(
-            $@"            await connection.ExecuteAsync(sql, parameters).ConfigureAwait(continueOnCapturedContext: false);");
+            $$"""
+                        var affected = await connection.ExecuteAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken)).ConfigureAwait(continueOnCapturedContext: false);
+                        if (affected != 1)
+                        {
+                            throw new DBConcurrencyException();
+                        }
+
+                        role.ConcurrencyStamp = stamp;
+            """);
 
         sb.AppendLine("        }");
 
@@ -215,22 +240,31 @@ public class OracleApplicationRoleStoreGenerator
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task DeleteImplAsync(
-            OracleConnection connection,
-            ApplicationRole role,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityRoleSql.DeleteSql);
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task DeleteImplAsync(
+                        OracleConnection connection,
+                        ApplicationRole role,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityRoleSql.DeleteSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+                        parameters.Add("ConcurrencyStamp", role.ConcurrencyStamp, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+            """);
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
 
         sb.AppendLine(
-            $@"            parameters.Add(""Id"", role.Id, {idType}, ParameterDirection.Input, {idSize});");
+            $$"""            parameters.Add("Id", role.Id, {{idType}}, ParameterDirection.Input, {{idSize}});""");
 
         sb.AppendLine(
-            $@"            await connection.ExecuteAsync(sql, parameters).ConfigureAwait(continueOnCapturedContext: false);");
+            $$"""
+                        var affected = await connection.ExecuteAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken)).ConfigureAwait(continueOnCapturedContext: false);
+                        if (affected != 1)
+                        {
+                            throw new DBConcurrencyException();
+                        }
+            """);
 
         sb.AppendLine("        }");
 
@@ -242,22 +276,26 @@ public class OracleApplicationRoleStoreGenerator
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task<ApplicationRole?> FindByIdImplAsync(
-            OracleConnection connection,
-            {keyTypeName} roleId,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityRoleSql.FindByIdSql);
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task<ApplicationRole?> FindByIdImplAsync(
+                        OracleConnection connection,
+                        {{keyTypeName}} roleId,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityRoleSql.FindByIdSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
         sb.AppendLine(
-            $@"            parameters.Add(""Id"", roleId, {idType}, ParameterDirection.Input, {idSize});");
+            $$"""            parameters.Add("Id", roleId, {{idType}}, ParameterDirection.Input, {{idSize}});""");
 
         sb.AppendLine(
-            $@"            return await connection.QueryFirstOrDefaultAsync<ApplicationRole>(sql, parameters)
-                .ConfigureAwait(continueOnCapturedContext: false);");
+            $$"""
+                        return await connection.QueryIdentityFirstOrDefaultAsync<ApplicationRole>(sql, parameters, cancellationToken)
+                            .ConfigureAwait(continueOnCapturedContext: false);
+            """);
 
         sb.AppendLine("        }");
 
@@ -268,20 +306,24 @@ public class OracleApplicationRoleStoreGenerator
         StringBuilder sb)
     {
         sb.AppendLine(
-            $@"        protected override async Task<ApplicationRole?> FindByNameImplAsync(
-            OracleConnection connection,
-            string normalizedRoleName,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityRoleSql.FindByNameSql);
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task<ApplicationRole?> FindByNameImplAsync(
+                        OracleConnection connection,
+                        string normalizedRoleName,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityRoleSql.FindByNameSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
 
         sb.AppendLine(
-            $@"            parameters.Add(""NormalizedName"", normalizedRoleName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+            $$"""            parameters.Add("NormalizedName", normalizedRoleName, OracleMappingType.Varchar2, ParameterDirection.Input, 256);""");
         
         sb.AppendLine(
-            $@"            return await connection.QueryFirstOrDefaultAsync<ApplicationRole>(sql, parameters)
-                .ConfigureAwait(continueOnCapturedContext: false);");
+            $$"""
+                        return await connection.QueryIdentityFirstOrDefaultAsync<ApplicationRole>(sql, parameters, cancellationToken)
+                            .ConfigureAwait(continueOnCapturedContext: false);
+            """);
 
         sb.AppendLine("        }");
 
@@ -293,23 +335,27 @@ public class OracleApplicationRoleStoreGenerator
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task<IList<Claim>> GetClaimsImplAsync(
-            OracleConnection connection,
-            {keyTypeName} roleId,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityRoleClaimSql.GetByRoleIdSql);
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task<IList<Claim>> GetClaimsImplAsync(
+                        OracleConnection connection,
+                        {{keyTypeName}} roleId,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityRoleClaimSql.GetByRoleIdSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
         sb.AppendLine(
-            $@"            parameters.Add(""Id"", roleId, {idType}, ParameterDirection.Input, {idSize});");
+            $$"""            parameters.Add("Id", roleId, {{idType}}, ParameterDirection.Input, {{idSize}});""");
 
         sb.AppendLine(
-            $@"            return (await connection.QueryAsync<Claim>(sql, parameters)
-                    .ConfigureAwait(continueOnCapturedContext: false))
-                .AsList();");
+            $$"""
+                        return (await connection.QueryAsync<Claim>(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken))
+                                .ConfigureAwait(continueOnCapturedContext: false))
+                            .AsList();
+            """);
 
         sb.AppendLine("        }");
 
@@ -318,27 +364,28 @@ public class OracleApplicationRoleStoreGenerator
 
     private void GenerateAddClaimImpl(
         StringBuilder sb,
-        string keyTypeName)
+        string keyTypeName,
+        IList<PropertyColumnTypeTriple> properties,
+        IdentityDapperOptions options)
     {
         sb.AppendLine(
-            $@"        protected override async Task AddClaimImplAsync(
-            OracleConnection connection,
-            ApplicationRoleClaim roleClaim,
-            CancellationToken cancellationToken)
-        {{
-            var sql = IdentityRoleClaimSql.CreateSql;
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task AddClaimImplAsync(
+                        OracleConnection connection,
+                        ApplicationRoleClaim roleClaim,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityRoleClaimSql.CreateSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
 
-        var idType = OracleTypeMapper.MapIdType(keyTypeName);
-        var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
-        sb.AppendLine(
-            $@"            parameters.Add(""RoleId"", roleClaim.RoleId, {idType}, ParameterDirection.Input, {idSize});
-            parameters.Add(""ClaimType"", roleClaim.ClaimType, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-            parameters.Add(""ClaimValue"", roleClaim.ClaimValue, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+        OracleApplicationUserHelper.GenerateEntityParameters(sb, properties, "roleClaim", keyTypeName, options);
 
         sb.AppendLine(
-            $@"            await connection.ExecuteAsync(sql, parameters)
-                .ConfigureAwait(continueOnCapturedContext: false);");
+            $$"""
+                        await connection.ExecuteAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken))
+                            .ConfigureAwait(continueOnCapturedContext: false);
+            """);
 
         sb.AppendLine("        }");
 
@@ -350,24 +397,30 @@ public class OracleApplicationRoleStoreGenerator
         string keyTypeName)
     {
         sb.AppendLine(
-            $@"        protected override async Task RemoveClaimImplAsync(
-            OracleConnection connection,
-            ApplicationRoleClaim roleClaim,
-            CancellationToken cancellationToken)
-        {{
-            var sql = NormalizeSql(IdentityRoleClaimSql.DeleteSql);
-            var parameters = new OracleDynamicParameters();");
+            $$"""
+                    protected override async Task RemoveClaimImplAsync(
+                        OracleConnection connection,
+                        ApplicationRoleClaim roleClaim,
+                        CancellationToken cancellationToken)
+                    {
+                        var sql = NormalizeSql(IdentityRoleClaimSql.DeleteSql);
+                        var parameters = new OracleDynamicParameters { BindByName = true };
+            """);
 
         var idType = OracleTypeMapper.MapIdType(keyTypeName);
         var idSize = OracleTypeMapper.MapIdSize(keyTypeName);
         sb.AppendLine(
-            $@"            parameters.Add(""RoleId"", roleClaim.RoleId, {idType}, ParameterDirection.Input, {idSize});
-            parameters.Add(""ClaimType"", roleClaim.ClaimType, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
-            parameters.Add(""ClaimValue"", roleClaim.ClaimValue, OracleMappingType.Varchar2, ParameterDirection.Input, 256);");
+            $$"""
+                        parameters.Add("RoleId", roleClaim.RoleId, {{idType}}, ParameterDirection.Input, {{idSize}});
+                        parameters.Add("ClaimType", roleClaim.ClaimType, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+                        parameters.Add("ClaimValue", roleClaim.ClaimValue, OracleMappingType.Varchar2, ParameterDirection.Input, 256);
+            """);
 
         sb.AppendLine(
-            $@"            await connection.ExecuteAsync(sql, parameters)
-                .ConfigureAwait(continueOnCapturedContext: false);");
+            $$"""
+                        await connection.ExecuteAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken))
+                            .ConfigureAwait(continueOnCapturedContext: false);
+            """);
 
         sb.AppendLine("        }");
     }

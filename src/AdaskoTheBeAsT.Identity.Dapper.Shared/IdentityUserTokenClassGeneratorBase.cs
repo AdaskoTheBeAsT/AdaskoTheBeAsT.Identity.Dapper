@@ -9,15 +9,20 @@ public abstract class IdentityUserTokenClassGeneratorBase
     : IdentityClassGeneratorBase,
         IIdentityUserTokenClassGenerator
 {
+    protected virtual string TokenTableName =>
+        Provider is DatabaseProvider.MySql or DatabaseProvider.PostgreSql ? "aspnetusertokens" : "AspNetUserTokens";
+
     public string Generate(
         IdentityDapperConfiguration config,
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
+        config = config.ForGeneration("IdentityUserToken", Provider, propertyColumnTypeTriples);
         var sb = new StringBuilder();
-        GenerateUsing(sb, config.KeyTypeName);
+        GenerateSqlUsing(sb);
         GenerateNamespaceStart(sb, config.NamespaceName);
-        GenerateClassStart(sb, "IdentityUserTokenSql", "IIdentityUserTokenSql");
+        GenerateSqlClassStart(sb, "IdentityUserTokenSql", "IIdentityUserTokenConcurrencySql");
         GenerateCreateSql(sb, config, propertyColumnTypeTriples);
+        GenerateUpdateSql(sb, config, propertyColumnTypeTriples);
         GenerateDeleteSql(sb, config);
         GenerateGetByUserIdSql(sb, config, propertyColumnTypeTriples);
         GenerateClassEnd(sb);
@@ -40,6 +45,20 @@ public abstract class IdentityUserTokenClassGeneratorBase
         IdentityDapperConfiguration config,
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples);
 
+    private void GenerateUpdateSql(
+        StringBuilder sb,
+        IdentityDapperConfiguration config,
+        IList<PropertyColumnTypeTriple> properties)
+    {
+        var content = Sql(config, properties).UpdateToken(TokenTableName);
+        sb.AppendLine(
+            $$"""
+                    public string UpdateSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
+        sb.AppendLine();
+    }
+
     private void GenerateCreateSql(
         StringBuilder sb,
         IdentityDapperConfiguration config,
@@ -47,8 +66,10 @@ public abstract class IdentityUserTokenClassGeneratorBase
     {
         var content = ProcessIdentityUserTokenCreateSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string CreateSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string CreateSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -58,8 +79,10 @@ public abstract class IdentityUserTokenClassGeneratorBase
     {
         var content = ProcessIdentityUserTokenDeleteSql(config);
         sb.AppendLine(
-            $@"        public string DeleteSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string DeleteSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -70,7 +93,9 @@ public abstract class IdentityUserTokenClassGeneratorBase
     {
         var content = ProcessIdentityUserTokenGetByUserIdSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string GetByUserIdSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string GetByUserIdSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
     }
 }

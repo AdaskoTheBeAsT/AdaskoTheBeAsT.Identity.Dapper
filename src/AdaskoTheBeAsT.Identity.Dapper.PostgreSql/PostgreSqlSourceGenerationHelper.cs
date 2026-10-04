@@ -8,6 +8,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper.PostgreSql;
 public class PostgreSqlSourceGenerationHelper
     : SourceGeneratorHelperBase
 {
+    protected override DatabaseProvider Provider => DatabaseProvider.PostgreSql;
+
     public PostgreSqlSourceGenerationHelper()
         : base(
             new PostgreSqlIdentityRoleClassGenerator(),

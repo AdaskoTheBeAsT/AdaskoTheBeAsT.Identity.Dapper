@@ -1,54 +1,62 @@
 ﻿//HintName: IdentityUserLoginSql.g.cs
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
-
 namespace AdaskoTheBeAsT.Identity.Dapper.Sample
 {
-    public class IdentityUserLoginSql
-        : IIdentityUserLoginSql
+    public class IdentityUserLoginSql : IIdentityUserLoginSql
     {
         public string CreateSql { get; } =
-            @"INSERT INTO AspNetUserLogins(
-LoginProvider
-,ProviderKey
-,ProviderDisplayName
-,UserId)
-VALUES(
-:LoginProvider
-,:ProviderKey
-,:ProviderDisplayName
-,:UserId);";
+            """
+            INSERT INTO AspNetUserLogins(
+                "LOGINPROVIDER"
+               ,"PROVIDERKEY"
+               ,"PROVIDERDISPLAYNAME"
+               ,"USERID")
+            VALUES(
+                :LoginProvider
+               ,:ProviderKey
+               ,:ProviderDisplayName
+               ,:UserId);
+            """;
 
         public string DeleteSql { get; } =
-            @"DELETE FROM AspNetUserLogins
-WHERE LoginProvider=:LoginProvider
-  AND ProviderKey=:ProviderKey
-  AND UserId=:UserId;";
+            """
+            DELETE FROM AspNetUserLogins
+            WHERE "USERID"=:UserId
+              AND "LOGINPROVIDER"=:LoginProvider
+              AND "PROVIDERKEY"=:ProviderKey;
+            """;
 
         public string GetByUserIdSql { get; } =
-            @"SELECT LoginProvider AS LoginProvider
-,ProviderKey AS ProviderKey
-,ProviderDisplayName AS ProviderDisplayName
-,UserId AS UserId
-FROM AspNetUserLogins
-WHERE UserId=:Id;";
+            """
+            SELECT "LOGINPROVIDER" AS "LOGINPROVIDER"
+                  ,"PROVIDERKEY" AS "PROVIDERKEY"
+                  ,"PROVIDERDISPLAYNAME" AS "PROVIDERDISPLAYNAME"
+                  ,"USERID" AS "USERID"
+            FROM AspNetUserLogins
+            WHERE "USERID"=:Id;
+            """;
 
         public string GetByUserIdLoginProviderKeySql { get; } =
-            @"SELECT LoginProvider AS LoginProvider
-,ProviderKey AS ProviderKey
-,ProviderDisplayName AS ProviderDisplayName
-,UserId AS UserId
-FROM AspNetUserLogins
-WHERE UserId=:Id
-  AND LoginProvider=:LoginProvider
-  AND ProviderKey=:ProviderKey;";
+            """
+            SELECT "LOGINPROVIDER" AS "LOGINPROVIDER"
+                  ,"PROVIDERKEY" AS "PROVIDERKEY"
+                  ,"PROVIDERDISPLAYNAME" AS "PROVIDERDISPLAYNAME"
+                  ,"USERID" AS "USERID"
+            FROM AspNetUserLogins
+            WHERE "USERID"=:UserId
+              AND "LOGINPROVIDER"=:LoginProvider
+              AND "PROVIDERKEY"=:ProviderKey;
+            """;
 
         public string GetByLoginProviderKeySql { get; } =
-            @"SELECT LoginProvider AS LoginProvider
-,ProviderKey AS ProviderKey
-,ProviderDisplayName AS ProviderDisplayName
-,UserId AS UserId
-FROM AspNetUserLogins
-WHERE LoginProvider=:LoginProvider
-  AND ProviderKey=:ProviderKey;";
+            """
+            SELECT "LOGINPROVIDER" AS "LOGINPROVIDER"
+                  ,"PROVIDERKEY" AS "PROVIDERKEY"
+                  ,"PROVIDERDISPLAYNAME" AS "PROVIDERDISPLAYNAME"
+                  ,"USERID" AS "USERID"
+            FROM AspNetUserLogins
+            WHERE "LOGINPROVIDER"=:LoginProvider
+              AND "PROVIDERKEY"=:ProviderKey;
+            """;
     }
 }

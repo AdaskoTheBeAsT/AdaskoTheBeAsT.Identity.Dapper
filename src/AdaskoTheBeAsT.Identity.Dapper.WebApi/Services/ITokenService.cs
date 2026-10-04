@@ -12,5 +12,5 @@ public interface ITokenService
         IList<string> roles,
         IList<Claim> claims);
 
-    RefreshToken? GetRefreshToken(string refreshTokenId);
+    RefreshToken ConsumeRefreshToken(string refreshTokenId);
 }

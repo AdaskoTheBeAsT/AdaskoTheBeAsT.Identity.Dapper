@@ -13,10 +13,11 @@ public abstract class IdentityUserRoleClassGeneratorBase
         IdentityDapperConfiguration config,
         IList<PropertyColumnTypeTriple> propertyColumnTypeTriples)
     {
+        config = config.ForGeneration("IdentityUserRole", Provider, propertyColumnTypeTriples);
         var sb = new StringBuilder();
-        GenerateUsing(sb, config.KeyTypeName);
+        GenerateSqlUsing(sb);
         GenerateNamespaceStart(sb, config.NamespaceName);
-        GenerateClassStart(sb, "IdentityUserRoleSql", "IIdentityUserRoleSql");
+        GenerateSqlClassStart(sb, "IdentityUserRoleSql", "IIdentityUserRoleSql");
         GenerateCreateSql(sb, config, propertyColumnTypeTriples);
         GenerateDeleteSql(sb, config);
         GenerateGetByUserIdRoleIdSql(sb, config, propertyColumnTypeTriples);
@@ -57,8 +58,10 @@ public abstract class IdentityUserRoleClassGeneratorBase
     {
         var content = ProcessIdentityUserRoleCreateSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string CreateSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string CreateSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -68,8 +71,10 @@ public abstract class IdentityUserRoleClassGeneratorBase
     {
         var content = ProcessIdentityUserRoleDeleteSql(config);
         sb.AppendLine(
-            $@"        public string DeleteSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string DeleteSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -80,8 +85,10 @@ public abstract class IdentityUserRoleClassGeneratorBase
     {
         var content = ProcessIdentityUserRoleGetByUserIdRoleIdSql(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string GetByUserIdRoleIdSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string GetByUserIdRoleIdSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -92,8 +99,10 @@ public abstract class IdentityUserRoleClassGeneratorBase
     {
         var content = ProcessIdentityUserRoleGetCount(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string GetCountSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string GetCountSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
         sb.AppendLine();
     }
 
@@ -104,7 +113,9 @@ public abstract class IdentityUserRoleClassGeneratorBase
     {
         var content = ProcessIdentityUserRoleGetRoleNamesByUserId(config, propertyColumnTypeTriples);
         sb.AppendLine(
-            $@"        public string GetRoleNamesByUserIdSql {{ get; }} =
-            @""{content}"";");
+            $$"""
+                    public string GetRoleNamesByUserIdSql { get; } =
+                        {{RawStringLiteral.Format(content)}};
+            """);
     }
 }
