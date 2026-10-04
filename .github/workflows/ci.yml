@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main, master ]
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  checks: write
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  build:
+    uses: AdaskoTheBeAsT/github-actions/.github/workflows/dotnet-build-sonarqube-nuget.yml@v1
+    with:
+      dotnet_versions: ${{ vars.DOTNET_VERSIONS }}
+      runs_on: ${{ vars.RUNS_ON }}
+      solution_name: ${{ vars.SOLUTION_NAME }}
+      sonar_organization: ${{ vars.SONAR_ORGANIZATION }}
+      sonar_project_key: ${{ vars.SONAR_PROJECT_KEY }}
+      tool_version_dotnet_coverage: ${{ vars.TOOL_VERSION_DOTNET_COVERAGE }}
+      tool_version_reportgenerator: ${{ vars.TOOL_VERSION_REPORTGENERATOR }}
+      tool_version_resharper: ${{ vars.TOOL_VERSION_RESHARPER }}
+      tool_version_sonar_scanner: ${{ vars.TOOL_VERSION_SONAR_SCANNER }}
+      use_global_json: ${{ vars.USE_GLOBAL_JSON == 'true' }}
+    secrets:
+      sonar_token: ${{ secrets.SONAR_TOKEN }}
+      nuget_api_key: ${{ secrets.NUGET_API_KEY }}
+      test_env_secrets: |
+        AUTOMAPPER_LICENSE_KEY=${{ secrets.AUTOMAPPER_LICENSE_KEY }}
