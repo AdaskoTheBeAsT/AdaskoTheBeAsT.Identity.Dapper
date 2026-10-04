@@ -9,6 +9,7 @@
     <File Path=".gitignore" />
     <File Path="AdaskoTheBeAsT.Identity.Dapper.sln.DotSettings" />
     <File Path="AdaskoTheBeAsT.ruleset" />
+    <File Path="coverage.settings.xml" />
     <File Path="DeterministicBuild.targets" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Build.targets" />
@@ -18,6 +19,7 @@
     <File Path="README.md" />
     <File Path="SecurityCodeScan.config.yml" />
     <File Path="Settings.StyleCop" />
+    <File Path="SonarQube.Analysis.xml" />
     <File Path="stylecop.json" />
   </Folder>
   <Folder Name="/.sarif/">
@@ -66,39 +68,39 @@
     <File Path="db/SQLite/WithoutNormalizedAspNetIdentityString.sql" />
   </Folder>
   <Folder Name="/db/SqlServer/">
-    <Project Path="db/SqlServer/AspNetIdentityBigInt/AspNetIdentityBigInt.sqlproj">
+    <Project Path="db/SqlServer/AspNetIdentityBigInt/AspNetIdentityBigInt.sqlproj" Id="aa81343e-f71c-4080-a94c-ff23e4e04ce6">
       <Build Solution="*|Any CPU" />
       <Deploy Solution="*|Any CPU" />
     </Project>
-    <Project Path="db/SqlServer/AspNetIdentityGuid/AspNetIdentityGuid.sqlproj">
+    <Project Path="db/SqlServer/AspNetIdentityGuid/AspNetIdentityGuid.sqlproj" Id="7ff57a3a-3343-49da-bec8-0682a15e7fef">
       <Build Solution="*|Any CPU" />
       <Deploy Solution="*|Any CPU" />
     </Project>
-    <Project Path="db/SqlServer/AspNetIdentityInt/AspNetIdentityInt.sqlproj">
+    <Project Path="db/SqlServer/AspNetIdentityInt/AspNetIdentityInt.sqlproj" Id="4880cfdf-5dd6-4e0a-bcd5-b9425c837d79">
       <Build Solution="*|Any CPU" />
       <Deploy Solution="*|Any CPU" />
     </Project>
-    <Project Path="db/SqlServer/AspNetIdentityString/AspNetIdentityString.sqlproj">
+    <Project Path="db/SqlServer/AspNetIdentityString/AspNetIdentityString.sqlproj" Id="fc6af60d-3e65-45f3-a554-c2005b29dbc7">
       <Build Solution="*|Any CPU" />
       <Deploy Solution="*|Any CPU" />
     </Project>
-    <Project Path="db/SqlServer/WithoutNormalizedAspNetIdentityBigInt/WithoutNormalizedAspNetIdentityBigInt.sqlproj">
+    <Project Path="db/SqlServer/WithoutNormalizedAspNetIdentityBigInt/WithoutNormalizedAspNetIdentityBigInt.sqlproj" Id="64ebcb32-1298-470e-91c2-6f5bacdb4bf7">
       <Build Solution="*|Any CPU" />
       <Deploy Solution="*|Any CPU" />
     </Project>
-    <Project Path="db/SqlServer/WithoutNormalizedAspNetIdentityGuid/WithoutNormalizedAspNetIdentityGuid.sqlproj">
+    <Project Path="db/SqlServer/WithoutNormalizedAspNetIdentityGuid/WithoutNormalizedAspNetIdentityGuid.sqlproj" Id="c6ec1785-fc06-4f4a-b89e-35992d97a45a">
       <Build Solution="*|Any CPU" />
       <Deploy Solution="*|Any CPU" />
     </Project>
-    <Project Path="db/SqlServer/WithoutNormalizedAspNetIdentityGuidOptimized/WithoutNormalizedAspNetIdentityGuidOptimized.sqlproj">
+    <Project Path="db/SqlServer/WithoutNormalizedAspNetIdentityGuidOptimized/WithoutNormalizedAspNetIdentityGuidOptimized.sqlproj" Id="5bdcf29f-00f9-45be-82bd-684b2560c763">
       <Build Solution="*|Any CPU" />
       <Deploy Solution="*|Any CPU" />
     </Project>
-    <Project Path="db/SqlServer/WithoutNormalizedAspNetIdentityInt/WithoutNormalizedAspNetIdentityInt.sqlproj">
+    <Project Path="db/SqlServer/WithoutNormalizedAspNetIdentityInt/WithoutNormalizedAspNetIdentityInt.sqlproj" Id="50147b9d-9f88-482e-998f-850bd80bcaee">
       <Build Solution="*|Any CPU" />
       <Deploy Solution="*|Any CPU" />
     </Project>
-    <Project Path="db/SqlServer/WithoutNormalizedAspNetIdentityString/WithoutNormalizedAspNetIdentityString.sqlproj">
+    <Project Path="db/SqlServer/WithoutNormalizedAspNetIdentityString/WithoutNormalizedAspNetIdentityString.sqlproj" Id="f8fb334e-aa9a-4a74-8d9d-a7dc7983999a">
       <Build Solution="*|Any CPU" />
       <Deploy Solution="*|Any CPU" />
     </Project>
