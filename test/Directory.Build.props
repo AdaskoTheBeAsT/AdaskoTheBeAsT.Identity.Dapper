@@ -2,6 +2,7 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
   <PropertyGroup>
     <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
     <SolutionDir Condition="'$(SolutionDir)' == '' Or '$(SolutionDir)' == '*Undefined*'">$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..'))</SolutionDir>
     <SolutionName Condition="'$(SolutionName)' == '' Or '$(SolutionName)' == '*Undefined*'">AdaskoTheBeAsT.Identity.Dapper</SolutionName>
     <NoWarn>$(NoWarn);CC0022;CC0057;CC0091;MA0004</NoWarn>

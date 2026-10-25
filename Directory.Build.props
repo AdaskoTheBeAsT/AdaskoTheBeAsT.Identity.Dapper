@@ -13,6 +13,8 @@
     <WarningsAsErrors />
     <NoWarn>$(NoWarn);1701;1702;1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
+    <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
     <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
     <!--<ErrorLog>$(SolutionDir)\.sarif\$(MSBuildProjectName).json</ErrorLog>-->
   </PropertyGroup>
