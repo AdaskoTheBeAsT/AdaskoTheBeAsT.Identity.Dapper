@@ -9,7 +9,9 @@ using Xunit;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.IntegrationTest.Common;
 
+#pragma warning disable S2436
 public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin, TUserToken, TRoleClaim, TConnection>
+#pragma warning restore S2436
     where TUser : IdentityUser<Guid>, new()
     where TRole : IdentityRole<Guid>, new()
     where TUserClaim : IdentityUserClaim<Guid>, new()
@@ -216,15 +218,8 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
 
         // The overridden operation never uses the connection.
         provider.Setup(p => p.Provide()).Returns(default(TConnection)!);
-        using var store = new CancelingUsers(provider.Object);
-        var create = store.CreateAsync(NewUser(), cancellation.Token);
-#pragma warning disable VSTHRD003 // Observe the test-owned gate signaled by the already-started create operation.
-        await store.Entered.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
-#pragma warning restore VSTHRD003
-        await cancellation.CancelAsync();
-#pragma warning disable VSTHRD003 // Observe cancellation of the create operation started by this test.
-        await FluentActions.Awaiting(() => create).Should().ThrowAsync<OperationCanceledException>();
-#pragma warning restore VSTHRD003
+        using var store = new CancelingUsers(provider.Object, cancellation);
+        await FluentActions.Awaiting(() => store.CreateAsync(NewUser(), cancellation.Token)).Should().ThrowAsync<OperationCanceledException>();
     }
 
     [Theory]
@@ -276,19 +271,15 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
                     new IdentityErrorDescriber(), provider, Mock.Of<IIdentityUserSql>(MockBehavior.Strict), Mock.Of<IIdentityUserClaimSql>(MockBehavior.Strict),
                     Mock.Of<IIdentityUserLoginSql>(MockBehavior.Strict), Mock.Of<IIdentityUserTokenSql>(MockBehavior.Strict));
 
-    private sealed class CancelingUsers(IIdentityDbConnectionProvider<TConnection> provider)
+    private sealed class CancelingUsers(IIdentityDbConnectionProvider<TConnection> provider, CancellationTokenSource cancellation)
                 : DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TConnection>(
                     new IdentityErrorDescriber(), provider, Mock.Of<IIdentityUserSql>(MockBehavior.Strict), Mock.Of<IIdentityUserClaimSql>(MockBehavior.Strict),
                     Mock.Of<IIdentityUserLoginSql>(MockBehavior.Strict), Mock.Of<IIdentityUserTokenSql>(MockBehavior.Strict))
     {
-        private readonly TaskCompletionSource _entered = new(TaskCreationOptions.RunContinuationsAsynchronously);
-
-        public Task Entered => _entered.Task;
-
-        protected override Task CreateImplAsync(TConnection connection, TUser user, CancellationToken cancellationToken)
+        protected override async Task CreateImplAsync(TConnection connection, TUser user, CancellationToken cancellationToken)
         {
-            _entered.SetResult();
-            return Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+            await cancellation.CancelAsync().ConfigureAwait(false);
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken).ConfigureAwait(false);
         }
     }
 

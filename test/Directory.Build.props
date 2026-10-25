@@ -21,13 +21,13 @@
     <PackageReference Include="AwesomeAssertions" Version="9.6.0" />
     <PackageReference Include="AwesomeAssertions.Analyzers" Version="9.0.8" />
     <PackageReference Include="Bogus" Version="35.6.5" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageReference Include="Moq" Version="4.21.0" />
     <PackageReference Include="Moq.Analyzers" Version="0.4.2" />
-    <PackageReference Include="NunitXml.TestLogger" Version="8.0.0" />
+    <PackageReference Include="NunitXml.TestLogger" Version="8.1.0" />
     <PackageReference Include="SemanticComparison" Version="4.1.0" />
-    <PackageReference Include="xunit.v3" Version="4.0.1" />
-    <PackageReference Include="xunit.analyzers" Version="2.1.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0" />
+    <PackageReference Include="xunit.v3" Version="4.0.2" />
+    <PackageReference Include="xunit.analyzers" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.1" />
   </ItemGroup>
 </Project>

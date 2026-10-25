@@ -13,9 +13,9 @@
     <PackageReference Include="Dapper" Version="2.1.89" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.1.89" />
     <PackageReference Include="dbup-mysql" Version="6.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.12" PrivateAssets="all" />
-    <PackageReference Include="MySql.Data" Version="26.7.0" />
-    <PackageReference Include="Testcontainers.MySql" Version="4.15.0" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.13" PrivateAssets="all" />
+    <PackageReference Include="MySql.Data" Version="26.10.0" />
+    <PackageReference Include="Testcontainers.MySql" Version="4.16.0" />
   </ItemGroup>
 
   <ItemGroup>

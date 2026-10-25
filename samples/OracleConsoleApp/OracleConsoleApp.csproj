@@ -18,7 +18,8 @@
     <PackageReference Include="AdaskoTheBeAsT.Identity.Dapper.Oracle" Version="4.0.0" />
     <PackageReference Include="Dapper" Version="2.1.89" />
     <PackageReference Include="Dapper.Oracle" Version="2.0.3" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.301" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.400" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 
 </Project>

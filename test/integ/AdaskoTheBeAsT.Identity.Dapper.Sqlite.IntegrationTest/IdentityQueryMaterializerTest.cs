@@ -213,7 +213,9 @@ public sealed class IdentityQueryMaterializerTest
     }
 
     [Fact]
+#pragma warning disable S3776
     public Task ConcurrentQueriesSafelySharePlansWithoutSharingReadersAsync()
+#pragma warning restore S3776
     {
         var start = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var tasks = Enumerable.Range(0, 12).Select(worker => Task.Run(
@@ -279,7 +281,7 @@ public sealed class IdentityQueryMaterializerTest
         // Inspect private implementation rather than adding production diagnostics/public test hooks.
         var cache = typeof(IdentityQuery).GetNestedType("ParserCache`1", BindingFlags.NonPublic)!
             .MakeGenericType(typeof(BoundedRow));
-        var capacity = (int)cache.GetField("Capacity", BindingFlags.NonPublic | BindingFlags.Static)!
+        var capacity = (int)cache.GetField("Capacity", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly)!
             .GetRawConstantValue()!;
         capacity.Should().BeInRange(1, 64);
 
@@ -297,9 +299,9 @@ public sealed class IdentityQueryMaterializerTest
         }
 
         var caches = (ConditionalWeakTable<Type, object>)typeof(IdentityQuery)
-            .GetField("ParserCaches", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null)!;
+            .GetField("ParserCaches", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly)!.GetValue(null)!;
         caches.TryGetValue(typeof(BoundedRow), out var instance).Should().BeTrue();
-        var entries = (Array)cache.GetField("_entries", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(instance)!;
+        var entries = (Array)cache.GetField("_entries", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly)!.GetValue(instance)!;
         entries.Length.Should().Be(capacity);
         entries.Cast<object?>().Count(entry => entry != null).Should().Be(capacity);
         createParser(firstReader).Should().NotBeSameAs(firstParser);
@@ -349,7 +351,7 @@ public sealed class IdentityQueryMaterializerTest
     private static Func<IDataReader, Func<IDataReader, T>> ParserFactory<T>()
                 where T : class =>
                 typeof(IdentityQuery)
-                    .GetMethod("CreateParser", BindingFlags.NonPublic | BindingFlags.Static)!
+                    .GetMethod("CreateParser", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly)!
                     .MakeGenericMethod(typeof(T))
                     .CreateDelegate<Func<IDataReader, Func<IDataReader, T>>>();
 
