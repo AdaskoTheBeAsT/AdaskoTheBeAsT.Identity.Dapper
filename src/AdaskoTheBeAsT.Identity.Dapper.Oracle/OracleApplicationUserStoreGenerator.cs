@@ -9,6 +9,8 @@ public class OracleApplicationUserStoreGenerator
     : OracleIdentityStoreGeneratorBase,
         IApplicationUserStoreGenerator
 {
+    private const string MethodClosingBrace = "        }";
+
     public string Generate(
         IDictionary<string, IList<PropertyColumnTypeTriple>> typePropertiesDict,
         IdentityDapperOptions options,
@@ -132,7 +134,7 @@ public class OracleApplicationUserStoreGenerator
                             .AsList();
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -163,7 +165,7 @@ public class OracleApplicationUserStoreGenerator
                             .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -193,7 +195,7 @@ public class OracleApplicationUserStoreGenerator
                             .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -223,7 +225,7 @@ public class OracleApplicationUserStoreGenerator
                             .AsList();
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -253,7 +255,7 @@ public class OracleApplicationUserStoreGenerator
                                 .ConfigureAwait(continueOnCapturedContext: false)) > 0;
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -283,7 +285,7 @@ public class OracleApplicationUserStoreGenerator
                                 .AsList();
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -313,7 +315,7 @@ public class OracleApplicationUserStoreGenerator
                                 .AsList();
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -340,7 +342,7 @@ public class OracleApplicationUserStoreGenerator
                                 .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -360,7 +362,7 @@ public class OracleApplicationUserStoreGenerator
                                 .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }

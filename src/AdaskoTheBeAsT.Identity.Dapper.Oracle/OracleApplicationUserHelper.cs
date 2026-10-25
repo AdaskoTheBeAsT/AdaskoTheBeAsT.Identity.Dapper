@@ -10,6 +10,8 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 
 public static class OracleApplicationUserHelper
 {
+    private const string MethodClosingBrace = "        }";
+
     private static readonly HashSet<string> ExcludedProperties = new(StringComparer.OrdinalIgnoreCase)
     {
         nameof(IdentityUser<int>.Id),
@@ -65,7 +67,7 @@ public static class OracleApplicationUserHelper
                         user.ConcurrencyStamp = stamp;
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -100,7 +102,7 @@ public static class OracleApplicationUserHelper
                         }
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -121,7 +123,7 @@ public static class OracleApplicationUserHelper
                             .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -149,7 +151,7 @@ public static class OracleApplicationUserHelper
                             .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -171,7 +173,7 @@ public static class OracleApplicationUserHelper
                             .AsList();
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -253,7 +255,7 @@ public static class OracleApplicationUserHelper
 
         sb.AppendLine("            }");
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -285,7 +287,7 @@ public static class OracleApplicationUserHelper
                             .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -320,7 +322,7 @@ public static class OracleApplicationUserHelper
 
         sb.AppendLine("            }");
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -352,7 +354,7 @@ public static class OracleApplicationUserHelper
                             .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -384,7 +386,7 @@ public static class OracleApplicationUserHelper
                             .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -420,7 +422,7 @@ public static class OracleApplicationUserHelper
                             .AsList();
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -441,7 +443,7 @@ public static class OracleApplicationUserHelper
                                 .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -462,7 +464,7 @@ public static class OracleApplicationUserHelper
                                 .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -490,7 +492,7 @@ public static class OracleApplicationUserHelper
                                 .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -516,7 +518,7 @@ public static class OracleApplicationUserHelper
                                 .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -544,7 +546,7 @@ public static class OracleApplicationUserHelper
                                 .AsList();
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -577,7 +579,7 @@ public static class OracleApplicationUserHelper
                                  .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -607,7 +609,7 @@ public static class OracleApplicationUserHelper
                                  .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
@@ -643,7 +645,7 @@ public static class OracleApplicationUserHelper
                                  .ConfigureAwait(continueOnCapturedContext: false);
             """);
 
-        sb.AppendLine("        }");
+        sb.AppendLine(MethodClosingBrace);
 
         sb.AppendLine();
     }
