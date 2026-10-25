@@ -10,6 +10,7 @@
     <AssemblyName>AspNetIdentityInt</AssemblyName>
     <TargetDatabaseSet>True</TargetDatabaseSet>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>false</IsPackable>
     <ProjectGuid>{4880cfdf-5dd6-4e0a-bcd5-b9425c837d79}</ProjectGuid>
     <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
     <DefaultFilegroup>PRIMARY</DefaultFilegroup>

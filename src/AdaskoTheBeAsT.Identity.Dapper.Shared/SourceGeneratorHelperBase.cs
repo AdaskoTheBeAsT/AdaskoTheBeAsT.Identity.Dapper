@@ -35,6 +35,7 @@ public abstract class SourceGeneratorHelperBase
     private readonly IApplicationUserStoreGenerator _applicationUserStoreGenerator;
     private readonly IApplicationRoleStoreGenerator _applicationRoleStoreGenerator;
 
+#pragma warning disable S107 // Methods should not have too many parameters
     protected SourceGeneratorHelperBase(
         IIdentityRoleClassGenerator identityRoleClassGenerator,
         IIdentityRoleClaimClassGenerator identityRoleClaimClassGenerator,
@@ -47,6 +48,7 @@ public abstract class SourceGeneratorHelperBase
         IApplicationUserOnlyStoreGenerator applicationUserOnlyStoreGenerator,
         IApplicationUserStoreGenerator applicationUserStoreGenerator,
         IApplicationRoleStoreGenerator applicationRoleStoreGenerator)
+#pragma warning restore S107
     {
         _identityRoleClassGenerator = identityRoleClassGenerator;
         _identityRoleClaimClassGenerator = identityRoleClaimClassGenerator;

@@ -170,6 +170,41 @@ scopedLogin,
     }
 
     [Fact]
+    public void AllSupportedCustomPropertyTypesCompileInOracleStores()
+    {
+        const string customProperties = """
+            public string? DisplayLabel { get; set; }
+            public int Age { get; set; }
+            public long Counter { get; set; }
+            public Guid ExternalId { get; set; }
+            public decimal Balance { get; set; }
+            public DateTime CreatedAt { get; set; }
+            public DateTimeOffset? UpdatedAt { get; set; }
+            public byte[]? Avatar { get; set; }
+            public short ShortVal { get; set; }
+            public ushort UShortVal { get; set; }
+            public byte ByteVal { get; set; }
+            public sbyte SByteVal { get; set; }
+            public float FloatVal { get; set; }
+            public double DoubleVal { get; set; }
+            """;
+        var (driver, compilation) = GeneratorCompilation.Run(
+            Model("Guid", ownId: true).Replace(
+                "public string? DisplayLabel { get; set; }",
+                customProperties,
+                StringComparison.Ordinal),
+            CreateGenerator());
+
+        GeneratorCompilation.AssertCompiles(compilation);
+        var store = Source(driver, "ApplicationUserStore.g.cs");
+        store.Should().Contain("OracleMappingType.Decimal, ParameterDirection.Input, precision: 28, scale: 18);");
+        store.Should().Contain("OracleMappingType.TimeStamp, ParameterDirection.Input);");
+        store.Should().Contain("OracleMappingType.Blob, ParameterDirection.Input);");
+        store.Should().Contain("OracleMappingType.Int16, ParameterDirection.Input);");
+        store.Should().Contain("OracleMappingType.Double, ParameterDirection.Input);");
+    }
+
+    [Fact]
     public void UnsupportedCustomTypesProduceLocatedDiagnosticInsteadOfCrashing()
     {
         var (driver, _) = GeneratorCompilation.Run(

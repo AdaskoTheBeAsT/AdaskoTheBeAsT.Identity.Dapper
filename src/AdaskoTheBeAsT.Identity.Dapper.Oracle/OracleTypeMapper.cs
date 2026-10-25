@@ -4,6 +4,10 @@ namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 
 public static class OracleTypeMapper
 {
+    private const string OracleMappingTypeInt32 = "OracleMappingType.Int32";
+    private const string OracleMappingTypeInt64 = "OracleMappingType.Int64";
+    private const string StringTypeName = "string";
+
     public static bool IsSupportedPropertyType(string typeName)
     {
         try
@@ -23,19 +27,19 @@ public static class OracleTypeMapper
         {
             "Guid" => "OracleMappingType.Raw",
             "System.Guid" => "OracleMappingType.Raw",
-            "int" => "OracleMappingType.Int32",
-            "Int32" => "OracleMappingType.Int32",
-            "System.Int32" => "OracleMappingType.Int32",
-            "uint" => "OracleMappingType.Int32",
-            "UInt32" => "OracleMappingType.Int32",
-            "System.UInt32" => "OracleMappingType.Int32",
-            "long" => "OracleMappingType.Int64",
-            "Int64" => "OracleMappingType.Int64",
-            "System.Int64" => "OracleMappingType.Int64",
-            "ulong" => "OracleMappingType.Int64",
-            "UInt64" => "OracleMappingType.Int64",
-            "System.UInt64" => "OracleMappingType.Int64",
-            "string" => "OracleMappingType.Char",
+            "int" => OracleMappingTypeInt32,
+            "Int32" => OracleMappingTypeInt32,
+            "System.Int32" => OracleMappingTypeInt32,
+            "uint" => OracleMappingTypeInt32,
+            "UInt32" => OracleMappingTypeInt32,
+            "System.UInt32" => OracleMappingTypeInt32,
+            "long" => OracleMappingTypeInt64,
+            "Int64" => OracleMappingTypeInt64,
+            "System.Int64" => OracleMappingTypeInt64,
+            "ulong" => OracleMappingTypeInt64,
+            "UInt64" => OracleMappingTypeInt64,
+            "System.UInt64" => OracleMappingTypeInt64,
+            StringTypeName => "OracleMappingType.Char",
             "String" => "OracleMappingType.Char",
             "System.String" => "OracleMappingType.Char",
             _ => throw new ArgumentException($"Unknown key type {keyTypeName}", nameof(keyTypeName)),
@@ -60,7 +64,7 @@ public static class OracleTypeMapper
             "ulong" => "null",
             "UInt64" => "null",
             "System.UInt64" => "null",
-            "string" => "36",
+            StringTypeName => "36",
             "String" => "36",
             "System.String" => "36",
             _ => throw new ArgumentException($"Unknown key type {keyTypeName}", nameof(keyTypeName)),
@@ -80,7 +84,7 @@ public static class OracleTypeMapper
             return "OracleMappingType.Int16, ParameterDirection.Input);";
         }
 
-        if (string.Equals(storeBooleanAs, "string", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(storeBooleanAs, StringTypeName, StringComparison.OrdinalIgnoreCase))
         {
             return "OracleMappingType.Varchar2, ParameterDirection.Input, 10);";
         }
@@ -96,7 +100,7 @@ public static class OracleTypeMapper
             return MapParameterEndByStoreBooleanAs(storeBooleanAs);
         }
 
-        if (string.Equals(typeName, "string", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(typeName, StringTypeName, StringComparison.OrdinalIgnoreCase))
         {
             return "OracleMappingType.Varchar2, ParameterDirection.Input, 256);";
         }

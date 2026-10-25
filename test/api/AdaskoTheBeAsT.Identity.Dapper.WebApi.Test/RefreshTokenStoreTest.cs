@@ -256,7 +256,9 @@ new List<Claim> { new("large-claim", new string('x', 32768)) });
         var node = dictionary.Values.Cast<object>().Should().ContainSingle().Which;
 #pragma warning disable REFL009 // Inspect private runtime types without adding production test hooks.
         var entry = node.GetType().GetProperty("Value")!.GetValue(node)!;
+#pragma warning disable CC0021 // Use nameof
         var metadata = entry.GetType().GetProperty("Token")!.GetValue(entry).Should().BeOfType<RefreshToken>().Which;
+#pragma warning restore CC0021 // Use nameof
 #pragma warning restore REFL009
         metadata.Subject.Should().Be(user.Id.ToString("D"));
         metadata.SecurityStamp.Should().Be(user.SecurityStamp);
