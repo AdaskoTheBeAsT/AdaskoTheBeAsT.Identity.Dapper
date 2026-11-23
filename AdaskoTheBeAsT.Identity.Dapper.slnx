@@ -27,6 +27,7 @@
   </Folder>
   <Folder Name="/db/" />
   <Folder Name="/db/MySql/">
+    <File Path="db/MySql/IdentityJwt.sql" />
     <File Path="db/MySql/AspNetIdentityBigInt.sql" />
     <File Path="db/MySql/AspNetIdentityGuid.sql" />
     <File Path="db/MySql/AspNetIdentityInt.sql" />
@@ -37,6 +38,7 @@
     <File Path="db/MySql/WithoutNormalizedAspNetIdentityString.sql" />
   </Folder>
   <Folder Name="/db/Oracle/">
+    <File Path="db/Oracle/IdentityJwt.sql" />
     <File Path="db/Oracle/AspNetIdentityBigInt.sql" />
     <File Path="db/Oracle/AspNetIdentityGuid.sql" />
     <File Path="db/Oracle/AspNetIdentityInt.sql" />
@@ -48,6 +50,7 @@
     <File Path="db/Oracle/WithoutNormalizedAspNetIdentityString.sql" />
   </Folder>
   <Folder Name="/db/PostgreSQL/">
+    <File Path="db/PostgreSQL/IdentityJwt.sql" />
     <File Path="db/PostgreSQL/AspNetIdentityBigInt.sql" />
     <File Path="db/PostgreSQL/AspNetIdentityGuid.sql" />
     <File Path="db/PostgreSQL/AspNetIdentityInt.sql" />
@@ -58,6 +61,7 @@
     <File Path="db/PostgreSQL/WithoutNormalizedAspNetIdentityString.sql" />
   </Folder>
   <Folder Name="/db/SQLite/">
+    <File Path="db/SQLite/IdentityJwt.sql" />
     <File Path="db/SQLite/AspNetIdentityBigInt.sql" />
     <File Path="db/SQLite/AspNetIdentityGuid.sql" />
     <File Path="db/SQLite/AspNetIdentityInt.sql" />
@@ -84,6 +88,10 @@
       <Build Solution="*|Any CPU" />
       <Deploy Solution="*|Any CPU" />
     </Project>
+    <Project Path="db/SqlServer/IdentityJwt/IdentityJwt.sqlproj" Id="e52c8786-82eb-4232-9b8b-2960be9a1f10">
+      <Build Solution="*|Any CPU" />
+      <Deploy Solution="*|Any CPU" />
+    </Project>
     <Project Path="db/SqlServer/WithoutNormalizedAspNetIdentityBigInt/WithoutNormalizedAspNetIdentityBigInt.sqlproj" Id="64ebcb32-1298-470e-91c2-6f5bacdb4bf7">
       <Build Solution="*|Any CPU" />
       <Deploy Solution="*|Any CPU" />
@@ -107,12 +115,21 @@
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/ConsoleApp/ConsoleApp.csproj" />
+    <Project Path="samples/JwtSpa/Api/JwtSpa.Api.csproj" />
     <Project Path="samples/OracleConsoleApp/OracleConsoleApp.csproj" />
     <Project Path="samples/Sample.SqlServer/Sample.SqlServer.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="samples/Sample.SqlServer2/Sample.SqlServer2.csproj" />
+    <Project Path="src/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.MySql/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.MySql.csproj" />
+    <Project Path="src/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.MySqlConnector/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.MySqlConnector.csproj" />
+    <Project Path="src/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Oracle/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Oracle.csproj" />
+    <Project Path="src/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.PostgreSql/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.PostgreSql.csproj" />
+    <Project Path="src/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Sqlite/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Sqlite.csproj" />
+    <Project Path="src/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.SqlServer/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.SqlServer.csproj" />
+    <Project Path="src/AdaskoTheBeAsT.Identity.Dapper.AspNetCore/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.csproj" />
     <Project Path="src/AdaskoTheBeAsT.Identity.Dapper.MySql/AdaskoTheBeAsT.Identity.Dapper.MySql.csproj" />
+    <Project Path="src/AdaskoTheBeAsT.Identity.Dapper.MySqlConnector/AdaskoTheBeAsT.Identity.Dapper.MySqlConnector.csproj" />
     <Project Path="src/AdaskoTheBeAsT.Identity.Dapper.Oracle/AdaskoTheBeAsT.Identity.Dapper.Oracle.csproj" />
     <Project Path="src/AdaskoTheBeAsT.Identity.Dapper.PostgreSql/AdaskoTheBeAsT.Identity.Dapper.PostgreSql.csproj" />
     <Project Path="src/AdaskoTheBeAsT.Identity.Dapper.Shared/AdaskoTheBeAsT.Identity.Dapper.Shared.shproj" />
@@ -129,7 +146,10 @@
     <Project Path="test/api/AdaskoTheBeAsT.Identity.Dapper.WebApi.Test/AdaskoTheBeAsT.Identity.Dapper.WebApi.Test.csproj" />
   </Folder>
   <Folder Name="/test/integ/">
+    <Project Path="test/integ/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Relational.IntegrationTest/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Relational.IntegrationTest.csproj" />
+    <Project Path="test/integ/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.SqlServer.IntegrationTest/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.SqlServer.IntegrationTest.csproj" />
     <Project Path="test/integ/AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest/AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest.csproj" />
+    <Project Path="test/integ/AdaskoTheBeAsT.Identity.Dapper.MySqlConnector.IntegrationTest/AdaskoTheBeAsT.Identity.Dapper.MySqlConnector.IntegrationTest.csproj" />
     <Project Path="test/integ/AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest/AdaskoTheBeAsT.Identity.Dapper.Oracle.IntegrationTest.csproj" />
     <Project Path="test/integ/AdaskoTheBeAsT.Identity.Dapper.PostgreSql.IntegrationTest/AdaskoTheBeAsT.Identity.Dapper.PostgreSql.IntegrationTest.csproj" />
     <Project Path="test/integ/AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest/AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.csproj" />
@@ -139,6 +159,7 @@
     <File Path="test/integ/Directory.Build.props" />
   </Folder>
   <Folder Name="/test/unit/">
+    <Project Path="test/unit/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Test/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Test.csproj" />
     <Project Path="test/unit/AdaskoTheBeAsT.Identity.Dapper.MySql.Test/AdaskoTheBeAsT.Identity.Dapper.MySql.Test.csproj" />
     <Project Path="test/unit/AdaskoTheBeAsT.Identity.Dapper.Oracle.Test/AdaskoTheBeAsT.Identity.Dapper.Oracle.Test.csproj" />
     <Project Path="test/unit/AdaskoTheBeAsT.Identity.Dapper.PostgreSql.Test/AdaskoTheBeAsT.Identity.Dapper.PostgreSql.Test.csproj" />

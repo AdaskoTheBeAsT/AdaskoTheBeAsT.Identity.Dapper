@@ -192,11 +192,9 @@ public sealed class IdentityQueryMaterializerTest
         try
         {
             SqlMapper.SetTypeMap(typeof(HiddenRow), new CustomPropertyTypeMap(
-                typeof(HiddenRow), (_, column) => string.Equals(
-                    column,
-                    "Value",
-                    StringComparison.Ordinal) ? typeof(HiddenBaseRow).GetProperty(
-                    nameof(HiddenBaseRow.Value), BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)!
+                typeof(HiddenRow), (_, column) => string.Equals(column, "Value", StringComparison.Ordinal)
+                    ? typeof(HiddenBaseRow).GetProperty(
+                        nameof(HiddenBaseRow.Value), BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)!
                     : null!));
             var mappedBase = connection.QueryIdentity<HiddenRow>("SELECT NULL AS Value;").Should().ContainSingle().Which;
             mappedBase.Value.Should().Be("derived default");
@@ -433,7 +431,11 @@ public sealed class IdentityQueryMaterializerTest
 
         public override string? Value
         {
-            get => _value;
+            get
+            {
+                return _value;
+            }
+
             set
             {
                 SetterCalls++;

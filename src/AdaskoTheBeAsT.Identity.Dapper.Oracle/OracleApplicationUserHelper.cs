@@ -198,10 +198,8 @@ public static class OracleApplicationUserHelper
             """);
         foreach (var property in properties)
         {
-            var end = string.Equals(
-                property.PropertyName,
-                "UserId",
-                StringComparison.Ordinal) ? $"{OracleTypeMapper.MapIdType(keyTypeName)}, ParameterDirection.Input, {OracleTypeMapper.MapIdSize(keyTypeName)});"
+            var end = string.Equals(property.PropertyName, "UserId", StringComparison.Ordinal)
+                ? $"{OracleTypeMapper.MapIdType(keyTypeName)}, ParameterDirection.Input, {OracleTypeMapper.MapIdSize(keyTypeName)});"
                 : OracleTypeMapper.MapParameterEndByTypeName(property.PropertyType, options.StoreBooleanAs);
             sb.Append("                        case \"").Append(property.PropertyName).Append("\":\r\n                            parameters.Add(name + suffix, ").Append(PropertyAccess("entity", property.PropertyName)).Append(", ").Append(end).AppendLine("\r\n                            break;");
         }

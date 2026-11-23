@@ -1,19 +1,34 @@
 {
   "solution": {
-    "path": "AdaskoTheBeAsT.Identity.Dapper.sln",
+    "path": "AdaskoTheBeAsT.Identity.Dapper.slnx",
     "projects": [
       "samples\\ConsoleApp\\ConsoleApp.csproj",
+      "samples\\JwtSpa\\Api\\JwtSpa.Api.csproj",
       "samples\\OracleConsoleApp\\OracleConsoleApp.csproj",
       "samples\\Sample.SqlServer2\\Sample.SqlServer2.csproj",
       "samples\\Sample.SqlServer\\Sample.SqlServer.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.MySql\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.MySql.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.MySqlConnector\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.MySqlConnector.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Oracle\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Oracle.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.PostgreSql\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.PostgreSql.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Sqlite\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Sqlite.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.SqlServer\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.SqlServer.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.csproj",
       "src\\AdaskoTheBeAsT.Identity.Dapper.MySql\\AdaskoTheBeAsT.Identity.Dapper.MySql.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.MySqlConnector\\AdaskoTheBeAsT.Identity.Dapper.MySqlConnector.csproj",
       "src\\AdaskoTheBeAsT.Identity.Dapper.Oracle\\AdaskoTheBeAsT.Identity.Dapper.Oracle.csproj",
       "src\\AdaskoTheBeAsT.Identity.Dapper.PostgreSql\\AdaskoTheBeAsT.Identity.Dapper.PostgreSql.csproj",
       "src\\AdaskoTheBeAsT.Identity.Dapper.Shared\\AdaskoTheBeAsT.Identity.Dapper.Shared.shproj",
       "src\\AdaskoTheBeAsT.Identity.Dapper.SqlServer\\AdaskoTheBeAsT.Identity.Dapper.SqlServer.csproj",
       "src\\AdaskoTheBeAsT.Identity.Dapper.Sqlite\\AdaskoTheBeAsT.Identity.Dapper.Sqlite.csproj",
+      "src\\AdaskoTheBeAsT.Identity.Dapper.WebApi\\AdaskoTheBeAsT.Identity.Dapper.WebApi.csproj",
       "src\\AdaskoTheBeAsT.Identity.Dapper\\AdaskoTheBeAsT.Identity.Dapper.csproj",
+      "test\\api\\AdaskoTheBeAsT.Identity.Dapper.WebApi.Test\\AdaskoTheBeAsT.Identity.Dapper.WebApi.Test.csproj",
+      "test\\integ\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Relational.IntegrationTest\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Relational.IntegrationTest.csproj",
+      "test\\integ\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.SqlServer.IntegrationTest\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.SqlServer.IntegrationTest.csproj",
+      "test\\integ\\AdaskoTheBeAsT.Identity.Dapper.MySqlConnector.IntegrationTest\\AdaskoTheBeAsT.Identity.Dapper.MySqlConnector.IntegrationTest.csproj",
       "test\\integ\\AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest\\AdaskoTheBeAsT.Identity.Dapper.SqlServer.IntegrationTest.csproj",
+      "test\\unit\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Test\\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Test.csproj",
       "test\\unit\\AdaskoTheBeAsT.Identity.Dapper.SqlServer.Test\\AdaskoTheBeAsT.Identity.Dapper.SqlServer.Test.csproj"
     ]
   }

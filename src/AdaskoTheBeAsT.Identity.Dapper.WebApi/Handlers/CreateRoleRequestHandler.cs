@@ -1,7 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity;
-using MediatR;
 using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;

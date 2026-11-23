@@ -36,7 +36,7 @@ public class OracleIdentityStoreGeneratorBase
         sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper;");
         sb.AppendLine("using AdaskoTheBeAsT.Identity.Dapper.Abstractions;");
         sb.AppendLine("using Dapper;");
-        sb.AppendLine("using Dapper.Oracle;");
+        sb.AppendLine("using AdaskoTheBeAsT.Dapper.Oracle;");
         sb.AppendLine("using Microsoft.AspNetCore.Identity;");
         sb.AppendLine("using Oracle.ManagedDataAccess.Client;");
         sb.AppendLine();

@@ -101,7 +101,7 @@ public class OracleSourceGenerationHelper
             """
             using System;
             using System.Data;
-            using Dapper.Oracle.TypeHandler;
+            using AdaskoTheBeAsT.Dapper.Oracle.TypeHandler;
 
             namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 
@@ -153,7 +153,7 @@ public class OracleSourceGenerationHelper
             """
             using System;
             using System.Data;
-            using Dapper.Oracle.TypeHandler;
+            using AdaskoTheBeAsT.Dapper.Oracle.TypeHandler;
 
             namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 
@@ -215,7 +215,7 @@ public class OracleSourceGenerationHelper
             """
             using System;
             using System.Data;
-            using Dapper.Oracle.TypeHandler;
+            using AdaskoTheBeAsT.Dapper.Oracle.TypeHandler;
 
             namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 
@@ -261,7 +261,7 @@ public class OracleSourceGenerationHelper
         const string content =
             """
             using System;
-            using Dapper.Oracle.TypeHandler;
+            using AdaskoTheBeAsT.Dapper.Oracle.TypeHandler;
             using System.Data;
 
             namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
@@ -332,7 +332,7 @@ public class OracleSourceGenerationHelper
         const string content =
             """
             using System;
-            using Dapper.Oracle.TypeHandler;
+            using AdaskoTheBeAsT.Dapper.Oracle.TypeHandler;
             using System.Data;
 
             namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
@@ -380,7 +380,7 @@ public class OracleSourceGenerationHelper
             using System;
             using System.Data;
             using System.Globalization;
-            using Dapper.Oracle.TypeHandler;
+            using AdaskoTheBeAsT.Dapper.Oracle.TypeHandler;
 
             namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 
@@ -434,7 +434,7 @@ public class OracleSourceGenerationHelper
             using System;
             using System.Data;
             using System.Globalization;
-            using Dapper.Oracle.TypeHandler;
+            using AdaskoTheBeAsT.Dapper.Oracle.TypeHandler;
 
             namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 
@@ -490,8 +490,8 @@ public class OracleSourceGenerationHelper
             """
             using System;
             using Dapper;
-            using Dapper.Oracle;
-            using Dapper.Oracle.TypeHandler;
+            using AdaskoTheBeAsT.Dapper.Oracle;
+            using AdaskoTheBeAsT.Dapper.Oracle.TypeHandler;
 
             namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 
@@ -523,8 +523,8 @@ public class OracleSourceGenerationHelper
             """
                     SqlMapper.AddTypeHandler(new GuidRaw16TypeHandler());
                     SqlMapper.AddTypeHandler(new NullableGuidRaw16TypeHandler());
-                    global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(DateTimeOffset), new DateTimeOffsetTypeHandler());
-                    global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(DateTimeOffset?), new NullableDateTimeOffsetTypeHandler());
+                    global::AdaskoTheBeAsT.Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(DateTimeOffset), new DateTimeOffsetTypeHandler());
+                    global::AdaskoTheBeAsT.Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(DateTimeOffset?), new NullableDateTimeOffsetTypeHandler());
             """;
         sb.AppendLine(content3);
 
@@ -532,8 +532,8 @@ public class OracleSourceGenerationHelper
         {
             const string? content4 =
                 """
-                        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(bool), new BooleanCharTypeHandler(StringComparison.OrdinalIgnoreCase));
-                        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(
+                        global::AdaskoTheBeAsT.Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(bool), new BooleanCharTypeHandler(StringComparison.OrdinalIgnoreCase));
+                        global::AdaskoTheBeAsT.Dapper.Oracle.OracleTypeMapper.AddTypeHandler(
                             typeof(bool?),
                             new NullableBooleanCharTypeHandler(StringComparison.OrdinalIgnoreCase));
                 """;
@@ -543,8 +543,8 @@ public class OracleSourceGenerationHelper
         {
             const string? content5 =
                 """
-                        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(bool), new BooleanNumericTypeHandler());
-                        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(bool?), new NullableBooleanNumericTypeHandler());
+                        global::AdaskoTheBeAsT.Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(bool), new BooleanNumericTypeHandler());
+                        global::AdaskoTheBeAsT.Dapper.Oracle.OracleTypeMapper.AddTypeHandler(typeof(bool?), new NullableBooleanNumericTypeHandler());
                 """;
             sb.AppendLine(content5);
         }
@@ -552,10 +552,10 @@ public class OracleSourceGenerationHelper
         {
             const string? content6 =
                 """
-                        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(
+                        global::AdaskoTheBeAsT.Dapper.Oracle.OracleTypeMapper.AddTypeHandler(
                             typeof(bool),
                             new BooleanStringTypeHandler("Yes", "No", StringComparison.OrdinalIgnoreCase));
-                        global::Dapper.Oracle.OracleTypeMapper.AddTypeHandler(
+                        global::AdaskoTheBeAsT.Dapper.Oracle.OracleTypeMapper.AddTypeHandler(
                             typeof(bool?),
                             new NullableBooleanStringTypeHandler("Yes", "No", StringComparison.OrdinalIgnoreCase));
                 """;

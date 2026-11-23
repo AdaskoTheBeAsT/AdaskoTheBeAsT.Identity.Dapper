@@ -1,7 +1,7 @@
 ﻿//HintName: BooleanCharTypeHandler.g.cs
 using System;
 using System.Data;
-using Dapper.Oracle.TypeHandler;
+using AdaskoTheBeAsT.Dapper.Oracle.TypeHandler;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 

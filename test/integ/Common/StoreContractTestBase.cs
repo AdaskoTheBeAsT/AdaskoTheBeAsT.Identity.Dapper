@@ -25,13 +25,19 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     [InlineData(0, 0)]
     [InlineData(0, -1)]
     [InlineData(0, 1001)]
-    public async Task PagingRejectsInvalidBoundsBeforeOpeningConnectionsAsync(int offset, int pageSize)
+    public async Task PagingRejectsInvalidBoundsBeforeOpeningConnectionsAsync(
+        int offset,
+        int pageSize)
     {
         var provider = new Mock<IIdentityDbConnectionProvider<TConnection>>(MockBehavior.Strict);
         using var users = new LegacyUsers(provider.Object);
         using var roles = new LegacyRoles(provider.Object);
-        await FluentActions.Awaiting(() => users.GetUsersPageAsync(offset, pageSize, TestContext.Current.CancellationToken)).Should().ThrowExactlyAsync<ArgumentOutOfRangeException>();
-        await FluentActions.Awaiting(() => roles.GetRolesPageAsync(offset, pageSize, TestContext.Current.CancellationToken)).Should().ThrowExactlyAsync<ArgumentOutOfRangeException>();
+        await FluentActions
+            .Awaiting(() => users.GetUsersPageAsync(offset, pageSize, TestContext.Current.CancellationToken)).Should()
+            .ThrowExactlyAsync<ArgumentOutOfRangeException>();
+        await FluentActions
+            .Awaiting(() => roles.GetRolesPageAsync(offset, pageSize, TestContext.Current.CancellationToken)).Should()
+            .ThrowExactlyAsync<ArgumentOutOfRangeException>();
         provider.VerifyNoOtherCalls();
     }
 
@@ -41,12 +47,16 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
         var provider = new Mock<IIdentityDbConnectionProvider<TConnection>>(MockBehavior.Strict);
         using var users = new LegacyUsers(provider.Object);
         using var roles = new LegacyRoles(provider.Object);
-        await FluentActions.Awaiting(() => users.GetUsersPageAsync(0, 1, TestContext.Current.CancellationToken)).Should().ThrowExactlyAsync<NotSupportedException>();
-        await FluentActions.Awaiting(() => roles.GetRolesPageAsync(0, 1, TestContext.Current.CancellationToken)).Should().ThrowExactlyAsync<NotSupportedException>();
+        await FluentActions.Awaiting(() => users.GetUsersPageAsync(0, 1, TestContext.Current.CancellationToken))
+            .Should().ThrowExactlyAsync<NotSupportedException>();
+        await FluentActions.Awaiting(() => roles.GetRolesPageAsync(0, 1, TestContext.Current.CancellationToken))
+            .Should().ThrowExactlyAsync<NotSupportedException>();
         using var cancellation = new CancellationTokenSource();
         await cancellation.CancelAsync();
-        await FluentActions.Awaiting(() => users.GetUsersPageAsync(0, 1, cancellation.Token)).Should().ThrowAsync<OperationCanceledException>();
-        await FluentActions.Awaiting(() => roles.GetRolesPageAsync(0, 1, cancellation.Token)).Should().ThrowAsync<OperationCanceledException>();
+        await FluentActions.Awaiting(() => users.GetUsersPageAsync(0, 1, cancellation.Token)).Should()
+            .ThrowAsync<OperationCanceledException>();
+        await FluentActions.Awaiting(() => roles.GetRolesPageAsync(0, 1, cancellation.Token)).Should()
+            .ThrowAsync<OperationCanceledException>();
         provider.VerifyNoOtherCalls();
     }
 
@@ -56,14 +66,16 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
         using var store = Users();
         var user = NewUser();
         Success(await store.CreateAsync(user, CancellationToken.None));
-        var claims = Enumerable.Range(0, 70).Select(i => new Claim("batch", "value-" + i.ToString(CultureInfo.InvariantCulture))).ToList();
+        var claims = Enumerable.Range(0, 70)
+            .Select(i => new Claim("batch", "value-" + i.ToString(CultureInfo.InvariantCulture))).ToList();
         claims.Add(new Claim("batch", "value-0"));
         await store.AddClaimsAsync(user, claims, CancellationToken.None);
         (await store.GetClaimsAsync(user, CancellationToken.None)).Should().HaveCount(71);
         await store.RemoveClaimsAsync(user, claims.Take(66), CancellationToken.None);
         var remaining = await store.GetClaimsAsync(user, CancellationToken.None);
         remaining.Should().HaveCount(4);
-        remaining.Select(claim => claim.Value).Order(StringComparer.Ordinal).Should().Equal(StoreContractTestData.RemainingClaims);
+        remaining.Select(claim => claim.Value).Order(StringComparer.Ordinal).Should()
+            .Equal(StoreContractTestData.RemainingClaims);
         await store.RemoveClaimsAsync(user, remaining, CancellationToken.None);
         (await store.GetClaimsAsync(user, CancellationToken.None)).Should().BeEmpty();
         await store.AddClaimsAsync(user, Array.Empty<Claim>(), CancellationToken.None);
@@ -101,7 +113,12 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     public async Task RoleWritesRejectStaleAndDeletedRowsAsync(string? stamp)
     {
         using var store = Roles();
-        var role = new TRole { Id = Guid.NewGuid(), Name = Guid.NewGuid().ToString(), ConcurrencyStamp = stamp };
+        var role = new TRole
+        {
+            Id = Guid.NewGuid(),
+            Name = Guid.NewGuid().ToString(),
+            ConcurrencyStamp = stamp,
+        };
         Success(await store.CreateAsync(role, CancellationToken.None));
         var stale = (await store.FindByIdAsync(role.Id.ToString(), CancellationToken.None))!;
         stale.ConcurrencyStamp.Should().Be(stamp);
@@ -144,6 +161,7 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
         await store.ReplaceCodesAsync(user, StoreContractTestData.ConcurrentRecoveryCodes, CancellationToken.None);
         var ready = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var arrived = 0;
+
         Task BarrierAsync()
         {
             if (Interlocked.Increment(ref arrived) == 2)
@@ -170,13 +188,21 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     [InlineData("café", "cafe")]
     [InlineData(null, "alpha")]
     [InlineData("alpha", null)]
-    public async Task TokenCompareExchangeUsesExactNullSafeValueAsync(string? current, string? stale)
+    public async Task TokenCompareExchangeUsesExactNullSafeValueAsync(
+        string? current,
+        string? stale)
     {
         using var store = Users();
         var user = NewUser();
         Success(await store.CreateAsync(user, CancellationToken.None));
         await store.SetTokenAsync(user, "contract", "exact", current, CancellationToken.None);
-        var token = new TUserToken { UserId = user.Id, LoginProvider = "contract", Name = "exact", Value = "replacement" };
+        var token = new TUserToken
+        {
+            UserId = user.Id,
+            LoginProvider = "contract",
+            Name = "exact",
+            Value = "replacement",
+        };
         (await CompareExchangeAsync(token, stale)).Should().BeFalse();
         (await store.GetTokenAsync(user, "contract", "exact", CancellationToken.None)).Should().Be(current);
         (await CompareExchangeAsync(token, current)).Should().BeTrue();
@@ -207,7 +233,8 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
         // Exercise the protected commands directly, not just public entry-point checks.
         using var cancellation = new CancellationTokenSource();
         await cancellation.CancelAsync();
-        await FluentActions.Awaiting(() => TokenCommandAsync(NewUser(), operation, cancellation.Token)).Should().ThrowAsync<OperationCanceledException>();
+        await FluentActions.Awaiting(() => TokenCommandAsync(NewUser(), operation, cancellation.Token)).Should()
+            .ThrowAsync<OperationCanceledException>();
     }
 
     [Fact]
@@ -219,7 +246,8 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
         // The overridden operation never uses the connection.
         provider.Setup(p => p.Provide()).Returns(default(TConnection)!);
         using var store = new CancelingUsers(provider.Object, cancellation);
-        await FluentActions.Awaiting(() => store.CreateAsync(NewUser(), cancellation.Token)).Should().ThrowAsync<OperationCanceledException>();
+        await FluentActions.Awaiting(() => store.CreateAsync(NewUser(), cancellation.Token)).Should()
+            .ThrowAsync<OperationCanceledException>();
     }
 
     [Theory]
@@ -231,9 +259,15 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
         using var userStore = new LegacyUsers(provider.Object);
         using var roleStore = new LegacyRoles(provider.Object);
         var userError = (await FluentActions.Awaiting(() =>
-            delete ? userStore.DeleteAsync(NewUser(), CancellationToken.None) : userStore.UpdateAsync(NewUser(), CancellationToken.None)).Should().ThrowExactlyAsync<NotSupportedException>()).Which;
+                delete
+                    ? userStore.DeleteAsync(NewUser(), CancellationToken.None)
+                    : userStore.UpdateAsync(NewUser(), CancellationToken.None)).Should()
+            .ThrowExactlyAsync<NotSupportedException>()).Which;
         var roleError = (await FluentActions.Awaiting(() =>
-            delete ? roleStore.DeleteAsync(new TRole(), CancellationToken.None) : roleStore.UpdateAsync(new TRole(), CancellationToken.None)).Should().ThrowExactlyAsync<NotSupportedException>()).Which;
+                delete
+                    ? roleStore.DeleteAsync(new TRole(), CancellationToken.None)
+                    : roleStore.UpdateAsync(new TRole(), CancellationToken.None)).Should()
+            .ThrowExactlyAsync<NotSupportedException>()).Which;
         userError.Message.Should().Contain("Regenerate");
         roleError.Message.Should().Contain("Regenerate");
         provider.VerifyNoOtherCalls();
@@ -243,11 +277,19 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
 
     protected abstract DapperRoleStoreBase<TRole, Guid, TRoleClaim, TConnection> Roles();
 
-    protected abstract Task<bool> CompareExchangeAsync(TUserToken token, string? original);
+    protected abstract Task<bool> CompareExchangeAsync(
+        TUserToken token,
+        string? original);
 
-    protected abstract Task<bool> RedeemAsync(TUser user, string code, Func<Task> barrier);
+    protected abstract Task<bool> RedeemAsync(
+        TUser user,
+        string code,
+        Func<Task> barrier);
 
-    protected abstract Task TokenCommandAsync(TUser user, string operation, CancellationToken cancellationToken);
+    protected abstract Task TokenCommandAsync(
+        TUser user,
+        string operation,
+        CancellationToken cancellationToken);
 
     private static TUser NewUser() => new()
     {
@@ -258,7 +300,7 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     };
 
     private static void Success(IdentityResult result) =>
-                result.Succeeded.Should().BeTrue("{0}", string.Join("; ", result.Errors.Select(e => e.Description)));
+        result.Succeeded.Should().BeTrue("{0}", string.Join("; ", result.Errors.Select(e => e.Description)));
 
     private static void ConcurrencyFailure(IdentityResult result)
     {
@@ -267,16 +309,29 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     }
 
     private sealed class LegacyUsers(IIdentityDbConnectionProvider<TConnection> provider)
-                : DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TConnection>(
-                    new IdentityErrorDescriber(), provider, Mock.Of<IIdentityUserSql>(MockBehavior.Strict), Mock.Of<IIdentityUserClaimSql>(MockBehavior.Strict),
-                    Mock.Of<IIdentityUserLoginSql>(MockBehavior.Strict), Mock.Of<IIdentityUserTokenSql>(MockBehavior.Strict));
+        : DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TConnection>(
+            new IdentityErrorDescriber(),
+            provider,
+            Mock.Of<IIdentityUserSql>(MockBehavior.Strict),
+            Mock.Of<IIdentityUserClaimSql>(MockBehavior.Strict),
+            Mock.Of<IIdentityUserLoginSql>(MockBehavior.Strict),
+            Mock.Of<IIdentityUserTokenSql>(MockBehavior.Strict));
 
-    private sealed class CancelingUsers(IIdentityDbConnectionProvider<TConnection> provider, CancellationTokenSource cancellation)
-                : DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TConnection>(
-                    new IdentityErrorDescriber(), provider, Mock.Of<IIdentityUserSql>(MockBehavior.Strict), Mock.Of<IIdentityUserClaimSql>(MockBehavior.Strict),
-                    Mock.Of<IIdentityUserLoginSql>(MockBehavior.Strict), Mock.Of<IIdentityUserTokenSql>(MockBehavior.Strict))
+    private sealed class CancelingUsers(
+        IIdentityDbConnectionProvider<TConnection> provider,
+        CancellationTokenSource cancellation)
+        : DapperUserOnlyStoreBase<TUser, Guid, TUserClaim, TUserLogin, TUserToken, TConnection>(
+            new IdentityErrorDescriber(),
+            provider,
+            Mock.Of<IIdentityUserSql>(MockBehavior.Strict),
+            Mock.Of<IIdentityUserClaimSql>(MockBehavior.Strict),
+            Mock.Of<IIdentityUserLoginSql>(MockBehavior.Strict),
+            Mock.Of<IIdentityUserTokenSql>(MockBehavior.Strict))
     {
-        protected override async Task CreateImplAsync(TConnection connection, TUser user, CancellationToken cancellationToken)
+        protected override async Task CreateImplAsync(
+            TConnection connection,
+            TUser user,
+            CancellationToken cancellationToken)
         {
             await cancellation.CancelAsync().ConfigureAwait(false);
             await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken).ConfigureAwait(false);
@@ -284,6 +339,9 @@ public abstract class StoreContractTestBase<TUser, TRole, TUserClaim, TUserLogin
     }
 
     private sealed class LegacyRoles(IIdentityDbConnectionProvider<TConnection> provider)
-                : DapperRoleStoreBase<TRole, Guid, TRoleClaim, TConnection>(
-                    new IdentityErrorDescriber(), provider, Mock.Of<IIdentityRoleSql>(MockBehavior.Strict), Mock.Of<IIdentityRoleClaimSql>(MockBehavior.Strict));
+        : DapperRoleStoreBase<TRole, Guid, TRoleClaim, TConnection>(
+            new IdentityErrorDescriber(),
+            provider,
+            Mock.Of<IIdentityRoleSql>(MockBehavior.Strict),
+            Mock.Of<IIdentityRoleClaimSql>(MockBehavior.Strict));
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build">
+  <Sdk Name="Microsoft.Build.Sql" Version="2.0.0" />
+  <PropertyGroup>
+    <Name>IdentityJwt</Name>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
+    <ModelCollation>1033,CI</ModelCollation>
+    <RootNamespace>IdentityJwt</RootNamespace>
+    <AssemblyName>IdentityJwt</AssemblyName>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <ProjectGuid>{e52c8786-82eb-4232-9b8b-2960be9a1f10}</ProjectGuid>
+    <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <NoWarn>$(NoWarn);CA1016;S3904;SA0001</NoWarn>
+    <EnableDefaultSqlItems>false</EnableDefaultSqlItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\Tables\IdentityJwtRefreshTokens.sql" />
+    <Build Include="dbo\Tables\IdentityJwtMfaChallenges.sql" />
+    <Build Include="dbo\Tables\IdentityJwtRevocations.sql" />
+    <Build Include="dbo\Tables\AspNetClaimKinds.sql" />
+    <Build Include="dbo\Tables\AspNetClaims.sql" />
+    <None Include="IdentityJwt.sql" />
+  </ItemGroup>
+  <Target Name="EnsureNuGetRestore" BeforeTargets="PrepareForBuild" Condition="!Exists('$(MSBuildProjectDirectory)\obj\project.assets.json')">
+    <Message Importance="high" Text="Running NuGet restore for SQL project $(MSBuildProjectName)..." />
+    <Exec Command="dotnet restore $(MSBuildProjectFile)" ContinueOnError="false" />
+  </Target>
+</Project>

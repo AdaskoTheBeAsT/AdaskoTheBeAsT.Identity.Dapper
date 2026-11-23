@@ -121,7 +121,11 @@ public static class IdentityQuery
     {
         // FIFO bounds all schema metadata and delegates retained by this cache for each entity type.
         private const int Capacity = 64;
+#if NETSTANDARD2_0
         private readonly object _sync = new();
+#else
+        private readonly Lock _sync = new();
+#endif
         private readonly CacheEntry?[] _entries = new CacheEntry?[Capacity];
         private SqlMapper.ITypeMap? _map;
         private int _count;

@@ -40,8 +40,9 @@ public class IdentityDapperConfiguration
         new Dictionary<string, IDictionary<string, string>>(StringComparer.Ordinal);
 
     public string Column(string entity, string property) =>
-        ColumnMappings.TryGetValue(entity, out var columns) && columns.TryGetValue(property, out var column) &&
-        !string.IsNullOrEmpty(column) ? column : property;
+        ColumnMappings.TryGetValue(entity, out var columns) && columns.TryGetValue(property, out var column) && !string.IsNullOrEmpty(column)
+            ? column
+            : property;
 
     internal IdentityDapperConfiguration ForGeneration(
         string entity,

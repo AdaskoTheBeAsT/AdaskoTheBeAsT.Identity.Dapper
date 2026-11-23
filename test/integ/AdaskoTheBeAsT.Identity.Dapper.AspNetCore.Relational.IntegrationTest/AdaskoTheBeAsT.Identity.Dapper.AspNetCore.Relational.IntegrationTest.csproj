@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net11.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <Compile Remove="../Common/**/*.cs;../../unit/Common/GeneratorCompilation.cs" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
+    <PackageReference Include="Testcontainers.MySql" Version="4.17.0" />
+    <PackageReference Include="Testcontainers.Oracle" Version="4.17.0" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.17.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../src/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.MySql/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.MySql.csproj" />
+    <ProjectReference Include="../../../src/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.MySqlConnector/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.MySqlConnector.csproj" />
+    <ProjectReference Include="../../../src/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Oracle/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Oracle.csproj" />
+    <ProjectReference Include="../../../src/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.PostgreSql/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.PostgreSql.csproj" />
+    <ProjectReference Include="../../../src/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Sqlite/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Sqlite.csproj" />
+    <EmbeddedResource Include="../../../db/MySql/IdentityJwt.sql" LogicalName="MySql.IdentityJwt.sql" />
+    <EmbeddedResource Include="../../../db/Oracle/IdentityJwt.sql" LogicalName="Oracle.IdentityJwt.sql" />
+    <EmbeddedResource Include="../../../db/PostgreSQL/IdentityJwt.sql" LogicalName="PostgreSQL.IdentityJwt.sql" />
+    <EmbeddedResource Include="../../../db/SQLite/IdentityJwt.sql" LogicalName="SQLite.IdentityJwt.sql" />
+  </ItemGroup>
+
+</Project>

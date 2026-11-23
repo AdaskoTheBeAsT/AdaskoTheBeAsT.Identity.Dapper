@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net11.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="ZXing.Net" Version="0.16.11" PrivateAssets="all" />
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.AspNetCore\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.15" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="11.0.0" />
+  </ItemGroup>
+</Project>

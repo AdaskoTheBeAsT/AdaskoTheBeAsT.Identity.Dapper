@@ -6,12 +6,12 @@ using System.Security.Claims;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Controllers;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity;
+using AdaskoTheBeAsT.Identity.Dapper.WebApi.Mapping;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Models;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Services;
-using AutoMapper;
 using AwesomeAssertions;
-using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
@@ -39,6 +39,10 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
         using var request = new HttpRequestMessage(new HttpMethod(method), path) { Content = JsonContent.Create(new { }) };
         using var response = await client.SendAsync(request, cancellationToken: TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(TestContext.Current.CancellationToken);
+        problem.Should().NotBeNull();
+        problem.Status.Should().Be((int)HttpStatusCode.Unauthorized);
     }
 
     [Fact]
@@ -47,6 +51,10 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
         using var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
         using var response = await client.PostAsJsonAsync("/api/user", new UserModel { Roles = AdministratorRoles }, cancellationToken: TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(TestContext.Current.CancellationToken);
+        problem.Should().NotBeNull();
+        problem.Status.Should().Be((int)HttpStatusCode.BadRequest);
     }
 
     [Theory]
@@ -62,6 +70,10 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
         };
         using var response = await client.SendAsync(request, cancellationToken: TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        response.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(TestContext.Current.CancellationToken);
+        problem.Should().NotBeNull();
+        problem.Status.Should().Be((int)HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -71,16 +83,25 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
         using var client = AuthenticatedClient(id);
         using var response = await client.PutAsJsonAsync($"/api/user/{id}", new UpdateUserModel { Roles = AdministratorRoles }, cancellationToken: TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        response.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(TestContext.Current.CancellationToken);
+        problem.Should().NotBeNull();
+        problem.Status.Should().Be((int)HttpStatusCode.Forbidden);
     }
 
     [Fact]
     public async Task OwnerReadReachesHandlerAsync()
     {
         var id = Guid.NewGuid();
-        var mediator = new Mock<IMediator>(MockBehavior.Strict);
-        mediator.Setup(m => m.Send(It.Is<GetUserByIdRequest>(r => r.UserId == id), It.IsAny<CancellationToken>()))
+        var getByIdHandler = new Mock<IRequestHandler<GetUserByIdRequest, UserModel?>>(MockBehavior.Strict);
+        getByIdHandler.Setup(m => m.Handle(It.Is<GetUserByIdRequest>(r => r.UserId == id), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new UserModel { UserName = "owner" });
-        var controller = new UserController(Mock.Of<IMapper>(MockBehavior.Strict), mediator.Object)
+        var controller = new UserController(
+            Mock.Of<IWebApiMapper>(MockBehavior.Strict),
+            Mock.Of<IRequestHandler<CreateUserRequest, IdentityResult>>(MockBehavior.Strict),
+            getByIdHandler.Object,
+            Mock.Of<IRequestHandler<UpdateUserRequest, IdentityResult>>(MockBehavior.Strict),
+            Mock.Of<IRequestHandler<DeleteUserRequest, IdentityResult>>(MockBehavior.Strict))
         {
             ControllerContext = new ControllerContext
             {
@@ -91,7 +112,7 @@ public sealed class AuthorizationTest : IClassFixture<ApiFactory>
             },
         };
         (await controller.GetUserByIdAsync(id)).Should().BeOfType<OkObjectResult>();
-        mediator.VerifyAll();
+        getByIdHandler.VerifyAll();
     }
 
     [Fact]

@@ -5,9 +5,10 @@ Version 5.0.0 changes generated SQL, concurrency behavior, and the example API. 
 ## 1. Upgrade and regenerate
 
 - Upgrade `AdaskoTheBeAsT.Identity.Dapper` and your provider package to `5.0.0` together.
-- Use C# 11 or later in the consuming project. The runtime still targets `netstandard2.0`.
+- Use C# 11 or later and a compiler with Roslyn 4.14 or later. The shared runtime supports `netstandard2.0`, `net10.0`, and `net11.0`.
 - Rebuild every project containing generated stores, including libraries deployed with your application. Replace manually retained generated output.
 - Install a compatible database driver in the consuming project; provider packages do not supply the driver. Keep provider type-handler initialization from the README.
+- If custom Oracle code uses the old `Dapper.Oracle` package, migrate those references and imports to `AdaskoTheBeAsT.Dapper.Oracle`.
 
 ## 2. Review database mappings
 
@@ -70,7 +71,8 @@ Null-aware query plans are cached per entity type, up to 64 distinct schemas. `S
 - Code constructing `TokenService` directly must supply `(TokenServiceOptions, TimeProvider)` instead of an `IMemoryCache`. Register `TimeProvider.System` as a singleton or supply a test clock. The refresh model no longer has `ProtectedTicket`, `RefreshTokenId`, or `IssuedUtc`; no access-token JWT is retained.
 - `GET /api/Role` defaults to `offset=0&pageSize=100`, with page sizes limited to 1–1000. Update clients that previously expected every role in one response.
 - Invalid password forms return HTTP 400 with `invalid_request`. Unsupported grants, including `client_credentials`, return HTTP 400 with `unsupported_grant_type`.
-- The example has no two-factor exchange and does not persist refresh tokens. A multi-instance deployment needs a shared atomic refresh-token store.
+- Use `/auth/*` for the new JWT and MFA flow. The legacy `POST /api/token` endpoint does not perform the MFA challenge exchange. The example defaults to in-memory stores; use `AddSqlServerJwtStores(...)` or register shared atomic stores for a multi-instance issuer.
+- If you tried the pre-release `AddDistributedCacheStores()` builder, migrate to `AddDistributedCacheStores<TUser, TMfaCache>()` with an atomic MFA cache backend, or use the SQL Server stores. Existing authenticator keys remain valid, but in-flight challenges from the old cache may need to be restarted.
 
 ## 6. Validate before deployment
 

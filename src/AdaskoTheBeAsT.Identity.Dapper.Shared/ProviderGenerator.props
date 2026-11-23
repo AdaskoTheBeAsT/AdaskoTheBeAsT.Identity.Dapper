@@ -1,0 +1,37 @@
+<Project>
+  <PropertyGroup>
+    <!-- The generator runs in the compiler host, not the application's runtime. -->
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetGeneratorDependencyPaths</GetTargetPathDependsOn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.100" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.100" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.15" PrivateAssets="all" GeneratePathProperty="true" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
+  </ItemGroup>
+
+  <Target Name="GetGeneratorDependencyPaths">
+    <ItemGroup>
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGDapper)\lib\netstandard2.0\Dapper.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGDapper_SqlBuilder)\lib\netstandard2.0\Dapper.SqlBuilder.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGMicrosoft_Extensions_Identity_Stores)\lib\netstandard2.0\Microsoft.Extensions.Identity.Stores.dll" IncludeRuntimeDependency="false" />
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\LICENSE" Pack="true" PackagePath="" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(PKGDapper)\lib\netstandard2.0\Dapper.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(PKGDapper_SqlBuilder)\lib\netstandard2.0\Dapper.SqlBuilder.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(PKGMicrosoft_Extensions_Identity_Stores)\lib\netstandard2.0\Microsoft.Extensions.Identity.Stores.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+
+    <!-- Runtime assets come from the core package, which NuGet resolves per consumer TFM. -->
+    <None Include="$(MSBuildThisFileDirectory)_._" Pack="true" PackagePath="lib/netstandard2.0" Visible="false" />
+    <None Include="$(MSBuildProjectName).props" Pack="true" PackagePath="build;buildTransitive" />
+    <None Include="$(MSBuildProjectName).targets" Pack="true" PackagePath="build;buildTransitive" />
+  </ItemGroup>
+</Project>

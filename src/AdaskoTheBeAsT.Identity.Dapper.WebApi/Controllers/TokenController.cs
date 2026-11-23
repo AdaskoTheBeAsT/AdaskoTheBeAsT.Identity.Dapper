@@ -3,10 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Exceptions;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
+using AdaskoTheBeAsT.Identity.Dapper.WebApi.Mapping;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Models;
-using AutoMapper;
-using FluentValidation;
-using MediatR;
+using AdaskoTheBeAsT.Identity.Dapper.WebApi.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,25 +15,33 @@ namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Controllers;
 [ApiController]
 public class TokenController : ControllerBase
 {
-    private readonly IMapper _mapper;
-    private readonly IMediator _mediator;
+    private readonly IWebApiMapper _mapper;
+    private readonly IRequestValidator<AuthPasswordRequest> _passwordValidator;
+    private readonly IRequestHandler<AuthPasswordRequest, Token> _passwordHandler;
+    private readonly IRequestHandler<AuthRefreshTokenRequest, Token> _refreshHandler;
 
     public TokenController(
-        IMapper mapper,
-        IMediator mediator)
+        IWebApiMapper mapper,
+        IRequestValidator<AuthPasswordRequest> passwordValidator,
+        IRequestHandler<AuthPasswordRequest, Token> passwordHandler,
+        IRequestHandler<AuthRefreshTokenRequest, Token> refreshHandler)
     {
         _mapper = mapper;
-        _mediator = mediator;
+        _passwordValidator = passwordValidator;
+        _passwordHandler = passwordHandler;
+        _refreshHandler = refreshHandler;
     }
 
     [AllowAnonymous]
     [HttpPost]
-    public async Task<IActionResult> TokenAsync([FromForm] AuthenticationModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> TokenAsync(
+        [FromForm] AuthenticationModel model,
+        CancellationToken cancellationToken)
     {
         try
         {
-            var request = Map(model);
-            var result = await _mediator.Send(request, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            var result = await ExecuteGrantAsync(model, cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
             return Ok(result);
         }
         catch (UserNotFoundException)
@@ -53,7 +60,7 @@ public class TokenController : ControllerBase
         {
             return BadRequest(new { error = "unsupported_grant_type" });
         }
-        catch (ValidationException)
+        catch (RequestValidationException)
         {
             return BadRequest(new { error = "invalid_request" });
         }
@@ -67,11 +74,29 @@ public class TokenController : ControllerBase
         }
     }
 
-    private AuthRequestBase Map(AuthenticationModel model) =>
-        model?.GrantType switch
+    private Task<Token> ExecuteGrantAsync(
+        AuthenticationModel? model,
+        CancellationToken cancellationToken)
+    {
+        if (model == null)
         {
-            GrantType.Password => _mapper.Map<AuthPasswordRequest>(model),
-            GrantType.RefreshToken => _mapper.Map<AuthRefreshTokenRequest>(model),
+            throw new InvalidGrantTypeException();
+        }
+
+        return model.GrantType switch
+        {
+            GrantType.Password => ExecutePasswordGrantAsync(model, cancellationToken),
+            GrantType.RefreshToken => _refreshHandler.Handle(_mapper.MapToRefreshTokenRequest(model), cancellationToken),
             _ => throw new InvalidGrantTypeException(),
         };
+    }
+
+    private Task<Token> ExecutePasswordGrantAsync(
+        AuthenticationModel model,
+        CancellationToken cancellationToken)
+    {
+        var request = _mapper.MapToPasswordRequest(model);
+        _passwordValidator.ValidateAndThrow(request);
+        return _passwordHandler.Handle(request, cancellationToken);
+    }
 }

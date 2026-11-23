@@ -2,7 +2,7 @@
 using System;
 using System.Data;
 using System.Globalization;
-using Dapper.Oracle.TypeHandler;
+using AdaskoTheBeAsT.Dapper.Oracle.TypeHandler;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;
 

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net11.0;net10.0;netstandard2.0</TargetFrameworks>
     <NoWarn>$(NoWarn);CC0091</NoWarn>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -27,8 +27,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.89" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.13" />
+    <PackageReference Include="Dapper" Version="2.1.100" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="11.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0' Or '$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.15" />
   </ItemGroup>
 
   <ItemGroup>

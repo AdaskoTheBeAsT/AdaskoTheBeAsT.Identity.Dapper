@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <!-- Compiler visible properties -->
+    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+    <AdaskoTheBeAsTIdentityDapper_SkipNormalized>false</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
+  </PropertyGroup>
+</Project>

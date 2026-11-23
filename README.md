@@ -2,12 +2,14 @@
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/AdaskoTheBeAsT/AdaskoTheBeAsT.Identity.Dapper/blob/main/LICENSE)
 [![NuGet](https://img.shields.io/nuget/v/AdaskoTheBeAsT.Identity.Dapper.svg)](https://www.nuget.org/packages/AdaskoTheBeAsT.Identity.Dapper/)
-[![SDK](https://img.shields.io/badge/SDK-.NET%2010.0.401-512BD4.svg)](https://dotnet.microsoft.com/)
-[![Target](https://img.shields.io/badge/target-netstandard2.0-7f52ff.svg)](https://dotnet.microsoft.com/)
+[![SDK](https://img.shields.io/badge/SDK-.NET%2011.0.100-512BD4.svg)](https://dotnet.microsoft.com/)
+[![Target](https://img.shields.io/badge/target-netstandard2.0%20%7C%20net10.0%20%7C%20net11.0-7f52ff.svg)](https://dotnet.microsoft.com/)
 
-> Compile-time ASP.NET Core Identity stores for Dapper.
+> Compile-time ASP.NET Core Identity stores, Minimal API JWT authentication, multi-factor authentication (MFA), refresh rotation, and token revocation for Dapper.
 >
-> If you like ASP.NET Core Identity but do not want EF Core in the store layer, this repository gives you source-generated stores and SQL for SQL Server, PostgreSQL, MySQL, Oracle, and SQLite.
+> If you like ASP.NET Core Identity but do not want EF Core in the store layer, this repository gives you source-generated Dapper stores and SQL for SQL Server, PostgreSQL, MySQL, Oracle, and SQLite, plus optional ASP.NET Core JWT + MFA packages for single-service and distributed microservice APIs.
+
+**Start here:** [Use the Identity stores](#-quick-start) · [Add JWT and MFA](#jwt-authentication-mfa-and-authorization) · [Run Angular or React](#run-the-angular-or-react-sample) · [Browse developer guides](docs/README.md)
 
 ## ✨ Why developers like it
 
@@ -17,7 +19,8 @@
 - 🏗️ Supports custom Identity properties and custom column names
 - 🗄️ Covers SQL Server, PostgreSQL, MySQL, Oracle, and SQLite
 - 🎛️ Lets you skip normalized columns when you do not need them
-- 🧪 Backed by provider-specific unit and integration tests
+- 🔐 Reusable ASP.NET Core Minimal API JWT issuance, TOTP/Email/SMS/Recovery-Code MFA, session-family refresh rotation, and `jti`/`sid`/`sub` revocation (`net10.0` & `net11.0`)
+- 🧪 Backed by provider-specific unit, TestHost, and database integration tests
 
 ## 🗄️ Supported providers
 
@@ -25,13 +28,14 @@
 | --- | --- | --- | --- |
 | SQL Server | `AdaskoTheBeAsT.Identity.Dapper.SqlServer` | `dbo` | none |
 | PostgreSQL | `AdaskoTheBeAsT.Identity.Dapper.PostgreSql` | `public` | `PostgreSqlDapperConfig.ConfigureTypeHandlers();` |
-| MySQL | `AdaskoTheBeAsT.Identity.Dapper.MySql` | n/a | `MySqlDapperConfig.ConfigureTypeHandlers();` |
+| MySQL (`MySql.Data`) | `AdaskoTheBeAsT.Identity.Dapper.MySql` | n/a | `MySqlDapperConfig.ConfigureTypeHandlers();` |
+| MySQL (`MySqlConnector`) | `AdaskoTheBeAsT.Identity.Dapper.MySqlConnector` | n/a | `MySqlDapperConfig.ConfigureTypeHandlers();` |
 | Oracle | `AdaskoTheBeAsT.Identity.Dapper.Oracle` | empty by default | `OracleDapperConfig.ConfigureTypeHandlers();` |
 | SQLite | `AdaskoTheBeAsT.Identity.Dapper.Sqlite` | n/a | `SQLitePCL.Batteries.Init();` and `SqliteDapperConfig.ConfigureTypeHandlers();` |
 
 The shared runtime package is `AdaskoTheBeAsT.Identity.Dapper`; most applications install a provider package and let that pull in the core runtime.
 
-Consuming projects need C# 11 or later because generated SQL properties use raw string literals. The runtime library still targets `netstandard2.0`.
+Provider packages ship one `netstandard2.0` source generator for the compiler host (Roslyn 4.14 or later). Consuming projects need C# 11 or later because the generated code uses raw string literals. NuGet selects the application's runtime assets separately from the shared library's `netstandard2.0`, `net10.0`, and `net11.0` builds.
 
 ## ⚡ Quick start
 
@@ -40,7 +44,7 @@ Consuming projects need C# 11 or later because generated SQL properties use raw 
 The provider package pulls in the shared runtime, Dapper, and Identity stores.
 The database driver must be installed in the consuming project. These are the
 driver versions used by the tests; choose compatible versions for your app.
-The Oracle provider also brings in `Dapper.Oracle`.
+The Oracle provider also brings in `AdaskoTheBeAsT.Dapper.Oracle`.
 
 ```bash
 # SQL Server
@@ -51,9 +55,13 @@ dotnet add package Microsoft.Data.SqlClient --version 7.1.1
 dotnet add package AdaskoTheBeAsT.Identity.Dapper.PostgreSql
 dotnet add package Npgsql --version 10.0.3
 
-# MySQL
+# MySQL with MySql.Data
 dotnet add package AdaskoTheBeAsT.Identity.Dapper.MySql
-dotnet add package MySql.Data --version 26.7.0
+dotnet add package MySql.Data --version 26.10.0
+
+# MySQL with MySqlConnector (alternative)
+dotnet add package AdaskoTheBeAsT.Identity.Dapper.MySqlConnector
+dotnet add package MySqlConnector --version 2.6.1
 
 # Oracle
 dotnet add package AdaskoTheBeAsT.Identity.Dapper.Oracle
@@ -61,7 +69,7 @@ dotnet add package Oracle.ManagedDataAccess.Core --version 23.26.301
 
 # SQLite
 dotnet add package AdaskoTheBeAsT.Identity.Dapper.Sqlite
-dotnet add package Microsoft.Data.Sqlite.Core --version 10.0.12
+dotnet add package Microsoft.Data.Sqlite.Core --version 10.0.15 # For .NET 10; use 11.0.0 on .NET 11
 dotnet add package SQLitePCLRaw.bundle_e_sqlite3 --version 3.0.5
 ```
 
@@ -108,6 +116,8 @@ public sealed class ApplicationUserToken : IdentityUserToken<Guid>
 
 `[InsertOwnId]` is optional and useful when you want to keep external identity IDs unchanged.
 For MySQL-generated string or GUID IDs without `[InsertOwnId]`, enable `AllowUserVariables=true` in the connection string.
+
+Choose only one MySQL generator package per consumer project. Both use the same `db/MySql` schema scripts and the generated `AdaskoTheBeAsT.Identity.Dapper.MySql.MySqlDapperConfig`. With MySqlConnector, implement and register `IIdentityDbConnectionProvider<MySqlConnector.MySqlConnection>` instead of the `MySql.Data` connection provider.
 
 ### 3. Add optional MSBuild settings
 
@@ -208,8 +218,32 @@ User claim additions and removals use batches of at most 32 claims, reduced as n
 
 Null-aware materializers cache up to 64 schema plans per entity type and compile null setters once per plan. Changing a Dapper type map invalidates these plans. This bounds this library's plan cache, not Dapper's separate caches.
 
+## JWT authentication, MFA, and authorization
+
+Install `AdaskoTheBeAsT.Identity.Dapper.AspNetCore` (.NET 10 or .NET 11) to add a JWT issuer to any ASP.NET Core Identity store, or to validate tokens in a separate API without hosting Identity.
+
+| Feature | What you get | Guide |
+| --- | --- | --- |
+| JWT sign-in and sessions | Minimal API endpoints, rotating single-use refresh tokens, and logout for a token, session, or user | [JWT and sessions](docs/jwt-and-sessions.md) |
+| Multi-factor authentication | Authenticator TOTP, optional QR SVGs, email/SMS OTP, recovery codes, and one-time setup links | [MFA](docs/mfa.md) |
+| Step-up authorization | Require a validated token with MFA assurance for sensitive endpoints | [MFA policies](docs/mfa.md#require-mfa-for-a-sensitive-api-operation) |
+| Resource APIs | Validate issuer tokens using public keys and a shared revocation store | [Resource API setup](docs/jwt-and-sessions.md#validate-in-a-separate-resource-api) |
+| Claim catalogs | Keep frontend hints in tokens and add API permissions and data scopes on the server | [Claim catalogs](docs/claim-catalog.md) |
+| JWT persistence | Shared database state for SQL Server, PostgreSQL, SQLite, Oracle, and both MySQL drivers | [Packages, schemas, and registration](docs/jwt-persistence.md) |
+
+For payloads and error responses, see the [HTTP endpoint reference](docs/auth-api.md). For browser token storage, refresh races, and redirects, see [browser integration](docs/browser-integration.md).
+
+## Run the Angular or React sample
+
+The [sample walkthrough](samples/JwtSpa/README.md) starts a real ASP.NET Core issuer with generated Identity stores and in-memory SQLite. Try registration, password sign-in, QR-based authenticator setup, recovery-code sign-in, MFA-only endpoints, refresh rotation, and session revocation without Docker or a database server.
+
+- **[Angular](docs/angular-jwt-mfa-recipe.md):** standalone component, signals, and template-driven forms.
+- **[React](docs/react-jwt-mfa-recipe.md):** Vite, TypeScript, controlled forms, and `useSyncExternalStore`.
+
 ## 📚 Examples and useful docs
 
+- [Developer guides](docs/README.md): JWT, MFA, HTTP contracts, claims, provider configuration, and browser integration
+- [Angular and React samples](samples/JwtSpa/README.md): both run against the same local SQLite API
 - [`samples/Sample.SqlServer2`](https://github.com/AdaskoTheBeAsT/AdaskoTheBeAsT.Identity.Dapper/tree/main/samples/Sample.SqlServer2) — SQL Server sample that consumes the NuGet packages
 - [`samples/Sample.SqlServer`](https://github.com/AdaskoTheBeAsT/AdaskoTheBeAsT.Identity.Dapper/tree/main/samples/Sample.SqlServer) — SQL Server sample that references local projects
 - [`src/AdaskoTheBeAsT.Identity.Dapper.WebApi`](https://github.com/AdaskoTheBeAsT/AdaskoTheBeAsT.Identity.Dapper/tree/main/src/AdaskoTheBeAsT.Identity.Dapper.WebApi) — runnable Web API example
@@ -227,7 +261,9 @@ Version 5.0.0 is a breaking release. See the [migration guide](https://github.co
 - SQL Server database-generated IDs use the column's default, including `NEWSEQUENTIALID()` for GUID schemas. String-key tables need an ID default or `[InsertOwnId]` with an application-supplied ID.
 - `[InsertOwnId]` and mapped properties are inherited from application base classes. Unrelated competing Identity entity types produce a diagnostic rather than an arbitrary store.
 
-### Example API limitations
+### Example API notes and limitations
+
+`AdaskoTheBeAsT.Identity.Dapper.WebApi` uses built-in `Microsoft.Extensions.DependencyInjection` and `AdaskoTheBeAsT.Identity.Dapper.AspNetCore`. It mounts the JSON JWT and MFA endpoints at `/auth/*` and retains the legacy form-encoded `POST /api/token` endpoint (`grant_type=password` and `grant_type=refresh_token`).
 
 The Web API includes a fixed, publicly known demo signing key, so no key override is required to run the example in `Development`. The application rejects that key in every other environment, including `Production` and `Staging`: anyone with the source can forge tokens using it. Outside `Development`, override `TokenServiceOptions:SigningKey` using a secret manager, user secrets, or the `TokenServiceOptions__SigningKey` environment variable. Use a private, cryptographically random value, not a password, and never commit it. The application also rejects missing, whitespace-only, or shorter-than-32-byte UTF-8 values.
 
@@ -235,18 +271,18 @@ To optionally override the demo key with a temporary development key in PowerShe
 
 ```powershell
 $env:TokenServiceOptions__SigningKey = [Convert]::ToBase64String([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(48))
-dotnet run --project src/AdaskoTheBeAsT.Identity.Dapper.WebApi/AdaskoTheBeAsT.Identity.Dapper.WebApi.csproj
+dotnet run --project src/AdaskoTheBeAsT.Identity.Dapper.WebApi/AdaskoTheBeAsT.Identity.Dapper.WebApi.csproj -f net11.0
 ```
 
 Changing the signing key invalidates existing access tokens. Provision the first `Administrator` through a trusted administrative process; public registration cannot grant that role.
 
-The Web API is a single-process example, not an OAuth authorization server. Refresh tokens are single-use, bound to user ID and security stamp, and stored only in memory. `TokenServiceOptions:RefreshTokenCapacity` defaults to 10,000 outstanding tokens and must be positive. At capacity, issuance evicts the oldest outstanding token; that client must sign in again. Expired and consumed tokens release their slots, and service disposal clears the store. The store does not retain access-token JWTs. Restarting the process invalidates refresh tokens; multiple instances need a shared atomic token store. Already-issued access tokens remain valid until expiration.
+By default, the Web API sample uses the in-memory refresh, MFA challenge, and revocation stores (`TokenServiceOptions:RefreshTokenCapacity` defaults to 10,000 outstanding tokens and must be positive). Restarting the process clears in-memory sessions and revocations; multi-instance deployments should wire `.AddSqlServerJwtStores(...)` (or another shared atomic store) and asymmetric signing keys.
 
-`GET /api/Role` now returns a database page, not the entire directory. It defaults to `offset=0&pageSize=100`; page size must be 1–1000. Clients must request subsequent pages to enumerate all roles.
+`GET /api/Role` returns a database page, not the entire directory. It defaults to `offset=0&pageSize=100`; page size must be 1–1000. Clients must request subsequent pages to enumerate all roles.
 
-Password sign-in applies Identity's eligibility and lockout checks. Accounts with two-factor authentication enabled cannot use this example's password exchange because it has no second-factor flow. Public registration cannot assign roles; omitted roles in an update leave membership unchanged.
+Password sign-in applies Identity's eligibility and lockout checks. When two-factor authentication is enabled on an account, `/auth/login` returns `{ twoFactorRequired: true, mfaChallengeToken, defaultMethod, availableMethods }` and the legacy `POST /api/token` password grant returns HTTP 400 with `error = "mfa_required"` and `mfa_challenge_token` so clients can complete verification via `POST /auth/login/mfa`. Public registration cannot assign roles; omitted roles in an update leave membership unchanged.
 
-Token requests use form data. Invalid password fields return HTTP 400 with `invalid_request`; unsupported grants, including `client_credentials`, return HTTP 400 with `unsupported_grant_type`.
+Legacy `/api/token` requests use form data. Invalid password fields return HTTP 400 with `invalid_request`; unsupported grants, including `client_credentials`, return HTTP 400 with `unsupported_grant_type`.
 
 ### Tested configurations
 
@@ -256,9 +292,9 @@ Generator tests compile `string`, `int`, `long`, and GUID keys, both normalized-
 
 ### Prerequisites
 
-- .NET SDK `10.0.401` (pinned in `global.json`)
-- Docker Desktop / Docker Engine for integration tests
-- PowerShell for `clean.ps1`
+- .NET SDK `11.0.100` (pinned in `global.json`, plus `.NET 10` targeting pack / runtime when running `net10.0` multi-target checks)
+- Docker Desktop / Docker Engine (or Windows SQL Server LocalDB for SQL Server JWT store integration tests)
+- PowerShell 7+ for `clean.ps1` and `eng/package-smoke.ps1`
 - Visual Studio + SSDT if you need to edit SQL Server `.sqlproj` database projects
 
 ### String templates
@@ -288,16 +324,22 @@ Use AwesomeAssertions for test assertions. xUnit remains the test runner, Reqnro
 
 ```bash
 # restore everything
-dotnet restore AdaskoTheBeAsT.Identity.Dapper.sln
+dotnet restore AdaskoTheBeAsT.Identity.Dapper.slnx
 
-# recommended filtered build loop
+# build full solution (including SSDT .sqlproj dacpacs)
+dotnet build AdaskoTheBeAsT.Identity.Dapper.slnx
+
+# recommended filtered build loop (skips SSDT .sqlproj)
 dotnet build WithoutSqlDb.slnf
 
 # focused MySQL loop
 dotnet build MySQL.slnf
 
-# run the Web API sample
-dotnet run --project src/AdaskoTheBeAsT.Identity.Dapper.WebApi/AdaskoTheBeAsT.Identity.Dapper.WebApi.csproj
+# run the Web API sample (use -f net10.0 to run on .NET 10)
+dotnet run --project src/AdaskoTheBeAsT.Identity.Dapper.WebApi/AdaskoTheBeAsT.Identity.Dapper.WebApi.csproj -f net11.0
+
+# run the ASP.NET Core JWT + MFA unit & TestHost suite
+dotnet test --project test/unit/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Test/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Test.csproj
 
 # run a provider unit snapshot test project
 dotnet test --project test/unit/AdaskoTheBeAsT.Identity.Dapper.PostgreSql.Test/AdaskoTheBeAsT.Identity.Dapper.PostgreSql.Test.csproj
@@ -305,25 +347,39 @@ dotnet test --project test/unit/AdaskoTheBeAsT.Identity.Dapper.PostgreSql.Test/A
 # run a provider integration test project (Docker required)
 dotnet test --project test/integ/AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest/AdaskoTheBeAsT.Identity.Dapper.Sqlite.IntegrationTest.csproj
 
+# pack all NuGet packages and run clean external consumer smoke checks on both runtimes
+pwsh ./eng/package-smoke.ps1
+
 # clean bin/obj folders
 pwsh ./clean.ps1
+```
+
+The relational JWT test project runs SQLite and verifies all migration scripts by default. Set `IDENTITY_JWT_TEST_CONTAINERS=1` with a Linux Docker engine to also run PostgreSQL, Oracle, and both MySQL driver integration tests:
+
+```bash
+IDENTITY_JWT_TEST_CONTAINERS=1 dotnet test --project test/integ/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Relational.IntegrationTest/AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Relational.IntegrationTest.csproj
 ```
 
 ## 🧭 Repository map
 
 ```text
 src/
-  AdaskoTheBeAsT.Identity.Dapper/            shared runtime abstractions and base store types
-  AdaskoTheBeAsT.Identity.Dapper.SqlServer/  SQL Server source generator package
-  AdaskoTheBeAsT.Identity.Dapper.PostgreSql/ PostgreSQL source generator package
-  AdaskoTheBeAsT.Identity.Dapper.MySql/      MySQL source generator package
-  AdaskoTheBeAsT.Identity.Dapper.Oracle/     Oracle source generator package
-  AdaskoTheBeAsT.Identity.Dapper.Sqlite/     SQLite source generator package
-  AdaskoTheBeAsT.Identity.Dapper.WebApi/     runnable example app
+  AdaskoTheBeAsT.Identity.Dapper/                      shared runtime abstractions and base store types
+  AdaskoTheBeAsT.Identity.Dapper.SqlServer/            SQL Server source generator package
+  AdaskoTheBeAsT.Identity.Dapper.PostgreSql/           PostgreSQL source generator package
+  AdaskoTheBeAsT.Identity.Dapper.MySql/                MySQL generator for MySql.Data
+  AdaskoTheBeAsT.Identity.Dapper.MySqlConnector/       MySQL generator for MySqlConnector
+  AdaskoTheBeAsT.Identity.Dapper.Oracle/               Oracle source generator package
+  AdaskoTheBeAsT.Identity.Dapper.Sqlite/               SQLite source generator package
+  AdaskoTheBeAsT.Identity.Dapper.AspNetCore/           ASP.NET Core Minimal API JWT, MFA, refresh & revocation package
+  AdaskoTheBeAsT.Identity.Dapper.AspNetCore.SqlServer/ SQL Server Dapper stores for JWT refresh, MFA & revocation
+  AdaskoTheBeAsT.Identity.Dapper.WebApi/               runnable example app
 
-db/        schema scripts and SQL Server schema projects
-samples/   consumer samples and provider-specific notes
-test/      provider unit snapshot tests and integration tests
+db/        schema scripts and SQL Server schema projects (including db/SqlServer/IdentityJwt)
+eng/       packaging and external NuGet consumer smoke test scripts
+samples/   consumer samples, including the Angular and React JWT playground
+docs/      guides for JWT, MFA, persistence, claims, and browser integration
+test/      unit, TestHost, API, and database integration test suites
 ```
 
 ## 🤝 Contributing

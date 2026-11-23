@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net11.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);CC0091</NoWarn>
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryType>github</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <Description>SQL Server Dapper persistence stores for AdaskoTheBeAsT.Identity.Dapper.AspNetCore JWT refresh sessions, MFA challenges, and token revocations</Description>
+    <PackageVersion>5.0.0</PackageVersion>
+    <Authors>Adam "AdaskoTheBeAsT" Pluciński</Authors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/AdaskoTheBeAsT/AdaskoTheBeAsT.Identity.Dapper</PackageProjectUrl>
+    <Copyright>Adam "AdaskoTheBeAsT" Pluciński</Copyright>
+    <PackageTags>Identity;Dapper;SqlServer;AspNetCore;JWT;MFA;2FA</PackageTags>
+    <PackageReleaseNotes>
+      - Added SQL Server refresh-token, MFA challenge, and token revocation stores with batched expiry cleanup.
+    </PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.100" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="11.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AdaskoTheBeAsT.Identity.Dapper.AspNetCore\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

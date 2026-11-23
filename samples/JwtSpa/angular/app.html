@@ -1,0 +1,96 @@
+<main>
+  <header>
+    <p class="eyebrow">Identity Dapper · Angular</p>
+    <h1>JWT &amp; MFA playground</h1>
+    <p class="muted">Create a local account, enroll an authenticator, then call a protected API.</p>
+  </header>
+
+  @let state = view();
+  @let screen = state.screen;
+  @if (state.error) { <p class="error" role="alert">{{ state.error }}</p> }
+  @if (state.message) { <p class="notice" role="status">{{ state.message }}</p> }
+
+  @if (state.recoveryCodes.length) {
+    <section class="panel" aria-labelledby="recovery-title">
+      <h2 id="recovery-title">Save your recovery codes</h2>
+      <p>Each code works once. Save them in a password manager before dismissing.</p>
+      <ul>
+        @for (recovery of state.recoveryCodes; track recovery) { <li><code>{{ recovery }}</code></li> }
+      </ul>
+      <button type="button" (click)="auth.forgetRecoveryCodes()">I saved the codes</button>
+    </section>
+  }
+
+  @switch (screen.kind) {
+    @case ('login') {
+      <section class="panel">
+        <h2>{{ registering ? 'Create an account' : 'Sign in' }}</h2>
+        <form (ngSubmit)="submitCredentials()" ngNativeValidate>
+          <label>Email <input name="email" type="email" autocomplete="username" [(ngModel)]="email" required></label>
+          <label>Password <input name="password" type="password" [autocomplete]="registering ? 'new-password' : 'current-password'" [(ngModel)]="password" required></label>
+          <div class="actions">
+            <button class="primary" type="submit" [disabled]="state.busy">{{ registering ? 'Register' : 'Sign in' }}</button>
+            <button type="button" [disabled]="state.busy" (click)="registering = !registering">{{ registering ? 'Back to sign in' : 'Create account' }}</button>
+          </div>
+        </form>
+      </section>
+    }
+    @case ('challenge') {
+      @let selected = method || screen.method;
+      <section class="panel">
+        <h2>Verify your sign-in</h2>
+        <form (ngSubmit)="submitCode(selected)" ngNativeValidate>
+          <label>Method
+            <select name="method" [ngModel]="selected" (ngModelChange)="method = $event; code = ''" required>
+              @for (choice of screen.methods; track choice) {
+                <option [value]="choice">{{ choice }}</option>
+              }
+            </select>
+          </label>
+          <label>Verification code <input name="code" autocomplete="one-time-code" [(ngModel)]="code" required></label>
+          <div class="actions">
+            <button class="primary" type="submit" [disabled]="state.busy">Verify</button>
+            @if (isDeliveryMethod(selected)) {
+              <button type="button" [disabled]="state.busy" (click)="auth.resend(selected)">Resend code</button>
+            }
+            <button type="button" [disabled]="state.busy" (click)="code = ''; auth.cancel()">Back to sign in</button>
+          </div>
+        </form>
+      </section>
+    }
+    @case ('setup') {
+      <section class="panel">
+        <h2>Set up an authenticator</h2>
+        <p>Scan the QR code or enter the manual setup key in your authenticator. Then enter the six-digit code.</p>
+        @if (screen.qrImage) { <img class="qr" [src]="screen.qrImage" alt="Authenticator setup QR code"> }
+        <p>Manual setup key: <code data-testid="setup-key">{{ screen.sharedKey }}</code></p>
+        <form (ngSubmit)="submitCode()" ngNativeValidate>
+          <label>Authenticator code <input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" [(ngModel)]="code" required></label>
+          <div class="actions">
+            <button class="primary" type="submit" [disabled]="state.busy">Confirm authenticator</button>
+            <button type="button" [disabled]="state.busy" (click)="code = ''; auth.cancel()">Cancel setup</button>
+          </div>
+        </form>
+      </section>
+    }
+    @case ('session') {
+      <section class="panel">
+        <h2>Signed in</h2>
+        <p>Try both endpoints before and after signing in with MFA to see how step-up authorization works.</p>
+        @if (screen.status; as status) {
+          <p>MFA: {{ status.twoFactorEnabled ? 'enabled' : 'disabled' }}. Authenticator: {{ status.hasAuthenticator ? 'configured' : 'not configured' }}. Recovery codes left: {{ status.recoveryCodesLeft }}.</p>
+        }
+        <div class="actions">
+          <button type="button" class="primary" [disabled]="state.busy" (click)="auth.protectedRequest(false)">Call protected API</button>
+          <button type="button" [disabled]="state.busy" (click)="auth.protectedRequest(true)">Call MFA-only API</button>
+          <button type="button" [disabled]="state.busy" (click)="auth.refresh()">Rotate refresh token</button>
+          <button type="button" [disabled]="state.busy" (click)="auth.status()">Check MFA status</button>
+          <button type="button" [disabled]="state.busy" (click)="code = ''; auth.setup()">Set up authenticator</button>
+          <button type="button" [disabled]="state.busy" (click)="auth.signOut('Session')">Sign out</button>
+          <button type="button" [disabled]="state.busy" (click)="auth.signOut('AllSessions')">Sign out all sessions</button>
+        </div>
+      </section>
+    }
+  }
+  <p class="muted">Local demo only. Tokens stay in this tab; restarting the API clears all accounts.</p>
+</main>

@@ -1,11 +1,8 @@
 using System.Collections.Generic;
-using MediatR;
-using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
 
 public class CreateUserRequest
-    : IRequest<IdentityResult>
 {
     public CreateUserRequest()
     {
