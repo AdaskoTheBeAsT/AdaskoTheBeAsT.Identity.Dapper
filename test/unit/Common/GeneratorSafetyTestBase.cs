@@ -360,10 +360,8 @@ public abstract class GeneratorSafetyTestBase
     private static string WithIdentityMember(string entity, string member)
     {
         var model = Model("Guid", ownId: false);
-        return string.Equals(
-            entity,
-            "User",
-            StringComparison.Ordinal) ? model.Replace("public string? DisplayLabel { get; set; }", member, StringComparison.Ordinal)
+        return string.Equals(entity, "User", StringComparison.Ordinal)
+            ? model.Replace("public string? DisplayLabel { get; set; }", member, StringComparison.Ordinal)
             : model.Replace(
                 $"Application{entity} : Identity{entity}<Guid> {{ }}",
                 $$"""Application{{entity}} : Identity{{entity}}<Guid> { {{member}} }""",

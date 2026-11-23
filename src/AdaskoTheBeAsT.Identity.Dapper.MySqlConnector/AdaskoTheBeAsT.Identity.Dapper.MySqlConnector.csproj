@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);CC0091;RS1038</NoWarn>
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <RepositoryType>github</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <Description>Autogenerates ASP.NET Core Identity stores using Dapper and MySqlConnector</Description>
+    <PackageVersion>5.0.0</PackageVersion>
+    <Authors>Adam "AdaskoTheBeAsT" Pluciński</Authors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>false</IncludeSymbols>
+    <DebugType>embedded</DebugType>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/AdaskoTheBeAsT/AdaskoTheBeAsT.Identity.Dapper</PackageProjectUrl>
+    <Copyright>Adam "AdaskoTheBeAsT" Pluciński</Copyright>
+    <PackageTags>Identity;Dapper;MySQL;MySqlConnector</PackageTags>
+    <PackageReleaseNotes>First release of the MySqlConnector source generator.</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <Import Project="..\AdaskoTheBeAsT.Identity.Dapper.Shared\ProviderGenerator.props" />
+
+  <ItemGroup>
+    <!-- Both MySQL drivers use the same dialect, schema, and Dapper type handlers. -->
+    <Compile Include="..\AdaskoTheBeAsT.Identity.Dapper.MySql\MySql*.cs"
+             Exclude="..\AdaskoTheBeAsT.Identity.Dapper.MySql\MySqlIdentityStoreGeneratorBase.cs"
+             Link="MySql\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <Import Project="..\AdaskoTheBeAsT.Identity.Dapper.Shared\AdaskoTheBeAsT.Identity.Dapper.Shared.projitems" Label="Shared" />
+
+</Project>

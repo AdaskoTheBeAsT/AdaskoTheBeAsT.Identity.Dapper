@@ -5,8 +5,12 @@ using AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest.Identity;
 using AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest.TestCollections;
 using AwesomeAssertions;
 using Microsoft.AspNetCore.Identity;
-using MySql.Data.MySqlClient;
 using Xunit;
+#if MYSQL_CONNECTOR
+using global::MySqlConnector;
+#else
+using MySql.Data.MySqlClient;
+#endif
 
 namespace AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest;
 

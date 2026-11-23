@@ -1,0 +1,23 @@
+<Project>
+  <PropertyGroup>
+    <TargetFrameworks>net11.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <NoWarn>$(NoWarn);CC0091</NoWarn>
+    <PackageVersion>5.0.0</PackageVersion>
+    <Authors>Adam "AdaskoTheBeAsT" Pluciński</Authors>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/AdaskoTheBeAsT/AdaskoTheBeAsT.Identity.Dapper</PackageProjectUrl>
+    <RepositoryType>github</RepositoryType>
+    <PackageTags>Identity;AspNetCore;JWT;MFA</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)*.cs" Link="Relational\%(Filename)%(Extension)" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\AdaskoTheBeAsT.Identity.Dapper.AspNetCore\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.csproj" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\README.md" Pack="true" PackagePath="" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\db\$(JwtSchemaDialect)\IdentityJwt.sql" Pack="true" PackagePath="sql/" />
+  </ItemGroup>
+</Project>

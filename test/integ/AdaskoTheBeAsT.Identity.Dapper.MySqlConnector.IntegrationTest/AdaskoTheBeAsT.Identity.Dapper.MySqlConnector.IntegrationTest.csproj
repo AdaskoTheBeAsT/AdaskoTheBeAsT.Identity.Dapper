@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net11.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <DefineConstants>$(DefineConstants);MYSQL_CONNECTOR</DefineConstants>
+    <AdaskoTheBeAsTIdentityDapper_SkipNormalized>true</AdaskoTheBeAsTIdentityDapper_SkipNormalized>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.100" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.1.100" />
+    <PackageReference Include="dbup-mysql" Version="6.1.0" />
+    <PackageReference Include="MySqlConnector" Version="2.6.1" />
+    <PackageReference Include="Testcontainers.MySql" Version="4.17.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.15" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="11.0.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CompilerVisibleProperty Include="AdaskoTheBeAsTIdentityDapper_SkipNormalized" />
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper.MySqlConnector\AdaskoTheBeAsT.Identity.Dapper.MySqlConnector.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+    <ProjectReference Include="..\..\..\src\AdaskoTheBeAsT.Identity.Dapper\AdaskoTheBeAsT.Identity.Dapper.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest\ConfigurationMatrixTest.cs" Link="ConfigurationMatrixTest.cs" />
+    <Compile Include="..\AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest\StoreContractTest.cs" Link="StoreContractTest.cs" />
+    <Compile Include="..\AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest\Identity\*.cs" Link="Identity\%(Filename)%(Extension)" />
+    <Compile Include="..\AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest\TestCollections\DatabaseWithGuidIdFixture.cs" Link="TestCollections\DatabaseWithGuidIdFixture.cs" />
+    <Compile Include="..\AdaskoTheBeAsT.Identity.Dapper.MySql.IntegrationTest\Util\TestOutputHelperAdapter.cs" Link="Util\TestOutputHelperAdapter.cs" />
+    <None Include="..\..\..\db\MySql\WithoutNormalizedAspNetIdentityGuid.sql"
+          Link="Scripts\WithoutNormalizedAspNetIdentityGuid.sql"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

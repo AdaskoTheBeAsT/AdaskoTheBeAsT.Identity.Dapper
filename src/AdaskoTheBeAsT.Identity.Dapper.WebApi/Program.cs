@@ -1,18 +1,19 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
-using AdaskoTheBeAsT.AutoMapper.SimpleInjector;
-using AdaskoTheBeAsT.FluentValidation.MediatR;
-using AdaskoTheBeAsT.FluentValidation.SimpleInjector;
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
+using AdaskoTheBeAsT.Identity.Dapper.AspNetCore.DependencyInjection;
+using AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Endpoints;
+using AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Options;
+using AdaskoTheBeAsT.Identity.Dapper.AspNetCore.SqlServer.DependencyInjection;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity;
+using AdaskoTheBeAsT.Identity.Dapper.WebApi.Mapping;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Models;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Persistence;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Services;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Validators;
-using AdaskoTheBeAsT.MediatR.SimpleInjector.AspNetCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -20,14 +21,13 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
-using SimpleInjector;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddSingleton<IIdentityDbConnectionProvider<SqlConnection>>(_ => new IdentityDbConnectionProvider(connectionString));
+builder.Services.AddSingleton<IIdentityDbConnectionProvider<SqlConnection>>(
+    _ => new IdentityDbConnectionProvider(connectionString));
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
     .AddRoleStore<ApplicationRoleStore>()
@@ -47,29 +47,59 @@ var signingKeyBytes = Encoding.UTF8.GetBytes(tokenServiceOptions.SigningKey);
 if (!builder.Environment.IsDevelopment() &&
     string.Equals(
         Convert.ToHexString(SHA256.HashData(signingKeyBytes)),
-        "CC421157721F40E6C9B336A0D5877525433DB0CE0C77EDDE050F4CD4A1B84E82",
+        IdentityJwtOptions.KnownDemoSigningKeySha256Hex,
         StringComparison.Ordinal))
 {
     throw new InvalidOperationException(
         "The public demo signing key is only allowed in Development. Configure a private TokenServiceOptions:SigningKey.");
 }
 
-builder.Services.AddAuthentication(options =>
+var derivedTokenHashKey = Convert.ToBase64String(
+    HKDF.DeriveKey(
+        HashAlgorithmName.SHA256,
+        signingKeyBytes,
+        outputLength: 32,
+        info: "IdentityJwt.TokenHashKey.v1"u8.ToArray()));
+
+var jwtBuilder = builder.Services.AddIdentityJwtApi<ApplicationUser>(options =>
+{
+    builder.Configuration.GetSection("IdentityJwt").Bind(options);
+    if (string.IsNullOrWhiteSpace(options.Issuer) ||
+        string.Equals(options.Issuer, "IdentityIssuer", StringComparison.Ordinal))
     {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
+        options.Issuer = "IdentityWebApi";
+    }
+
+    if (options.Audiences.Count == 0)
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes),
-        ValidateIssuer = true,
-        ValidIssuer = "IdentityWebApi",
-        ValidateAudience = true,
-        ValidAudience = "IdentityWebApi",
-        ValidateLifetime = true,
-    });
+        options.Audiences.Add("IdentityWebApi");
+    }
+
+    if (options.SigningKeys.Count == 0)
+    {
+        options.SigningKeys.Add(
+            new JwtSigningKeyDescriptor
+            {
+                Kid = "default",
+                Algorithm = JwtKeyAlgorithm.HS256,
+                SymmetricKey = tokenServiceOptions.SigningKey,
+                IsActiveSigningKey = true,
+            });
+    }
+
+    if (string.IsNullOrWhiteSpace(options.TokenHashKey))
+    {
+        options.TokenHashKey = derivedTokenHashKey;
+    }
+
+    options.InMemoryRefreshTokenCapacity = tokenServiceOptions.RefreshTokenCapacity;
+});
+
+if (builder.Configuration.GetValue<bool>("IdentityJwt:UseSqlServerStores") &&
+    !string.IsNullOrWhiteSpace(connectionString))
+{
+    jwtBuilder.AddSqlServerJwtStores(sql => sql.ConnectionString = connectionString);
+}
 
 builder.Services.AddMemoryCache();
 builder.Services.AddAntiforgery(options =>
@@ -78,51 +108,30 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.SecurePolicy = CookieSecurePolicy.None;
 });
 
-// Add services to the container.
 builder.Services.AddControllers();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-await using var container = new Container();
-builder.Services.AddSimpleInjector(
-    container,
-    options =>
-    {
-        options.AddAspNetCore()
-            .AddControllerActivation();
-        options.AddLogging();
-    });
+builder.Services.AddScoped<IUserRoleClaimStore<ApplicationUser>, ApplicationUserStore>();
+builder.Services.AddScoped<IPagedRoleStore<ApplicationRole>, ApplicationRoleStore>();
+builder.Services.AddSingleton(tokenServiceOptions);
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<ITokenService, TokenService>();
+builder.Services.AddSingleton<ITransactionScopeProvider, TransactionScopeProvider>();
+builder.Services.AddSingleton<IWebApiMapper, WebApiMapper>();
+builder.Services.AddSingleton<IRequestValidator<AuthPasswordRequest>, AuthPasswordRequestValidator>();
 
-container.AddAutoMapper(
-    options => options.WithMapperAssemblyMarkerTypes(typeof(AuthenticationModel)));
-
-container.AddFluentValidation(
-    config =>
-        config.WithAssemblyMarkerTypes(typeof(AuthPasswordRequestValidator)));
-
-container.AddMediatRAspNetCore(
-    config =>
-    {
-        config.WithHandlerAssemblyMarkerTypes(typeof(AuthPasswordRequestHandler));
-        config.UsingPipelineProcessorBehaviors(typeof(FluentValidationPipelineBehavior<,>));
-        config.UsingStreamPipelineBehaviors(typeof(FluentValidationStreamPipelineBehavior<,>));
-    });
-
-container.Register<IUserRoleClaimStore<ApplicationUser>, ApplicationUserStore>(Lifestyle.Scoped);
-container.Register<IPagedRoleStore<ApplicationRole>, ApplicationRoleStore>(Lifestyle.Scoped);
-container.RegisterInstance(tokenServiceOptions);
-container.RegisterInstance<TimeProvider>(TimeProvider.System);
-
-container.Register<ITokenService, TokenService>(Lifestyle.Singleton);
-container.Register<ITransactionScopeProvider, TransactionScopeProvider>(Lifestyle.Singleton);
+builder.Services.AddScoped<IRequestHandler<AuthPasswordRequest, Token>, AuthPasswordRequestHandler>();
+builder.Services.AddScoped<IRequestHandler<AuthRefreshTokenRequest, Token>, AuthRefreshTokenRequestHandler>();
+builder.Services.AddScoped<IRequestHandler<CreateUserRequest, IdentityResult>, CreateUserRequestHandler>();
+builder.Services.AddScoped<IRequestHandler<GetUserByIdRequest, UserModel?>, GetUserByIdRequestHandler>();
+builder.Services.AddScoped<IRequestHandler<UpdateUserRequest, IdentityResult>, UpdateUserRequestHandler>();
+builder.Services.AddScoped<IRequestHandler<DeleteUserRequest, IdentityResult>, DeleteUserRequestHandler>();
+builder.Services.AddScoped<IRequestHandler<CreateRoleRequest, IdentityResult>, CreateRoleRequestHandler>();
+builder.Services.AddScoped<IRequestHandler<GetAllRolesRequest, IEnumerable<RoleModel>>, GetAllRolesRequestHandler>();
 
 var app = builder.Build();
 
-app.Services.UseSimpleInjector(container);
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -134,10 +143,9 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapGroup("/auth")
+    .MapIdentityJwtApi<ApplicationUser>();
+
 app.MapControllers();
-
-container.Verify();
-
-container.GetInstance<AutoMapper.IConfigurationProvider>().AssertConfigurationIsValid();
 
 await app.RunAsync().ConfigureAwait(continueOnCapturedContext: false);

@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "cli": {
+    "analytics": false
+  },
+  "projects": {
+    "jwt-angular": {
+      "projectType": "application",
+      "root": "angular",
+      "sourceRoot": "angular",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "angular/main.ts",
+            "index": "angular/index.html",
+            "tsConfig": "angular/tsconfig.json",
+            "outputPath": "dist/angular",
+            "styles": [
+              "shared/styles.css"
+            ]
+          }
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "buildTarget": "jwt-angular:build",
+            "port": 4200,
+            "host": "127.0.0.1",
+            "proxyConfig": "angular/proxy.json"
+          }
+        }
+      }
+    }
+  }
+}

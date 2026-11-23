@@ -72,7 +72,8 @@ internal sealed class MappedIdentitySql
         }
 
         var output = hasId && _config.Provider == DatabaseProvider.SqlServer
-            ? $"OUTPUT inserted.{C("Id")}\r\n" : string.Empty;
+            ? $"OUTPUT inserted.{C("Id")}\r\n"
+            : string.Empty;
         var insert = $$"""
             INSERT INTO {{Table()}}(
                 {{string.Join(AssignmentSeparator, columns)}})
@@ -236,7 +237,8 @@ internal sealed class MappedIdentitySql
     private string Q(string name) => _quoteColumn(name);
 
     private string Alias(string name) => _config.Provider == DatabaseProvider.PostgreSql
-        ? "\"" + name.Replace("\"", "\"\"") + "\"" : Q(name);
+        ? "\"" + name.Replace("\"", "\"\"") + "\""
+        : Q(name);
 
     private string C(string property, string? entity = null, string? alias = null) =>
         (alias == null ? string.Empty : alias + ".") + Q(_config.Column(entity ?? _entity, property));

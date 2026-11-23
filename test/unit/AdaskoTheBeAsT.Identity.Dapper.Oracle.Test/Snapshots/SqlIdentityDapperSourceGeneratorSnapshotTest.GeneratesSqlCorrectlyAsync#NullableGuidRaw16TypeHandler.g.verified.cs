@@ -1,6 +1,6 @@
 ﻿//HintName: NullableGuidRaw16TypeHandler.g.cs
 using System;
-using Dapper.Oracle.TypeHandler;
+using AdaskoTheBeAsT.Dapper.Oracle.TypeHandler;
 using System.Data;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.Oracle;

@@ -1,58 +1,58 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
+using AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Models;
+using AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Services;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Exceptions;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Models;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Services;
-using MediatR;
-using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
 
 public class AuthPasswordRequestHandler
     : IRequestHandler<AuthPasswordRequest, Token>
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IUserRoleClaimStore<ApplicationUser> _userRoleClaimStore;
-    private readonly ITokenService _tokenService;
-    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IIdentityJwtAuthenticationService<ApplicationUser> _authenticationService;
 
     public AuthPasswordRequestHandler(
-        UserManager<ApplicationUser> userManager,
-        IUserRoleClaimStore<ApplicationUser> userRoleClaimStore,
-        ITokenService tokenService,
-        SignInManager<ApplicationUser> signInManager)
+        IIdentityJwtAuthenticationService<ApplicationUser> authenticationService)
     {
-        _userManager = userManager;
-        _userRoleClaimStore = userRoleClaimStore;
-        _tokenService = tokenService;
-        _signInManager = signInManager;
+        ArgumentNullException.ThrowIfNull(authenticationService);
+        _authenticationService = authenticationService;
     }
 
     public async Task<Token> Handle(
         AuthPasswordRequest request,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         cancellationToken.ThrowIfCancellationRequested();
-        var user = await _userManager.FindByNameAsync(request.Username ?? string.Empty).ConfigureAwait(continueOnCapturedContext: false);
-        if (user == null)
-        {
-            throw new InvalidPasswordException();
-        }
 
-        var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password ?? string.Empty, lockoutOnFailure: true)
+        var result = await _authenticationService
+            .LoginAsync(
+                new JwtLoginRequest
+                {
+                    UserName = request.Username ?? string.Empty,
+                    Password = request.Password ?? string.Empty,
+                },
+                cancellationToken)
             .ConfigureAwait(continueOnCapturedContext: false);
 
-        // This example has no second-factor exchange endpoint; never bypass one.
+        if (result.Status == JwtOperationStatus.InvalidRequest)
+        {
+            throw new RequestValidationException(result.ErrorDescription);
+        }
+
+        // The legacy /api/token form endpoint has no second-factor step; never bypass MFA.
         if (!result.Succeeded ||
-            (_userManager.SupportsUserTwoFactor && await _userManager.GetTwoFactorEnabledAsync(user).ConfigureAwait(continueOnCapturedContext: false)))
+            result.Value == null ||
+            result.Value.TwoFactorRequired ||
+            string.IsNullOrWhiteSpace(result.Value.AccessToken))
         {
             throw new InvalidPasswordException();
         }
 
-        var roles = await _userManager.GetRolesAsync(user).ConfigureAwait(continueOnCapturedContext: false);
-        var claims = await _userRoleClaimStore.GetUserAndRoleClaimsAsync(user, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-        return _tokenService.GenerateToken(user, roles, claims);
+        return LegacyTokenMapper.Map(result.Value);
     }
 }

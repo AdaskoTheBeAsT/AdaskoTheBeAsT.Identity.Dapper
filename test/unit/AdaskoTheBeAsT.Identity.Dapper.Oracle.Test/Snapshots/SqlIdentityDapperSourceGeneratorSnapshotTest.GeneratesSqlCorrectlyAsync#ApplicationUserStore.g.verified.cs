@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using AdaskoTheBeAsT.Identity.Dapper;
 using AdaskoTheBeAsT.Identity.Dapper.Abstractions;
 using Dapper;
-using Dapper.Oracle;
+using AdaskoTheBeAsT.Dapper.Oracle;
 using Microsoft.AspNetCore.Identity;
 using Oracle.ManagedDataAccess.Client;
 

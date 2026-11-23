@@ -1,9 +1,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Identity;
+using AdaskoTheBeAsT.Identity.Dapper.WebApi.Mapping;
 using AdaskoTheBeAsT.Identity.Dapper.WebApi.Models;
-using AutoMapper;
-using MediatR;
 using Microsoft.AspNetCore.Identity;
 
 namespace AdaskoTheBeAsT.Identity.Dapper.WebApi.Handlers;
@@ -12,15 +11,19 @@ public class GetUserByIdRequestHandler
     : IRequestHandler<GetUserByIdRequest, UserModel?>
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IMapper _mapper;
+    private readonly IWebApiMapper _mapper;
 
-    public GetUserByIdRequestHandler(UserManager<ApplicationUser> userManager, IMapper mapper)
+    public GetUserByIdRequestHandler(
+        UserManager<ApplicationUser> userManager,
+        IWebApiMapper mapper)
     {
         _userManager = userManager;
         _mapper = mapper;
     }
 
-    public async Task<UserModel?> Handle(GetUserByIdRequest request, CancellationToken cancellationToken)
+    public async Task<UserModel?> Handle(
+        GetUserByIdRequest request,
+        CancellationToken cancellationToken)
     {
         if (!request.UserId.HasValue)
         {
@@ -34,8 +37,6 @@ public class GetUserByIdRequestHandler
         }
 
         var roles = await _userManager.GetRolesAsync(user).ConfigureAwait(continueOnCapturedContext: false);
-        var userModel = _mapper.Map<UserModel>(user);
-        userModel.Roles = roles;
-        return userModel;
+        return _mapper.MapToUserModel(user, roles);
     }
 }

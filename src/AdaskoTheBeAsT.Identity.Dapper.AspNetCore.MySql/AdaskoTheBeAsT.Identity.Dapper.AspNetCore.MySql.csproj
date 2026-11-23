@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <JwtSchemaDialect>MySql</JwtSchemaDialect>
+    <Description>MySql persistence stores for ASP.NET Core Identity JWT refresh sessions, MFA, revocation, and claims.</Description>
+  </PropertyGroup>
+  <Import Project="..\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Relational\RelationalProvider.props" />
+  <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="26.10.0" />
+  </ItemGroup>
+</Project>

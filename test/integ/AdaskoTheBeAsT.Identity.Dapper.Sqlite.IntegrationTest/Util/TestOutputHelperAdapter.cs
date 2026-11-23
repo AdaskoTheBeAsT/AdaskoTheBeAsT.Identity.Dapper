@@ -11,7 +11,11 @@ public class TestOutputHelperAdapter
 
     public ITestOutputHelper? RealOutputHelper
     {
-        get => _realOutputHelper;
+        get
+        {
+            return _realOutputHelper;
+        }
+
         set
         {
             _realOutputHelper = value;

@@ -3,20 +3,22 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main, master ]
+    branches: [main]
     tags:
       - "v*"
   workflow_dispatch:
 
 permissions:
-  checks: write
   contents: read
-  issues: write
-  pull-requests: write
 
 jobs:
   build:
-    uses: AdaskoTheBeAsT/github-actions/.github/workflows/dotnet-build-sonarqube-nuget.yml@v1
+    permissions:
+      checks: write
+      contents: read
+      issues: write
+      pull-requests: write
+    uses: AdaskoTheBeAsT/github-actions/.github/workflows/dotnet-build-sonarqube-nuget.yml@v2
     with:
       dotnet_versions: ${{ vars.DOTNET_VERSIONS }}
       runs_on: ${{ vars.RUNS_ON }}
@@ -27,9 +29,44 @@ jobs:
       tool_version_reportgenerator: ${{ vars.TOOL_VERSION_REPORTGENERATOR }}
       tool_version_resharper: ${{ vars.TOOL_VERSION_RESHARPER }}
       tool_version_sonar_scanner: ${{ vars.TOOL_VERSION_SONAR_SCANNER }}
-      use_global_json: ${{ vars.USE_GLOBAL_JSON == 'true' }}
+      use_global_json: true
+      test_frameworks: net10.0,net11.0
     secrets:
       sonar_token: ${{ secrets.SONAR_TOKEN }}
-      nuget_api_key: ${{ secrets.NUGET_API_KEY }}
-      test_env_secrets: |
-        AUTOMAPPER_LICENSE_KEY=${{ secrets.AUTOMAPPER_LICENSE_KEY }}
+
+  publish:
+    needs: build
+    if: needs.build.outputs.is_lightweight_tag == 'true'
+    runs-on: ${{ vars.RUNS_ON || 'ubuntu-latest' }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Publish NuGet packages
+        uses: AdaskoTheBeAsT/github-actions/.github/actions/dotnet/publish-nuget-packages@v2
+        with:
+          artifact_name: ${{ needs.build.outputs.nuget_artifact_name }}
+          nuget_user: ${{ secrets.NUGET_USER }}
+
+  package-smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        with:
+          global-json-file: global.json
+          dotnet-version: "11.0.x"
+      - name: Test packed NuGet consumers on .NET 10 and .NET 11
+        shell: pwsh
+        run: ./eng/package-smoke.ps1
+      - name: Test JWT persistence against all five database drivers
+        shell: bash
+        env:
+          IDENTITY_JWT_TEST_CONTAINERS: "1"
+        run: |
+          name=AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Relational.IntegrationTest
+          dotnet test --project "test/integ/$name/$name.csproj" -c Release

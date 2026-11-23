@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <JwtSchemaDialect>SQLite</JwtSchemaDialect>
+    <Description>Sqlite persistence stores for ASP.NET Core Identity JWT refresh sessions, MFA, revocation, and claims.</Description>
+  </PropertyGroup>
+  <Import Project="..\AdaskoTheBeAsT.Identity.Dapper.AspNetCore.Relational\RelationalProvider.props" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.15" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="11.0.0" />
+  </ItemGroup>
+</Project>

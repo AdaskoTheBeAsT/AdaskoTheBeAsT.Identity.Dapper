@@ -1,5 +1,9 @@
 <Project>
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  <PropertyGroup>
+    <Verify_SponsorshipExemption>OpenSource</Verify_SponsorshipExemption>
+    <Verify_SponsorshipExemptionUntil>2027-10</Verify_SponsorshipExemptionUntil>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Common\*.cs" Link="Common\%(Filename)%(Extension)" />
     <Compile Include="$(MSBuildThisFileDirectory)..\..\src\AdaskoTheBeAsT.Identity.Dapper.Shared\RawStringLiteral.cs" Link="Common\RawStringLiteral.cs" />
@@ -7,6 +11,12 @@
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
     <PackageReference Include="Npgsql" Version="10.0.2" />
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.200" />
-    <PackageReference Include="Dapper.Oracle" Version="2.0.3" />
   </ItemGroup>
+
+  <Target Name="RemoveTransitiveAnalyzerStoreReferenceFromCompilation" AfterTargets="ResolveProjectReferences">
+    <ItemGroup>
+      <_ResolvedProjectReferencePaths Remove="@(_ResolvedProjectReferencePaths)"
+                                      Condition="'%(Filename)' == 'Microsoft.Extensions.Identity.Stores'" />
+    </ItemGroup>
+  </Target>
 </Project>

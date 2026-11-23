@@ -46,4 +46,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)PropertyColumnTypeTriple.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SourceGeneratorHelperBase.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)ProviderGenerator.props" />
+  </ItemGroup>
 </Project>
